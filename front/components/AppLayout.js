@@ -1,9 +1,10 @@
 import React from 'react';
 import { Menu } from 'antd';
-import Sidebar from './Sidebar';
+import Nav from './nav';
 import PropTypes from 'prop-types';
 import Link from 'antd/lib/typography/Link';
 import styled from 'styled-components';
+import PostCard from './PostCard';
 
 const AppLayoutWrapper = styled.div`
   display: flex;
@@ -24,8 +25,8 @@ const MainContentWrapper = styled.div`
   }
 `;
 
-const SidebarWrapper = styled.div`
-  width: 240px;
+const NavWrapper = styled.div`
+  width: 270px;
   flex-shrink: 0;
   @media (max-width: 768px) {
     width: 100%; /* 모바일에서는 사이드바가 가로로 차지하지 않음 */
@@ -33,7 +34,7 @@ const SidebarWrapper = styled.div`
   }
 `;
 
-const RightSidebarWrapper = styled.div`
+const RightNavWrapper = styled.div`
   width: 240px;
   flex-shrink: 0;
   display: block;
@@ -42,27 +43,32 @@ const RightSidebarWrapper = styled.div`
   }
 `;
 
-const AppLayout = ({ children }) => {
-  const items = [
-    { label: <Link to="/">LOGO</Link>, key: '/' }
-  ];
-
+const AppLayout = ({ children, items }) => {
   return (
     <AppLayoutWrapper>
       <MenuWrapper mode="horizontal" items={items} />
-      <MainContentWrapper>
-        <SidebarWrapper> <Sidebar /> </SidebarWrapper>
+      <MainContentWrapper style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
+        {/* 왼쪽 메뉴 (Nav 포함) */}
+        <div style={{ flex: 0.6,  borderRight: '1px solid #ccc' }}>
+          <NavWrapper> <Nav /> </NavWrapper>
+        </div>
 
-        <div style={{ flex: 1, padding: '16px' }}>{children}</div>
+        {/* 가운데 내용 */}
+        <div style={{ flex: 3, padding: '5px' }}>
+          <div style={{ flex: 2, padding: '5px' }}>
+            {children}
+          </div>
+        </div>
 
-        <RightSidebarWrapper>오른쪽 메뉴</RightSidebarWrapper>
+        {/* 오른쪽 메뉴 */}
+        <div style={{ flex: 0.7, padding: '5px', borderLeft: '1px solid #ccc' }}>오른쪽 메뉴</div>
       </MainContentWrapper>
     </AppLayoutWrapper>
   );
 };
 
 AppLayout.propTypes = {
-  children: PropTypes.node.isRequired,
+  items: PropTypes.array.isRequired,
 };
 
 export default AppLayout;

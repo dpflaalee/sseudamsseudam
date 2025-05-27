@@ -11,7 +11,7 @@ module.exports = ( sequelize , DataTypes ) => {
   Post.associate = (db) => {
     db.Post.hasMany(db.Image);
     db.Post.hasMany(db.Comment);
-    db.Post.hasOne(db.OpenScope);
+    db.Post.belongsTo(db.OpenScope);
     db.Post.belongsTo(db.User);
     db.Post.belongsTo(db.Group);
     db.Post.belongsTo(db.Post, {as: 'Retweet'});
