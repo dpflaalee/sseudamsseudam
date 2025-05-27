@@ -1,6 +1,6 @@
 import React from 'react';
 import { Menu } from 'antd';
-import Sidebar from './Sidebar';
+import Nav from './nav';
 import PropTypes from 'prop-types';
 import Link from 'antd/lib/typography/Link';
 import styled from 'styled-components';
@@ -24,7 +24,7 @@ const MainContentWrapper = styled.div`
   }
 `;
 
-const SidebarWrapper = styled.div`
+const NavWrapper = styled.div`
   width: 240px;
   flex-shrink: 0;
   @media (max-width: 768px) {
@@ -51,7 +51,7 @@ const AppLayout = ({ children }) => {
     <AppLayoutWrapper>
       <MenuWrapper mode="horizontal" items={items} />
       <MainContentWrapper>
-        <SidebarWrapper> <Sidebar /> </SidebarWrapper>
+        <NavWrapper> <Nav /> </NavWrapper>
 
         <div style={{ flex: 1, padding: '16px' }}>{children}</div>
 
