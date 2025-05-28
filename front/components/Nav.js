@@ -4,7 +4,7 @@ import { Avatar, Dropdown, Menu } from "antd";
 
 const { SubMenu } = Menu;
 
-function getItem(label, key, icon, children) { return { key, icon, children, label }; } 
+function getItem(label, key, icon, children) { return { key, icon, children, label }; }
 
 const Nav = () => {
   const [isMobile, setIsMobile] = useState(false);
