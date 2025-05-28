@@ -11,10 +11,9 @@ const dotenv = require('dotenv'); //환경변수 로그
 const morgan =require('morgan'); //요청상태 모니터
 
 const basicRouter = require('./routes/basic');
-const testRouter = require('./routes/test');
-const user = require('./routes/user');
+// const user = require('./routes/user');
 const post = require('./routes/post');
-const posts = require('./routes/posts');
+// const posts = require('./routes/posts');
 
 //환경설정
 dotenv.config();
@@ -51,9 +50,8 @@ app.use(passport.session()); //사용자 인증상태 저장
 //////////// Router
 app.get('/' , (req, res) => { res.send('hello express'); });
 app.use('/api' , basicRouter);
-app.use('/test' , testRouter);
-app.use('/user' , user);
+// app.use('/user' , user);
 app.use('/post' , post);
-app.use('/posts' , posts);
+// app.use('/posts' , posts);
 
 app.listen(3065, ()=> {console.log('server...');} );

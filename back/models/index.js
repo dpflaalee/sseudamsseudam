@@ -4,18 +4,19 @@ const env = process.env.NODE_ENV || 'development';
 const config = require('../config/config')[env];
 const db = {} ;  // 객체 생성하여 객체저장공간 만들기
 
-const sequelize = new Sequelize(config.database , config.usrename, config.password, config);
+const sequelize = new Sequelize(config.database , config.username, config.password, config);
 //db, username, password, cinfig 설정정보 이용하여 인스턴스 생성
 
 //#모델정의
-db.User = require('./user_2')(sequelize , Sequelize);
-db.Post = require('./post_2')(sequelize , Sequelize); 
-db.Image = require('./image_2')(sequelize , Sequelize); 
-db.Hashtag = require('./hashtag_2')(sequelize , Sequelize); 
-db.Comment = require('./comment_2')(sequelize , Sequelize);
-db.OpenScope = require('./openscope_2')(sequelize , Sequelize);
-db.Place = require('./place_2')(sequelize , Sequelize);
-db.Group = require('./group_2')(sequelize , Sequelize);
+db.User = require('./user')(sequelize , Sequelize);
+db.Post = require('./post')(sequelize , Sequelize); 
+db.Image = require('./image')(sequelize , Sequelize); 
+db.Hashtag = require('./hashtag')(sequelize , Sequelize); 
+db.Comment = require('./comment')(sequelize , Sequelize);
+db.OpenScope = require('./openscope')(sequelize , Sequelize);
+db.Place = require('./place')(sequelize , Sequelize);
+db.Group = require('./group')(sequelize , Sequelize);
+db.Category = require('./category')(sequelize , Sequelize);
 //#모델 관계설정
 Object.keys(db).forEach( modelName => {
   if (db[modelName].associate) {

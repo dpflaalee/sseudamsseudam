@@ -4,7 +4,12 @@ import { faker } from '@faker-js/faker';
 faker.seed(123);
 
 export const initialState = {
-  mainPosts: [],
+  mainPosts: [{
+    id: 1,
+    User: {id:1, nickname:'mymy'},
+    content: '첫번째 게시글 #node',
+    Images:[{ src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE7C9h2MUO22qNx2xnfmeFA_WHiTL1_JyFEg&s' }],
+  }],
   addPostLoading: false,
   addPostDone: false,
   addPostError: null,
