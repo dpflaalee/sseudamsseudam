@@ -10,7 +10,7 @@ const Home = () => {
   return (
     <AppLayout>
       <>
-        <Profile />
+        
       </>
     </AppLayout>
   );
