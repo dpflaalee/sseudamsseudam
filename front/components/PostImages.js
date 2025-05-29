@@ -1,7 +1,7 @@
 import React from 'react';
 
 const PostImages = ({images}) => {
-  return (<div>구현중</div>);
+  return (<div>이미지</div>);
 };
 
 export default PostImages;

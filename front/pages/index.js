@@ -4,10 +4,18 @@ import 'antd/dist/antd.css';
 import PostCard from "../components/PostCard";
 import PostForm from "../components/PostForm";
 import { useSelector } from "react-redux";
+import Link from "next/link";
 
 const Home = ()=>{
   const {mainPosts} = useSelector(state => state.post);
-  return (<AppLayout>
+  const menuItems = [
+    {
+      key: 'home',
+      label: <Link href="/">홈</Link>,
+    },
+  ];
+
+  return (<AppLayout items={menuItems}>
     <PostForm/>
     {mainPosts.map((c) => {
       return (

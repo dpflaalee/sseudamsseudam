@@ -46,7 +46,6 @@ const RightNavWrapper = styled.div`
 const AppLayout = ({ children, items }) => {
   return (
     <AppLayoutWrapper>
-      <MenuWrapper mode="horizontal" items={items} />
       <MainContentWrapper style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
         {/* 왼쪽 메뉴 (Nav 포함) */}
         <div style={{ flex: 0.6,  borderRight: '1px solid #ccc' }}>
@@ -55,6 +54,7 @@ const AppLayout = ({ children, items }) => {
 
         {/* 가운데 내용 */}
         <div style={{ flex: 3, padding: '5px' }}>
+          <MenuWrapper mode="horizontal" items={items} />
           <div style={{ flex: 2, padding: '5px' }}>
             {children}
           </div>

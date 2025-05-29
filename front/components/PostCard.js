@@ -10,7 +10,6 @@ const PostCard = ({post}) => {
   return(
     <div style={{margin:'3%'}}>
       <Card
-        cover={post.Images && post.Images.length > 0 && <PostImages images={post.Images} />}
         actions={[
           <RetweetOutlined key="retweet" />,
           <HeartTwoTone twoToneColor="#f00" key="heart" />,
@@ -29,8 +28,18 @@ const PostCard = ({post}) => {
         ]}
       >
         <Card.Meta avatar={<Avatar></Avatar>}
-                   description={post.content}
+                   title={post.User ? post.User.nickname : 'Unknown'} 
+                    description={
+                    post.meta && post.meta.createdAt
+                      ? new Date(post.meta.createdAt).toLocaleString()
+                      : null
+                    }
+                   style={{ marginBottom: 16 }}
         />
+        <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>
+        {post.content}
+        </div>
+        {post.Images && post.Images.length > 0 && <PostImages images={post.Images} />}
       </Card>
     {(
       <>

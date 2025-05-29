@@ -1,10 +1,18 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { ADD_POST_REQUEST } from '../reducers/post';
 import UserInput from '../hooks/UserInput';  
 
 const PostForm = () => {
+
+  const { TextArea } = Input;
+  const { Option } = Select;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => { setIsModalOpen(true);};
+  const handleOk = () => { setIsModalOpen(false); };
+  const handleCancel = () => { setIsModalOpen(false); };
 
   const {imagePaths} = useSelector(state => state.post);
   const imageInput = useRef();
@@ -22,17 +30,58 @@ const PostForm = () => {
   
   return (
     <Form layout="vertical" style={{ margin: '3%' }} encType="multipart/form-data" onFinish={onFormSubmit}>
-    <Form.Item  label="TheJoa Write"  name="text">  
-      <Input.TextArea placeholder='게시글을 적어주세요'
-        maxLength={200} />
-    </Form.Item>
+      <Form.Item name="text">
+        <Space direction="vertical" style={{ width: '100%' }}>
+          {/* 상단: 아바타 + 공개범위 */}
+          <Row align="middle" gutter={8}>
+            <Col>
+              <Avatar icon={<UserOutlined />} />
+              {/* 또는 <Avatar src="프로필이미지URL" /> */}
+            </Col>
+            <Col>
+              <Select defaultValue="public" style={{ width: 120 }}>
+                <Option value="public">전체공개</Option>
+                <Option value="friends">친구공개</Option>
+                <Option value="private">비공개</Option>
+              </Select>
+            </Col>
+          </Row>
+
+          {/* 본문 입력 */}
+          <TextArea
+            placeholder="게시글을 적어주세요"
+            maxLength={200}
+            autoSize={{ minRows: 3, maxRows: 6 }}
+          />
+        </Space>
+      </Form.Item>
       <Form.Item>
+        {/* 사진 업로드 버튼 (Input은 숨김) */}
         <Input type="file" name="image" multiple hidden />
-        <Button>이미지업로드</Button>
-        <Button type="primary" style={{ float: 'right' }}
-          htmlType='submit' onChange={onChangeText}>POST</Button>
-      </Form.Item> 
-    </Form>
+        <Button>사진</Button>
+
+        {/* 오른쪽 정렬: 카테고리 + POST */}
+        <div style={{ float: 'right' }}>
+          <Button onClick={showModal} style={{ marginRight: 8 }}>
+            카테고리
+          </Button>
+          <Button type="primary" htmlType="submit" onChange={onChangeText}>
+            POST
+          </Button>
+        </div>
+      </Form.Item>
+            <Modal
+        title="카테고리 선택"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="확인"
+        cancelText="취소"
+      >
+        {/* 여기에 카테고리 선택 내용 작성 */}
+        <p><Checkbox>강아지</Checkbox><Checkbox>고양이</Checkbox></p>
+      </Modal>
+    </Form>  
   );
 };
 
