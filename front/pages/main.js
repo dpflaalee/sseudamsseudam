@@ -1,19 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import AppLayout from "../components/AppLayout";
 import 'antd/dist/antd.css';
-import Notification from "../components/Notification";
-import Profile from '../components/Profile'
-import CommentForm from "../components/CommentForm";
-import Comment from "../components/Comment";
 
-const Home = () => {
+import Notification from "../components/Notification";
+import { Button, Modal } from "antd";
+import PostCard from "../components/PostCard";
+import CommentForm from "../components/CommentForm";
+
+const Main = () => {
+
+
   return (
     <AppLayout>
       <>
-        <Profile />
+        <CommentForm />
       </>
-    </AppLayout>
+    </AppLayout >
   );
 }
 
-export default Home;
+export default Main;

@@ -40,7 +40,7 @@ const Nav = () => {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       
       <div style={{ display: 'flex',  flexDirection: isMobile ? 'row' : 'column', justifyContent: 'flex-start',  padding: '10px', gap: '10px', }} >
-        
+
         <Dropdown overlay={profileMenu} trigger={['click']}>
           <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
             <Avatar size="large" icon={<UserOutlined />} />
@@ -54,11 +54,15 @@ const Nav = () => {
         </Dropdown>
 
         <Menu
+
           mode={isMobile ? 'horizontal' : 'vertical'}  
+
           defaultSelectedKeys={['2']}
           style={{ marginTop: '20px', width: isMobile ? 'auto' : '100%', flex: 1 }}
         >
-          {items.map((item) => (
+          {items.map((item) => ( 'horizontal' : 'vertical'}
+          mode={isMobile ? 'horizontal' : 'vertical'}  
+
             item.children ? (  
               <SubMenu 
                 key={item.key} icon={item.icon} title={item.label} >
@@ -68,6 +72,7 @@ const Nav = () => {
               </SubMenu>
             ) : (
               <Menu.Item key={item.key} icon={item.icon}>
+
                 {isMobile ? null : item.label}  
                 {/*모바일상에서 텍스트 숨김 */}
               </Menu.Item>

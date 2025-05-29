@@ -9,12 +9,14 @@ const Ssdam = ({Component}) =>{
       <meta charset="utf-8"/>
       <title>Ssdam</title>
     </Head>
-    <Component/>
+    <Component />
   </>);
 };
 
+
 Ssdam.protoType = {
   Component : PropTypes.elementType.isRequired
+
 }
 
 export default Ssdam;
