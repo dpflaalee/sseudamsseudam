@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MailOutlined,  HomeOutlined,  NotificationOutlined, SearchOutlined,  TeamOutlined, BellOutlined, UserOutlined,} from "@ant-design/icons";
 import { Avatar, Dropdown, Menu } from "antd";
-
 const { SubMenu } = Menu;
-
 function getItem(label, key, icon, children) { return { key, icon, children, label };}
 
 const Nav = () => {

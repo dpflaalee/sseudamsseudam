@@ -1,5 +1,6 @@
 import React from 'react';
 import { Menu, Row, Col } from 'antd';
+
 import Nav from './Nav';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -39,6 +40,7 @@ const AppLayout = ({ children }) => {
 
   return (
     <AppLayoutWrapper>
+
       <Menu mode="horizontal"/>
 
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
