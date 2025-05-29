@@ -1,6 +1,5 @@
 import React from 'react';
 import { Menu, Row, Col } from 'antd';
-
 import Nav from './Nav';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -40,10 +39,13 @@ const AppLayout = ({ children }) => {
 
   return (
     <AppLayoutWrapper>
-
       <Menu mode="horizontal"/>
 
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        {/* Navigation */}
+        <ColWithOrder xs={24} md={6} className="nav-col">
+          <Nav />
+        </ColWithOrder>
 
         {/* Main Content */}
         <ColWithOrder xs={24} md={12} className="main-col">
@@ -55,10 +57,6 @@ const AppLayout = ({ children }) => {
           오른쪽 메뉴
         </ColWithOrder>
 
-        {/* Navigation */}
-        <ColWithOrder xs={24} md={6} className="nav-col">
-          <Nav />
-        </ColWithOrder>
       </Row>
     </AppLayoutWrapper>
   );
