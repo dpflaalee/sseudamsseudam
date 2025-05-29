@@ -2,20 +2,23 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import 'antd/dist/antd.css';
 import Head from 'next/head';
+import { Provider } from "react-redux";
 
-const Ssdam = ({Component}) =>{
-  return(<>
-    <Head>
-      <meta charset="utf-8"/>
-      <title>Ssdam</title>
-    </Head>
-    <Component />
+const Ssdam = ({ Component }) => {
+  return (<>
+    <Provider store={store}>
+      <Head>
+        <meta charset="utf-8" />
+        <title>Ssdam</title>
+      </Head>
+      <Component />
+    </Provider>
   </>);
 };
 
 
 Ssdam.protoType = {
-  Component : PropTypes.elementType.isRequired
+  Component: PropTypes.elementType.isRequired
 
 }
 

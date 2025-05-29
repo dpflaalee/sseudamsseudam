@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState, } from 'react';
 import { Modal, Button as AntButton, Avatar, Input, Upload } from 'antd';
 import { CloseOutlined, InboxOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { userInput } from '../hooks/userInput';
+import { ADD_COMPLAIN_REQUEST } from '../reducers/complain'
+import { useDispatch } from 'react-redux';
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -50,9 +52,25 @@ const XButton = styled(AntButton)`
  
  `
 
-const ComplainForm = ({ open, onClose }) => {
+const ComplainForm = ({ open, onClose, TARGET_TYPE }) => {
   //const [reason, setReason] = userInput('');
-
+  //const id = useSelector(state => state.user.user?.id);
+  const id = 1;
+  const dispatch = useDispatch();
+  const onComplainSubmit = useCallback(() => {
+    console.log('💥TARGET_TYPE ', TARGET_TYPE);
+    console.log('💥Reason : ', content);
+    console.log('💥Reporter : ', id);
+    if (!content || !content.trim()) { return alert('게시글을 작성하세요.'); }
+    dispatch({
+      type: ADD_COMPLAIN_REQUEST,
+      data: {
+        TARGET_TYPE: TARGET_TYPE,
+        Reason: content,
+        Reporter: id
+      }
+    })
+  });
   return (
     <StyledModal
       open={open}
@@ -63,7 +81,7 @@ const ComplainForm = ({ open, onClose }) => {
     >
       <Header>
         <h3>신고하기</h3>
-        <XButton type="text" icon={<CloseOutlined />} onClick={onClose} />
+        <XButton type="" icon={<CloseOutlined />} onClick={onClose} />
       </Header>
 
       <UserInfo>
@@ -73,12 +91,13 @@ const ComplainForm = ({ open, onClose }) => {
         </div>
       </UserInfo>
 
-      <ReasonInput rows={4} placeholder="신고 사유를 작성해주세요" />
+      <ReasonInput rows={4} placeholder="신고 사유를 작성해주세요" name='content' />
 
       <Footer>
         <BlackButton
           htmlType='submit'
           type="primary"
+          onClick={onComplainSubmit}
         >
           신고하기
         </BlackButton>

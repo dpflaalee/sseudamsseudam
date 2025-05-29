@@ -10,15 +10,3 @@ const UserInput = (initialValue = null) => {
 }
 
 export default UserInput;
-
-/*
-const [id, setId] = useState('');
-const onChangeId = useCallback((e) => {
-    setId(e.target.value);
-}, []);
-
-const [nickname, setNickname] = useState('');
-const onChangeNickname = useCallback((e) => {
-    setNickname(e.target.value);
-}, []);
-*/
