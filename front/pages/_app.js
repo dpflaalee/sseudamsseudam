@@ -3,18 +3,20 @@ import PropTypes from "prop-types";
 import 'antd/dist/antd.css';
 import Head from 'next/head';
 
-const Test = ({ Component }) => {
-  return (<>
+const Ssdam = ({Component}) =>{
+  return(<>
     <Head>
-      <meta charSet="utf-8" />
-      <title>SsDam</title>
+      <meta charset="utf-8"/>
+      <title>Ssdam</title>
     </Head>
     <Component />
   </>);
 };
 
-Test.protoType = {
-  Component: PropTypes.elementType.isRequired
+
+Ssdam.protoType = {
+  Component : PropTypes.elementType.isRequired
+
 }
 
-export default Test;
+export default Ssdam;
