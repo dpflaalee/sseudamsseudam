@@ -1,20 +1,24 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
-import 'antd/dist/antd.css';
+import PropTypes from 'prop-types';
+import 'antd/dist/antd.css';   // 공통css
 import Head from 'next/head';
+import {Provider} from 'react-redux';
+import wrapper from '../store/configureStore';
 
-const Test = ({Component}) =>{
-  return(<>
+const Ssdam = ({Component, ...rest}) =>{
+  const {store, props} = wrapper.useWrappedStore(rest);
+  return(
+  <Provider store={store}>
     <Head>
       <meta charset="utf-8"/>
-      <title>Test</title>
+      <title>Ssdam</title>
     </Head>
-    <Component/>
-  </>);
+    <Component />
+  </Provider>
+  );
 };
-
-Test.protoType = {
+Ssdam.propType = {
   Component : PropTypes.elementType.isRequired
 }
 
-export default Test;
+export default Ssdam;

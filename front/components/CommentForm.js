@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-
-const CommentForm = () => {
-
-};
-
-export default CommentForm;
-=======
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Avatar, Button, Input } from 'antd';
@@ -83,4 +74,3 @@ const CommentForm = ({ targetNickname = '사용자' }) => {
 };
 
 export default CommentForm;
->>>>>>> fa4b5d9f4792afd91842fd14171d2d4b9982d2e5

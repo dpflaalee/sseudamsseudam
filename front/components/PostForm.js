@@ -3,7 +3,7 @@ import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox }
 import { UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { ADD_POST_REQUEST } from '../reducers/post';
-import UserInput from '../hooks/UserInput';  
+import userInput from '../hooks/userInput';  
 
 const PostForm = () => {
 
