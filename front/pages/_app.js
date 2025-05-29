@@ -5,6 +5,7 @@ import Head from 'next/head';
 import {Provider} from 'react-redux';
 import wrapper from '../store/configureStore';
 
+<<<<<<< HEAD
 const Ssdam = ({ Component , ...rest }) => {
   ///////////////////////////////////////////////// code
   const {store, props} = wrapper.useWrappedStore(rest);
@@ -27,3 +28,22 @@ Ssdam.propTypes = {
 }
 
 export default Ssdam;
+=======
+const Ssdam = ({Component}) =>{
+  return(<>
+    <Head>
+      <meta charset="utf-8"/>
+      <title>Ssdam</title>
+    </Head>
+    <Component />
+  </>);
+};
+
+
+Ssdam.protoType = {
+  Component : PropTypes.elementType.isRequired
+
+}
+
+export default Ssdam;
+>>>>>>> fa4b5d9f4792afd91842fd14171d2d4b9982d2e5
