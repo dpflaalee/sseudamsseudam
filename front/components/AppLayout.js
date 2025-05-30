@@ -1,62 +1,63 @@
 import React from 'react';
-import { Menu } from 'antd';
-import Sidebar from './Sidebar';
+import { Menu, Row, Col } from 'antd';
+import Nav from './Nav';
 import PropTypes from 'prop-types';
-import Link from 'antd/lib/typography/Link';
 import styled from 'styled-components';
 
 const AppLayoutWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
+  padding: 0 16px;
+  box-sizing: border-box;
 `;
 
-const MenuWrapper = styled(Menu)`
-  width: 100%;
-`;
-
-const MainContentWrapper = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  @media (max-width: 768px) {
-    flex-direction: column; /* 모바일에서는 세로로 쌓이게 */
+const ColWithOrder = styled(Col)`
+  &.nav-col {
+    order: 3; /* 모바일에서 하단 */
   }
-`;
-
-const SidebarWrapper = styled.div`
-  width: 240px;
-  flex-shrink: 0;
-  @media (max-width: 768px) {
-    width: 100%; /* 모바일에서는 사이드바가 가로로 차지하지 않음 */
-    order: 2; /* 사이드바를 메인 콘텐츠 아래로 보냄 */
+  &.main-col {
+    order: 1;
   }
-`;
+  &.right-col {
+    order: 2;
+  }
 
-const RightSidebarWrapper = styled.div`
-  width: 240px;
-  flex-shrink: 0;
-  display: block;
-  @media (max-width: 768px) {
-    display: none; /* 모바일에서는 오른쪽 메뉴 숨기기 */
+  @media (min-width: 768px) {
+    &.nav-col {
+      order: 1;
+    }
+    &.main-col {
+      order: 2;
+    }
+    &.right-col {
+      order: 3;
+    }
   }
 `;
 
 const AppLayout = ({ children }) => {
-  const items = [
-    { label: <Link to="/">LOGO</Link>, key: '/' }
-  ];
+
 
   return (
     <AppLayoutWrapper>
-      <MenuWrapper mode="horizontal" items={items} />
-      <MainContentWrapper>
-        <SidebarWrapper> <Sidebar /> </SidebarWrapper>
+      <Menu mode="horizontal"/>
 
-        <div style={{ flex: 1, padding: '16px' }}>{children}</div>
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        {/* Navigation */}
+        <ColWithOrder xs={24} md={6} className="nav-col">
+          <Nav />
+        </ColWithOrder>
 
-        <RightSidebarWrapper>오른쪽 메뉴</RightSidebarWrapper>
-      </MainContentWrapper>
+        {/* Main Content */}
+        <ColWithOrder xs={24} md={12} className="main-col">
+          {children}
+        </ColWithOrder>
+
+        {/* Right Sidebar */}
+        <ColWithOrder xs={0} md={6} className="right-col">
+          오른쪽 메뉴
+        </ColWithOrder>
+
+      </Row>
     </AppLayoutWrapper>
   );
 };

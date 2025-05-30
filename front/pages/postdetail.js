@@ -1,21 +1,20 @@
 import React, {useEffect} from 'react';
 import AppLayout from '../components/AppLayout';
-import PostForm from '../components/Post/PostForm';
-import PostCard from '../components/Post/PostCard';
+import DetailCard from '../components/DetailCard';
 import { useSelector } from 'react-redux';
 
-const Home = ()=>{
+const PostDetail = ()=>{
   const { mainPosts } = useSelector((state) => state.post); 
 
   return (
   <AppLayout>
-    { <PostForm />}
     { mainPosts.map((c) => { 
       return (
-      <PostCard post={c} key={c.id} />
+      <DetailCard post={c} key={c.id} />
     );} )}
+    {<CommentForm />}
   </AppLayout>
 );
 }
 
-export default Home;
+export default PostDetail;
