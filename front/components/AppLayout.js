@@ -3,6 +3,8 @@ import { Menu, Row, Col } from 'antd';
 import Nav from './Nav';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import PostCard from './Post/PostCard';
+import DetailCard from './Detail/DetailCard'
 
 const AppLayoutWrapper = styled.div`
   min-height: 100vh;
@@ -36,8 +38,9 @@ const ColWithOrder = styled(Col)`
 
 const AppLayout = ({ children }) => {
 
-
   return (
+
+  <>
     <AppLayoutWrapper>
       <Menu mode="horizontal"/>
 
@@ -59,6 +62,7 @@ const AppLayout = ({ children }) => {
 
       </Row>
     </AppLayoutWrapper>
+  </>
   );
 };
 
