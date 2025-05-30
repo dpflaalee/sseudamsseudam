@@ -30,18 +30,19 @@ function* loadComplain(action) {
 
 
 function addComplainAPI(data) {
-  return axios.post(`/admin/complain`);
+  //return axios.post(`/admin/complain`);
 }
 
 function* addComplain(action) {
   try {
-    const result = yield call(addComplainAPI, action.data);
+    //const result = yield call(addComplainAPI, action.data);
+    console.log('🦞 sagas:  addComplain : ', action.data);
     yield put({
       type: ADD_COMPLAIN_SUCCESS,
-      data: result.data,
+      data: action.data,
     });
   } catch (err) {
-    console.log('saga: complain : addComplain : ', err);
+    console.log('🚨 saga : addComplain : error : ', err);
     yield put({
       type: ADD_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -77,6 +78,7 @@ function* watchLoadComplain() {
 }
 
 function* watchAddComplain() {
+  console.log('🍻 watchAddComplain');
   yield takeLatest(ADD_COMPLAIN_REQUEST, addComplain);
 }
 

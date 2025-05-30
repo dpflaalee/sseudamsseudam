@@ -30,6 +30,7 @@ export const initialState = {
     removeComplainDone: false,
     removeComplainError: null,
 
+    mainComplainCard: [],
 };
 
 /////////////////////////dummyComplain
@@ -37,14 +38,17 @@ const dummyComplain = (data) => ({
     id: shortId.generate(),
     targetType: data.targetType,
     targetId: data.targetId,
-    User: { id: 2, nickname: 'Dan' },
     reason: data.reason,
+    reporter: { id: data.reporter, nickname: 'Dan' },
 });
 
 
 //////////////////////////////////////////
 
 const reducer = (state = initialState, action) => produce(state, (draft) => {
+    console.log('🐬 complain reducer');
+    console.log('🐬 complain reducer : type', action.type);
+    console.log('🐬 complain reducer : data', action.data);
     switch (action.type) {
         //////////////////////////////
         case LOAD_COMPLAIN_REQUEST:
@@ -73,15 +77,20 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             break;
 
         case ADD_COMPLAIN_SUCCESS:
+            console.log('🐢 ADD_COMPLAIN_SUCCESS : ', action.data);
+            const newComplain = dummyComplain(action.data);
             draft.addComplainLoading = false;
             draft.addComplainDone = true;
             draft.addComplainError = null;
+            draft.mainComplainCard = [newComplain, ...draft.mainComplainCard];
+            console.log('🐢 draft.mainComplainCard : ', draft.mainComplainCard);
             break;
 
         case ADD_COMPLAIN_FAILURE:
             draft.addComplainLoading = false;
             draft.addComplainDone = false;
             draft.addComplainError = action.error;
+            console.log('🐢 ADD_COMPLAIN_FAILURE : ', action.error);
             break;
 
         ////////////////////////////////////////
