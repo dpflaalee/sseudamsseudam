@@ -45,6 +45,11 @@ const AppLayout = ({ children }) => {
 
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
 
+        {/* Navigation */}
+        <ColWithOrder xs={24} md={6} className="nav-col">
+          <Nav />
+        </ColWithOrder>
+
         {/* Main Content */}
         <ColWithOrder xs={24} md={12} className="main-col">
           {children}
@@ -55,10 +60,6 @@ const AppLayout = ({ children }) => {
           오른쪽 메뉴
         </ColWithOrder>
 
-        {/* Navigation */}
-        <ColWithOrder xs={24} md={6} className="nav-col">
-          <Nav />
-        </ColWithOrder>
       </Row>
     </AppLayoutWrapper>
   );

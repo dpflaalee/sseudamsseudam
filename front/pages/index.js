@@ -1,10 +1,10 @@
 import React from "react";
-import AppLayout from "../components/AppLayout";
+import AppLayout from "@/components/AppLayout";
 import 'antd/dist/antd.css';
-import Notification from "../components/Notification";
-import Profile from '../components/Profile'
-import CommentForm from "../components/CommentForm";
-import Comment from "../components/Comment";
+import Notification from "@/components/Notification";
+import Profile from '@/components/Profile'
+import CommentForm from "@/components/post/CommentForm";
+import Comment from "@/components/post/Comment";
 
 const Home = () => {
   return (
