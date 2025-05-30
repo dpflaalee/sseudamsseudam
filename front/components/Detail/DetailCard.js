@@ -7,7 +7,7 @@ import ComplainForm from './complains/ComplainForm';
 import { useSelector, useDispatch } from 'react-redux';
 import TARGET_TYPE from '../../shared/constants/TARGET_TYPE';
 
-const PostCard = ({ post }) => {
+const DetailCard = ({ post }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -72,4 +72,4 @@ const PostCard = ({ post }) => {
   );
 };
 
-export default PostCard;
+export default DetailCard;

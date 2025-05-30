@@ -1,12 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,visualstudiocode,node,react
 
-<<<<<<< HEAD
-# .gitignore
-package-lock.json
-
-=======
->>>>>>> origin/SH_0529
 ### Node ###
 # Logs
 logs
@@ -205,8 +199,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-<<<<<<< HEAD
 # End of https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
-=======
-# End of https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
->>>>>>> origin/SH_0529
