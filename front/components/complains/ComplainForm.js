@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Modal, Button as AntButton, Avatar, Input, Upload } from 'antd';
 import { CloseOutlined, InboxOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import { userInput } from '../hooks/userInput';
+import { userInput } from '../../hooks/userInput';
+import { useDispatch } from 'react-redux';
+import { ADD_COMPLAIN_REQUEST } from '../../reducers/complain';
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {
@@ -50,8 +52,30 @@ const XButton = styled(AntButton)`
  
  `
 
-const ComplainForm = ({ open, onClose }) => {
-  //const [reason, setReason] = userInput('');
+const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
+  const [content, setContent] = useState('');
+  //const id = useSelector(state => state.user.user?.id);
+  const id = 1;
+  const dispatch = useDispatch();
+  const onComplainSubmit = useCallback(() => {
+    console.log('💥TARGET_TYPE ', TARGET_TYPE);
+    console.log('💥Reason : ', content);
+    console.log('💥Reporter : ', id);
+    console.log('💥targetId : ', targetId);
+    if (!content || !content.trim()) { return alert('게시글을 작성하세요.'); }
+    dispatch({
+      type: ADD_COMPLAIN_REQUEST,
+      data: {
+        targetType: TARGET_TYPE,
+        targetId: targetId,
+        reason: content,
+        reporter: id,
+      }
+    });
+    console.log('🚀 Dispatched ADD_COMPLAIN_REQUEST');
+    onClose();
+    alert('신고가 완료되었습니다.');
+  }, [content, dispatch, id, onClose, TARGET_TYPE]);
 
   return (
     <StyledModal
@@ -73,12 +97,13 @@ const ComplainForm = ({ open, onClose }) => {
         </div>
       </UserInfo>
 
-      <ReasonInput rows={4} placeholder="신고 사유를 작성해주세요" />
+      <ReasonInput rows={4} placeholder="신고 사유를 작성해주세요" name='content' onChange={(e) => setContent(e.target.value)} />
 
       <Footer>
         <BlackButton
           htmlType='submit'
           type="primary"
+          onClick={onComplainSubmit}
         >
           신고하기
         </BlackButton>
