@@ -10,9 +10,18 @@ export const initialState = {
     content: '첫번째 게시글 #node',
     Images:[{ src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE7C9h2MUO22qNx2xnfmeFA_WHiTL1_JyFEg&s' }],
   }],
+
   addPostLoading: false,
   addPostDone: false,
   addPostError: null,
+
+  updatePostLoading: false,
+  updatePostDone: false,
+  updatePostError: null,
+
+  removePostLoading: false,
+  removePostDone: false,
+  removePostError: null,
 };
 
 export const addPost = {  type:'ADD_POST', }
@@ -35,6 +44,14 @@ export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
 export const ADD_POST_FAILURE = 'ADD_POST_FAILURE';
 
+export const UPDATE_POST_REQUEST = 'UPDATE_POST_REQUEST';
+export const UPDATE_POST_SUCCESS = 'UPDATE_POST_SUCCESS';
+export const UPDATE_POST_FAILURE = 'UPDATE_POST_FAILURE';
+
+export const REMOVE_POST_REQUEST = 'REMOVE_POST_REQUEST';
+export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
+export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
+
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
     case ADD_POST_REQUEST:
@@ -51,6 +68,37 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case ADD_POST_FAILURE:
       draft.addPostLoading = false;
       draft.addPostError = action.error;
+      break;
+    case UPDATE_POST_REQUEST:
+      draft.updatePostLoading = true;
+      draft.updatePostDone = false;
+      draft.updatePostError = null;
+      break;
+    case UPDATE_POST_SUCCESS:
+      draft.updatePostLoading = false;
+      draft.updatePostDone = true;
+      draft.mainPosts.find((v) => v.id === action.data.PostId).content = action.data.content;
+      break;
+    case UPDATE_POST_FAILURE:
+      draft.updatePostLoading = false;
+      draft.updatePostError = action.error;
+      break;
+    case REMOVE_POST_REQUEST:
+      draft.removePostLoading = true;
+      draft.removePostDone = false;
+      draft.removePostError = null;
+      break;
+    case REMOVE_POST_SUCCESS:
+      draft.removePostLoading = false;
+      draft.removePostDone = true;
+      draft.mainPosts = draft.mainPosts.filter((v) => v.id !== action.data.PostId);
+      break;
+    case REMOVE_POST_FAILURE:
+      draft.removePostLoading = false;
+      draft.removePostError = action.error;
+      break;
+
+      default:
       break;
   }
 });

@@ -2,8 +2,8 @@ import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { ADD_POST_REQUEST } from '../reducers/post';
-import userInput from '../hooks/userInput';  
+import { ADD_POST_REQUEST } from '../../reducers/post';
+import userInput from '../../hooks/userInput';  
 
 const PostForm = () => {
 
@@ -14,19 +14,22 @@ const PostForm = () => {
   const handleOk = () => { setIsModalOpen(false); };
   const handleCancel = () => { setIsModalOpen(false); };
 
-  const {imagePaths} = useSelector(state => state.post);
+  const { imagePaths , addPostLoading, addPostDone } = useSelector((state) => state.post);
   const imageInput = useRef();
 
   const dispatch = useDispatch();
-  const [text, setText] = useState('');
-  const onChangeText = useCallback((e) => {
-    console.log("......" + e.target.value);
-    setText(e.target.value);
-  },[]);
+  const [text, onChangeText, setText] = userInput(''); 
+
+  useEffect(() => { 
+    if (addPostDone) { setText('');  }
+  } , [addPostDone]);
+
   const onFormSubmit = useCallback(() => {
-    dispatch(ADD_POST_REQUEST);
-    setText('');
-  },[]);
+    dispatch({
+      type: ADD_POST_REQUEST,
+      data: { content: text },
+    });
+  },[text]);
   
   return (
     <Form layout="vertical" style={{ margin: '3%' }} encType="multipart/form-data" onFinish={onFormSubmit}>
@@ -50,27 +53,26 @@ const PostForm = () => {
           {/* 본문 입력 */}
           <TextArea
             placeholder="게시글을 적어주세요"
-            maxLength={200}
+            maxLength={200} value={text}   onChange={onChangeText}
             autoSize={{ minRows: 3, maxRows: 6 }}
           />
         </Space>
       </Form.Item>
       <Form.Item>
-        {/* 사진 업로드 버튼 (Input은 숨김) */}
         <Input type="file" name="image" multiple hidden />
         <Button>사진</Button>
+        <Button>지도</Button>
 
-        {/* 오른쪽 정렬: 카테고리 + POST */}
         <div style={{ float: 'right' }}>
           <Button onClick={showModal} style={{ marginRight: 8 }}>
             카테고리
           </Button>
-          <Button type="primary" htmlType="submit" onChange={onChangeText}>
+          <Button type="primary" htmlType="submit" loading={addPostLoading}>
             POST
           </Button>
         </div>
       </Form.Item>
-            <Modal
+      <Modal
         title="카테고리 선택"
         open={isModalOpen}
         onOk={handleOk}
