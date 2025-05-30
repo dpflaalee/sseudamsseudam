@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Card, Avatar, Button, List, Comment, Popover } from 'antd';
-import { EllipsisOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
-import CommentForm from '../Comment/CommentForm';
-import PostImages from '../Post/PostImages';
+import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
+import CommentForm from './CommentForm';
+import PostImages from './PostImages';
+import ComplainForm from './complains/ComplainForm';
+import { useSelector, useDispatch } from 'react-redux';
+import TARGET_TYPE from '../../shared/constants/TARGET_TYPE';
 
 const DetailCard = ({ post }) => {
   const [open, setOpen] = useState(false);
@@ -22,56 +25,58 @@ const DetailCard = ({ post }) => {
           <RetweetOutlined key="retweet" />,
           <HeartTwoTone twoToneColor="#f00" key="heart" />,
           <MessageOutlined key="comment" />,
-          <Popover
-            content={
-              <Button.Group>
-                <>
-                  <Button>수정</Button>
-                  <Button type="danger">삭제</Button>
-                </>
-                <>
-                  <Button onClick={() => setOpen(true)}>신고하기</Button>
-                  {/* 신고 폼 */}
-                  <ComplainForm open={open} onClose={() => setOpen(false)} targetType={TARGET_TYPE.POST} />
-                </>
-              </Button.Group>
-            }
-          >
+          <Popover content={(
+            <Button.Group>
+              <>
+                <Button>수정</Button>
+                <Button type="danger">삭제</Button>
+              </>
+              <>
+                <Button onClick={() => setOpen(true)}>신고하기</Button>
+                <ComplainForm open={open} onClose={() => setOpen(false)} TARGET_TYPE={TARGET_TYPE.POST} />
+              </>
+            </Button.Group>
+          )}>
             <EllipsisOutlined />
           </Popover>
         ]}
       >
         <Card.Meta
           avatar={<Avatar />}
-          title="Unknown User"
-          description="2025-05-30 14:30" // 테스트용 날짜
+          title={post?.User?.nickname || 'Unknown'}
+          description={post?.meta?.createdAt
+            ? new Date(post.meta.createdAt).toLocaleString()
+            : ''}
           style={{ marginBottom: 16 }}
         />
         <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>
-          This is a test post content. No need for dynamic data here.
+          {post.content}
         </div>
         {/* Test Images */}
         <PostImages images={[]} />
       </Card>
-
-      {/* 댓글 작성 폼 */}
-      <CommentForm value={commentContent} onChange={setCommentContent} onSubmit={handleCommentSubmit} />
-
-      {/* 댓글 리스트 */}
-      <List
-        header={''}
-        itemLayout="horizontal"
-        dataSource={comments}
-        renderItem={(item) => (
-          <li>
-            <Comment
-              avatar={<Avatar />}
-              content={item.content}
-              author={item.author}
-            />
-          </li>
-        )}
-      />
+      {(
+        <>
+          {/* 댓글폼 */}
+          <CommentForm />
+          {/* 댓글리스트 */}
+          <List
+            header={''}
+            itemLayout='horizontal'
+            dataSource={''}
+            renderItem={(item) => (
+              <li>
+                <Comment
+                  avatar={<Avatar></Avatar>}
+                  content={''}
+                  author={''}
+                />
+              </li>
+            )
+            }
+          />
+        </>
+      )}
     </div>
   );
 };

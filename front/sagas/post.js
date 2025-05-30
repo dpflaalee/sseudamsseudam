@@ -11,13 +11,13 @@ import {
   UPDATE_POST_SUCCESS,
   REMOVE_POST_FAILURE,
   REMOVE_POST_REQUEST,
-  REMOVE_POST_SUCCESS, 
+  REMOVE_POST_SUCCESS,
 } from '../reducers/post';
 
 const dummyPost = (content) => ({
   id: shortId.generate(),
   content,
-  Images:[{ src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE7C9h2MUO22qNx2xnfmeFA_WHiTL1_JyFEg&s' }],
+  Images: [{ src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE7C9h2MUO22qNx2xnfmeFA_WHiTL1_JyFEg&s' }],
   createdAt: new Date().toISOString(),
 });
 
@@ -32,7 +32,7 @@ function addPostAPI() {
 function* addPost(action) {
   try {
     //const result = yield call(addPostAPI, action.data);
-    const result = yield call(addPostAPI); 
+    const result = yield call(addPostAPI);
     yield put({
       type: ADD_POST_SUCCESS,
       data: result.data,
@@ -91,7 +91,7 @@ function* removePost(action) {
 }
 
 function* watchAddPost() {
-  yield takeLatest(ADD_POST_REQUEST, addPost); 
+  yield takeLatest(ADD_POST_REQUEST, addPost);
 }
 
 function* watchUpdatePost() {
@@ -107,6 +107,6 @@ export default function* postSaga() {
   yield all([
     fork(watchAddPost),
     fork(watchUpdatePost),
-    fork(watchRemovePost),    
+    fork(watchRemovePost),
   ]);
 }
