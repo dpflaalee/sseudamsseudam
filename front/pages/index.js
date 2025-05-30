@@ -1,11 +1,6 @@
 import 'antd/dist/antd.css';
-import Profile from '../components/Profile'
-import Comment from "../components/Comment";
-import ComplainCard from '../components/complains/ComplainCard';
 import React, { useEffect } from 'react';
 import AppLayout from '../components/AppLayout';
-import PostForm from '../components/Post/PostForm';
-import PostCard from '../components/Post/PostCard';
 import { useSelector } from 'react-redux';
 import { Divider } from "antd";
 import NotificationButton from "@/components/notifications/NotificationButton";
@@ -16,14 +11,9 @@ const Home = () => {
   return (
     <AppLayout>
       <>
-
-        <Profile />
-        <Comment />
-        <PostCard />
-        <ComplainCard />
       </>
 
-      {/* {mainPosts.map((c) => {
+      {/* {mainPosts.map((c) => { 
         return (
           <PostCard post={c} key={c.id} />
         );
