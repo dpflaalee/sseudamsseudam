@@ -30,7 +30,7 @@ module.exports=(sequelize, DataTypes)=>{
   Category.associate = (db)=>{
     db.Category.belongsToMany(db.Group, {through:'Group_has_Category', as:''});
     db.Category.belongsToMany(db.Prize, {through:'Prize_has_Category', as:''});
-    db.Category.belongsToMany(db.Animal, {through:'Animal_has_Category', as:''});
+    db.Category.hasMany(db.Animal);
     db.Category.belongsToMany(db.Post, {through:'Post_has_Category',as:''});
   }
   return Category;
