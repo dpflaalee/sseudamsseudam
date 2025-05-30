@@ -43,5 +43,6 @@ app.use(session({
 //TEST
 app.get('/', (req, res)=>{res.send('Express Test');});
 app.get('/api', (req,res)=>{res.send('Link Test')});
+app.use('/detail' , detail);
 
 app.listen(3065, ()=> {console.log('server...');} );
