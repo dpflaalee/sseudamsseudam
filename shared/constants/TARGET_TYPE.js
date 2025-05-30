@@ -1,9 +1,9 @@
 // constants/TARGET_TYPE.js
 
 const TARGET_TYPE = {
-    COMMENT: 1,
-    USER: 2,
-    POST: 3,
-    RANDOMBOX: 4
+    COMMENT: 'COMMENT',
+    USER: 'USER',
+    POST: 'POST',
+    RANDOMBOX: 'RANDOMBOX'
 }
 export default TARGET_TYPE;

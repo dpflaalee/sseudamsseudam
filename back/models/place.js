@@ -1,11 +1,17 @@
 module.exports = ( sequelize , DataTypes ) => {
   const Place = sequelize.define('Place',{
-    address: {
+    lat: {
+      type: DataTypes.STRING(50),
+    },
+    lng: {
       type: DataTypes.STRING(50),
     }
   },{
     charset: 'utf8',
     collate: 'utf8_general_ci'
   });
+  Place.associate = (db) => {
+    db.Place.belongsToMany( db.User, { through: 'MyPlace', as:'Placer' });
+  };
   return Place;
 };
