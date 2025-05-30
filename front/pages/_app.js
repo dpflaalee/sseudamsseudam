@@ -5,6 +5,7 @@ import Head from 'next/head';
 import {Provider} from 'react-redux';
 import wrapper from '../store/configureStore';
 
+
 const Ssdam = ({Component, ...rest}) =>{
   const {store, props} = wrapper.useWrappedStore(rest);
   return(
@@ -18,6 +19,7 @@ const Ssdam = ({Component, ...rest}) =>{
   );
 };
 Ssdam.propType = {
+  
   Component : PropTypes.elementType.isRequired
 }
 
