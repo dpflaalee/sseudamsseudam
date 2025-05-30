@@ -1,11 +1,16 @@
 import { HYDRATE } from 'next-redux-wrapper';
 import { combineReducers } from 'redux';
 
+<<<<<<< HEAD
+=======
+import post from './post';
+>>>>>>> origin/SH_0529
 import complain from './complain';
 
-// (이전상태, 액션) => 다음상태
-const rootReducer = (state, action) => {
+const rootReducer = combineReducers({
+  index: (state = {}, action) => {
     switch (action.type) {
+<<<<<<< HEAD
         case HYDRATE:
             console.log('HYDRATE', action);
             return action.payload;
@@ -15,7 +20,16 @@ const rootReducer = (state, action) => {
             });
             return combinedReducer(state, action);
         }
+=======
+      case HYDRATE:
+        console.log('HYDRATE', action);
+        return { ...state, ...action.payload };
+      default:
+        return { ...state }
+>>>>>>> origin/SH_0529
     }
-};
-
+  },
+  post,
+  complain,
+});
 export default rootReducer;

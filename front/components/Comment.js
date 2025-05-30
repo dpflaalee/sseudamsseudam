@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Avatar, Dropdown, Menu, Button } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import CommentForm from './CommentForm';
-import ComplainForm from './ComplainForm';
+import ComplainForm from './complains/ComplainForm';
 import TARGET_TYPE from '../../shared/constants/TARGET_TYPE';
 
 const Wrapper = styled.div`
@@ -47,7 +47,7 @@ const Divider = styled.div`
   margin: 16px 0;
 `;
 
-const Comment = () => {
+const Comment = (data) => {
     const [comments, setComments] = useState([
         {
             id: 1,
@@ -63,7 +63,7 @@ const Comment = () => {
         },
     ]);
 
-    const [reportTargetId, setReportTargetId] = useState(null);
+    const [targetId, setTargetId] = useState(null);
     const [openReport, setOpenReport] = useState(false);
 
     const handleAddComment = (newComment) => {
@@ -79,7 +79,7 @@ const Comment = () => {
     };
 
     const handleReport = (commentId) => {
-        setReportTargetId(commentId);
+        setTargetId(commentId);
         setOpenReport(true);
     };
 
@@ -90,8 +90,8 @@ const Comment = () => {
             <ComplainForm
                 open={openReport}
                 onClose={() => setOpenReport(false)}
-                targetType={TARGET_TYPE.COMMENT}
-                targetId={reportTargetId}
+                TARGET_TYPE={TARGET_TYPE.COMMENT}
+                targetId={targetId}
             />
             {comments.map((comment) => {
                 const menu = (
