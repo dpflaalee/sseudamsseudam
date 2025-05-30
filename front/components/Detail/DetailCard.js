@@ -12,7 +12,7 @@ const TARGET_TYPE = {
   COMMENT: 'comment'
 };
 
-const PostCard = ({post}) => {
+const DetailCard = ({post}) => {
   const [open, setOpen] = useState(false);
 
   return(
@@ -78,4 +78,4 @@ const PostCard = ({post}) => {
   ); 
 };
 
-export default PostCard;
+export default DetailCard;
