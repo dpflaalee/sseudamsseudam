@@ -1,16 +1,43 @@
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
 const Sequelize = require('sequelize');
-
+const process = require('process');
+const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = require('../config/config')[env];
-const db = {} ;  // 객체 생성하여 객체저장공간 만들기
+const config = require(__dirname + '/../config/config.json')[env];
+const db = {};
 
-const sequelize = new Sequelize(config.database , config.usrename, config.password, config);
-//db, username, password, cinfig 설정정보 이용하여 인스턴스 생성
+let sequelize;
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+} else {
+  sequelize = new Sequelize(config.database, config.username, config.password, config);
+}
 
-//#모델정의
-//#모델 관계설정
+fs
+  .readdirSync(__dirname)
+  .filter(file => {
+    return (
+      file.indexOf('.') !== 0 &&
+      file !== basename &&
+      file.slice(-3) === '.js' &&
+      file.indexOf('.test.js') === -1
+    );
+  })
+  .forEach(file => {
+    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    db[model.name] = model;
+  });
 
-//db.sequelize = squelize; //인스턴스
-db.Sequelize = Sequelize; //라이브러리 db객체에 저장
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
-module.exports = db; // 타 파일에서도 db 사용가능하게
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+module.exports = db;
