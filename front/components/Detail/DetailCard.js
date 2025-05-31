@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Card, Avatar, Button, List, Comment, Popover } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
-import CommentForm from './CommentForm';
-import PostImages from './PostImages';
-import ComplainForm from './complains/ComplainForm';
+import CommentForm from '../Comment/CommentForm';
+import PostImages from '../Post/PostImages';
+import ComplainForm from '../complains/ComplainForm';
 import { useSelector, useDispatch } from 'react-redux';
-import TARGET_TYPE from '../../shared/constants/TARGET_TYPE';
+import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
+////// import 수정
 
 const DetailCard = ({ post }) => {
   const [open, setOpen] = useState(false);
