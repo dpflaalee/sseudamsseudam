@@ -32,7 +32,7 @@ const AppLayout = ({ children }) => {
     <AppLayoutWrapper>
       <Menu mode="horizontal"/>
 
-      <Row gutter={[16, 16]} style={{  }}>
+      <Row gutter={[16, 16]}>
         {/* Navigation */}
         {/* 애매한 공백 삭제용 padding 추가됨 */}
         <ColWithOrder xs={24} md={6} className="nav-col" style={{paddingRight:"0"}}> 
