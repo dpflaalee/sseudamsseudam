@@ -54,7 +54,7 @@ const XButton = styled(AntButton)`
 
 const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
   const [content, setContent] = useState('');
-  //const id = useSelector(state => state.user.user?.id);
+  //const user = useSelector(state => state.user);
   const id = 1;
   const dispatch = useDispatch();
   const onComplainSubmit = useCallback(() => {
@@ -69,7 +69,8 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
         targetType: TARGET_TYPE,
         targetId: targetId,
         reason: content,
-        reporter: id,
+        reporterId: { id: id, nickname: 'Dan' },
+        createAt: '2025.06.02'
       }
     });
     console.log('🚀 Dispatched ADD_COMPLAIN_REQUEST');
