@@ -70,13 +70,15 @@ function* logout() {
 
 //-- 
 function signUpAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
+  console.log('data=',data);
     return axios.post('/user', data);   //         /user 경로 , post, 회원가입정보(data)
 }
 
 function* signUp(action) {
+  console.log('login=',action.data);
     try {
         const result = yield call(signUpAPI, action.data);  // 사용자가 화면에서 넘겨준값
-        console.log(result);
+        console.log('result=',result.data);
         yield put({
             type: SIGN_UP_SUCCESS,
         });
