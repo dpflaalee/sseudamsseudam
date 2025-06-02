@@ -9,10 +9,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER, // 실제 Comment.id, User.id, Post.id
       allowNull: false,
     },
-    userId: {
-      type: DataTypes.INTEGER, // 신고한 사람
-      allowNull: false,
-    },
     reason: {
       type: DataTypes.STRING(255), // 선택사항: 신고 사유
       allowNull: true,
@@ -23,8 +19,15 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Complain.associate = (db) => {
-    Complain.belongsTo(db.User, { foreignKey: 'userId', as: 'Reporter' }); // 신고자
+    Complain.belongsTo(db.User, {
+      foreignKey: {
+        name: 'ReporterId',
+        allowNull: false,
+      },
+      as: 'Reporter',
+    });
   };
+
 
   return Complain;
 };

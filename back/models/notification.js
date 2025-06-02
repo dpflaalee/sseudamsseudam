@@ -4,14 +4,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(255),
             allowNull: false,
         },
-        senderId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        receiverId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
         targetId: {
             type: DataTypes.INTEGER,
             allowNull: true,
@@ -27,8 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Notification.associate = (db) => {
-        Notification.belongsTo(db.User, { foreignKey: 'senderId', as: 'Sender' });
-        Notification.belongsTo(db.User, { foreignKey: 'receiverId', as: 'Receiver' });
+        Notification.belongsTo(db.User, { foreignKey: 'SenderId', as: 'Sender' });
+        Notification.belongsTo(db.User, { foreignKey: 'ReceiverId', as: 'Receiver' });
     };
     return Notification;
 };
