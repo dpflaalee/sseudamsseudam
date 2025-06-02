@@ -2,37 +2,42 @@ import React from 'react';
 import { Card, Button, Avatar } from 'antd';
 import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-import Comment from '../Comment/Comment';
+import DummyComment from './DummyComment';
+import DummyPost from './DummyPost';
+import DummyUser from './DummyUser';
 
 const ComplainCard = ({ report }) => {
-    console.log('💫 ComplainCard : report ', report);
+    console.log('🐕‍🦺 ComplainCard : ', report);
+
     const handleDelete = () => {
-        alert('신고 내역을 삭제합니다 (DB 연동은 아직 안 됨)');
+        alert('신고 내역을 삭제합니다');
     };
+    const reporter = report.repoterId;
+    console.log(reporter);
 
     const renderByType = () => {
         switch (report.targetType) {
             case TARGET_TYPE.POST:
                 return (
                     <>
-                        <div style={{ fontWeight: 'bold' }}>{report.reporter.nickname}님이 게시글을 신고했습니다.</div>
-                        <div style={{ padding: '8px', backgroundColor: '#f9f9f9', marginTop: 8 }}>게시글 미리보기 (ID: {report.targetId})</div>
+                        <div style={{ fontWeight: 'bold' }}>{reporter ? report.reporterId.nickname : '알수 없음'}님이 게시글을 신고했습니다.</div>
+                        <div style={{ padding: '8px', backgroundColor: '#f9f9f9', marginTop: 8 }}> <DummyPost data={report.targetId} /></div>
                     </>
                 );
 
             case TARGET_TYPE.COMMENT:
                 return (
                     <>
-                        <div style={{ fontWeight: 'bold' }}>{report.reporter.nickname}님이 댓글을 신고했습니다.</div>
-                        <div style={{ padding: '8px', backgroundColor: '#f0f0f0', marginTop: 8 }}> <Comment /> (ID: {report.targetId})</div>
+                        <div style={{ fontWeight: 'bold' }}>{reporter ? report.reporterId.nickname : '알수 없음'}님이 댓글을 신고했습니다.</div>
+                        <div style={{ padding: '8px', backgroundColor: '#f0f0f0', marginTop: 8 }}> <DummyComment data={report.targetId} /></div>
                     </>
                 );
 
             case TARGET_TYPE.USER:
                 return (
                     <>
-                        <div style={{ fontWeight: 'bold' }}>{report.reporter.nickname}님이 {report.targetId}를 신고했습니다.</div>
-                        <div style={{ padding: '8px', backgroundColor: '#fff7e6', marginTop: 8 }}>유저 미리보기 (ID: {report.targetId})</div>
+                        <div style={{ fontWeight: 'bold' }}>{reporter ? report.reporterId.nickname : '알수 없음'}님이 유저 {report.targetId}를 신고했습니다.</div>
+                        <div style={{ padding: '8px', backgroundColor: '#fff7e6', marginTop: 8 }}> <DummyUser data={report.targetId} /></div>
                     </>
                 );
 
@@ -44,10 +49,7 @@ const ComplainCard = ({ report }) => {
     return (
         <Card
             style={{ marginBottom: 24 }}
-            title={<span style={{ color: '#888' }}>
-                {/* {createdAt} */}
-                날짜
-            </span>}
+            title={<span style={{ color: '#888' }}>{report.createdAt}</span>}
             extra={
                 <Button danger icon={<DeleteOutlined />} onClick={handleDelete}>
                     내용 삭제하기

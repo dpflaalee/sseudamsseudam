@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Avatar, Button, Dropdown, Menu } from 'antd';
 import styled from 'styled-components';
 import { MoreOutlined } from '@ant-design/icons';
-import ComplainForm from './complains/ComplainForm';
-import TARGET_TYPE from '../../shared/constants/TARGET_TYPE';
+import ComplainForm from './../Complains/ComplainForm';
+import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -68,9 +68,10 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
-const Profile = ({ user = {} }) => {
+const DummyUser = ({ user = {} }) => {
   const {
-    nickname = '사용자명',
+    id = 5,
+    nickname = '더미',
     profileImage = null,
     followerCount = 30,
     postCount = 22,
@@ -129,4 +130,4 @@ const Profile = ({ user = {} }) => {
   );
 };
 
-export default Profile;
+export default DummyUser;

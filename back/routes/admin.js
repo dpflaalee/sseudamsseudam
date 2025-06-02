@@ -58,55 +58,22 @@ router.get('/', async (req, res, next) => {
 
 // 1. ComplainCard.js : 신고 내용 보기
 // /admin/complain
-router.get('/complain', async (req, res, next) => {
+// routes/complain.js
+router.get('/complain', async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: '접근 권한이 없습니다.' });
-        }
-        const where = {};
-        if (parseInt(req.query.lastId, 10)) {
-            where.id = {
-                [Op.lt]: parseInt(req.query.lastId, 10)
-            }
-        };
-        const complainCard = await Complain.findAll({
-            where,
-            limit: 10,
-            order: [
-                ['createdAt', 'DESC'],
-            ],
+        const complains = await Complain.findAll({
             include: [
                 {
                     model: User,
-                    attributes: ['id', 'nickname']
-                }, {
-                    model: Image
-                }, {
-                    model: Comment,
-                    include: [
-                        {
-                            model: User,
-                            attributes: ['id', 'nickname']
-                        }
-                    ]
-                }, {
-                    model: User, as: 'Likers',
-                    attributes: ['id']
-                }, {
-                    model: Post, as: 'Retweet',
-                    include: [{
-                        model: User,
-                        attributes: ['id', 'nickname']
-                    }, {
-                        model: Image
-                    }]      // 원본 글 작성자와 이미지 포함
-                }
-            ]
+                    as: 'Reporter',
+                    attributes: ['id', 'nickname'],
+                },
+            ],
         });
-        res.status(200).json(complainCard);
+        res.status(200).json(complains);
     } catch (err) {
-        console.error(err);
-        next(err);
+        console.error('🚨 신고 조회 에러:', err);
+        res.status(500).send('신고 목록을 불러오지 못했습니다.');
     }
 });
 

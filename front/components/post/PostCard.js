@@ -4,6 +4,7 @@ import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, Retweet
 import PostImages from './PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
+import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST } from '@/reducers/post';
 
 const PostCard = ({post}) => {
   const id = useSelector( state => state.user.user?.id );  
@@ -67,7 +68,7 @@ const PostCard = ({post}) => {
           like
             ? <HeartTwoTone twoToneColor="#f00" key="heart" onClick={onClickunLike} />
             : <HeartOutlined key="heart" onClick={onClickLike} />,
-          <><Link href={`/detail`}><MessageOutlined key="comment" /></Link></>,
+          <><Link href={`/post/${post.id}`} passHref><MessageOutlined key="comment" /></Link></>,
           <Popover content={(
             <Button.Group>
                 <>
@@ -145,4 +146,4 @@ const PostCard = ({post}) => {
   ); 
 };
 
-export default PostCard;    
+export default PostCard;
