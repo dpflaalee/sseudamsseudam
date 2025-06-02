@@ -31,8 +31,11 @@ module.exports = (sequelize, DataTypes) => {
     collate: 'utf8mb4_general_ci',
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> e5b0546 (calendar db model)
+=======
+>>>>>>> 6712fc9 (WIP: 로컬 변경사항 저장)
   return Calendar;
 };

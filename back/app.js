@@ -44,8 +44,14 @@ app.use(passport.session()); //사용자 인증상태 저장
 
 //TEST
 app.get('/', (req, res)=>{res.send('Express Test');});
+<<<<<<< HEAD
 app.use('/api', (req,res)=>{res.send('Link Test')});
 //app.use('/detail' , detail);
 app.use('/user' , user );
+=======
+app.get('/api', (req,res)=>{res.send('Link Test')});
+// app.use('/api/schedule', scheduleRouter); //캘린더 테스트용 코드
+app.use('/detail' , detail);
+>>>>>>> 6712fc9 (WIP: 로컬 변경사항 저장)
 
 app.listen(3065, ()=> {console.log('server...');} );

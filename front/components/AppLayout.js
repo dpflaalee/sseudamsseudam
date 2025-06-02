@@ -1,6 +1,14 @@
 import React from 'react';
 import { Menu, Row, Col } from 'antd'; 
 import Nav from './Nav';
+<<<<<<< HEAD
+=======
+import Calendar from './Calendar/Calendar-ssen';
+import Todolists from './Calendar/Todolist/Todolists';
+import EventSchedule from './Calendar/EventSchedule/EventScheduleForm';
+import EventScheduleList from './Calendar/EventSchedule/EventScheduleList';
+import EventScheduleManage from './Calendar/EventSchedule/EventScheduleManage';
+>>>>>>> 6712fc9 (WIP: 로컬 변경사항 저장)
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
@@ -32,6 +40,7 @@ const AppLayout = ({ children }) => {
     <AppLayoutWrapper>
       <Menu mode="horizontal"/>
 
+<<<<<<< HEAD
       <Row gutter={[16, 16]}>
         {/* Navigation */}
         {/* 애매한 공백 삭제용 padding 추가됨 */}
@@ -52,6 +61,19 @@ const AppLayout = ({ children }) => {
         </ColWithOrder>
 
       </Row>
+=======
+        <div style={{ flex: 1, padding: '16px' }}>{children}
+          <EventSchedule></EventSchedule>
+          <EventScheduleList></EventScheduleList>
+          <EventScheduleManage></EventScheduleManage>
+        </div>
+
+        <RightSidebarWrapper>
+          <Todolists></Todolists>
+          <Calendar></Calendar>
+        </RightSidebarWrapper>
+      </MainContentWrapper>
+>>>>>>> 6712fc9 (WIP: 로컬 변경사항 저장)
     </AppLayoutWrapper>
   </>
   );
