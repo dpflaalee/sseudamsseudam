@@ -65,7 +65,6 @@ const Nav = () => {
           flexDirection: isMobile ? "row" : "column",
           justifyContent: "flex-start", 
           gap: "10px",
-          borderRight:"3px solid #eee"
         }}
       >
         <Dropdown overlay={profileMenu} trigger={["click"]}>
