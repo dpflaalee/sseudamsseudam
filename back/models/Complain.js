@@ -1,7 +1,8 @@
+// models/complain.js
 module.exports = (sequelize, DataTypes) => {
   const Complain = sequelize.define('Complain', {
     targetType: {
-      type: DataTypes.INTEGER, // 1 = 유저, 2 = 게시글, 3 = 댓글
+      type: DataTypes.STRING(255), // TARGET_TYPE.js
       allowNull: false,
     },
     targetId: {
@@ -10,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     reason: {
       type: DataTypes.STRING(255), // 선택사항: 신고 사유
+      allowNull: true,
     }
   }, {
     charset: 'utf8',
@@ -17,9 +19,15 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Complain.associate = (db) => {
-    //Complain.belongsTo(db.User, { foreignKey: 'userId', as: 'Reporter' }); // 신고자
-    db.Complain.belongsTo(db.User); // 신고자
+    Complain.belongsTo(db.User, {
+      foreignKey: {
+        name: 'ReporterId',
+        allowNull: false,
+      },
+      as: 'Reporter',
+    });
   };
+
 
   return Complain;
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Notification from './Notification';
-import NOTIFICATION_TYPE from './../../../shared/constants/NOTIFICATION_TYPE';
+import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
 
 const NotificationButton = () => {
     const [notifications, setNotifications] = useState([]);

@@ -4,6 +4,7 @@ import { combineReducers } from 'redux';
 import post from './post';
 import user from './user';
 import complain from './complain';
+import animal from './animal';
 
 const rootReducer = combineReducers({
   index: (state = {}, action) => {
@@ -18,5 +19,6 @@ const rootReducer = combineReducers({
   user,
   post,
   complain,
+  animal,
 });
 export default rootReducer;

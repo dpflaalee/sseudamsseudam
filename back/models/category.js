@@ -1,22 +1,19 @@
-module.exports=(sequelize, DataTypes)=>{
-  const Category = sequelize.define('Category',{
-    content:{
+module.exports = (sequelize, DataTypes) => {
+  const Category = sequelize.define('Category', {
+    content: {
       type: DataTypes.STRING(100),
       allowNull: false
     }
-  },{
-    charset:'utf8',
-    collate:'utf8_general_ci'
+  }, {
+    charset: 'utf8',
+    collate: 'utf8_general_ci'
   });
 
-  Category.associate = (db)=>{
-    db.Category.belongsToMany(db.Group, {through:'Group_has_Category', as:''});
-    // db.Category.hasMany(db.Group);
-    //db.Category.belongsToMany(db.Prize, {through:'Prize_has_Category', as:''});
+  Category.associate = (db) => {
+    db.Category.belongsToMany(db.Group, { through: 'GroupCategory', as: '' });
     db.Category.hasMany(db.Prize);
     db.Category.hasMany(db.Animal);
-    db.Category.belongsToMany(db.Post, {through:'Post_has_Category',as:''});
-    //db.Category.hasMany(db.Post);
+    db.Category.belongsToMany(db.Post, { through: 'PostCategory', as: '' });
   }
   return Category;
 }
