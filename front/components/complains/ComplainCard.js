@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Button, Avatar } from 'antd';
 import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-import Comment from './../Comment';
+import Comment from '../Comment/Comment';
 
 const ComplainCard = ({ report }) => {
     console.log('💫 ComplainCard : report ', report);
