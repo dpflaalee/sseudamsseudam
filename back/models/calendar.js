@@ -1,0 +1,35 @@
+module.exports = (sequelize, DataTypes) => {
+  const Calendar = sequelize.define('Calendar', {
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    startDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    endDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
+    },
+  }, {
+    charset: 'utf8mb4',
+    collate: 'utf8mb4_general_ci',
+  });
+
+  return Calendar;
+};
