@@ -56,9 +56,9 @@ export const ANIFOLLOW_REQUEST = 'ANIFOLLOW_REQUEST';
 export const ANIFOLLOW_SUCCESS = 'ANIFOLLOW_SUCCESS';
 export const ANIFOLLOW_FAILURE = 'ANIFOLLOW_FAILURE';
 
-export const ANIUNFOLLOW_REQUEST = 'ANIFOLLOW_UNREQUEST';
-export const ANIUNFOLLOW_SUCCESS = 'ANIFOLLOW_UNSUCCESS';
-export const ANIUNFOLLOW_FAILURE = 'ANIFOLLOW_UNFAILURE';
+export const ANIUNFOLLOW_REQUEST = 'ANIUNFOLLOW_REQUEST';
+export const ANIUNFOLLOW_SUCCESS = 'ANIUNFOLLOW_SUCCESS';
+export const ANIUNFOLLOW_FAILURE = 'ANIUNFOLLOW_FAILURE';
 
 export const MODIFY_ANIPROFILE_REQUEST = 'MODIFY_ANIPROFILE_REQUEST';
 export const MODIFY_ANIPROFILE_SUCCESS = 'MODIFY_ANIPROFILE_SUCCESS';
@@ -120,19 +120,61 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.anifollowLoading = false;
       draft.anifollowError = action.error;
       break; 
+
+    case ANIUNFOLLOW_REQUEST:
+      draft.aniunfollowLoading = true;
+      draft.aniunfollowDone = false;
+      draft.aniunfollowError = null;
+      break;
+    case ANIUNFOLLOW_SUCCESS:
+      draft.aniunfollowLoading = false;
+      draft.aniunfollowDone = true;
+      draft.animals = draft.animals.map((a) =>
+        a.id === action.data ? { ...a, isFollowing: false } : a
+      );
+      break;
+    case ANIUNFOLLOW_FAILURE:
+      draft.aniunfollowLoading = false;
+      draft.aniunfollowError = action.error;
+      break;
+
+    case REMOVE_ANIPROFILE_REQUEST:
+      draft.removeAniprofileLoading = true;
+      draft.removeAniprofileDone = false;
+      draft.removeAniprofileError = null;
+      break;
+    case REMOVE_ANIPROFILE_SUCCESS:
+      draft.removeAniprofileLoading = false;
+      draft.removeAniprofileDone = true;
+      draft.animals = draft.animals.filter((v) => v.id !== action.data);
+      break;
+    case REMOVE_ANIPROFILE_FAILURE:
+      draft.removeAniprofileLoading = false;
+      draft.removeAniprofileError = action.error;
+      break;
+
     default:
       break;
   }
 })
 export default reducer;
 
-// action creator 추가
+// action creator
 export const addAniProfile = (data) => ({
   type: ADD_ANIPROFILE_REQUEST,
   data,
 });
 
-// action creator
 export const loadAniProfiles = () => ({
   type: LOAD_ANIPROFILE_REQUEST,
+});
+
+export const aniUnfollow = (id) => ({
+  type: ANIUNFOLLOW_REQUEST,
+  data: id,
+});
+
+export const removeAniFollow = (id) => ({
+  type: REMOVE_ANIPROFILE_REQUEST,
+  data: id,
 });
