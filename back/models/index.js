@@ -2,37 +2,39 @@ const Sequelize = require('sequelize');
 
 const env = process.env.NODE_ENV || 'development';
 const config = require('../config/config')[env];
-const db = {} ;  // 객체 생성하여 객체저장공간 만들기
+const db = {};  // 객체 생성하여 객체저장공간 만들기
 
-const sequelize = new Sequelize(config.database , config.username, config.password, config);
+const sequelize = new Sequelize(config.database, config.username, config.password, config);
 //db, username, password, cinfig 설정정보 이용하여 인스턴스 생성
 
 //#모델정의
 
-db.User = require('./user')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Post = require('./post')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Prize = require('./prize')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Image = require('./image')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Hashtag = require('./hashtag')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Comment = require( './comment')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Animal = require( './animal')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Category = require( './category')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.OpenScope = require( './openScope')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Place = require( './place')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Group = require( './group')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.Complain = require( './complain')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
+db.User = require('./user')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Post = require('./post')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Prize = require('./prize')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Image = require('./image')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Hashtag = require('./hashtag')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Comment = require('./comment')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Animal = require('./animal')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Category = require('./category')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.OpenScope = require('./openScope')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Place = require('./place')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Group = require('./group')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Complain = require('./complain')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Notification = require('./notification')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.Calendar = require('./calendar')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 
-db.Chatting = require( './chatting')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.ChattingRoom = require( './chattingRoom')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.ChattingImage = require( './chattingImage')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.ChattingMember = require( './chattingMember')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
-db.BlackList = require( './blackList')(sequelize , Sequelize);  // 모듈연결   sequelize 실행
+db.Chatting = require('./chatting')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.ChattingRoom = require('./chattingRoom')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.ChattingImage = require('./chattingImage')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.ChattingMember = require('./chattingMember')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.BlackList = require('./blackList')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 
 
 
 
 //#모델 관계설정
-Object.keys(db).forEach(  modelName => {
+Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {  // model안에  modelName associate 가 있다면 
     db[modelName].associate(db);  // associate 실행
   }

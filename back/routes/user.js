@@ -17,6 +17,7 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 // {  "email": "test@test.com",  "nickname": "test",  "password": "test" }
 router.post('/', isNotLoggedIn, async (req, res, next) => {   //res.send('..... join');
   try {
+    console.log('req.body=',req.body);
     //1. 이메일중복확인  sql - select :  객체.findOne
     const user = await User.findOne({ where: { email : req.body?.email ,} });
     //2. 결과확인 - 존재하면 이미사용중인 아이디입니다.
@@ -25,9 +26,11 @@ router.post('/', isNotLoggedIn, async (req, res, next) => {   //res.send('..... 
     const hashPassword = await bcrypt.hash(req.body.password, 12 );  // 암호화강도 10~13
     //4. 사용자 생성  객체.create - insert
     await User.create({
+      username: req.body.username,
       email: req.body.email, 
       nickname: req.body.nickname,
       password:hashPassword,
+      phonenumber: req.body.phoneNum,
     });
     //5. 응답 - 회원가입 성공 ok
     res.status(201).send('회원가입완료!');
@@ -46,7 +49,7 @@ router.post('/login', isNotLoggedIn, async (req, res, next) => {
     
     //2. 인증정보있다면 -  세션 401상태코드 ( 인증필요 )
     if (info) { return res.status(401).send(info.reason); }
-
+    
     //3. 사용자세션에 등록
     return req.login(user, async (loginErr) => { 
       // 3-1. 로그인시 에러발생

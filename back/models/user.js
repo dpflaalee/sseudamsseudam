@@ -22,20 +22,18 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-  },{
+  }, {
     charset: 'utf8',
     collate: 'utf8_general_ci'
   });
   User.associate = (db) => {
-   //일 대 다 
+    //일 대 다 
     //Notification
-    db.User.belongsToMany(db.User,{ through:'Notification' ,as: 'Receivers',foreignKey: 'SenderId'});
-    db.User.belongsToMany(db.User,{through:'Notification' , as: 'Senders', foreignKey: 'ReceiverId'});
-    //Complain
-    db.User.hasMany(db.Complain);
-    //AnimalNoti
-    // db.User.hasMany(db.AnimalNoti,{foreignKey: 'SenderId'});
-    // db.User.hasMany(db.AnimalNoti,{foreignKey: 'ReceiverId'});
+    db.User.belongsToMany(db.User, { through: 'Notification', as: 'Receiver', foreignKey: 'SenderId' });
+    db.User.belongsToMany(db.User, { through: 'Notification', as: 'Sender', foreignKey: 'ReceiverId' });
+    // Complain
+    db.User.hasMany(db.Complain, { foreignKey: 'ReporterId' });
+
     //Animal
     db.User.hasMany(db.Animal);
     //Post
@@ -46,21 +44,21 @@ module.exports = (sequelize, DataTypes) => {
     db.User.hasMany(db.Comment);
     //BlackList
     db.User.hasMany(db.BlackList);
-    
-      /// 다 대 다 
-    db.User.belongsToMany(db.Post, { through: 'Like',   as: 'Liked' });
+
+    /// 다 대 다 
+    db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' });
     db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followers', foreignKey: 'FollowingId' });
-       //  Follow 테이블에서 팔로우하는사람 (FollowingId) 을 기준으로 관계설정 - 팔로우하는 사람 ID
-    db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followings' , foreignKey:'FollowerId'    });
+    //  Follow 테이블에서 팔로우하는사람 (FollowingId) 을 기준으로 관계설정 - 팔로우하는 사람 ID
+    db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followings', foreignKey: 'FollowerId' });
     //                                                      user.getFollowings()
     //MyPrize
-    db.User.belongsToMany(db.Prize, { through: 'MyPrize', foreignKey:'UserId'    });
+    db.User.belongsToMany(db.Prize, { through: 'MyPrize', foreignKey: 'UserId' });
     //UserGroup
-    db.User.belongsToMany(db.Group, { through: 'UserGroup', foreignKey:'UserId'    });
+    db.User.belongsToMany(db.Group, { through: 'GroupMember', foreignKey: 'UserId' });
     //MyPlace
-    db.User.belongsToMany(db.Place, { through: 'MyPlace', as:'Places'    });
+    db.User.belongsToMany(db.Place, { through: 'MyPlace', as: 'Places' });
     //ChattingMemebers
-    db.User.belongsToMany(db.ChattingRoom, { through: db.ChattingMember , foreignKey:'UserId'    });
+    db.User.belongsToMany(db.ChattingRoom, { through: db.ChattingMember, foreignKey: 'UserId' });
 
 
   };
