@@ -1,10 +1,10 @@
 import React from "react";
-import AppLayout from "../components/AppLayout";
+import AppLayout from "../../components/AppLayout";
 import 'antd/dist/antd.css';
 
-import ComplainCard from "../components/ComplainCard";
+import ComplainCard from "../../components/ComplainCard";
 
-const adminPage = () => {
+const complain = () => {
     return (
         <AppLayout>
             <>
@@ -14,4 +14,4 @@ const adminPage = () => {
         </AppLayout>);
 }
 
-export default adminPage;
+export default complain;
