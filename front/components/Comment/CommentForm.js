@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Avatar, Button, Input } from 'antd';
+import { Avatar, Button, Input, Menu, Dropdown } from 'antd';
 
 const Wrapper = styled.div`
   padding: 5%;
@@ -42,7 +42,6 @@ const StyledButton = styled(Button)`
 
 const CommentForm = ({ targetNickname = '사용자' }) => {
     const [comment, setComment] = useState('');
-
     const handleSubmit = () => {
         if (!comment.trim()) return;
         // 실제 댓글 등록 로직은 여기서 처리
@@ -68,7 +67,7 @@ const CommentForm = ({ targetNickname = '사용자' }) => {
             </Row>
             <ButtonRow>
                 <StyledButton onClick={handleSubmit}>댓글 달기</StyledButton>
-            </ButtonRow>
+            </ButtonRow>      
         </Wrapper>
     );
 };
