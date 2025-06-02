@@ -145,4 +145,4 @@ const PostCard = ({post}) => {
   ); 
 };
 
-export default PostCard;
+export default PostCard;    
