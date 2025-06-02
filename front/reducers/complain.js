@@ -33,22 +33,24 @@ export const initialState = {
     mainComplainCard: [],
 };
 
-/////////////////////////dummyComplain
+{/*/////////////////////////dummyComplain
 const dummyComplain = (data) => ({
     id: shortId.generate(),
     targetType: data.targetType,
     targetId: data.targetId,
     reason: data.reason,
     reporter: { id: data.reporter, nickname: 'Dan' },
+    creatAt: data.creatAt
 });
+*/}
 
 
 //////////////////////////////////////////
 
 const reducer = (state = initialState, action) => produce(state, (draft) => {
-    console.log('🐬 complain reducer');
-    console.log('🐬 complain reducer : type', action.type);
-    console.log('🐬 complain reducer : data', action.data);
+    //console.log('🐬 complain reducer');
+    //console.log('🐬 complain reducer : type', action.type);
+    //console.log('🐬 complain reducer : data', action.data);
     switch (action.type) {
         //////////////////////////////
         case LOAD_COMPLAIN_REQUEST:
@@ -61,9 +63,11 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             draft.loadComplainLoading = false;
             draft.loadComplainDone = true;
             draft.loadComplainError = null;
+            draft.mainComplainCard = action.data;
             break;
 
         case ADD_COMPLAIN_FAILURE:
+            console.log('🐬 신고 목록 데이터', action.data);
             draft.loadComplainLoading = false;
             draft.loadComplainDone = true;
             draft.loadComplainError = action.error;
@@ -78,7 +82,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
 
         case ADD_COMPLAIN_SUCCESS:
             console.log('🐢 ADD_COMPLAIN_SUCCESS : ', action.data);
-            const newComplain = dummyComplain(action.data);
+            const newComplain = action.data;
             draft.addComplainLoading = false;
             draft.addComplainDone = true;
             draft.addComplainError = null;
