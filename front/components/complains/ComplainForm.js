@@ -76,7 +76,6 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
     onClose();
     alert('신고가 완료되었습니다.');
   }, [content, dispatch, id, onClose, TARGET_TYPE]);
-
   return (
     <StyledModal
       open={open}
@@ -96,9 +95,7 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
           <div>{'유저 닉네임'}</div>
         </div>
       </UserInfo>
-
       <ReasonInput rows={4} placeholder="신고 사유를 작성해주세요" name='content' onChange={(e) => setContent(e.target.value)} />
-
       <Footer>
         <BlackButton
           htmlType='submit'
