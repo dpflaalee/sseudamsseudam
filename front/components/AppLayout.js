@@ -11,7 +11,7 @@ const AppLayoutWrapper = styled.div`
   min-height: 100vh;
   box-sizing: border-box;
 `;
-
+ 
 const ColWithOrder = styled(Col)`
   &.nav-col { order: 3; } /* 모바일에서 하단 */ 
   &.main-col { order: 1; }

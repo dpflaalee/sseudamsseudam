@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+/.metadata/
+/tomcat9.0/
+/tomcat9.0/*.log
+/Servers/.project
+/Servers/.settings/
+/springboot2025/.metadata/
+/springboot2025/test1/.metadata/
+/springboot2025/test2/.metadata/
+/node_react/back/node_modules/
+/java_2025/node_react/back/.env/
+/back/node_modules/
+/front/node_modules/
+/front/.next/
+=======
+>>>>>>> caa5455 (test)
 # Created by https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,visualstudiocode,node,react
 
@@ -199,4 +217,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+<<<<<<< HEAD
 # End of https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
+=======
+# End of https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
+>>>>>>> fa4b5d9f4792afd91842fd14171d2d4b9982d2e5
+>>>>>>> caa5455 (test)
