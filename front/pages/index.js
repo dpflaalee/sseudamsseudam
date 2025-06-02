@@ -1,7 +1,7 @@
 import 'antd/dist/antd.css';
 import React, { useEffect } from 'react';
 import AppLayout from '../components/AppLayout';
-import { useSelector } from 'react-redux';
+import { useSelector, Provider } from 'react-redux';
 import { Divider } from "antd";
 import PostCard from '../components/Post/PostCard';
 import Comment from '@/components/Comment/Comment';
