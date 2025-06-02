@@ -71,7 +71,7 @@ const signup = () => {
     const [authenNumError, setAuthenNumError] = useState(false);
     const onChangeAuthenNum = useCallback((e) => {
       setChangeAuthenNum(e.target.value);
-    });
+    },[]);
     
     const [nickname, setChangeNickname] = useState('');
     const onChangeNickname = useCallback((e) => {
@@ -142,7 +142,7 @@ const signup = () => {
              
                 <label htmlFor='authenNum'></label>
                 <UnderlineInput placeholder='인증번호' id='authenNum'
-                    value={authenNum} onChange={onChangeEmail}  name='authenNum' required />
+                    value={authenNum} onChange={onChangeAuthenNum}  name='authenNum' required />
                 <Button>확인</Button>
             </div>
           </Form.Item>
@@ -163,7 +163,6 @@ const signup = () => {
             <UnderlineInput placeholder='닉네임' id='nickname'
                 value={nickname} onChange={onChangeNickname}  name='nickname'  required />
           </Form.Item>
-          <UnderlineInput />
           <Form.Item>
            
             <Checkbox name='check' id='check' checked={check}
@@ -172,7 +171,7 @@ const signup = () => {
             {checkError   && <ErrorMessage>약관에 동의하셔야 합니다. </ErrorMessage>}
           </Form.Item> 
           <Form.Item>
-            <Button type='primary'   htmlType='submit' loading={signUpLoading}  >회원가입</Button>
+            <Button type='primary'   htmlType='submit' style={{width:'100%'}} loading={signUpLoading}  >회원가입</Button>
             {/* <Button type='primary'   htmlType='submit'  style={{width:'100%'}} >회원가입</Button> */}
           </Form.Item>
         </Form>
