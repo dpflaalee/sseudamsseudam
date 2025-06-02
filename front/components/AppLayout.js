@@ -35,7 +35,7 @@ const AppLayout = ({ children }) => {
       <Row gutter={[16, 16]}>
         {/* Navigation */}
         {/* 애매한 공백 삭제용 padding 추가됨 */}
-        <ColWithOrder xs={24} md={6} className="nav-col" style={{paddingRight:"0"}}> 
+        <ColWithOrder xs={24} md={6} className="nav-col" style={{paddingRight:"0", borderRight:"3px solid #eee"}}> 
           <Nav />
         </ColWithOrder>
 
