@@ -1,6 +1,6 @@
 {/* 신고 내용 */ }
 import React from "react";
-import AppLayout from "./AppLayout";
+import AppLayout from "../AppLayout";
 
 const ComplainCard = () => {
     return (

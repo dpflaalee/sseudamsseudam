@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button as AntButton, Avatar, Input, Upload } from 'antd';
 import { CloseOutlined, InboxOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import { userInput } from '../hooks/userInput';
+import { userInput } from '../../hooks/userInput';
 
 const StyledModal = styled(Modal)`
   .ant-modal-content {

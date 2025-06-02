@@ -2,8 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Card, Avatar, Button, List, Comment, Popover } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
-import ComplainForm from './ComplainForm';
-import TARGET_TYPE from '../../shared/constants/TARGET_TYPE';
+import ComplainForm from '../admin/ComplainForm';
+import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
 const PostCard = ({ post }) => {
     //const id = useSelector((state) => state.user.user?.id);

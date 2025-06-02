@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { Avatar, Dropdown, Menu, Button } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import CommentForm from './CommentForm';
-import ComplainForm from './ComplainForm';
-import TARGET_TYPE from '../../shared/constants/TARGET_TYPE';
+import ComplainForm from '../admin/ComplainForm';
+import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
 const Wrapper = styled.div`
   margin-top: 24px;
