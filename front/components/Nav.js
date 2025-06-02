@@ -1,19 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { MailOutlined, HomeOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, BellOutlined, UserOutlined, } from "@ant-design/icons";
 import { Avatar, Dropdown, Menu } from "antd";
+import { useRouter } from 'next/router';
 const { SubMenu } = Menu;
 function getItem(label, key, icon, children) { return { key, icon, children, label }; }
 
 const Nav = () => {
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleResize = () => { setIsMobile(window.innerWidth <= 768); };
-
     window.addEventListener("resize", handleResize);
     handleResize();
     return () => { window.removeEventListener("resize", handleResize); };
   }, []);
+
+  const handleClick = ({ key }) => {
+    if (key === '1') {
+      router.push('/');
+    }
+    if (key === '2') {
+      router.push('/main');
+    }
+    if (key === '3') {
+      router.push('/group');
+    }
+    if (key === '4') {
+      router.push('/notification');
+    }
+    if (key === '5') {
+      router.push('/search');
+    }
+    if (key === '6') {
+      router.push('/');
+    }
+  };
 
   const items = [
     getItem("공지", "1", <NotificationOutlined />),
@@ -61,6 +83,7 @@ const Nav = () => {
         <Menu
           mode={isMobile ? "horizontal" : "vertical"}
           defaultSelectedKeys={["2"]}
+          onClick={handleClick}
           style={{
             marginTop: "20px",
             width: isMobile ? "auto" : "100%",

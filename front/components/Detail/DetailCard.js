@@ -3,7 +3,7 @@ import { Card, Avatar, Button, List, Comment, Popover } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
 import CommentForm from '../Comment/CommentForm';
 import PostImages from '../Post/PostImages';
-import ComplainForm from '../complains/ComplainForm';
+import ComplainForm from '../Complains/ComplainForm';
 import { useSelector, useDispatch } from 'react-redux';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 ////// import 수정
