@@ -30,7 +30,7 @@ const EventScheduleList = () => {
         }
         .ant-divider-horizontal {
         margin: 15px 0;
-        }
+        } 
       `}</style>
       <div style={{display: 'flex', flexDirection: 'column', gap: '8px', width: '100%',  backgroundColor: '#ffffff', padding: '20px 200px 25px 200px', }} >
         <div style={{display: 'flex'}}>

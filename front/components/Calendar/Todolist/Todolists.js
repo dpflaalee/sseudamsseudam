@@ -19,7 +19,7 @@ const gridStyle = {
   textAlign: 'left',
   cursor: 'pointer',
   // boxShadow: '0 0 0 0',    //호버 섀도우 없애기
-};
+}; 
 
 const gridbar = {
   color: '#364F6B',

@@ -7,7 +7,7 @@ const formItemLayout = {
   labelCol: { span: 0 },
   wrapperCol: { span: 24 },
 };
-
+ 
 const EventScheduleChange = () => {
   const [form] = Form.useForm();
   const variant = Form.useWatch('variant', form);

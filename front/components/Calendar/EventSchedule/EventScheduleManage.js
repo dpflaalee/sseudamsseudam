@@ -15,7 +15,7 @@ const date = {
   color: '#807E7E',
   fontSize: '13px',
 };
-
+ 
 const EventScheduleManage = () => {
   const [form] = Form.useForm();
   return (

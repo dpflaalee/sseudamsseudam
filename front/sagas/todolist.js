@@ -9,7 +9,7 @@ import {
 function loadTodolistApi() {
   return axios.get('/api/todolist');
 }
-
+ 
 function* loadTodolist() {
   try {
     const result = yield call(loadTodolistApi);

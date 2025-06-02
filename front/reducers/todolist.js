@@ -8,7 +8,7 @@ export const initialState = {
   loadTodolistDone: false,
   loadTodolistError: null,
 };
-
+ 
 export const LOAD_TODOLIST_REQUEST = 'LOAD_TODOLIST_REQUEST';
 export const LOAD_TODOLIST_SUCCESS = 'LOAD_TODOLIST_SUCCESS';
 export const LOAD_TODOLIST_FAILURE = 'LOAD_TODOLIST_FAILURE';
