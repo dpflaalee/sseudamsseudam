@@ -11,6 +11,7 @@ const dotenv = require('dotenv'); //환경변수 로그
 const morgan =require('morgan'); //요청상태 모니터
 
 const user = require('./routes/user');
+const post = require('./routes/post');
 //환경설정
 dotenv.config();
 const app = express();
@@ -47,5 +48,6 @@ app.get('/', (req, res)=>{res.send('Express Test');});
 app.use('/api', (req,res)=>{res.send('Link Test')});
 //app.use('/detail' , detail);
 app.use('/user' , user );
+app.use('/post' , post);
 
 app.listen(3065, ()=> {console.log('server...');} );

@@ -2,7 +2,7 @@ import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { ADD_POST_REQUEST } from '../../reducers/post';
+import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../../reducers/post';
 import userInput from '../../hooks/userInput';  
 
 const PostForm = () => {
@@ -15,7 +15,6 @@ const PostForm = () => {
   const handleCancel = () => { setIsModalOpen(false); };
 
   const { imagePaths , addPostLoading, addPostDone } = useSelector((state) => state.post);
-  const imageInput = useRef();
 
   const dispatch = useDispatch();
   const [text, onChangeText, setText] = userInput(''); 
@@ -24,15 +23,44 @@ const PostForm = () => {
     if (addPostDone) { setText('');  }
   } , [addPostDone]);
 
-  const onFormSubmit = useCallback(() => {
+  const onSubmitForm = useCallback(() => {
+    if (!text || !text.trim()) { return alert('게시글을 작성하세요.');  }
+    const formData = new FormData();
+    imagePaths.forEach(( i ) => { formData.append('image' , i) });
+    formData.append('content', text);
+    
     dispatch({
       type: ADD_POST_REQUEST,
-      data: { content: text },
+      data: formData  
     });
-  },[text]);
+  }, [text ,imagePaths ]);
+
+  const imageInput = useRef();
+  const onClickImageUpload = useCallback(() => {
+      imageInput.current.click();
+  }, [imageInput.current]);
+ 
+  const onChangeImage = useCallback((e) => {
+    console.log('.....images' , e.target.files);
+    const imageFormData = new FormData();
+
+    [].forEach.call( e.target.files, (f)=>{
+      imageFormData.append('image', f);
+    });
+    dispatch({
+      type: UPLOAD_IMAGES_REQUEST,
+      data: imageFormData,
+    });
+  },[]);
+  const onRemoveImage = useCallback((index) => () => {
+    dispatch({
+      type: REMOVE_IMAGE,
+      data: index
+    });
+  },[]);  
   
   return (
-    <Form layout="vertical" style={{ margin: '3%' }} encType="multipart/form-data" onFinish={onFormSubmit}>
+    <Form layout="vertical" style={{ margin: '3%' }} encType="multipart/form-data" onFinish={onSubmitForm}>
       <Form.Item name="text">
         <Space direction="vertical" style={{ width: '100%' }}>
           {/* 상단: 아바타 + 공개범위 */}
@@ -59,8 +87,14 @@ const PostForm = () => {
         </Space>
       </Form.Item>
       <Form.Item>
-        <Input type="file" name="image" multiple hidden />
-        <Button>사진</Button>
+        <input
+          type="file"
+          multiple
+          hidden
+          ref={imageInput}
+          onChange={onChangeImage}
+        />
+        <Button onClick={onClickImageUpload}>사진 업로드</Button>
         <Button>지도</Button>
 
         <div style={{ float: 'right' }}>
@@ -72,6 +106,14 @@ const PostForm = () => {
           </Button>
         </div>
       </Form.Item>
+      <div>
+        { Array.isArray( imagePaths ) ? imagePaths.map((v, i) => (
+          <div  key={v} style={{display:'inline-block'}} >
+            <img src={`http://localhost:3065/${v}`} style={{ width: '200px' }} />
+            <div><Button onClick={onRemoveImage(i)} >제거</Button></div>
+          </div>
+        )) : null }
+      </div>      
       <Modal
         title="카테고리 선택"
         open={isModalOpen}
@@ -87,4 +129,4 @@ const PostForm = () => {
   );
 };
 
-export default PostForm;    
+export default PostForm;
