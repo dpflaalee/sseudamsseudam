@@ -10,13 +10,13 @@ module.exports=(sequelize, DataTypes)=>{
   });
 
   Category.associate = (db)=>{
-    //db.Category.belongsToMany(db.Group, {through:'Group_has_Category', as:''});
-    db.Category.hasMany(db.Group);
+    db.Category.belongsToMany(db.Group, {through:'Group_has_Category', as:''});
+    // db.Category.hasMany(db.Group);
     //db.Category.belongsToMany(db.Prize, {through:'Prize_has_Category', as:''});
     db.Category.hasMany(db.Prize);
     db.Category.hasMany(db.Animal);
-    //db.Category.belongsToMany(db.Post, {through:'Post_has_Category',as:''});
-    db.Category.hasMany(db.Post);
+    db.Category.belongsToMany(db.Post, {through:'Post_has_Category',as:''});
+    //db.Category.hasMany(db.Post);
   }
   return Category;
 }
