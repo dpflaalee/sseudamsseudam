@@ -8,6 +8,7 @@ export const initialState = {
     id: 1,
     User: {id:1, nickname:'mymy'},
     content: '첫번째 게시글 #node',
+    description: "2025-05-30 14:30",
     Images:[{ src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE7C9h2MUO22qNx2xnfmeFA_WHiTL1_JyFEg&s' }],
   }],
 
