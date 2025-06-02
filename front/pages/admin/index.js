@@ -2,8 +2,7 @@ import React from "react";
 import AppLayout from "../../components/AppLayout";
 import 'antd/dist/antd.css';
 
-import ComplainCard from "../../components/ComplainCard";
-import PostCard from "../../components/PostCard";
+import PostCard from "../../components/Post/PostCard";
 
 const adminPage = () => {
     return (

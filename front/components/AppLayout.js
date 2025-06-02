@@ -13,7 +13,7 @@ const AppLayoutWrapper = styled.div`
 `;
 
 const ColWithOrder = styled(Col)`
-  &.nav-col { order: 3; } /* 모바일에서 하단 */ 
+  &.nav-col { order: 10; } /* 모바일에서 하단 */ 
   &.main-col { order: 1; }
   &.right-col { order: 2; }
 
@@ -32,10 +32,10 @@ const AppLayout = ({ children }) => {
     <AppLayoutWrapper>
       <Menu mode="horizontal"/>
 
-      <Row gutter={[16, 16]} style={{  }}>
+      <Row gutter={[16, 16]}>
         {/* Navigation */}
         {/* 애매한 공백 삭제용 padding 추가됨 */}
-        <ColWithOrder xs={24} md={6} className="nav-col" style={{paddingRight:"0"}}> 
+        <ColWithOrder xs={24} md={6} className="nav-col" style={{paddingRight:"0", borderRight:"3px solid #eee"}}> 
           <Nav />
         </ColWithOrder>
 
