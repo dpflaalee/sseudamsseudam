@@ -5,6 +5,9 @@ import AppLayout from "../../components/AppLayout";
 import userInput from '../../hooks/userInput';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';  
+import Router from 'next/router';
+
+import { SIGN_UP_REQUEST } from '../../reducers/user';
 
 //1. SIGNUP_UP_REQUEST  
 //import { SIGN_UP_REQUEST } from '../reducers/user';  
@@ -25,6 +28,7 @@ const UnderlineInput = styled(Input)`
 `;
 
 const signup = () => {
+  console.log('SIGN_UP_REQUEST', SIGN_UP_REQUEST);
     const {signUpLoading , signUpDone , signUpError , user} = useSelector( state =>state.user );
   // 4. dispatch 선언  ##
   const dispatch = useDispatch();
@@ -33,13 +37,17 @@ const signup = () => {
     if ( user &&  user.id) {   Router.replace('/');  }
   } , [user &&  user.id]);
 
-  useEffect(() => { 
+  useEffect(() => {
     if ( signUpDone ) {   Router.replace('/');   }
   } , [signUpDone]);
 
   useEffect(() => { 
     if ( signUpError ) {  alert(signUpError);   }
   } , [signUpError]);
+
+    //const [email, setChangeEmail] = userInput('');
+    const [nickname, onChangeNickname] = userInput('');
+    //const [password, setChangePassword] = userInput(''); 
 
     const [email, setChangeEmail] = useState('');
     const onChangeEmail = useCallback((e) => {
@@ -73,11 +81,11 @@ const signup = () => {
       setChangeAuthenNum(e.target.value);
     });
     
-    const [nickname, setChangeNickname] = useState('');
-    const onChangeNickname = useCallback((e) => {
-      setChangeNickname(e.target.value);
+    // const [nickname, setChangeNickname] = useState('');
+    // const onChangeNickname = useCallback((e) => {
+    //   setChangeNickname(e.target.value);
 
-    },[])
+    // },[])
   const [password, setChangePassword] = useState('');   // userInput  줄이기
   const [passwordRegError, setPasswordRegError] = useState(false);
   const onChangePassword = useCallback((e) => {
@@ -90,24 +98,23 @@ const signup = () => {
     setPasswordError(e.target.value   !==  password);  // !==
   } , [password]);
 
-  const [check, setCheck] = useState('');
-  const [checkError, setCheckError] = useState(false);
-  const onChangeCheck = useCallback((e) => {   //console.log(e.target.checked);
-    setCheck(e.target.checked);     // true
-    setCheckError(false);
-  } , []);
+  // const [check, setCheck] = useState('');
+  // const [checkError, setCheckError] = useState(false);
+  // const onChangeCheck = useCallback((e) => {   //console.log(e.target.checked);
+  //   setCheck(e.target.checked);     // true
+  //   setCheckError(false);
+  // } , []);
 
   const onSubmitForm = useCallback(() => { 
     if (password !== passwordRe) { return setPasswordError(true); }
-    if (!check) { setCheckError(true); }
+   // if (!check) { setCheckError(true); }
 
     return dispatch({
       type: SIGN_UP_REQUEST, 
-      data:{ email, password, nickname  }
+      data:{ username, phoneNum, email, password, nickname  }
     }); 
-
     // 5. dispatch ###
-  } , [email, password, passwordRe , check]);
+  } , [username, phoneNum, email, password, nickname]);
     return (
          <>
       <Head>
@@ -142,18 +149,18 @@ const signup = () => {
              
                 <label htmlFor='authenNum'></label>
                 <UnderlineInput placeholder='인증번호' id='authenNum'
-                    value={authenNum} onChange={onChangeEmail}  name='authenNum' required />
+                    value={authenNum} onChange={onChangeAuthenNum}  name='authenNum' required />
                 <Button>확인</Button>
             </div>
           </Form.Item>
           <Form.Item>
-             <label htmlFor='password'>비밀번호</label>
+             <label htmlFor='password'></label>
             <UnderlineInput placeholder='비밀번호입력' id='password'
               value={password} onChange={onChangePassword} name='password' required />
-              {passwordRegError   && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>}
+              {/* {passwordRegError   && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>} */}
           </Form.Item>
           <Form.Item>
-            <label htmlFor='password-re'>비밀번호 체크</label>
+            <label htmlFor='password-re'></label>
             <UnderlineInput placeholder='비밀번호입력 체크' id='password-re'
               value={passwordRe} onChange={onChangePasswordRe} name='passwordRe' required />
             {passwordError   && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>}
@@ -163,16 +170,15 @@ const signup = () => {
             <UnderlineInput placeholder='닉네임' id='nickname'
                 value={nickname} onChange={onChangeNickname}  name='nickname'  required />
           </Form.Item>
-          <UnderlineInput />
           <Form.Item>
            
-            <Checkbox name='check' id='check' checked={check}
+            {/* <Checkbox name='check' id='check' checked={check}
                       onChange={onChangeCheck}
-            ></Checkbox> 
-            {checkError   && <ErrorMessage>약관에 동의하셔야 합니다. </ErrorMessage>}
+            ></Checkbox>  */}
+            {/* {checkError   && <ErrorMessage>약관에 동의하셔야 합니다. </ErrorMessage>} */}
           </Form.Item> 
           <Form.Item>
-            <Button type='primary'   htmlType='submit' loading={signUpLoading}  >회원가입</Button>
+            <Button type='primary'   htmlType='submit' loading={signUpLoading} style={{width:'100%'}} >회원가입</Button>
             {/* <Button type='primary'   htmlType='submit'  style={{width:'100%'}} >회원가입</Button> */}
           </Form.Item>
         </Form>

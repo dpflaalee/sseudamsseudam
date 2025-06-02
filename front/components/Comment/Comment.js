@@ -4,7 +4,7 @@ import { Avatar, Dropdown, Menu, Button } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 
 import CommentForm from './CommentForm';
-import ComplainForm from '../complains/ComplainForm';
+import ComplainForm from '../Complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 //// import 수정
 

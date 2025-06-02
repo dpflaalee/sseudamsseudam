@@ -8,7 +8,7 @@ const Main = () => {
   return (
     <AppLayout>
       <>
-
+        메인페이지
       </>
     </AppLayout >
   );

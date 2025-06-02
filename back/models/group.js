@@ -1,23 +1,23 @@
-module.exports = (sequelize, DataTypes)=>{
-  const Group = sequelize.define('Group',{
-    title:{
+module.exports = (sequelize, DataTypes) => {
+  const Group = sequelize.define('Group', {
+    title: {
       type: DataTypes.STRING(100),
       allowNull: false,
       unique: true,
     },
-    content:{
+    content: {
       type: DataTypes.STRING(200),
       allowNull: false
     },
-  },{
+  }, {
     charset: 'utf8',
     collate: 'utf8_general_ci'
   });
-  Group.associate = (db)=>{
+  Group.associate = (db) => {
     db.Group.hasMany(db.Post);
     db.Group.belongsTo(db.OpenScope);
-    db.Group.belongsToMany(db.Category, { through:'Group_has_Category', as:'GroupMember' } );
-    db.Group.belongsToMany(db.User, { through:'', as:'' })
+    db.Group.belongsToMany(db.Category, { through: 'GroupCategory', as: '' });
+    db.Group.belongsToMany(db.User, { through: 'GroupMember', as: '' })
   }
   return Group;
 };
