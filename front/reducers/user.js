@@ -2,7 +2,7 @@
 import produce from 'immer';
 
 ////////////////////////////////////////////////////// 초기값
-/*
+
 export const initialState = {
   logInLoading: false, // 로그인 시도중
   logInDone: false,
@@ -43,8 +43,10 @@ export const initialState = {
 
   user: null,
   userInfo: null,
+  signUpData: {},
+  loginData: {}
 };
-*/
+/*
 const dummyUser = (data) => ({
   ...data,
   nickname: 'sally',
@@ -53,7 +55,7 @@ const dummyUser = (data) => ({
   Followings : [{nickname:'apple'} , {nickname:'banana'} , {nickname:'coconut'} , ],
   Followers  : [{nickname:'one'} , {nickname:'two'} , {nickname:'three'} ,]
 });
-
+*/
 ////////////////////////////////////////////////////// action
 /*
 export const loginRequestAction = (data) => ({

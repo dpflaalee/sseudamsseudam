@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         },
     },  {
         charset: 'utf8',
-        collate: 'utf8-general-ci'
+        collate: 'utf8_general_ci'
     });
     // 관계설정
     Animal.associate = (db) => {
