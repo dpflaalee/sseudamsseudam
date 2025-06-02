@@ -9,7 +9,6 @@ const GroupListPage = ()=>{
   ////////////////////////////////////////////view
   return(<AppLayout>
     <div style={{padding:'24px'}}>
-      <h1>그룹 리스트</h1>
       <div> {mockGroups && mockGroups.map((group)=>(
         <GroupList key={group.id} group={group} />
       ))} </div>
