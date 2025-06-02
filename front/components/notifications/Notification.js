@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Avatar } from 'antd';
 import { HeartFilled, RetweetOutlined, MessageOutlined, UserAddOutlined, NotificationOutlined, GiftOutlined, TeamOutlined, CrownFilled } from '@ant-design/icons';
-import NOTIFICATION_TYPE from './../../../shared/constants/NOTIFICATION_TYPE';
+import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
 
 const Container = styled.div`
   display: flex;

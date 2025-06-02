@@ -4,13 +4,10 @@ import { faker } from '@faker-js/faker';
 faker.seed(123);
 
 export const initialState = {
-  mainPosts: [{
-    id: 1,
-    User: {id:1, nickname:'mymy'},
-    content: '첫번째 게시글 #node',
-    description: "2025-05-30 14:30",
-    Images:[{ src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE7C9h2MUO22qNx2xnfmeFA_WHiTL1_JyFEg&s' }],
-  }],
+  mainPosts: [],
+  singlePost: null,
+  imagePaths: [],
+  hasMorePosts: true,
 
   addPostLoading: false,
   addPostDone: false,
@@ -23,6 +20,18 @@ export const initialState = {
   removePostLoading: false,
   removePostDone: false,
   removePostError: null,
+
+  uploadImagesLoading: false,
+  uploadImagesDone: false,
+  uploadImagesError: null,
+  
+  likePostLoading: false,
+  likePostDone: false,
+  likePostError: null,
+  unlikePostLoading: false,
+  unlikePostDone: false,
+  unlikePostError: null,
+  
 };
 
 export const addPost = {  type:'ADD_POST', }
@@ -52,6 +61,20 @@ export const UPDATE_POST_FAILURE = 'UPDATE_POST_FAILURE';
 export const REMOVE_POST_REQUEST = 'REMOVE_POST_REQUEST';
 export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
 export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
+
+export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
+export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
+export const UPLOAD_IMAGES_FAILURE = 'UPLOAD_IMAGES_FAILURE';
+
+export const REMOVE_IMAGE = 'REMOVE_IMAGE';
+
+export const LIKE_POST_REQUEST = 'LIKE_POST_REQUEST';
+export const LIKE_POST_SUCCESS = 'LIKE_POST_SUCCESS';
+export const LIKE_POST_FAILURE = 'LIKE_POST_FAILURE';
+
+export const UNLIKE_POST_REQUEST = 'UNLIKE_POST_REQUEST';
+export const UNLIKE_POST_SUCCESS = 'UNLIKE_POST_SUCCESS';
+export const UNLIKE_POST_FAILURE = 'UNLIKE_POST_FAILURE';
 
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
@@ -98,6 +121,58 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.removePostLoading = false;
       draft.removePostError = action.error;
       break;
+
+    case UPLOAD_IMAGES_REQUEST:
+      draft.uploadImagesLoading = true;
+      draft.uploadImagesDone = false;
+      draft.uploadImagesError = null;
+      break;
+    case UPLOAD_IMAGES_SUCCESS: {
+      draft.imagePaths = draft.imagePaths.concat(action.data);
+      draft.uploadImagesLoading = false;
+      draft.uploadImagesDone = true;
+      break;
+    }
+    case UPLOAD_IMAGES_FAILURE:
+      draft.uploadImagesLoading = false;
+      draft.uploadImagesError = action.error;
+      break;
+    case REMOVE_IMAGE:
+      draft.imagePaths = draft.imagePaths.filter((v, i) => i !== action.data);
+      break; 
+              
+    case LIKE_POST_REQUEST:
+      draft.likePostLoading = true;
+      draft.likePostDone = false;
+      draft.likePostError = null;
+      break;
+    case LIKE_POST_SUCCESS: {
+      const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
+      post.Likers.push({ id: action.data.UserId });
+      draft.likePostLoading = false;
+      draft.likePostDone = true;
+      break;
+    }
+    case LIKE_POST_FAILURE:
+      draft.likePostLoading = false;
+      draft.likePostError = action.error;
+      break;
+    case UNLIKE_POST_REQUEST:
+      draft.unlikePostLoading = true;
+      draft.unlikePostDone = false;
+      draft.unlikePostError = null;
+      break;
+    case UNLIKE_POST_SUCCESS: {
+      const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
+      post.Likers = post.Likers.filter((v) => v.id !== action.data.UserId);
+      draft.unlikePostLoading = false;
+      draft.unlikePostDone = true;
+      break;
+    }
+    case UNLIKE_POST_FAILURE:
+      draft.unlikePostLoading = false;
+      draft.unlikePostError = action.error;
+      break;      
 
       default:
       break;

@@ -3,10 +3,8 @@ import styled from 'styled-components';
 import { Avatar, Dropdown, Menu, Button } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 
-import CommentForm from './CommentForm';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-//// import 수정
 
 const Wrapper = styled.div`
   margin-top: 24px;
@@ -49,80 +47,52 @@ const Divider = styled.div`
   margin: 16px 0;
 `;
 
-const Comment = (data) => {
-    const [comments, setComments] = useState([
-        {
-            id: 1,
-            nickname: '철수',
-            content: '정말 좋은 글이네요!',
-            date: '2025.05.29',
-        },
-        {
-            id: 2,
-            nickname: '영희',
-            content: '많은 도움이 되었습니다 :)',
-            date: '2025.05.29',
-        },
-    ]);
+const Comment = ({ comments = [] }) => {
+  const [targetId, setTargetId] = useState(null);
+  const [openReport, setOpenReport] = useState(false);
 
-    const [targetId, setTargetId] = useState(null);
-    const [openReport, setOpenReport] = useState(false);
+  const handleReport = (commentId) => {
+    setTargetId(commentId);
+    setOpenReport(true);
+  };
 
-    const handleAddComment = (newComment) => {
-        setComments((prev) => [
-            ...prev,
-            {
-                id: prev.length + 1,
-                nickname: '나',
-                content: newComment,
-                date: new Date().toLocaleDateString(),
-            },
-        ]);
-    };
-
-    const handleReport = (commentId) => {
-        setTargetId(commentId);
-        setOpenReport(true);
-    };
-
-    return (
-        <Wrapper>
-            <CommentForm targetNickname="작성자" onSubmit={handleAddComment} />
-            <Divider />
-            <ComplainForm
-                open={openReport}
-                onClose={() => setOpenReport(false)}
-                TARGET_TYPE={TARGET_TYPE.COMMENT}
-                targetId={targetId}
-            />
-            {comments.map((comment) => {
-                const menu = (
-                    <Menu>
-                        <Menu.Item danger onClick={() => handleReport(comment.id)}>
-                            신고하기
-                        </Menu.Item>
-                    </Menu>
-                );
-
-                return (
-                    <CommentItem key={comment.id}>
-                        <Left>
-                            <Avatar />
-                            <Content>
-                                <Nickname>{comment.nickname}</Nickname>
-                                <Text>{comment.content}</Text>
-                                <Date>{comment.date}</Date>
-                            </Content>
-                        </Left>
-                        <Dropdown overlay={menu} trigger={['click']}>
-                            <Button type="text" icon={<MoreOutlined />} />
-                        </Dropdown>
-                    </CommentItem>
-                );
-            })}
-
-        </Wrapper>
-    );
+  return (
+    <Wrapper>
+      <Divider />
+      <ComplainForm
+        open={openReport}
+        onClose={() => setOpenReport(false)}
+        TARGET_TYPE={TARGET_TYPE.COMMENT}
+        targetId={targetId}
+      />
+      {comments.map((comment) => {
+        const menu = (
+            <Menu>
+              <Menu.Item>수정</Menu.Item>
+              <Menu.Item danger>삭제</Menu.Item>              
+              <Menu.Item danger onClick={() => handleReport(comment.id)}>
+                신고하기
+              </Menu.Item>              
+            </Menu>
+        );
+        return (
+          <CommentItem key={comment.id}>
+            <Left>
+              <Avatar />
+              <Content>
+                <Nickname>{comment.nickname}</Nickname>
+                <Text>{comment.content}</Text>
+                <Date>{comment.date}</Date>
+              </Content>
+            </Left>
+            <Dropdown overlay={menu} trigger={['click']}>
+              <Button type="text" icon={<MoreOutlined />} />
+            </Dropdown>
+          </CommentItem>
+        );
+      })}
+    </Wrapper>
+  );
 };
 
 export default Comment;

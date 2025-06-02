@@ -54,7 +54,7 @@ const XButton = styled(AntButton)`
 
 const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
   const [content, setContent] = useState('');
-  //const id = useSelector(state => state.user.user?.id);
+  //const user = useSelector(state => state.user);
   const id = 1;
   const dispatch = useDispatch();
   const onComplainSubmit = useCallback(() => {
@@ -69,14 +69,14 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
         targetType: TARGET_TYPE,
         targetId: targetId,
         reason: content,
-        reporter: id,
+        reporterId: { id: id, nickname: 'Dan' },
+        createAt: '2025.06.02'
       }
     });
     console.log('🚀 Dispatched ADD_COMPLAIN_REQUEST');
     onClose();
     alert('신고가 완료되었습니다.');
   }, [content, dispatch, id, onClose, TARGET_TYPE]);
-
   return (
     <StyledModal
       open={open}
@@ -96,9 +96,7 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
           <div>{'유저 닉네임'}</div>
         </div>
       </UserInfo>
-
       <ReasonInput rows={4} placeholder="신고 사유를 작성해주세요" name='content' onChange={(e) => setContent(e.target.value)} />
-
       <Footer>
         <BlackButton
           htmlType='submit'

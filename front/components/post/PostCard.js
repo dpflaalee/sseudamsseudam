@@ -4,13 +4,37 @@ import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, Retweet
 import PostImages from './PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
+import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST } from '@/reducers/post';
 
 const PostCard = ({post}) => {
+  const id = useSelector( state => state.user.user?.id );  
   const [open, setOpen] = useState(false);
   const { Option } = Select;
+  const dispatch = useDispatch();  
   const [editModalVisible, setEditModalVisible] = useState(false);
+
   const [newContent, setNewContent] = useState(post.content);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const {removePostLoading , removePostDone} = useSelector( state => state.post )
+
+  // 좋아요
+  const onClickLike = useCallback(() => { 
+    if (!id) {return alert('로그인을 하시면 좋아요 추가가 가능합니다.');}
+    return dispatch({
+      type: LIKE_POST_REQUEST,
+      data: post.id
+    });
+  }, [id] );
+
+  const onClickunLike = useCallback(() => { 
+    if (!id) {return alert('로그인을 하시면 좋아요 추가가 가능합니다.');}
+    return dispatch({
+      type: UNLIKE_POST_REQUEST,
+      data: post.id
+    });
+  }, [id] );
+
+  const like = post.Likers?.find((v) => v.id === id);
 
   //수정
   const openEditModal = () => {
@@ -20,7 +44,7 @@ const PostCard = ({post}) => {
     setEditModalVisible(false);
   };
   const handleEditSubmit = () => {
-    console.log('수정된 내용:', newContent);
+    // console.log('수정된 내용:', newContent);
     setEditModalVisible(false);
   };
 
@@ -41,8 +65,10 @@ const PostCard = ({post}) => {
       <Card
         actions={[
           <RetweetOutlined key="retweet" />,
-          <HeartTwoTone twoToneColor="#f00" key="heart" />,
-          <><Link href={`/detail`}><MessageOutlined key="comment" /></Link></>,
+          like
+            ? <HeartTwoTone twoToneColor="#f00" key="heart" onClick={onClickunLike} />
+            : <HeartOutlined key="heart" onClick={onClickLike} />,
+          <><Link href={`/post/${post.id}`} passHref><MessageOutlined key="comment" /></Link></>,
           <Popover content={(
             <Button.Group>
                 <>
@@ -92,7 +118,7 @@ const PostCard = ({post}) => {
         </div>
 
         <Input.TextArea
-          value={newContent}
+          // value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
           rows={4}
           placeholder="내용을 수정하세요"
