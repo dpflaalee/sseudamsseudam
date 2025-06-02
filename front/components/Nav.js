@@ -58,18 +58,17 @@ const Nav = () => {
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%"}}>
       <div
         style={{
           display: "flex",
           flexDirection: isMobile ? "row" : "column",
-          justifyContent: "flex-start",
-          padding: "10px",
-          gap: "10px"
+          justifyContent: "flex-start", 
+          gap: "10px",
         }}
       >
         <Dropdown overlay={profileMenu} trigger={["click"]}>
-          <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+          <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop:"20px", padding:"15px"}}>
             <Avatar size="large" icon={<UserOutlined />} />
             {!isMobile && (
               <div style={{ marginLeft: "10px" }}>

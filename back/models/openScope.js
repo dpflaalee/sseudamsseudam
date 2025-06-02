@@ -11,5 +11,5 @@ module.exports = ( sequelize , DataTypes ) => {
     db.OpenScope.hasMany(db.Post);
     db.OpenScope.hasMany(db.Group);
   };
-  return OpenScope;
+  return OpenScope;    
 };
