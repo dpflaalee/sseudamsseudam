@@ -90,7 +90,7 @@ const signup = () => {
     const [authenNumError, setAuthenNumError] = useState(false);
     const onChangeAuthenNum = useCallback((e) => {
       setChangeAuthenNum(e.target.value);
-    },[]);
+    });
     
     // const [nickname, setChangeNickname] = useState('');
     // const onChangeNickname = useCallback((e) => {
@@ -200,7 +200,6 @@ const signup = () => {
             {/* {checkError   && <ErrorMessage>약관에 동의하셔야 합니다. </ErrorMessage>} */}
           </Form.Item> 
           <Form.Item>
-
             <Button type='primary'   htmlType='submit' loading={signUpLoading} style={{width:'100%'}} >회원가입</Button>
             {/* <Button type='primary'   htmlType='submit'  style={{width:'100%'}} >회원가입</Button> */}
           </Form.Item>
