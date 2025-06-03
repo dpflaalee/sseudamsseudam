@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
 import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST } from '@/reducers/post';
 
-const PostCard = ({post}) => {
+const PostCard = ({post, isGroup=false}) => { // 그룹용 추가코드
   const id = useSelector( state => state.user.user?.id );  
   const [open, setOpen] = useState(false);
   const { Option } = Select;
@@ -63,6 +63,7 @@ const PostCard = ({post}) => {
   return(
     <div style={{margin:'3%'}}>
       <Card
+        title={isGroup? `[그룹]${post.User?.nickname}`:post.User?.nickname} // 그룹용 추가코드
         actions={[
           <RetweetOutlined key="retweet" />,
           like

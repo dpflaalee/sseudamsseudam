@@ -19,10 +19,7 @@ const CategoryAdminPage = () => {
   const [newContent, setNewContent] = useState('');
   const [newLargeCategory, setNewLargeCategory] = useState('ANIMAL');
 
-  useEffect(() => {
-    // 실제 API로 교체 가능
-    setCategories(dummyData);
-  }, []);
+  useEffect(() => { setCategories(dummyData); }, []);
 
   const handleAdd = () => {
     setEditCategory(null);
@@ -49,13 +46,9 @@ const CategoryAdminPage = () => {
   };
 
   const handleSave = () => {
-    if (!newContent.trim()) {
-      message.warning('카테고리 이름을 입력해주세요.');
-      return;
-    }
+    if (!newContent.trim()) { message.warning('카테고리 이름을 입력해주세요.'); return; }
 
     if (editCategory) {
-      // 수정
       setCategories((prev) =>
         prev.map((cat) =>
           cat.id === editCategory.id
@@ -65,7 +58,6 @@ const CategoryAdminPage = () => {
       );
       message.success('수정되었습니다.');
     } else {
-      // 추가
       const newId = categories.length ? Math.max(...categories.map((c) => c.id)) + 1 : 1;
       setCategories((prev) => [
         ...prev,
@@ -79,7 +71,7 @@ const CategoryAdminPage = () => {
 
   const columns = [
     {
-      title: '카테고리명',
+      title: '카테고리 이름',
       dataIndex: 'content',
       key: 'content',
     },
@@ -90,12 +82,17 @@ const CategoryAdminPage = () => {
       render: (text) => (text === 'ANIMAL' ? '동물' : '챌린지'),
     },
     {
-      title: '작업',
+      title: '',
       key: 'action',
+      align: 'right',
       render: (_, record) => (
-        <Space>
-          <Button icon={<EditOutlined />} onClick={() => handleEdit(record)}> 수정 </Button>
-          <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(record.id)}> 삭제 </Button>
+        <Space style={{ justifyContent: 'flex-end', display: 'flex' }}>
+          <Button icon={<EditOutlined />} onClick={() => handleEdit(record)}>
+            수정
+          </Button>
+          <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(record.id)}>
+            삭제
+          </Button>
         </Space>
       ),
     },
@@ -103,13 +100,7 @@ const CategoryAdminPage = () => {
 
   return (<AppLayout>
     <div style={{ padding: 24 }}>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={handleAdd}
-        style={{ marginBottom: 16 }}
-        block
-      >
+      <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ marginBottom: 16, width:"100%" }} >
         카테고리 추가
       </Button>
 
