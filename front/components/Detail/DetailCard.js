@@ -4,8 +4,15 @@ import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, Retweet
 import { useSelector, useDispatch } from 'react-redux';
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST,LOAD_POST_REQUEST } from '@/reducers/post';
 import PostImages from '../post/PostImages';
-import { useRouter } from 'next/router'; // <-- useRouter import 추가
+import { useRouter } from 'next/router';
+import Link from 'next/Link';
+
 import CommentForm from '../Comment/CommentForm';
+import Comment from '../Comment/Comment';
+import PostImages from '../post/PostImages';
+import ComplainForm from '../complains/ComplainForm';
+import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
+import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
 
 const DetailCard = ({ post }) => {
   const id = useSelector(state => state.user.user?.id);
