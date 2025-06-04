@@ -3,6 +3,12 @@ import { all, fork, put, takeLatest, throttle, call } from 'redux-saga/effects';
 import shortId from 'shortid';
 
 import {
+  LOAD_POST_REQUEST,
+  LOAD_POST_SUCCESS,
+  LOAD_POST_FAILURE,
+  LOAD_POSTS_REQUEST,
+  LOAD_POSTS_SUCCESS,
+  LOAD_POSTS_FAILURE,  
   ADD_POST_FAILURE,
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
@@ -12,23 +18,62 @@ import {
   REMOVE_POST_FAILURE,
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
+
+  ADD_COMMENT_FAILURE,
+  ADD_COMMENT_REQUEST,
+  ADD_COMMENT_SUCCESS,
+
   LIKE_POST_REQUEST,
   LIKE_POST_SUCCESS,
   LIKE_POST_FAILURE,
   UNLIKE_POST_REQUEST,
   UNLIKE_POST_SUCCESS,
   UNLIKE_POST_FAILURE,
+
   UPLOAD_IMAGES_FAILURE,
   UPLOAD_IMAGES_REQUEST,
   UPLOAD_IMAGES_SUCCESS,
 } from '../reducers/post';
 
-const dummyPost = (content) => ({
-  id: shortId.generate(),
-  content,
-  Images: [{ src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE7C9h2MUO22qNx2xnfmeFA_WHiTL1_JyFEg&s' }],
-  createdAt: new Date().toISOString(),
-});
+function loadPostAPI(data) {
+  return axios.get(`/post/${data}`);
+}
+
+function* loadPost(action) {
+  try {
+    const result = yield call(loadPostAPI, action.data);
+    yield put({
+      type: LOAD_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_POST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function loadPostsAPI(lastId) {
+  return axios.get(`/posts?lastId=${lastId || 0}`);
+}
+
+function* loadPosts(action) {
+  try {
+    const result = yield call(loadPostsAPI, action.lastId);
+    yield put({
+      type: LOAD_POSTS_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_POSTS_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 
 function addPostAPI(data) {
   return axios.post('/post', data);
@@ -85,6 +130,26 @@ function* removePost(action) {
     console.error(err);
     yield put({
       type: REMOVE_POST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function addCommentAPI(data) {
+  return axios.post(`/post/${data.postId}/comment`, data); // POST /post/1/comment
+}
+
+function* addComment(action) {
+  try {
+    const result = yield call(addCommentAPI, action.data);
+    yield put({
+      type: ADD_COMMENT_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: ADD_COMMENT_FAILURE,
       error: err.response.data,
     });
   }
@@ -150,6 +215,14 @@ function* unlikePost(action) {
   }
 }
 
+function* watchLoadPost() {
+  yield takeLatest(LOAD_POST_REQUEST, loadPost);
+}
+
+function* watchLoadPosts() {
+  yield throttle(5000, LOAD_POSTS_REQUEST, loadPosts);
+}
+
 function* watchAddPost() {
   yield takeLatest(ADD_POST_REQUEST, addPost);
 }
@@ -160,6 +233,10 @@ function* watchUpdatePost() {
 
 function* watchRemovePost() {
   yield takeLatest(REMOVE_POST_REQUEST, removePost);
+}
+
+function* watchAddComment() {
+  yield takeLatest(ADD_COMMENT_REQUEST, addComment);
 }
 
 function* watchLikePost() {
@@ -176,9 +253,12 @@ function* watchUploadImages() {
 
 export default function* postSaga() {
   yield all([
+    fork(watchLoadPost),  
+    fork(watchLoadPosts),      
     fork(watchAddPost),
     fork(watchUpdatePost),
     fork(watchRemovePost),
+    fork(watchAddComment),    
     fork(watchLikePost),
     fork(watchUnlikePost),
     fork(watchUploadImages),    
