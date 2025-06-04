@@ -11,6 +11,7 @@ const dotenv = require('dotenv'); //환경변수 로그
 const morgan = require('morgan'); //요청상태 모니터
 
 const user = require('./routes/user');
+const post = require('./routes/post');
 const complain = require('./routes/complain');
 const admin = require('./routes/admin');
 const search = require('./routes/search');
@@ -50,6 +51,8 @@ app.use(passport.session()); //사용자 인증상태 저장
 app.get('/', (req, res) => { res.send('Express Test'); });
 app.use('/api', (req, res) => { res.send('Link Test') });
 //app.use('/detail' , detail);
+
+app.use('/post' , post);
 app.use('/user', user);
 app.use('/complain', complain);
 app.use('/admin', admin);
