@@ -1,80 +1,111 @@
-import React, { useCallback , useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
-import { Avatar, Button, Input, Menu, Dropdown, Form } from 'antd';
+import { Avatar, Button, Input, Form } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import userInput from '@/hooks/userInput';
-
 import { ADD_COMMENT_REQUEST } from '../../reducers/post';
 
 const Wrapper = styled.div`
-  padding: 5%;
+  padding: 24px 16px;
   border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
 `;
 
-const Row = styled.div`
+const Title = styled.h3`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #333;
+`;
+
+const FormRow = styled.div`
   display: flex;
   gap: 12px;
-  align-items: flex-start;
 `;
 
-const ContentBox = styled.div`
+const AvatarWrapper = styled.div`
+  flex-shrink: 0;
+`;
+
+const ContentArea = styled.div`
   flex: 1;
 `;
 
-const TopText = styled.div`
-  font-weight: 500;
+const StyledForm = styled(Form)`
+  position: relative;
 `;
 
-const Placeholder = styled.div`
-  color: #999;
-  margin-top: 4px;
+const StyledTextArea = styled(Input.TextArea)`
+  border-radius: 8px;
+  padding: 12px;
+  resize: none;
+  font-size: 14px;
 `;
 
-const ButtonRow = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-`;
-
-const StyledButton = styled(Button)`
+const SubmitButton = styled(Button)`
+  position: absolute;
+  right: 0;
+  bottom: -44px;
+  border-radius: 8px;
   background-color: #2f466c;
   color: white;
-  border-radius: 12px;
-  padding: 0 16px;
+  padding: 4px 16px;
 `;
 
-const CommentForm = ({ post }) => { 
-    ////////////////////////////////////////////////// code
-    const { addCommentLoading, addCommentDone } = useSelector( state => state.post );
-    const id = useSelector( state => state.user.user?.id);
-    const dispatch = useDispatch();
-    const [comment, onChangeComment, setText] = userInput('');
+const CommentForm = ({ post, onAddLocalComment }) => {
+  const { addCommentLoading, addCommentDone } = useSelector((state) => state.post);
+  const id = useSelector((state) => state.user.user?.id);
+  const nickname = useSelector((state) => state.user.user?.nickname);
+  const dispatch = useDispatch();
+  const [comment, onChangeComment] = userInput('');
 
-    useEffect(() => {
-      if (addCommentDone) {setText('');}
-    }, [addCommentDone]);
-    const onSubmitForm = useCallback(() => {
-      console.log( post.id, comment );
-      if(!id) {return alert('로그인이 필요합니다.'); }
-      dispatch({
-        type: ADD_COMMENT_REQUEST,
-        data: { content:comment, userId:id, postId:post.id }
-      })
-    }, [comment, id]);
+  useEffect(() => {
+    if (addCommentDone && onAddLocalComment) {
+      onAddLocalComment(); // 부모 컴포넌트의 fetchPost 호출
+    }
+  }, [addCommentDone, onAddLocalComment]);
 
-    ////////////////////////////////////////////////// view
-    return(
-      <Form layout="vertical" style={{ margin:50, position:'relative' }} onFinish={onSubmitForm} >
-          <Input.TextArea rows={5} value={comment} onChange={onChangeComment}  />
-          <Button type="primary" style={{position:'absolute', right:0, bottom:-50,}}     
-                  htmlType='submit' loading={addCommentLoading}>댓글</Button>
-      </Form>
-      
-    );
+  const onSubmitForm = useCallback(() => {
+    if (!id) {
+      return alert('로그인이 필요합니다.');
+    }
+    if (!comment.trim()) {
+      return alert('댓글을 입력하세요.');
+    }
+    dispatch({
+      type: ADD_COMMENT_REQUEST,
+      data: { content: comment, userId: id, postId: post.id },
+    });
+  }, [comment, id, post.id, dispatch]);
+
+  return (
+    <Wrapper>
+      <Title>{`${post.User.nickname} 의 글에 댓글쓰기`}</Title>  {/* 작성자 이름 동적으로 삽입 */}
+      <FormRow>
+        <AvatarWrapper>
+          <Avatar>{nickname ? nickname[0] : '?'}</Avatar>
+        </AvatarWrapper>
+        <ContentArea>
+          <StyledForm onFinish={onSubmitForm}>
+            <StyledTextArea
+              rows={4}
+              placeholder="댓글을 입력하세요."
+              value={comment}
+              onChange={onChangeComment}
+            />
+            <SubmitButton htmlType="submit" loading={addCommentLoading}>
+              댓글
+            </SubmitButton>
+          </StyledForm>
+        </ContentArea>
+      </FormRow>
+    </Wrapper>
+  );
 };
+
 CommentForm.propTypes = {
-  post: PropTypes.object.isRequired
+  post: PropTypes.object.isRequired,
+  onAddLocalComment: PropTypes.func,
 };
+
 export default CommentForm;

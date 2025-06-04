@@ -9,7 +9,7 @@ const NotificationButton = () => {
     const [notifications, setNotifications] = useState([]);
     const dispatch = useDispatch();
     const dummyUser = {
-        id: 2,
+        id: 1,
         nickname: 'Dan',
         avatar: 'https://example.com/avatar.jpg',
     };
@@ -22,8 +22,8 @@ const NotificationButton = () => {
             data: {
                 notiType: notiType,
                 senderId: dummyUser.id,
-                receiverId: 3,
-                targetId: 5,
+                receiverId: 2,
+                targetId: 2,
             }
         });
     };
