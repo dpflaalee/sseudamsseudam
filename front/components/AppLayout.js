@@ -4,11 +4,8 @@ import Nav from './Nav';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
-<<<<<<< HEAD
 import PostCard from './post/PostCard';
 import DetailCard from './detail/DetailCard'
-=======
->>>>>>> 57217b8bd55a8690c26462018b004664a1ea8601
 
 const AppLayoutWrapper = styled.div`
   min-height: 100vh;

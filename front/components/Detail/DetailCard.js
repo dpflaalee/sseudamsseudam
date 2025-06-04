@@ -4,24 +4,10 @@ import {EllipsisOutlined,HeartOutlined,HeartTwoTone,MessageOutlined,RetweetOutli
 import { useSelector, useDispatch } from 'react-redux';
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
 
-import PostImages from '../post/PostImages';
+import PostImages from '../Post/PostImages';
 import { useRouter } from 'next/router';
-<<<<<<< HEAD
-<<<<<<< HEAD
-import Link from 'next/Link';
-
 import CommentForm from '../comment/CommentForm';
 import Comment from '../comment/Comment';
-import ComplainForm from '../complains/ComplainForm';
-import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-=======
-import CommentForm from '../Comment/CommentForm';
-import Comment from '../Comment/Comment';
->>>>>>> 57217b8bd55a8690c26462018b004664a1ea8601
-=======
-import CommentForm from '../comment/CommentForm';
-import Comment from '../comment/Comment';
->>>>>>> 9e65cd70ecb3412a974453374ae20b764b37d4ca
 
 const DetailCard = ({ post, onRefreshPost }) => {
   const id = useSelector((state) => state.user.user?.id);
