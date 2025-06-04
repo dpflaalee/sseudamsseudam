@@ -65,7 +65,7 @@ const signup = () => {
     const onChangePhoneNum = useCallback((e) => {
       setPhoneNumRegError(false);
       setPhoneNumLenError(false);
-      
+      console.log(e.target.value);
       //숫자만 받기
       setChangePhoneNum(e.target.value);
         },[]);
@@ -87,7 +87,7 @@ const signup = () => {
   const onChangePassword = useCallback((e) => {
       const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
       const pass = e.target.value;
-      
+          console.log('changePassword',e.target.value);      
       // if(!passRegex.test(password)){
       //   setChangePassword(true);
       // }
@@ -96,8 +96,9 @@ const signup = () => {
   const [passwordRe, setChangePasswordRe] = useState('');
   const [passwordReError, setPasswordReError] = useState(false);
   const onChangePasswordRe = useCallback((e) => { 
+    console.log('changePasswordRe',e.target.value);
     setChangePasswordRe(e.target.value);
-  } , [password]);
+  } , []);
 
   // const [check, setCheck] = useState('');
   // const [checkError, setCheckError] = useState(false);
@@ -105,17 +106,24 @@ const signup = () => {
   //   setCheck(e.target.checked);     // true
   //   setCheckError(false);
   // } , []);
+
   const btnSendAuthenticationNumber = useCallback(() => {
-    const response = axios.post(`http://localhost:3065/user/sms`);
-    console.log('response.data');
-    console.log(response);
+    // console.log('클릭');
+    // const response = axios.post(`http://localhost:3065/user/sms/${phoneNum}`);
+    // console.log('response.data');
+    // console.log(response);
   },[])
-  const onSubmitForm = useCallback(() => { 
+  const onSubmitForm = useCallback(() => {
+     setPhoneNumLenError(false);
+     setPhoneNumRegError(false);
+     setPasswordError(false);
+     setPasswordReError(false);
     const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
     //const pass = e.target.value;
     const invalidRegex = /[0-9]+/g;
     const invalidStrRegex = /[^0-9]+/g;
-    
+     console.log('password',password);
+     console.log('passwordRe',passwordRe);
     if(!(phoneNum.length >=0 && phoneNum.length <= 11)){
       setPhoneNumLenError(true);
       return;
@@ -138,7 +146,7 @@ const signup = () => {
       data:{ username, phoneNum, email, password, nickname  }
     }); 
     // 5. dispatch ###
-  } , [username, phoneNum, email, password, nickname]);
+  } , [username, phoneNum, email, password, passwordRe, nickname]);
     return (
          <>
       <Head>
