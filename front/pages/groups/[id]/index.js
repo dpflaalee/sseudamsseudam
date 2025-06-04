@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 
 import AppLayout from "@/components/AppLayout";
-import PostForm from "@/components/Post/PostForm";
+import PostForm from "@/components/post/PostForm";
 import PostCard from "@/components/post/PostCard";
 import GroupHeader from "@/components/groups/GroupHeader";
 import GroupMember from "@/components/groups/GroupMember";
