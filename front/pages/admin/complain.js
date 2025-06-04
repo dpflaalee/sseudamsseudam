@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { LOAD_COMPLAIN_REQUEST } from "@/reducers/complain";
 
 import ComplainCard from "../../components/complains/ComplainCard";
+import AdminProfile from "@/components/AdminProfile";
 
 const complain = () => {
     const dispatch = useDispatch();
@@ -21,6 +22,7 @@ const complain = () => {
     return (
         <AppLayout>
             <>
+                <AdminProfile />
                 {mainComplainCard.map((c) => {
                     return (
                         <ComplainCard report={c} key={c.id} />
