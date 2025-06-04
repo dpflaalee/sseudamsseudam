@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Card, Avatar, Button, Popover, Modal, Input, Space, Select, List  } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
-import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST,LOAD_POST_REQUEST } from '@/reducers/post';
+import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST, LOAD_POST_REQUEST } from '@/reducers/post';
 import PostImages from '../post/PostImages';
 import { useRouter } from 'next/router';
 import Link from 'next/Link';
@@ -126,28 +126,28 @@ const DetailCard = ({ post }) => {
         <PostImages images={post?.Images || []} />
       </Card>
 
-    { comments && (
-      <>
-        {/* 댓글폼 */}
-        <CommentForm post={post} />
-        {/* 댓글리스트 */}
-        <List 
-          header={`댓글 ${post.Comments.length}`}
-          itemLayout='horizontal'
-          dataSource={post.Comments}
-          renderItem={ (item) => (
-            <li>
-              <Comment
-                avatar={<Avatar>{item.User.nickname[0]}</Avatar>}
-                content={item.content}
-                author={item.User.nickname}
-              />
-            </li>
-          )
-          }
-        />
-      </>
-    )}
+      {comments && (
+        <>
+          {/* 댓글폼 */}
+          <CommentForm post={post} />
+          {/* 댓글리스트 */}
+          <List
+            header={`댓글 ${post.Comments.length}`}
+            itemLayout='horizontal'
+            dataSource={post.Comments}
+            renderItem={(item) => (
+              <li>
+                <Comment
+                  avatar={<Avatar>{item.User.nickname[0]}</Avatar>}
+                  content={item.content}
+                  author={item.User.nickname}
+                />
+              </li>
+            )
+            }
+          />
+        </>
+      )}
 
       <Modal
         visible={editModalVisible}
