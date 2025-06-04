@@ -4,7 +4,7 @@ import Nav from './Nav';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
-import PostCard from './Post/PostCard';
+import PostCard from './post/PostCard';
 import DetailCard from './Detail/DetailCard'
 
 const AppLayoutWrapper = styled.div`
@@ -13,7 +13,7 @@ const AppLayoutWrapper = styled.div`
 `;
 
 const ColWithOrder = styled(Col)`
-  &.nav-col { order: 3; } /* 모바일에서 하단 */ 
+  &.nav-col { order: 10; } /* 모바일에서 하단 */ 
   &.main-col { order: 1; }
   &.right-col { order: 2; }
 
