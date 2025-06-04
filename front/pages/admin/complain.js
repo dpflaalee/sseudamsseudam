@@ -4,7 +4,7 @@ import 'antd/dist/antd.css';
 import { useSelector, useDispatch } from "react-redux";
 import { LOAD_COMPLAIN_REQUEST } from "@/reducers/complain";
 
-import ComplainCard from "../../components/Complains/ComplainCard";
+import ComplainCard from "../../../components/Complains/ComplainCard";
 
 const complain = () => {
     const dispatch = useDispatch();
