@@ -1,14 +1,14 @@
 import React,{ useState, useCallback,useEffect } from "react";
 import {Button, Checkbox, Form, Input } from "antd";
 import Head from 'next/head';
-import AppLayout from "../../components/AppLayout";
-import userInput from '../../hooks/userInput';
+import AppLayout from "@/components/AppLayout";
+import userInput from '@/hooks/userInput';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';  
 import Router from 'next/router';
 import axios from "axios";
 
-import { SIGN_UP_REQUEST } from '../../reducers/user';
+import { SIGN_UP_REQUEST } from '@/reducers/user';
 
 //1. SIGNUP_UP_REQUEST  
 //import { SIGN_UP_REQUEST } from '../reducers/user';  
@@ -106,13 +106,42 @@ const signup = () => {
   //   setCheck(e.target.checked);     // true
   //   setCheckError(false);
   // } , []);
-
+  function sleep(sec) {
+    return new Promise(resolve => setTimeout(resolve, sec * 1000));
+  } 
+  const [time, setTime] = useState();
+  const [minute, setMinute] = useState();
+  const [seconds, setSeconds] = useState();
+  const [timerFlag, setTimerFlag] = useState(false);
+  const [errTimeout, setErrTimeout] = useState(false);
   const btnSendAuthenticationNumber = useCallback(() => {
-    // console.log('클릭');
-    // const response = axios.post(`http://localhost:3065/user/sms/${phoneNum}`);
-    // console.log('response.data');
-    // console.log(response);
-  },[])
+    console.log('클릭');
+    //  const response = axios.post(`http://localhost:3065/user/sms/${phoneNum}`,{},{
+    //   widthCredentials: true,
+    //  });
+
+    let initMinute = 1;
+    let seconds = 59;
+    
+    (async () => {
+      for(let minute = initMinute-1; minute >= 0; minute--){
+        for(seconds; seconds >= 0; seconds--){
+          await sleep(1);
+          setMinute(minute)
+          setSeconds((String(seconds).length<2 ? '0'+seconds:seconds))
+          setTimerFlag(true);
+          //console.log('time=',minute+':'+(String(seconds).length<2 ? '0'+seconds:seconds));
+        }
+        seconds = 59;
+        if(minute == 0){
+          setErrTimeout(true);
+          console.log('에러');
+        }
+      }
+    })();
+    
+    //setTime(setTimeout( ),10000);
+    },[phoneNum,minute,seconds])
   const onSubmitForm = useCallback(() => {
      setPhoneNumLenError(false);
      setPhoneNumRegError(false);
@@ -178,12 +207,26 @@ const signup = () => {
                 {phoneNumLenError   && <ErrorMessage>휴대전화번호: 11자리까지 입력가능합니다.</ErrorMessage>}
           </Form.Item>
           <Form.Item>
-             <div style={{display:'flex'}}>
-             
+            <div style={{position: 'relative'}}>
+              <div style={{display:'flex', alignItems: 'center'}}>
                 <label htmlFor='authenNum'></label>
                 <UnderlineInput placeholder='인증번호' id='authenNum'
                     value={authenNum} onChange={onChangeAuthenNum}  name='authenNum' required />
                 <Button>확인</Button>
+                  {timerFlag &&  (<span style={{
+                    position: 'absolute',
+                    right: '70px',
+                    top: errTimeout ? '30%' : '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#aaa',
+                    fontSize: '12px'
+                  }}>
+                      {minute}:{seconds}
+                  </span>)}
+             </div>
+             <div style={{display:"block"}}>
+               {errTimeout && (<ErrorMessage  style={{ marginTop: '4px' }}>시간 내에 입력해주세요!</ErrorMessage>)}
+             </div>
             </div>
           </Form.Item>
           <Form.Item>
