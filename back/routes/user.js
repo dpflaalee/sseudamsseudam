@@ -237,7 +237,32 @@ router.delete('/follower/:userId', isLoggedIn, async (req, res, next) => {  //##
   }
 });
 
+router.post('/sms', isNotLoggedIn, async (req,res,next) =>{
+  try{
+    const coolsms = require('coolsms-node-sdk').default;
+      // apiKey, apiSecret 설정
+    const messageService = new coolsms('NCSDG7FZJFQFBRGJ', 'RHGMPTXD6CGBAYPE4FF6OE4LQPOZOPO9');
 
+    // 2건 이상의 메시지를 발송할 때는 sendMany, 단일 건 메시지 발송은 sendOne을 이용해야 합니다. 
+    const result = messageService.sendMany([
+        {
+          to: '01085434277', //보내는 대상 전화번호 
+          from: '01085434277', // 보내는 사람 전화번호 
+          text: 'sms test'
+        }, // 여러명에게 보내고 싶다면 아래와 같이 {}을 더 추가해주면 됩니다.
+        
+        // {
+        //   to: '01011111111', //보내는 대상 전화번호 
+        //   from: '01012345678', // 보내는 사람 전화번호 
+        //   text: '원하는 문자 내용을 여기 작성해주세요'
+        // },
+      ])
+       res.status(201).json(result);
+    }catch(error){
+        console.log(error);
+        next(error);
+      }
+})
 
 /////////////////////////////////////
 module.exports = router;

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
-import { Dropdown, Menu, Button } from 'antd';
-import { HomeOutlined, NotificationOutlined, TeamOutlined, SearchOutlined, MailOutlined, PlusOutlined, BellOutlined,} from '@ant-design/icons';
+import { Dropdown, Menu, Button, message, Modal } from 'antd';
+import { HomeOutlined, NotificationOutlined, TeamOutlined, SearchOutlined, MailOutlined, PlusOutlined, BellOutlined,MoreOutlined} from '@ant-design/icons';
 
 const HeaderWrapper = styled.div`
   position: sticky;
@@ -35,18 +35,29 @@ const RightWrapper = styled.div`
   flex-shrink: 1;
 `;
 
-
 const menuItems = [
   { key: 'notice', label: '공지', icon: <NotificationOutlined />, path: '/notice' },
   { key: 'home', label: '홈', icon: <HomeOutlined />, path: '/' },
-  { key: 'groups', label: '그룹', icon: <TeamOutlined />, path: '/group' },
+  { key: 'groups', label: '그룹', icon: <TeamOutlined />, path: '/groups' },
   { key: 'notification', label: '알림', icon: <BellOutlined />, path: '/notification' },
   { key: 'search', label: '검색', icon: <SearchOutlined />, path: '/search' },
   { key: 'chat', label: '채팅', icon: <MailOutlined />, path: '/chat' },
 ];
 
+//테스트용
+const currentUserId = 1;
+const groupLeaderId = 1;
+const isGroupMember = true;
+//테스트용
+
 const ContentHeader = () => {
   const router = useRouter();
+
+  const [showDeleteModal, setShowDeleteModal]= useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const isGroup = router.pathname.startsWith('/groups/[id]');
+  const isLeader = currentUserId === groupLeaderId;
+
   const currentMenu = menuItems.find((item) => router.pathname.startsWith(item.path)) || menuItems[1];
 
   const handleMenuClick = ({ key }) => {
@@ -54,7 +65,34 @@ const ContentHeader = () => {
     if (selected) { router.push(selected.path);  }
   };
 
-  const isGroupPage = router.pathname.startsWith('/group');
+  const handelGroupMenyClick = ({key})=>{
+    if (key === 'edit') { router.push(`/groups/${router.query.id}/edit`);
+    } else if (key === 'delete') { setShowDeleteModal(true);
+    } else if (key === 'leave') { setShowLeaveModal(true); }
+  }
+
+  const groupMenu = (
+    <Menu onClick={handelGroupMenyClick}>
+      {isLeader && (
+        <>
+          <Menu.Item key="edit">수정하기</Menu.Item>
+          <Menu.Item key="delete" danger>삭제하기</Menu.Item>
+        </>
+      )}
+      {isGroupMember && <Menu.Item key="leave" danger>탈퇴하기</Menu.Item>}
+    </Menu>
+  )
+
+  const handleDeleteGroup = () => {
+    setShowDeleteModal(false);
+    message.success('그룹이 삭제되었습니다.');
+    router.push('/groups');
+  };
+
+  const handleLeaveGroup = ()=>{
+    setShowLeaveModal(false);
+    if(isLeader){message.warning('방장 권한을 다른 멤버에게 양도한 뒤 탈퇴할 수 있습니다.');}else{message.success('그룹에서 탈퇴했습니다.'); router.push('/groups')}
+  }
 
   return (
     <HeaderWrapper>
@@ -76,15 +114,43 @@ const ContentHeader = () => {
       </LeftWrapper>
 
       <RightWrapper>
-        {isGroupPage && (
-          <Button
-            icon={<PlusOutlined />}
-            style={{ border: 'none' }}
-            onClick={() => router.push('/groups/groupCreate')} 
-          />
+        {router.pathname.startsWith('/groups') && (
+          <>
+            <Button
+              icon={<PlusOutlined />}
+              style={{ border: 'none' }}
+              onClick={() => router.push('/groups/groupCreate')}
+            />
+            {isGroup && (
+              <Dropdown overlay={groupMenu} trigger={['click']}>
+                <Button icon={<MoreOutlined />} style={{ marginLeft: 8, border: 'none' }} />
+              </Dropdown>
+            )}
+          </>
         )}
+        
       </RightWrapper>
+      {/* 그룹삭제모달 */}
+      <Modal 
+        open={showDeleteModal} onOk={handleDeleteGroup} onCancel={()=>setShowDeleteModal(false)} okText="삭제" cancelText="취소" okButtonProps={{danger:true}}
+      >
+        <p>정말로 이 그룹을 삭제하시겠습니까?</p>
+        <p style={{color:'red'}}>삭제하면 복구할 수 없습니다.</p>
+      </Modal>
+
+      {/* 탈퇴모달 */}
+      <Modal
+        open={showLeaveModal} onOk={handleLeaveGroup} onCancel={()=>setShowLeaveModal(false)} okText="탈퇴" cancelText="취소"
+      >
+        {isLeader?(
+          <>
+            <p>방장은 그룹을 탈퇴할 수 없습니다.</p>
+            <p style={{color:'red'}}>방장 권한을 다른 멤버에게 위임한 뒤 탈퇴할 수 있습니다.</p>
+          </>
+        ):(<p>정말로 그룹에서 탈퇴하시겠습니까?</p>)}
+      </Modal>
     </HeaderWrapper>
+
   );
 };
 

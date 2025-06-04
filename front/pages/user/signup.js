@@ -6,6 +6,7 @@ import userInput from '../../hooks/userInput';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';  
 import Router from 'next/router';
+import axios from "axios";
 
 import { SIGN_UP_REQUEST } from '../../reducers/user';
 
@@ -64,26 +65,9 @@ const signup = () => {
     const onChangePhoneNum = useCallback((e) => {
       setPhoneNumRegError(false);
       setPhoneNumLenError(false);
-      let number = e.target.value; 
-      const invalidRegex = /[0-9]+/g;
-      const invalidStrRegex = /[^0-9]+/g;
-
-      const cleanNumber = number.replace(invalidRegex,'');
-      //일단 전화번호를 11자리 받으면 검사하기
-      if(invalidStrRegex.test(number)){
-        setChangePhoneNum(number);
-        setPhoneNumRegError(true);
-        return;
-      }
-      if(number.length >=0 && number.length <= 11){
-        setChangePhoneNum(number);
-        setPhoneNumRegError(false);
-      }else{
-        setPhoneNumLenError(true);
-        return;
-      }
+      console.log(e.target.value);
       //숫자만 받기
-      setChangePhoneNum(number);
+      setChangePhoneNum(e.target.value);
         },[]);
     
     const [authenNum, setChangeAuthenNum] = useState('');
@@ -98,21 +82,23 @@ const signup = () => {
 
     // },[])
   const [password, setChangePassword] = useState('');   // userInput  줄이기
-  const [passwordRegError, setPasswordRegError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  //const [passwordRegError, setPasswordRegError] = useState(false);
   const onChangePassword = useCallback((e) => {
-      const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/;
-      const password = e.target.value;
-      
-      const flag = passRegex.test(password);
-      
+      const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
+      const pass = e.target.value;
+          console.log('changePassword',e.target.value);      
+      // if(!passRegex.test(password)){
+      //   setChangePassword(true);
+      // }
       setChangePassword(e.target.value);
   },[password]);
   const [passwordRe, setChangePasswordRe] = useState('');
-  const [passwordError, setPasswordError] = useState(false);
+  const [passwordReError, setPasswordReError] = useState(false);
   const onChangePasswordRe = useCallback((e) => { 
+    console.log('changePasswordRe',e.target.value);
     setChangePasswordRe(e.target.value);
-    setPasswordError(e.target.value   !==  password);  // !==
-  } , [password]);
+  } , []);
 
   // const [check, setCheck] = useState('');
   // const [checkError, setCheckError] = useState(false);
@@ -121,21 +107,46 @@ const signup = () => {
   //   setCheckError(false);
   // } , []);
 
-  const onSubmitForm = useCallback(() => { 
-    if (password !== passwordRe) { return setPasswordError(true); }
-   // if (!check) { setCheckError(true); }
-    if(!phoneNumRegError){
-      return setPhoneNumRegError(true);
+  const btnSendAuthenticationNumber = useCallback(() => {
+    // console.log('클릭');
+    // const response = axios.post(`http://localhost:3065/user/sms/${phoneNum}`);
+    // console.log('response.data');
+    // console.log(response);
+  },[])
+  const onSubmitForm = useCallback(() => {
+     setPhoneNumLenError(false);
+     setPhoneNumRegError(false);
+     setPasswordError(false);
+     setPasswordReError(false);
+    const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
+    //const pass = e.target.value;
+    const invalidRegex = /[0-9]+/g;
+    const invalidStrRegex = /[^0-9]+/g;
+     console.log('password',password);
+     console.log('passwordRe',passwordRe);
+    if(!(phoneNum.length >=0 && phoneNum.length <= 11)){
+      setPhoneNumLenError(true);
+      return;
     }
-    if(!phoneNumLenError){
-      return setPhoneNumLenError(true);
+
+    ///const cleanNumber = number.replace(invalidRegex,'');
+    //일단 전화번호를 11자리 받으면 검사하기
+    if(invalidStrRegex.test(phoneNum)){
+      setPhoneNumRegError(true);
+      return;
     }
+    if(!passRegex.test(password)){
+      setPasswordError(true);
+      return;
+    }
+    if (password !== passwordRe) { return setPasswordReError(true); }
+
     return dispatch({
       type: SIGN_UP_REQUEST, 
       data:{ username, phoneNum, email, password, nickname  }
     }); 
     // 5. dispatch ###
-  } , [username, phoneNum, email, password, nickname]);
+  } , [username, phoneNum, email, password, passwordRe, nickname]);
     return (
          <>
       <Head>
@@ -161,7 +172,7 @@ const signup = () => {
                 <label htmlFor='phone'></label>
                 <UnderlineInput placeholder='휴대폰' id='phone'
                     value={phoneNum} onChange={onChangePhoneNum}    name='phone' required />
-                <Button>인증번호 전송</Button>
+                <Button onClick={btnSendAuthenticationNumber}>인증번호 전송</Button>
               </div>
                 {phoneNumRegError   && <ErrorMessage>휴대전화번호: 휴대전화번호가 정확한지 확인해 주세요.</ErrorMessage>}
                 {phoneNumLenError   && <ErrorMessage>휴대전화번호: 11자리까지 입력가능합니다.</ErrorMessage>}
@@ -179,13 +190,13 @@ const signup = () => {
              <label htmlFor='password'></label>
             <UnderlineInput placeholder='비밀번호입력(최소 8~12자리 특수문자포함하여 작성)' id='password'
               value={password} onChange={onChangePassword} name='password' required />
-              {/* {passwordRegError   && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>} */}
+            {passwordError   && <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함) </ErrorMessage>}
           </Form.Item>
           <Form.Item>
             <label htmlFor='password-re'></label>
             <UnderlineInput placeholder='비밀번호입력 체크' id='password-re'
               value={passwordRe} onChange={onChangePasswordRe} name='passwordRe' required />
-            {passwordError   && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>}
+            {passwordReError   && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>}
           </Form.Item>
           <Form.Item>
              <label htmlFor='nickname'></label>

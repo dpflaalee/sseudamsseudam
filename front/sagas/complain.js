@@ -31,14 +31,12 @@ function* loadComplain(action) {
 
 
 function addComplainAPI(data) {
-  console.log('🔱 API로 넘길 데이터:', data);
-  return axios.post('/complain', data); // ✅ targetType/targetId는 body로 넘김
+  return axios.post('/complain', data);
 }
 
 function* addComplain(action) {
   try {
     const result = yield call(addComplainAPI, action.data);
-    console.log('🦞 complainSaga:  addComplain : ', action.data);
     yield put({
       type: ADD_COMPLAIN_SUCCESS,
       data: result.data,
@@ -76,12 +74,10 @@ function* removeComplain(action) {
 
 //////////////////////////
 function* watchLoadComplain() {
-  console.log('🍻 watchLoadComplain');
   yield throttle(5000, LOAD_COMPLAIN_REQUEST, loadComplain);
 }
 
 function* watchAddComplain() {
-  console.log('🍻 watchAddComplain');
   yield takeLatest(ADD_COMPLAIN_REQUEST, addComplain);
 }
 
@@ -92,7 +88,6 @@ function* watchRemoveComplain() {
 /////////////////////
 export default function* complainSaga() {
   yield all([  //  all - 동시에 배열로 받은 fork들을 동시에 실행 
-    console.log('🤫 complainSaga'),
     fork(watchLoadComplain),
     fork(watchAddComplain),
     fork(watchRemoveComplain),
