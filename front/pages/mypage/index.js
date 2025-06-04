@@ -9,14 +9,14 @@ import {
   Row,
   Col,
 } from "antd";
-import { UserOutlined, EllipsisOutlined } from "@ant-design/icons";
-import MyPrize from "@/components/prize/MyPrize";
+import { UserOutlined,EllipsisOutlined } from "@ant-design/icons";
+import MyPrize from "@/components/Prize/MyPrize";
 import { Dropdown, Menu } from "antd";
 
 const { Title, Text } = Typography;
 
 const Index = () => {
-  const [activeSection, setActiveSection] = useState(null);
+  const [activeSection, setActiveSection] = useState(null); 
   const router = useRouter();
 
   useEffect(() => {
@@ -59,38 +59,38 @@ const Index = () => {
             </Row>
           </Col>
         </Row>
-        <Col>
-          <Row justify="end" align="middle" gutter={[8, 0]}>
-            <Col>
-              <Button type="primary" onClick={() => setActiveSection("prize")}>
-                내 쿠폰함
-              </Button>
-            </Col>
-            <Col>
-              <Button onClick={() => setActiveSection("places")}>내 장소</Button>
-            </Col>
-            <Col>
-              <Button onClick={() => setActiveSection("challenge")}>챌린지 현황</Button>
-            </Col>
-            <Col>
-              <Dropdown
-                overlay={
-                  <Menu>
-                    <Menu.Item key="report" onClick={() => router.push("/admin/complain")}> { /* 수정필요!! 신고 폼 */}
-                      신고 페이지로 이동   { /* 수정필요!! 관리자신고페이지말고 신고하기 폼으로 가게 */}
-                    </Menu.Item>
-                  </Menu>
-                }
-                placement="bottomRight"
-                trigger={["click"]}
-              >
-                <EllipsisOutlined
-                  style={{ fontSize: 20, cursor: "pointer" }}
-                />
-              </Dropdown>
-            </Col>
-          </Row>
-        </Col>
+      <Col>
+        <Row justify="end" align="middle" gutter={[8, 0]}>
+          <Col>
+            <Button type="primary" onClick={() => setActiveSection("prize")}>
+              내 쿠폰함
+            </Button>
+          </Col>
+          <Col>
+            <Button onClick={() => setActiveSection("places")}>내 장소</Button>
+          </Col>
+          <Col>
+            <Button onClick={() => setActiveSection("challenge")}>챌린지 현황</Button>
+          </Col>
+          <Col>
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item key="report" onClick={() => router.push("/admin/complain")}> { /* 수정필요!! 신고 폼 */ }
+                    신고 페이지로 이동   { /* 수정필요!! 관리자신고페이지말고 신고하기 폼으로 가게 */ }
+                  </Menu.Item>
+                </Menu>
+              }
+              placement="bottomRight"
+              trigger={["click"]}
+            >
+              <EllipsisOutlined
+                style={{ fontSize: 20, cursor: "pointer" }}
+              />
+            </Dropdown>
+          </Col>
+        </Row>
+      </Col>
       </Card>
 
       {/* 조건부 렌더링 */}

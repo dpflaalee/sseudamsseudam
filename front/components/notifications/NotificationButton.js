@@ -1,31 +1,28 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-
 import Notification from './Notification';
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
-import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 
 const NotificationButton = () => {
     const [notifications, setNotifications] = useState([]);
-    const dispatch = useDispatch();
+
     const dummyUser = {
-        id: 2,
-        nickname: 'Dan',
+        nickname: '테스트 사용자',
         avatar: 'https://example.com/avatar.jpg',
     };
 
     // 알림 타입별로 버튼 클릭 시 해당 알림을 추가하는 함수
-    const handleNotificationClick = (notiType) => {
-        console.log('🐙 handleNotificationClick ', notiType)
-        dispatch({
-            type: ADD_NOTIFICATION_REQUEST,
-            data: {
-                notiType: notiType,
-                senderId: dummyUser.id,
-                receiverId: 3,
-                targetId: 5,
-            }
-        });
+    const handleNotificationClick = (type) => {
+        const newNotification = {
+            type,
+            user: dummyUser,
+            target: {}, // 알림에 필요한 target 데이터를 여기에 넣으면 됩니다.
+            content: '더미 알림 내용', // 더미 데이터를 넣습니다.
+        };
+
+        setNotifications((prevNotifications) => [
+            ...prevNotifications,
+            newNotification,
+        ]);
     };
 
     return (
@@ -43,7 +40,7 @@ const NotificationButton = () => {
                 <button onClick={() => handleNotificationClick(NOTIFICATION_TYPE.FOLLOW)}>
                     팔로우 알림
                 </button>
-                <button onClick={() => handleNotificationClick(NOTIFICATION_TYPE.RECOMMNET)}>
+                <button onClick={() => handleNotificationClick(NOTIFICATION_TYPE.REPLY)}>
                     답글 알림
                 </button>
                 <button onClick={() => handleNotificationClick(NOTIFICATION_TYPE.RANDOMBOX)}>
@@ -70,9 +67,8 @@ const NotificationButton = () => {
                 {notifications.map((noti, index) => (
                     <Notification
                         key={index}
-                        notiType={noti.notiType}
-                        sender={noti.sender}
-                        reciever={noti.reciever}
+                        type={noti.type}
+                        user={noti.user}
                         target={noti.target}
                         content={noti.content}
                     />

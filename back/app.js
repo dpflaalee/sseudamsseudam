@@ -16,7 +16,6 @@ const posts = require('./routes/posts');
 const complain = require('./routes/complain');
 const admin = require('./routes/admin');
 const search = require('./routes/search');
-const notification = require('./routes/notification');
 
 //환경설정
 dotenv.config();
@@ -54,13 +53,12 @@ app.get('/', (req, res) => { res.send('Express Test'); });
 app.use('/api', (req, res) => { res.send('Link Test') });
 //app.use('/detail' , detail);
 
-app.use('/post', post);
-app.use('/posts', posts);
+app.use('/post' , post);
+app.use('/posts' , posts);
 app.use('/user', user);
 app.use('/complain', complain);
 app.use('/admin', admin);
 app.use('/search', search);
-app.use('/notification', notification);
 
 
 app.listen(3065, () => { console.log('server...'); });

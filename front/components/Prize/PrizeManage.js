@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Row, Col, Button, Input, Typography } from 'antd';
-import PrizeForm from '@/components/prize/PrizeForm';
-import PrizeList from '@/components/prize/PrizeList';
+import PrizeForm from '@/components/Prize/PrizeForm';
+import PrizeList from '@/components/Prize/PrizeList';
 
 const { Title, Text } = Typography;
 

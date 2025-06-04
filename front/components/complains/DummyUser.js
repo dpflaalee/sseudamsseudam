@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Avatar, Button, Dropdown, Menu } from 'antd';
 import styled from 'styled-components';
 import { MoreOutlined } from '@ant-design/icons';
-import ComplainForm from './ComplainForm';
+import ComplainForm from './../Complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
 const Wrapper = styled.div`
