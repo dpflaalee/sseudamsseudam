@@ -8,6 +8,14 @@ const fs = require('fs');  // file system
 const { Post, User, Image, Comment, Hashtag } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 
+//이미지 폴더 생성
+try{
+  fs.accessSync('uploads');
+} catch (error) {
+  console.log('uploads 폴더가 없으면 생성합니다.');
+  fs.mkdirSync('uploads');
+}
+
 //1. 업로드 설정
 const upload = multer({
   storage: multer.diskStorage({
@@ -71,6 +79,33 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
 
     res.status(201).json(fullPost);
   } catch(error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.post('/images', isLoggedIn, upload.array('image'), (req, res, next) => {
+  console.log(req.files);
+  res.json(req.files.map( (v)=> v.filename));
+});
+
+// 게시글 상세보기
+router.get('/:postId', async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+      include: [
+        { model: Image },
+        { model: User, as: 'Likers', attributes: ['id'] },
+        { model: User, attributes: ['id', 'nickname'] },
+        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
+      ],
+    });
+    if (!post) {
+      return res.status(404).send('게시글이 존재하지 않습니다.');
+    }
+    res.json(post);
+  } catch (error) {
     console.error(error);
     next(error);
   }
