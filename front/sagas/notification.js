@@ -9,7 +9,7 @@ import {
 //////////////////////////////////////////////////////////
 function loadNotificationAPI(userId) {
     return axios.get('/notification', {
-        params: 1,
+        params: { userId },
     });
 }
 
@@ -46,7 +46,7 @@ function* addNotification(action) {
             data: result.data,
         });
     } catch (err) {
-        console.log('🚨 notificationSaga : addNotification : ', err);
+        console.log('🚨 notificationSaga :  ', err);
         yield put({
             type: ADD_NOTIFICATION_FAILURE,
             error: err.response.data,
@@ -66,7 +66,7 @@ function* removeNotification(action) {
             data: result.data,
         });
     } catch (err) {
-        console.log('🚨 complainSaga : removeComplain : ', err);
+        console.log('🚨 notificationSaga :  ', err);
         yield put({
             type: REMOVE_NOTIFICATION_FAILURE,
             error: err.response.data,
@@ -82,7 +82,8 @@ function* watchLoadNotification() {
 }
 
 function* watchAddNotification() {
-    yield takeLatest(ADD_NOTIFICATION_REQUEST, addNotification);
+    console.log('🦞 watchAddNotification'),
+        yield takeLatest(ADD_NOTIFICATION_REQUEST, addNotification);
 }
 
 function* watchRemoveNotification() {
@@ -92,6 +93,7 @@ function* watchRemoveNotification() {
 /////////////////////
 export default function* notificationSaga() {
     yield all([  //  all - 동시에 배열로 받은 fork들을 동시에 실행 
+        console.log('🦞 notificationSaga'),
         fork(watchLoadNotification),
         fork(watchAddNotification),
         fork(watchRemoveNotification),

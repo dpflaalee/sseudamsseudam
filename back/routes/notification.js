@@ -15,8 +15,8 @@ router.post('/', async (req, res, next) => {
         const notification = await Notification.create({
             type: req.body.notiType,
             targetId: req.body.targetId,
-            SenderId: req.body.senderId,
-            ReceiverId: req.body.receiverId,
+            SenderId: req.body.SenderId,
+            ReceiverId: req.body.ReceiverId,
         });
 
         const fullNotification = await Notification.findOne({
