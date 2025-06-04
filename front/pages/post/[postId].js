@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import DetailCard from '@/components/Detail/DetailCard';
+import DetailCard from '@/components/detail/DetailCard';
 import { useRouter } from 'next/router';
 
 const PostDetailPage = () => {

@@ -7,8 +7,8 @@ import PostImages from '../post/PostImages';
 import { useRouter } from 'next/router';
 import Link from 'next/Link';
 
-import CommentForm from '../Comment/CommentForm';
-import Comment from '../Comment/Comment';
+import CommentForm from '../comment/CommentForm';
+import Comment from '../comment/Comment';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 

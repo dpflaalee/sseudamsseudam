@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Input, Button, Avatar } from 'antd';
 import Link from 'next/Link';
-import PostCard from '../Post/PostCard';
+import PostCard from '../post/PostCard';
 import Profile from '../Profile';
 
 const Container = styled.div`

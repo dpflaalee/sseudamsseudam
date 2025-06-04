@@ -10,7 +10,7 @@ import {
   Col,
 } from "antd";
 import { UserOutlined,EllipsisOutlined } from "@ant-design/icons";
-import MyPrize from "@/components/Prize/MyPrize";
+import MyPrize from "@/components/prize/MyPrize";
 import { Dropdown, Menu } from "antd";
 
 const { Title, Text } = Typography;
