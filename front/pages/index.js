@@ -17,8 +17,8 @@ const Home = () => {
   const { mainComplainCard } = useSelector((state) => state.complain);
 
   useEffect(() => {
-    if( hasMorePosts && !loadPostsLoading ) {
-      const lastId = mainPosts[mainPosts.length-1]?.id;
+    if (hasMorePosts && !loadPostsLoading) {
+      const lastId = mainPosts[mainPosts.length - 1]?.id;
       dispatch({
         type: LOAD_POSTS_REQUEST,
         lastId,
@@ -28,12 +28,12 @@ const Home = () => {
 
   useEffect(() => {
     function onScroll() {
-      console.log( window.screenY, document.documentElement.clientHeight, document.documentElement.scrollHeight )
-      if(window.screenY + document.documentElement.clientHeight > document.documentElement.scrollHeight - 200) {
-        if( hasMorePosts && !loadPostsLoading ) {
+      console.log(window.screenY, document.documentElement.clientHeight, document.documentElement.scrollHeight)
+      if (window.screenY + document.documentElement.clientHeight > document.documentElement.scrollHeight - 200) {
+        if (hasMorePosts && !loadPostsLoading) {
           dispatch({
             type: LOAD_POSTS_REQUEST,
-            data: mainPosts[mainPosts.length-1]?.id,
+            data: mainPosts[mainPosts.length - 1]?.id,
           })
         }
       }
@@ -42,24 +42,17 @@ const Home = () => {
     return () => {
       window.removeEventListener('scroll', onScroll);
     }
-  },[mainPosts, hasMorePosts, loadPostsLoading]); 
-  
+  }, [mainPosts, hasMorePosts, loadPostsLoading]);
+
   return (
     <AppLayout>
       {user && <PostForm />}
-      {mainPosts.map((c) => { 
+      {mainPosts.map((c) => {
         return (
           <PostCard post={c} key={c.id} />
         );
       })}
 
-      <Divider />
-      {/* {mainComplainCard.map((c) => {
-        return (
-          <ComplainCard report={c} key={c.id} />
-        );
-      })}
-      <NotificationButton />*/}
     </AppLayout>
   );
 }
