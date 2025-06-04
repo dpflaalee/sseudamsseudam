@@ -21,8 +21,14 @@ import {
   REMOVE_ANIFOLLOW_FAILURE,
 } from '../reducers/animal';
 
-function addAniprofileAPI(data) {
-  return axios.post('/api/animal', data); //백엔드 연동시 필요
+// function addAniProfileAPI(data) {
+//   return axios.post('/animal/animalform', data); //백엔드 연동시 필요
+// }
+
+function addAniProfileAPI(data) {
+  return axios.post('/animal/animalform', data, {
+    withCredentials: true,
+  });
 }
 function * addAniProfile(action) {
   try {
@@ -73,8 +79,13 @@ function* removeAniFollow(action) {
   }
 }
 
+function* watchAddAniProfile() {
+  yield takeLatest(ADD_ANIPROFILE_REQUEST, addAniProfile);
+}
+
 export default function* animalSaga() {
   yield all([
+    fork(watchAddAniProfile),
     takeLatest(ADD_ANIPROFILE_REQUEST, addAniProfile),
     takeLatest(ANIUNFOLLOW_REQUEST, aniUnfollow),
     takeLatest(REMOVE_ANIFOLLOW_REQUEST, removeAniFollow),

@@ -86,7 +86,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case ADD_ANIPROFILE_SUCCESS:
       draft.addaniprofileLoading = false;
       draft.addaniprofileDone = true;
-      draft.animals.push(action.data);  // 새 프로필 추가
+      draft.animals.push(action.data);  // 프론트 메모리(redux)에 저장됨
       break;
     case ADD_ANIPROFILE_FAILURE:
       draft.addaniprofileLoading = false;

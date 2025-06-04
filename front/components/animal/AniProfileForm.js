@@ -7,8 +7,13 @@ import { useRouter } from 'next/router';
 const { Option } = Select;
 
 const categoryOptions = [
-  '강아지', '고양이', '햄스터', '파충류', '해수어',
-  '담수어', '기니피그', '고슴도치', '패럿'
+  { id: 1, name: '강아지' },
+  { id: 2, name: '고양이' },
+  { id: 3, name: '햄스터' },
+  { id: 4, name: '파충류' },
+  { id: 5, name: '담수어' },
+  { id: 6, name: '해수어' },
+  { id: 7, name: '고슴도치' },
 ];
 
 const AniProfileForm = () => {
@@ -19,9 +24,9 @@ const AniProfileForm = () => {
   const [form, setForm] = useState({
     aniName: '',
     aniAge: '',
-    category: '',
     aniProfile: '',
     previewUrl: '',
+    categoryId: null,
   });
 
   const onClickImageUpload = useCallback(() => {
@@ -54,7 +59,7 @@ const AniProfileForm = () => {
   const handleCategoryChange = (value) => {
     setForm((prev) => ({
       ...prev,
-      category: value,
+      categoryId: value,
     }));
   };
 
@@ -63,8 +68,15 @@ const AniProfileForm = () => {
       alert('이미지를 업로드하세요!');
       return;
     }
-    console.log('제출할 데이터',form);
-    dispatch(addAniProfile(form));
+    const payload = {
+      aniName: form.aniName,
+      aniAge: parseInt(form.aniAge, 10),
+      aniProfile: form.aniProfile,
+      categoryId: form.categoryId,
+    };
+
+    console.log('제출할 데이터',payload);
+    dispatch(addAniProfile(payload));
     router.push('/animal/AniProfile');
   };
 
@@ -118,12 +130,12 @@ const AniProfileForm = () => {
       />
       <Select
         placeholder="동물 종"
-        value={form.category}
+        value={form.categoryId}
         onChange={handleCategoryChange}
         style={{ width: '100%', marginBottom: 10 }}
       >
         {categoryOptions.map((option) => (
-          <Option key={option} value={option}>{option}</Option>
+          <Option key={option.id} value={option.id}>{option.name}</Option>
         ))}
       </Select>
 

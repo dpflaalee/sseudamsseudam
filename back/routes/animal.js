@@ -32,18 +32,21 @@ const upload = multer({
       done(null, basename + '_' + new Date().getTime() + ext);
     },
   }),
-  limits : { fileSize: 10*1024*1024 }   // 10MB
+  limits : { fileSize: 20*1024*1024 }   // 10MB
 });
 
 //1. 프로필 생성
-router.post('/animalform', isLoggedIn, upload.none(), async (req, res, next) => {
+router.post('/animalform',  upload.none(), async (req, res, next) => {
   try{
+    console.log('✅ 요청 본문:', req.body);
+    req.user = {id: 1};
     const animal = await Animal.create({
       aniName: req.body.aniName,
       aniAge: req.body.aniAge,
       aniProfile: req.body.aniProfile || null,
       UserId: req.user.id,
-      CategoryId: req.category.categoryId,
+      //CategoryId: req.category.categoryId,
+      CategoryId: req.body.categoryId,
     });
     res.status(201).json(animal);
   } catch(error){

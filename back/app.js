@@ -17,6 +17,7 @@ const complain = require('./routes/complain');
 const admin = require('./routes/admin');
 const search = require('./routes/search');
 const notification = require('./routes/notification');
+const animal = require('./routes/animal');
 
 //환경설정
 dotenv.config();
@@ -37,8 +38,8 @@ app.use(cors({
   origin: 'http://localhost:3000',
   credentials: true // 쿠키 등 인증정보 포함 요청 허용
 }));
-app.use(express.json()); // 요청 본문파싱
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({limit: '20mb'})); // 요청 본문파싱
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
   saveUninitialized: false,
@@ -61,6 +62,6 @@ app.use('/complain', complain);
 app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
-
+app.use('/animal', animal);
 
 app.listen(3065, () => { console.log('server...'); });

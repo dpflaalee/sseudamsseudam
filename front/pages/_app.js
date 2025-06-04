@@ -1,27 +1,26 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from 'prop-types';
-import 'antd/dist/antd.css';   // 공통css
+import 'antd/dist/antd.css';
 import Head from 'next/head';
 import { Provider } from 'react-redux';
 import wrapper from '../store/configureStore';
 
-
-const Ssdam = ({ Component, ...rest }) => {
-  const { store, props } = wrapper.useWrappedStore(rest);
-  const { pageProps } = props;
+const Ssdam = ({ Component, pageProps }) => {
   return (
-    <Provider store={store}>
+    <>
       <Head>
-        <meta charset="utf-8" />
+        <meta charSet="utf-8" />
         <title>Ssdam</title>
       </Head>
-      <Component />
-    </Provider>
+      <Component {...pageProps} />
+    </>
   );
 };
-Ssdam.propType = {
-  Component: PropTypes.elementType.isRequired,
-  pageProps : PropTypes.any.isRequired
-}
 
-export default Ssdam;
+Ssdam.propTypes = {
+  Component: PropTypes.elementType.isRequired,
+  pageProps: PropTypes.any.isRequired
+};
+
+// next-redux-wrapper에서 withRedux로 감싸기
+export default wrapper.withRedux(Ssdam);
