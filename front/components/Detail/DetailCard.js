@@ -1,67 +1,68 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, Avatar, Button, List, Popover, Modal, Input, Space, Select } from 'antd';
+import { Card, Avatar, Button, Popover, Modal, Input, Space, Select, Comment, List  } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
-import Link from 'next/Link';
+import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST,LOAD_POST_REQUEST } from '@/reducers/post';
+import PostImages from '../post/PostImages';
 import { useRouter } from 'next/router';
+import Link from 'next/Link';
 
 import CommentForm from '../Comment/CommentForm';
 import Comment from '../Comment/Comment';
 import PostImages from '../post/PostImages';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
+import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
 
-const DetailCard = ({ post = {} }) => {
-  const id = useSelector( state => state.user.user?.id );   
+const DetailCard = ({ post }) => {
+  const id = useSelector(state => state.user.user?.id);
+  const { addCommentDone } = useSelector((state) => state.post);
   const [open, setOpen] = useState(false);
-  const router = useRouter();
+  const router = useRouter(); // <-- useRouter 훅 사용
+  const dispatch = useDispatch();
   const { Option } = Select;
+
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);  
-  const handleClose = () => { router.push('/'); };  
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      nickname: '홍길동',
-      content: '좋은 글이네요!',
-      date: '2025-06-01 12:34',
-    },
-    {
-      id: 2,
-      nickname: '김철수',
-      content: '공감합니다.',
-      date: '2025-06-01 13:12',
-    },
-  ]);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [comments, setComments] = useState(true);
 
   // 좋아요
-  const onClickLike = useCallback(() => { 
-    if (!id) {return alert('로그인을 하시면 좋아요 추가가 가능합니다.');}
+  const onClickLike = useCallback(() => {
+    if (!id) {
+      return alert('로그인을 하시면 좋아요 추가가 가능합니다.');
+    }
     return dispatch({
       type: LIKE_POST_REQUEST,
-      data: post.id
+      data: post.id,
     });
-  }, [id] );
+  }, [id]);
 
-  const onClickunLike = useCallback(() => { 
-    if (!id) {return alert('로그인을 하시면 좋아요 추가가 가능합니다.');}
+  const onClickunLike = useCallback(() => {
+    if (!id) {
+      return alert('로그인을 하시면 좋아요 추가가 가능합니다.');
+    }
     return dispatch({
       type: UNLIKE_POST_REQUEST,
-      data: post.id
+      data: post.id,
     });
-  }, [id] );
+  }, [id]);
+
+  useEffect(() => {
+    if (addCommentDone) {
+      dispatch({
+        type: LOAD_POST_REQUEST,
+        data: post.id,
+      });
+    }
+  }, [addCommentDone]);
 
   const like = post?.Likers?.find((v) => v.id === id);
 
-    //수정
+  //수정
   const openEditModal = () => {
     setEditModalVisible(true);
   };
   const closeEditModal = () => {
-    setEditModalVisible(false);
-  };
-  const handleEditSubmit = () => {
-    // console.log('수정된 내용:', newContent);
     setEditModalVisible(false);
   };
 
@@ -77,56 +78,80 @@ const DetailCard = ({ post = {} }) => {
     setDeleteModalVisible(false);
   };
 
+  const handleEditSubmit = () => {
+    if (editedContent !== post.content) {
+      console.log("수정된 내용:", editedContent);
+      alert('게시물이 수정되었습니다.');
+    }
+    closeEditModal();
+  };
+
   return (
     <div style={{ margin: '3%' }}>
       <Card
         actions={[
           <RetweetOutlined key="retweet" />,
-          like
-            ? <HeartTwoTone twoToneColor="#f00" key="heart" onClick={onClickunLike} />
-            : <HeartOutlined key="heart" onClick={onClickLike} />,
+          like ? (
+            <HeartTwoTone twoToneColor="#f00" key="heart" onClick={onClickunLike} />
+          ) : (
+            <HeartOutlined key="heart" onClick={onClickLike} />
+          ),
           <MessageOutlined key="comment" />,
-          <Popover content={(
-            <Button.Group>
-                <>
+          <Popover
+            content={
+              <Button.Group>
                 <Button onClick={openEditModal}>수정</Button>
-                <Button type="danger" onClick={openDeleteModal}>삭제</Button>
-                </>
-                <>
+                <Button type="danger" onClick={openDeleteModal}>
+                  삭제
+                </Button>
                 <Button onClick={() => setOpen(true)}>신고하기</Button>
-                </>
-            </Button.Group>
-          )}>
+              </Button.Group>
+            }
+          >
             <EllipsisOutlined />
-          </Popover>
+          </Popover>,
         ]}
         extra={
           <CloseOutlined
-            style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }} // X 아이콘 스타일
-            onClick={handleClose} // 클릭 시 홈으로 이동
+            style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }}
+            onClick={() => router.push('/')} // 홈으로 돌아가기
           />
-        }            
+        }
       >
         <Card.Meta
           avatar={<Avatar />}
           title={post?.User?.nickname || 'Unknown'}
-          description={
-            post?.meta?.createdAt
-              ? new Date(post.meta.createdAt).toLocaleString()
-              : ''
-          }
+          description={post?.createdAt ? new Date(post.createdAt).toLocaleString() : '작성일 없음'}
           style={{ marginBottom: 16 }}
         />
         <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>
           {post.content}
         </div>
-        <PostImages images={[]} />
+        <PostImages images={post?.Images || []} />
       </Card>
 
-      {/* 댓글 입력 */}
-      <CommentForm />
-      {/* 댓글 리스트 */}
-      <Comment comments={comments} />
+    { comments && (
+      <>
+        {/* 댓글폼 */}
+        <CommentForm post={post} />
+        {/* 댓글리스트 */}
+        <List 
+          header={`댓글 ${post.Comments.length}`}
+          itemLayout='horizontal'
+          dataSource={post.Comments}
+          renderItem={ (item) => (
+            <li>
+              <Comment
+                avatar={<Avatar>{item.User.nickname[0]}</Avatar>}
+                content={item.content}
+                author={item.User.nickname}
+              />
+            </li>
+          )
+          }
+        />
+      </>
+    )}
 
       <Modal
         visible={editModalVisible}
@@ -136,7 +161,7 @@ const DetailCard = ({ post = {} }) => {
         width={600}
       >
         <div style={{ display: 'flex', marginBottom: 16 }}>
-          <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px'}}>게시물 수정</span>
+          <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px' }}>게시물 수정</span>
           <Space>
             <Select defaultValue="public" style={{ width: 120 }}>
               <Option value="public">전체공개</Option>
@@ -146,13 +171,8 @@ const DetailCard = ({ post = {} }) => {
           </Space>
         </div>
 
-        <Input.TextArea
-          // value={newContent}
-          onChange={(e) => setNewContent(e.target.value)}
-          rows={4}
-          placeholder="내용을 수정하세요"
-        />
-        
+        <Input.TextArea rows={4} placeholder="내용을 수정하세요" />
+
         <div style={{ marginTop: 16, textAlign: 'right' }}>
           <Button onClick={handleEditSubmit} type="primary">
             수정 완료
@@ -168,9 +188,8 @@ const DetailCard = ({ post = {} }) => {
         cancelText="취소"
         cancelButtonProps={{ danger: true }}
       >
-      <p>이 게시물을 정말 삭제하시겠습니까?</p>
+        <p>이 게시물을 정말 삭제하시겠습니까?</p>
       </Modal>
-
     </div>
   );
 };

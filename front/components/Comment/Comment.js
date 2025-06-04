@@ -67,11 +67,13 @@ const Comment = ({ comments = [] }) => {
       />
       {comments.map((comment) => {
         const menu = (
-          <Menu>
-            <Menu.Item danger onClick={() => handleReport(comment.id)}>
-              신고하기
-            </Menu.Item>
-          </Menu>
+            <Menu>
+              <Menu.Item>수정</Menu.Item>
+              <Menu.Item danger>삭제</Menu.Item>              
+              <Menu.Item danger onClick={() => handleReport(comment.id)}>
+                신고하기
+              </Menu.Item>              
+            </Menu>
         );
         return (
           <CommentItem key={comment.id}>
