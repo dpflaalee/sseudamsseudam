@@ -19,12 +19,8 @@ const MyPrize = ({ openRandomModal }) => {
           content: (
             <div style={{ textAlign: "center" }}>
               <p>온/오프라인 교환권이 발급되었습니다.</p>
-              <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=YOUR_COUPON_CODE"
-                alt="QR 코드"   // 임시 QR코드 이미지 사용했음
-                style={{ margin: "16px 0" }}
-              />
-              <p>QR 코드를 매장에서 제시하거나 마이페이지에서 확인하세요.</p>
+              <Barcode value="COUPON-123456" />   {/* 임시 바코드*/ }
+              <p>마이페이지에서도 확인할 수 있습니다.</p>
             </div>
           ),
           okText: "확인",
@@ -106,7 +102,7 @@ const MyPrize = ({ openRandomModal }) => {
               </span>
               <br />
               <span style={{ color: "#888" }}>
-                쿠폰이 조기 마감될 수 있습니다. 사용에 유의 바랍니다.
+                쿠폰이 조기 마감될 수 있습니다. 사용에 유의 바랍니다. 
               </span>
             </Card>
           </Col>
@@ -115,5 +111,5 @@ const MyPrize = ({ openRandomModal }) => {
     </>
   );
 };
-
+// 0604
 export default MyPrize;

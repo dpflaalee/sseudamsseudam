@@ -23,6 +23,10 @@ import {
   ADD_COMMENT_REQUEST,
   ADD_COMMENT_SUCCESS,
 
+  LOAD_HASHTAG_POSTS_FAILURE, 
+  LOAD_HASHTAG_POSTS_REQUEST, 
+  LOAD_HASHTAG_POSTS_SUCCESS,
+
   LIKE_POST_REQUEST,
   LIKE_POST_SUCCESS,
   LIKE_POST_FAILURE,
@@ -175,6 +179,27 @@ function* uploadImages(action) {
   }
 }
 
+function loadHashtagPostsAPI(data, lastId) {
+  return axios.get(`/hashtag/${encodeURIComponent(data)}?lastId=${lastId || 0}`);
+}
+
+function* loadHashtagPosts(action) {
+  try {
+    console.log('loadHashtag console');
+    const result = yield call(loadHashtagPostsAPI, action.data, action.lastId);
+    yield put({
+      type: LOAD_HASHTAG_POSTS_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_HASHTAG_POSTS_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 function likePostAPI(data) {
   return axios.patch(`/post/${data}/like`);
 }
@@ -239,6 +264,10 @@ function* watchAddComment() {
   yield takeLatest(ADD_COMMENT_REQUEST, addComment);
 }
 
+function* watchLoadHashtagPosts() {
+  yield throttle(5000, LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
+}
+
 function* watchLikePost() {
   yield takeLatest(LIKE_POST_REQUEST, likePost);
 }
@@ -258,7 +287,8 @@ export default function* postSaga() {
     fork(watchAddPost),
     fork(watchUpdatePost),
     fork(watchRemovePost),
-    fork(watchAddComment),    
+    fork(watchAddComment),
+    fork(watchLoadHashtagPosts),    
     fork(watchLikePost),
     fork(watchUnlikePost),
     fork(watchUploadImages),    
