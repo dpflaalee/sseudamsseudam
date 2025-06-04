@@ -70,11 +70,6 @@ const signup = () => {
       setChangePhoneNum(e.target.value);
         },[]);
     
-    const [authenNum, setChangeAuthenNum] = useState('');
-    const [authenNumError, setAuthenNumError] = useState(false);
-    const onChangeAuthenNum = useCallback((e) => {
-      setChangeAuthenNum(e.target.value);
-    });
     
     // const [nickname, setChangeNickname] = useState('');
     // const onChangeNickname = useCallback((e) => {
@@ -114,12 +109,18 @@ const signup = () => {
   const [seconds, setSeconds] = useState();
   const [timerFlag, setTimerFlag] = useState(false);
   const [errTimeout, setErrTimeout] = useState(false);
-  const btnSendAuthenticationNumber = useCallback(() => {
-    console.log('클릭');
-    //  const response = axios.post(`http://localhost:3065/user/sms/${phoneNum}`,{},{
-    //   widthCredentials: true,
-    //  });
-
+  const [authenticationNum, setAuthenticationNum] = useState();
+  const btnSendAuthenticationNumber = useCallback( async () => {
+      if(phoneNum === null || String(phoneNum).length === 0){
+        console.log('오류');
+        return;
+      }
+      const response = await axios.post(`http://localhost:3065/user/sms/${phoneNum}`,{},{
+       withCredentials: true,
+      });
+      //const {num} = response.data;
+      console.log('response=', response.data);
+      setAuthenticationNum(response.data);
     let initMinute = 1;
     let seconds = 59;
     
@@ -141,7 +142,27 @@ const signup = () => {
     })();
     
     //setTime(setTimeout( ),10000);
-    },[phoneNum,minute,seconds])
+    },[phoneNum,minute,seconds,authenticationNum])
+
+  const [authenNum, setChangeAuthenNum] = useState('');
+    const [authenNumError, setAuthenNumError] = useState(false);
+    const onChangeAuthenNum = useCallback((e) => {
+      console.log('인증번호=',authenticationNum);
+      console.log('authenNum=',authenNum);
+      
+      setChangeAuthenNum(e.target.value);
+    },[authenNum]);
+    
+  const [errAuthenNum, setErrAuthenNum] = useState(false);
+  const btnAuthenticationChk = useCallback(() => {
+    console.log('클릭인증번호',authenticationNum);
+    console.log('클릭',authenNum);
+    if(authenticationNum !== authenNum){
+      setErrAuthenNum(true);
+      return;
+    }
+  })
+
   const onSubmitForm = useCallback(() => {
      setPhoneNumLenError(false);
      setPhoneNumRegError(false);
@@ -212,11 +233,11 @@ const signup = () => {
                 <label htmlFor='authenNum'></label>
                 <UnderlineInput placeholder='인증번호' id='authenNum'
                     value={authenNum} onChange={onChangeAuthenNum}  name='authenNum' required />
-                <Button>확인</Button>
+                <Button onClick={btnAuthenticationChk}>확인</Button>
                   {timerFlag &&  (<span style={{
                     position: 'absolute',
                     right: '70px',
-                    top: errTimeout ? '30%' : '50%',
+                    top: errTimeout ? '31%' : '50%',
                     transform: 'translateY(-50%)',
                     color: '#aaa',
                     fontSize: '12px'
@@ -226,6 +247,7 @@ const signup = () => {
              </div>
              <div style={{display:"block"}}>
                {errTimeout && (<ErrorMessage  style={{ marginTop: '4px' }}>시간 내에 입력해주세요!</ErrorMessage>)}
+               {errAuthenNum && (<ErrorMessage  style={{ marginTop: '4px' }}>인증번호를 다시 입력하세요!</ErrorMessage>)}
              </div>
             </div>
           </Form.Item>
