@@ -14,12 +14,14 @@ const CommentItem = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
 `;
 
 const Left = styled.div`
   display: flex;
   gap: 12px;
+  flex: 1;
 `;
 
 const Content = styled.div`
@@ -27,24 +29,26 @@ const Content = styled.div`
   flex-direction: column;
 `;
 
-const Nickname = styled.div`
-  font-weight: 600;
-  margin-bottom: 4px;
+const NicknameDateWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
-const Text = styled.div`
+const Nickname = styled.div`
+  font-weight: 600;
   color: #333;
 `;
 
-const Date = styled.div`
+const CommentDate = styled.div`
   font-size: 12px;
   color: #999;
-  margin-top: 4px;
 `;
 
-const Divider = styled.div`
-  border-top: 1px solid #eee;
-  margin: 16px 0;
+const Text = styled.div`
+  color: #555;
+  white-space: pre-wrap;
+  line-height: 1.4;
 `;
 
 const Comment = ({ comments = [] }) => {
@@ -58,31 +62,41 @@ const Comment = ({ comments = [] }) => {
 
   return (
     <Wrapper>
-      <Divider />
       <ComplainForm
         open={openReport}
         onClose={() => setOpenReport(false)}
         TARGET_TYPE={TARGET_TYPE.COMMENT}
         targetId={targetId}
       />
+      <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
+        댓글 {comments.length}개
+      </div>
+      {comments.length === 0 && <div>댓글이 없습니다.</div>}
       {comments.map((comment) => {
+        const createdAt = comment.createdAt
+          ? new Date(comment.createdAt).toLocaleString()
+          : '';
+
         const menu = (
-            <Menu>
-              <Menu.Item>수정</Menu.Item>
-              <Menu.Item danger>삭제</Menu.Item>              
-              <Menu.Item danger onClick={() => handleReport(comment.id)}>
-                신고하기
-              </Menu.Item>              
-            </Menu>
+          <Menu>
+            <Menu.Item>수정</Menu.Item>
+            <Menu.Item danger>삭제</Menu.Item>
+            <Menu.Item danger onClick={() => handleReport(comment.id)}>
+              신고하기
+            </Menu.Item>
+          </Menu>
         );
+
         return (
           <CommentItem key={comment.id}>
             <Left>
-              <Avatar />
+              <Avatar>{comment.User?.nickname?.[0] || 'Unknown'}</Avatar>
               <Content>
-                <Nickname>{comment.nickname}</Nickname>
+                <NicknameDateWrapper>
+                  <Nickname>{comment.User?.nickname || '알 수 없음'}</Nickname>
+                  {createdAt && <CommentDate>{createdAt}</CommentDate>}
+                </NicknameDateWrapper>
                 <Text>{comment.content}</Text>
-                <Date>{comment.date}</Date>
               </Content>
             </Left>
             <Dropdown overlay={menu} trigger={['click']}>

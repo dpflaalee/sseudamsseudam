@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, Avatar, Button, List, Comment, Popover, Modal, Input, Space, Select } from 'antd';
+import { Card, Avatar, Button, List, Popover, Modal, Input, Space, Select } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
 import PostImages from './PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
 import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST } from '@/reducers/post';
 
-const PostCard = ({post}) => {
+const PostCard = ({post, isGroup=false}) => { // 그룹용 추가코드
   const id = useSelector( state => state.user.user?.id );  
   const [open, setOpen] = useState(false);
   const { Option } = Select;
@@ -63,12 +63,17 @@ const PostCard = ({post}) => {
   return(
     <div style={{margin:'3%'}}>
       <Card
+        title={isGroup? `[그룹]${post.User?.nickname}`:post.User?.nickname} // 그룹용 추가코드
         actions={[
           <RetweetOutlined key="retweet" />,
           like
-            ? <HeartTwoTone twoToneColor="#f00" key="heart" onClick={onClickunLike} />
-            : <HeartOutlined key="heart" onClick={onClickLike} />,
-          <><Link href={`/post/${post.id}`} passHref><MessageOutlined key="comment" /></Link></>,
+            ? <span key="heart"><HeartTwoTone twoToneColor="#f00" onClick={onClickunLike} /> {post.Likers.length}</span>
+            : <span key="heart"><HeartOutlined onClick={onClickLike} /> {post.Likers.length}</span>,
+          <span key="comment">
+            <Link href={`/post/${post.id}`} passHref>
+              <MessageOutlined /> {post.Comments?.length || 0}
+            </Link>
+          </span>,
           <Popover content={(
             <Button.Group>
                 <>

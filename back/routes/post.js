@@ -16,7 +16,7 @@ try{
   fs.mkdirSync('uploads');
 }
 
-//1. 업로드 설정
+// 업로드 설정
 const upload = multer({
   storage: multer.diskStorage({
     destination( req, file, done ) {
@@ -33,25 +33,25 @@ const upload = multer({
 
 router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
   try{
-    // 1. 해시태그 추출
+    // 해시태그 추출
     const hashtags = req.body.content.match(/#[^\s#]+/g) //   /#/g    #찾아
-    // 2. 게시글저장
+    // 게시글저장
     const post = await Post.create({
       content: req.body.content,
       UserId: req.user.id
     });
-    // 3. 해시태그 존재하면 - 해시태그 저장
+    // 해시태그 존재하면 - 해시태그 저장
     if (hashtags) {
       const result = await Promise.all(
         hashtags.map((tag)=>
           Hashtag.findOrCreate({
-            where: { name: tag.slice(1).toLowerCase() }
+            where: { content: tag.slice(1).toLowerCase() }
           })
         )
       )
       await post.addHashtags( result.map(v => v[0]) )
     }
-    // 4. 이미지처리
+    // 이미지처리
     if(req.body.image) {
       if( Array.isArray(req.body.image) ) {
         
@@ -66,7 +66,7 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
       }
     }
 
-    // 5. 게시글 상세정보조회
+    // 게시글 상세정보조회
     const fullPost = await Post.findOne({
       where: { id: post.id },
       include: [
@@ -111,7 +111,29 @@ router.get('/:postId', async (req, res, next) => {
   }
 });
 
-//4. 좋아요 추가
+router.post('/:postId/comment', isLoggedIn, async (req,res,next) => {
+  try{
+    const post = await Post.findOne({where: {id: req.params.postId}});
+    if(!post) {return req.status(403).send('게시글을 확인해주세요');}
+
+    const comment = await Comment.create({
+      content: req.body.content,
+      PostId: parseInt(req.params.postId , 10),
+      UserId: req.user.id
+    });
+
+    const fullComment = await Comment.findOne({
+      where: {id: comment.id},
+      include: [{ model: User, attributes:['id', 'nickname']}]
+    });
+    res.status(200).json(fullComment);
+  } catch(error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+// 좋아요 추가
 router.patch('/:postId/like', isLoggedIn, async (req, res, next) => {
   try{
     const post = await Post.findOne({ where: {id: req.params.postId} });
@@ -125,7 +147,7 @@ router.patch('/:postId/like', isLoggedIn, async (req, res, next) => {
   }
 });
 
-//5. 좋아요 삭제
+// 좋아요 삭제
 router.delete('/:postId/like', isLoggedIn, async (req, res, next) => {
   try{
     const post = await Post.findOne({ where: {id: req.params.postId} });

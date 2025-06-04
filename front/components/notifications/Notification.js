@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Avatar } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { List, Avatar } from "antd";
 import { HeartFilled, RetweetOutlined, MessageOutlined, UserAddOutlined, NotificationOutlined, GiftOutlined, TeamOutlined, CrownFilled } from '@ant-design/icons';
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
 
@@ -35,8 +37,11 @@ const Description = styled.div`
   font-size: 14px;
 `;
 
-const Notification = ({ type, user, target, content }) => {
-  const renderIcon = () => {
+const Notification = ({ noti }) => {
+  console.log('🔍 noti 전체:', noti);
+
+
+  const renderIcon = (type) => {
     switch (type) {
       case NOTIFICATION_TYPE.LIKE:
         return <HeartFilled style={{ color: 'hotpink' }} />;
@@ -46,7 +51,7 @@ const Notification = ({ type, user, target, content }) => {
         return <MessageOutlined />;
       case NOTIFICATION_TYPE.FOLLOW:
         return <UserAddOutlined />;
-      case NOTIFICATION_TYPE.REPLY:
+      case NOTIFICATION_TYPE.RECOMMNET:
         return <MessageOutlined style={{ color: '#0066CC' }} />;
       case NOTIFICATION_TYPE.RANDOMBOX:
         return <GiftOutlined style={{ color: '#FF9E00' }} />;
@@ -66,42 +71,42 @@ const Notification = ({ type, user, target, content }) => {
   };
 
   // 알림 유형에 맞는 텍스트 내용 렌더링
-  const renderContent = () => {
-    switch (type) {
+  const renderContent = (noti) => {
+    const sender = noti?.Sender || 'Dan';
+    const notiType = noti?.type;
+
+    switch (notiType) {
       case NOTIFICATION_TYPE.LIKE:
-        return `${user.nickname}님이 당신의 게시물을 좋아요했습니다.`;
+        return `${sender.nickname}님이 당신의 게시물을 좋아요했습니다.`;
       case NOTIFICATION_TYPE.RETWEET:
-        return `${user.nickname}님이 당신의 게시물을 리트윗했습니다.`;
+        return `${sender.nickname}님이 당신의 게시물을 리트윗했습니다.`;
       case NOTIFICATION_TYPE.COMMENT:
-        return `${user.nickname}님이 당신의 게시물에 댓글을 남겼습니다.`;
+        return `${sender.nickname}님이 당신의 게시물에 댓글을 남겼습니다.`;
       case NOTIFICATION_TYPE.FOLLOW:
-        return `${user.nickname}님이 당신을 팔로우했습니다.`;
-      case NOTIFICATION_TYPE.REPLY:
-        return `${user.nickname}님이 당신의 댓글에 답글을 남겼습니다.`;
+        return `${sender.nickname}님이 당신을 팔로우했습니다.`;
+      case NOTIFICATION_TYPE.RECOMMNET:
+        return `${sender.nickname}님이 당신의 댓글에 답글을 남겼습니다.`;
       case NOTIFICATION_TYPE.RANDOMBOX:
-        return `${user.nickname}님! 랜덤박스가 도착했어요 확인해보세요!`;
+        return `${sender.nickname}님! 랜덤박스가 도착했어요 확인해보세요!`;
       case NOTIFICATION_TYPE.GROUPAPPLY:
-        return `${user.nickname}님이 그룹 신청을 했습니다.`;
+        return `${sender.nickname}님이 그룹 신청을 했습니다.`;
       case NOTIFICATION_TYPE.GROUPAPPLY_APPROVE:
-        return `${user.nickname}님! 그룹에 가입 신청이 승입되었습니다.`;
+        return `${sender.nickname}님! 그룹에 가입 신청이 승입되었습니다.`;
       case NOTIFICATION_TYPE.GROUPAPPLY_REJECT:
-        return `${user.nickname}님이 그룹 신청이 거절되었습니다.`;
+        return `${sender.nickname}님이 그룹 신청이 거절되었습니다.`;
       case NOTIFICATION_TYPE.ADMIN_NOTI:
-        return `관리자 알림: ${content}`;
+        return `관리자 알림: 새로운 공지가 등록되었습니다.`;
       case NOTIFICATION_TYPE.ANIMAL_FRIENDS:
-        return `${user.nickname}님이 친구가 되고 싶어해요!`;
+        return `${sender.nickname}님이 친구가 되고 싶어해요!`;
       default:
         return '알 수 없는 알림';
     }
   };
-
   return (
     <Container>
-      <IconWrapper>{renderIcon()}</IconWrapper>
-      <Avatar style={{ marginRight: 12 }} />
+      <IconWrapper>{renderIcon(noti.type)}</IconWrapper>
       <Content>
-        <Title>{renderContent()}</Title>
-        <Description>{content || '디테일한 설명이 여기에 들어갑니다.'}</Description>
+        <Title>{renderContent(noti)}</Title>
       </Content>
     </Container>
   );
