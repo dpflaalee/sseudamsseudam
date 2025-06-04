@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 
 import CommentForm from '../Comment/CommentForm';
 import Comment from '../Comment/Comment';
-import PostImages from '../Post/PostImages';
+import PostImages from '../post/PostImages';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
