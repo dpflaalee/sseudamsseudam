@@ -1,17 +1,8 @@
-// components/ContentHeader.js
 import React from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { Dropdown, Menu, Button } from 'antd';
-import {
-  HomeOutlined,
-  NotificationOutlined,
-  TeamOutlined,
-  SearchOutlined,
-  MailOutlined,
-  PlusOutlined,
-  BellOutlined,
-} from '@ant-design/icons';
+import { HomeOutlined, NotificationOutlined, TeamOutlined, SearchOutlined, MailOutlined, PlusOutlined, BellOutlined,} from '@ant-design/icons';
 
 const HeaderWrapper = styled.div`
   position: sticky;
@@ -21,9 +12,29 @@ const HeaderWrapper = styled.div`
   padding: 12px 16px;
   border-bottom: 1px solid #f0f0f0;
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  width: 100%;
+  box-sizing: border-box;
 `;
+
+const LeftWrapper = styled.div`
+  align-items: center;
+  min-width: 0;
+  max-width: 50%;
+  flex-shrink: 1;
+`;
+
+const RightWrapper = styled.div`
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  max-width: 50%;
+  flex-shrink: 1;
+`;
+
 
 const menuItems = [
   { key: 'notice', label: '공지', icon: <NotificationOutlined />, path: '/notice' },
@@ -36,44 +47,43 @@ const menuItems = [
 
 const ContentHeader = () => {
   const router = useRouter();
-
-  const currentMenu = menuItems.find((item) => router.pathname.startsWith(item.path)) || menuItems[1]; // 기본값 홈
+  const currentMenu = menuItems.find((item) => router.pathname.startsWith(item.path)) || menuItems[1];
 
   const handleMenuClick = ({ key }) => {
     const selected = menuItems.find((item) => item.key === key);
-    if (selected) {
-      router.push(selected.path);
-    }
+    if (selected) { router.push(selected.path);  }
   };
 
   const isGroupPage = router.pathname.startsWith('/group');
 
   return (
     <HeaderWrapper>
-      <Dropdown
-        overlay={
-          <Menu onClick={handleMenuClick}>
-            {menuItems.map((item) => (
-              <Menu.Item key={item.key} icon={item.icon}>
-                {item.label}
-              </Menu.Item>
-            ))}
-          </Menu>
-        }
-        trigger={['click']}
-      >
-        <Button icon={currentMenu.icon}>
-          {currentMenu.label}
-        </Button>
-      </Dropdown>
- 
-      {isGroupPage && (
-        <Button
-          style={{border:"0px"}}
-          icon={<PlusOutlined />}
-          onClick={() => console.log('그룹 생성 클릭')} // 여기에 생성 로직 연결
-        />
-      )}
+      <LeftWrapper>
+        <Dropdown
+          overlay={
+            <Menu onClick={handleMenuClick}>
+              {menuItems.map((item) => (
+                <Menu.Item key={item.key} icon={item.icon}>
+                  {item.label}
+                </Menu.Item>
+              ))}
+            </Menu>
+          }
+          trigger={['click']}
+        >
+          <Button icon={currentMenu.icon}>{currentMenu.label}</Button>
+        </Dropdown>
+      </LeftWrapper>
+
+      <RightWrapper>
+        {isGroupPage && (
+          <Button
+            icon={<PlusOutlined />}
+            style={{ border: 'none' }}
+            onClick={() => router.push('/groups/groupCreate')} 
+          />
+        )}
+      </RightWrapper>
     </HeaderWrapper>
   );
 };
