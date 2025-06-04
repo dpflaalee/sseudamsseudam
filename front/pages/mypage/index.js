@@ -9,11 +9,7 @@ import {
   Row,
   Col,
 } from "antd";
-<<<<<<< HEAD
-import { UserOutlined,EllipsisOutlined } from "@ant-design/icons";
-=======
 import { UserOutlined, EllipsisOutlined } from "@ant-design/icons";
->>>>>>> 57217b8bd55a8690c26462018b004664a1ea8601
 import MyPrize from "@/components/prize/MyPrize";
 import { Dropdown, Menu } from "antd";
 
