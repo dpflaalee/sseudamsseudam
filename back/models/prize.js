@@ -35,31 +35,18 @@ module.exports = (sequelize, DataTypes) => {
   // 관계 설정
   Prize.associate = (db) => {
     // 1. Prize belongs to one Category (일대다 관계: many Prizes belong to one Category)
-<<<<<<< HEAD
-    Prize.belongsTo(db.Category, {
-=======
     db.Prize.belongsTo(db.Category, {
->>>>>>> 8c5aa2c51712dc16c34a2c348bb1a78521aecefc
       foreignKey: 'CategoryId',
       as: 'category'
     });
 
     // 2. Prize belongs to many Users (유저가 당첨받은 상품들)
-<<<<<<< HEAD
-    Prize.belongsToMany(db.User, {
-      through: 'MyPrize',
-=======
     db.Prize.belongsToMany(db.User, {
       through: 'MyPrize',
       foreignKey: 'PrizeId',
->>>>>>> 8c5aa2c51712dc16c34a2c348bb1a78521aecefc
       as: 'users'
     });
   };
 
   return Prize;
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 8c5aa2c51712dc16c34a2c348bb1a78521aecefc
