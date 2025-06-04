@@ -4,7 +4,7 @@ import Nav from './Nav';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
-import PostCard from './Post/PostCard';
+import PostCard from './post/PostCard';
 import DetailCard from './Detail/DetailCard'
 
 const AppLayoutWrapper = styled.div`
