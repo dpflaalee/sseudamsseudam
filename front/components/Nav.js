@@ -1,109 +1,85 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MailOutlined, HomeOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, BellOutlined, UserOutlined, } from "@ant-design/icons";
 import { Avatar, Dropdown, Menu } from "antd";
 import { useRouter } from 'next/router';
+import { useDispatch, useSelector } from "react-redux";
+import { LOG_OUT_REQUEST } from "@/reducers/user";
+
 const { SubMenu } = Menu;
-function getItem(label, key, icon, children) { return { key, icon, children, label }; }
 
 const Nav = () => {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const [openKeys, setOpenKeys] = useState([]);
+  const dispatch = useDispatch();
+  const { logOutLoading, user } = useSelector(state => state.user);
+
+  const onLogout = useCallback(()=>{dispatch({type:LOG_OUT_REQUEST})},[])
 
   useEffect(() => {
     const handleResize = () => { setIsMobile(window.innerWidth <= 768); };
     window.addEventListener("resize", handleResize);
     handleResize();
-    return () => { window.removeEventListener("resize", handleResize); };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleClick = ({ key }) => {
-    if (key === '1') {
-      router.push('/');
-    }
-    if (key === '2') {
-      router.push('/main');
-    }
-    if (key === '3') {
-      router.push('/group');
-    }
-    if (key === '4') {
-      router.push('/notification');
-    }
-    if (key === '5') {
-      router.push('/search');
-    }
-    if (key === '6') {
-      router.push('/');
-    }
+    if (key === 'notice') router.push('/');
+    if (key === 'home') router.push('/main');
+    if (key === 'groupHome') router.push('/groups');
+    if (key === 'notification') router.push('/notification');
+    if (key === 'search') router.push('/search');
+    if (key === 'chat') router.push('/chat');
   };
-
-  const items = [
-    getItem("공지", "1", <NotificationOutlined />),
-    getItem("홈", "2", <HomeOutlined />),
-    getItem("그룹", "sub1", <TeamOutlined />, [
-      getItem("Group1", "g1"),
-      getItem("Group2", "g2")
-    ]),
-    getItem("알림", "4", <BellOutlined />),
-    getItem("검색", "5", <SearchOutlined />),
-    getItem("채팅", "6", <MailOutlined />)
-  ];
 
   const profileMenu = (
     <Menu>
       <Menu.Item key="profileUpdate">프로필 수정</Menu.Item>
-      <Menu.Item key="logout">로그아웃</Menu.Item>
-      <Menu.Item key="deactivate">탈퇴하기</Menu.Item>
+      <Menu.Item key="logout" onClick={onLogout} loading={logOutLoading}>로그아웃</Menu.Item>
+      <Menu.Item key="deactivate" style={{ color: 'red' }}>탈퇴하기</Menu.Item>
     </Menu>
   );
 
+  const handleOpenChange = (keys) => {
+    setOpenKeys(keys);
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%"}}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: isMobile ? "row" : "column",
-          justifyContent: "flex-start", 
-          gap: "10px",
-        }}
-      >
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <div style={{ display: "flex", flexDirection: isMobile ? "row" : "column", justifyContent: "flex-start", gap: "10px", }} >
         <Dropdown overlay={profileMenu} trigger={["click"]}>
-          <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop:"20px", padding:"15px"}}>
+          <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop: "20px",  padding: "15px", }} >
             <Avatar size="large" icon={<UserOutlined />} />
-            {!isMobile && (
+            {!isMobile && user && (
               <div style={{ marginLeft: "10px" }}>
-                <strong>유저명</strong>
-                <div style={{ color: "#888" }}>email@com</div>
+                <strong>{user?.nickname}</strong>
+                <div style={{ color: "#888" }}>{user?.email}</div>
               </div>
             )}
           </div>
         </Dropdown>
 
         <Menu
-          mode={isMobile ? "horizontal" : "vertical"}
-          defaultSelectedKeys={["2"]}
+          mode={isMobile ? "horizontal" : "inline"}
+          selectedKeys={[]}
+          openKeys={openKeys}
+          onOpenChange={handleOpenChange}
           onClick={handleClick}
           style={{
-            marginTop: "20px",
             width: isMobile ? "auto" : "100%",
-            flex: 1
+            borderRight: "none",
+            background: "transparent",
           }}
         >
-          {items.map((item) =>
-            item.children ? (
-              <SubMenu key={item.key} icon={item.icon} title={item.label}>
-                {item.children.map((subItem) => (
-                  <Menu.Item key={subItem.key} icon={subItem.icon}>
-                    {subItem.label}
-                  </Menu.Item>
-                ))}
-              </SubMenu>
-            ) : (
-              <Menu.Item key={item.key} icon={item.icon}>
-                {isMobile ? null : item.label}
-              </Menu.Item>
-            )
-          )}
+          <Menu.Item key="notice" icon={<NotificationOutlined />}>{!isMobile && "공지"}</Menu.Item>
+          <Menu.Item key="home" icon={<HomeOutlined />}> {!isMobile && "홈"} </Menu.Item>
+          <SubMenu key="group" icon={<TeamOutlined />} title={!isMobile && "그룹"}>
+            <Menu.Item key="groupHome" style={{fontWeight:'bold'}}>그룹 홈</Menu.Item>
+            <Menu.Item key="group2">Group2</Menu.Item>
+          </SubMenu>
+          <Menu.Item key="notification" icon={<BellOutlined />}>{!isMobile && "알림"}</Menu.Item>
+          <Menu.Item key="search" icon={<SearchOutlined />}>{!isMobile && "검색"}</Menu.Item>
+          <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item>
         </Menu>
       </div>
     </div>
