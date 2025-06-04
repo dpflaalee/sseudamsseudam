@@ -12,7 +12,7 @@ const Ssdam = ({ Component, ...rest }) => {
   return (
     <Provider store={store}>
       <Head>
-        <meta charSet="utf-8" />
+        <meta charset="utf-8" />
         <title>Ssdam</title>
       </Head>
       <Component />

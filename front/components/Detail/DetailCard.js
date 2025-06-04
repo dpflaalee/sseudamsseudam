@@ -3,7 +3,7 @@ import { Card, Avatar, Button, Popover, Modal, Input, Space, Select, Comment  } 
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
-import PostImages from '../post/PostImages';
+import PostImages from '../Post/PostImages';
 import { useRouter } from 'next/router'; // <-- useRouter import 추가
 import CommentForm from '../Comment/CommentForm';
 
