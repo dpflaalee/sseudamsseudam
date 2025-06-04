@@ -6,8 +6,8 @@ import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
 
 import PostImages from '../post/PostImages';
 import { useRouter } from 'next/router';
-import CommentForm from '../Comment/CommentForm';
-import Comment from '../Comment/Comment';
+import CommentForm from '../comment/CommentForm';
+import Comment from '../comment/Comment';
 
 const DetailCard = ({ post, onRefreshPost }) => {
   const id = useSelector((state) => state.user.user?.id);
