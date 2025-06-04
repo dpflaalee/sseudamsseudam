@@ -1,14 +1,22 @@
-import React, { useState, useCallback } from 'react';
-import { Card, Avatar, Button, Popover, Modal, Input, Space, Select, Comment } from 'antd';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Card, Avatar, Button, Popover, Modal, Input, Space, Select, Comment, List } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
+import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST, LOAD_POST_REQUEST } from '@/reducers/post';
+import PostImages from '../post/PostImages';
+import { useRouter } from 'next/router';
+import Link from 'next/Link';
+
+import CommentForm from '../Comment/CommentForm';
+import Comment from '../Comment/Comment';
+import PostImages from '../post/PostImages';
+import ComplainForm from '../complains/ComplainForm';
+import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
-import PostImages from '../Post/PostImages';
-import { useRouter } from 'next/router'; // <-- useRouter import 추가
-import CommentForm from '../comment/CommentForm';
 
 const DetailCard = ({ post }) => {
   const id = useSelector(state => state.user.user?.id);
+  const { addCommentDone } = useSelector((state) => state.post);
   const [open, setOpen] = useState(false);
   const router = useRouter(); // <-- useRouter 훅 사용
   const dispatch = useDispatch();
@@ -16,20 +24,7 @@ const DetailCard = ({ post }) => {
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      nickname: '홍길동',
-      content: '좋은 글이네요!',
-      date: '2025-06-01 12:34',
-    },
-    {
-      id: 2,
-      nickname: '김철수',
-      content: '공감합니다.',
-      date: '2025-06-01 13:12',
-    },
-  ]);
+  const [comments, setComments] = useState(true);
 
   // 좋아요
   const onClickLike = useCallback(() => {
@@ -51,6 +46,15 @@ const DetailCard = ({ post }) => {
       data: post.id,
     });
   }, [id]);
+
+  useEffect(() => {
+    if (addCommentDone) {
+      dispatch({
+        type: LOAD_POST_REQUEST,
+        data: post.id,
+      });
+    }
+  }, [addCommentDone]);
 
   const like = post?.Likers?.find((v) => v.id === id);
 
@@ -126,10 +130,28 @@ const DetailCard = ({ post }) => {
         <PostImages images={post?.Images || []} />
       </Card>
 
-      {/* 댓글 입력 */}
-      <CommentForm />
-      {/* 댓글 리스트 */}
-      <Comment comments={comments} />
+      {comments && (
+        <>
+          {/* 댓글폼 */}
+          <CommentForm post={post} />
+          {/* 댓글리스트 */}
+          <List
+            header={`댓글 ${post.Comments.length}`}
+            itemLayout='horizontal'
+            dataSource={post.Comments}
+            renderItem={(item) => (
+              <li>
+                <Comment
+                  avatar={<Avatar>{item.User.nickname[0]}</Avatar>}
+                  content={item.content}
+                  author={item.User.nickname}
+                />
+              </li>
+            )
+            }
+          />
+        </>
+      )}
 
       <Modal
         visible={editModalVisible}
