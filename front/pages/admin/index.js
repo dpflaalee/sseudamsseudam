@@ -3,7 +3,12 @@ import { Card, Row, Col, Button, Typography } from 'antd';
 import AppLayout from '@/components/AppLayout';
 import PrizeManage from '@/components/Prize/PrizeManage';
 
+
 const { Title, Text } = Typography;
+
+import ComplainCard from "../../components/complains/ComplainCard";
+import PostCard from "../../components/PostCard";
+
 
 const AdminIndex = () => {
   const [activeSection, setActiveSection] = useState(null); 

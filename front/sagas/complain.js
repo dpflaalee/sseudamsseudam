@@ -7,7 +7,7 @@ import {
 } from '../reducers/complain';
 
 //////////////////////////////////////////////////////////
-function loadComplainAPI(data) {
+function loadComplainAPI() {
   return axios.get(`/admin/complain`);
 }
 
@@ -19,7 +19,8 @@ function* loadComplain(action) {
       data: result.data,
     });
   } catch (err) {
-    console.log('saga: complain : loadComplain : ', err);
+    console.log('🚨 complainSaga : loadComplain : ', err);
+    next(err);
     yield put({
       type: LOAD_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -30,19 +31,20 @@ function* loadComplain(action) {
 
 
 function addComplainAPI(data) {
-  //return axios.post(`/admin/complain`);
+  console.log('🔱 API로 넘길 데이터:', data);
+  return axios.post('/complain', data); // ✅ targetType/targetId는 body로 넘김
 }
 
 function* addComplain(action) {
   try {
-    //const result = yield call(addComplainAPI, action.data);
-    console.log('🦞 sagas:  addComplain : ', action.data);
+    const result = yield call(addComplainAPI, action.data);
+    console.log('🦞 complainSaga:  addComplain : ', action.data);
     yield put({
       type: ADD_COMPLAIN_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (err) {
-    console.log('🚨 saga : addComplain : error : ', err);
+    console.log('🚨 complainSaga : addComplain : ', err);
     yield put({
       type: ADD_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -62,7 +64,7 @@ function* removeComplain(action) {
       data: result.data,
     });
   } catch (err) {
-    console.log('saga: complain : removeComplain : ', err);
+    console.log('🚨 complainSaga : removeComplain : ', err);
     yield put({
       type: REMOVE_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -74,6 +76,7 @@ function* removeComplain(action) {
 
 //////////////////////////
 function* watchLoadComplain() {
+  console.log('🍻 watchLoadComplain');
   yield throttle(5000, LOAD_COMPLAIN_REQUEST, loadComplain);
 }
 
@@ -89,6 +92,7 @@ function* watchRemoveComplain() {
 /////////////////////
 export default function* complainSaga() {
   yield all([  //  all - 동시에 배열로 받은 fork들을 동시에 실행 
+    console.log('🤫 complainSaga'),
     fork(watchLoadComplain),
     fork(watchAddComplain),
     fork(watchRemoveComplain),

@@ -5,9 +5,8 @@
   "scripts": {
     "dev": "next"
   },
-  "author": "sseudam",
+  "author": "ssdam",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
     "antd": "^4.24.16",
@@ -36,5 +35,6 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react-hooks": "^4.0.4"
-  }
+  },
+  "description": ""
 }

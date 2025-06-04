@@ -12,6 +12,15 @@ import {
   REMOVE_POST_FAILURE,
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
+  LIKE_POST_REQUEST,
+  LIKE_POST_SUCCESS,
+  LIKE_POST_FAILURE,
+  UNLIKE_POST_REQUEST,
+  UNLIKE_POST_SUCCESS,
+  UNLIKE_POST_FAILURE,
+  UPLOAD_IMAGES_FAILURE,
+  UPLOAD_IMAGES_REQUEST,
+  UPLOAD_IMAGES_SUCCESS,
 } from '../reducers/post';
 
 const dummyPost = (content) => ({
@@ -21,18 +30,13 @@ const dummyPost = (content) => ({
   createdAt: new Date().toISOString(),
 });
 
-function addPostAPI() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ data: dummyPost() }); // 더미 데이터 반환
-    }, 500); // 500ms 후에 더미 데이터 반환
-  });
+function addPostAPI(data) {
+  return axios.post('/post', data);
 }
 
 function* addPost(action) {
   try {
-    //const result = yield call(addPostAPI, action.data);
-    const result = yield call(addPostAPI);
+    const result = yield call(addPostAPI, action.data);
     yield put({
       type: ADD_POST_SUCCESS,
       data: result.data,
@@ -77,14 +81,70 @@ function* removePost(action) {
       type: REMOVE_POST_SUCCESS,
       data: result.data,
     });
-    yield put({
-      type: REMOVE_POST_OF_ME,
-      data: action.data,
-    });
   } catch (err) {
     console.error(err);
     yield put({
       type: REMOVE_POST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function uploadImagesAPI(data) {
+  return axios.post('/post/images', data);
+}
+
+function* uploadImages(action) {
+  try {
+    const result = yield call(uploadImagesAPI, action.data);
+    yield put({
+      type: UPLOAD_IMAGES_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: UPLOAD_IMAGES_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function likePostAPI(data) {
+  return axios.patch(`/post/${data}/like`);
+}
+
+function* likePost(action) {
+  try {
+    const result = yield call(likePostAPI, action.data);
+    yield put({
+      type: LIKE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LIKE_POST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function unlikePostAPI(data) {
+  return axios.delete(`/post/${data}/like`);
+}
+
+function* unlikePost(action) {
+  try {
+    const result = yield call(unlikePostAPI, action.data);
+    yield put({
+      type: UNLIKE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: UNLIKE_POST_FAILURE,
       error: err.response.data,
     });
   }
@@ -102,11 +162,25 @@ function* watchRemovePost() {
   yield takeLatest(REMOVE_POST_REQUEST, removePost);
 }
 
+function* watchLikePost() {
+  yield takeLatest(LIKE_POST_REQUEST, likePost);
+}
+
+function* watchUnlikePost() {
+  yield takeLatest(UNLIKE_POST_REQUEST, unlikePost);
+}
+
+function* watchUploadImages() {
+  yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
+}
 
 export default function* postSaga() {
   yield all([
     fork(watchAddPost),
     fork(watchUpdatePost),
     fork(watchRemovePost),
+    fork(watchLikePost),
+    fork(watchUnlikePost),
+    fork(watchUploadImages),    
   ]);
 }
