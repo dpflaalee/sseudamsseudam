@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../../reducers/post';
 import userInput from '../../hooks/userInput';  
 
-const PostForm = () => {
+const PostForm = ({groupId, isGroup=false}) => { // 그룹용 추가코드
 
   const { TextArea } = Input;
   const { Option } = Select;
@@ -28,12 +28,14 @@ const PostForm = () => {
     const formData = new FormData();
     imagePaths.forEach(( i ) => { formData.append('image' , i) });
     formData.append('content', text);
+
+    if(isGroup && groupId ){formData.append('groupId', groupId);} // 그룹용 추가코드
     
     dispatch({
       type: ADD_POST_REQUEST,
       data: formData  
     });
-  }, [text ,imagePaths ]);
+  }, [text ,imagePaths, groupId ]); // 그룹용 추가코드
 
   const imageInput = useRef();
   const onClickImageUpload = useCallback(() => {
