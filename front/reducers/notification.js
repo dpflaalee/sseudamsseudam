@@ -18,89 +18,89 @@ export const REMOVE_NOTIFICATION_FAILURE = 'REMOVE_NOTIFICATION_FAILURE';
 ///////////////////////////////////////////////////////////////////////
 
 export const initialState = {
-    loadNotificaionLoading: false,
-    loadNotificaionDone: false,
-    loadNotificaionError: null,
+    loadNotificationLoading: false,
+    loadNotificationDone: false,
+    loadNotificationError: null,
 
-    addNotificaionLoading: false,
-    addNotificaionDone: false,
-    addNotificaionError: null,
+    addNotificationLoading: false,
+    addNotificationDone: false,
+    addNotificationError: null,
 
-    removeNotificaionLoading: false,
-    removeNotificaionDone: false,
-    removeNotificaionError: null,
+    removeNotificationLoading: false,
+    removeNotificationDone: false,
+    removeNotificationError: null,
 
-    mainNotificaion: [],
+    mainNotification: [],
 };
 
 //////////////////////////////////////////
 
 const reducer = (state = initialState, action) => produce(state, (draft) => {
-    console.log('🐬 Notificaion reducer');
-    console.log('🐬 Notificaion reducer : type', action.type);
-    console.log('🐬 Notificaion reducer : data', action.data);
+    console.log('🐬 Notification reducer');
+    console.log('🐬 Notification reducer : type', action.type);
+    console.log('🐬 Notification reducer : data', action.data);
     switch (action.type) {
         //////////////////////////////
         case LOAD_NOTIFICATION_REQUEST:
-            draft.loadNotificaionLoading = true;
-            draft.loadNotificaionDone = false;
-            draft.loadNotificaionError = null;
+            draft.loadNotificationLoading = true;
+            draft.loadNotificationDone = false;
+            draft.loadNotificationError = null;
             break;
 
         case LOAD_NOTIFICATION_SUCCESS:
-            draft.loadNotificaionLoading = false;
-            draft.loadNotificaionDone = true;
-            draft.loadNotificaionError = null;
-            draft.mainNotificaion = action.data;
+            draft.loadNotificationLoading = false;
+            draft.loadNotificationDone = true;
+            draft.loadNotificationError = null;
+            draft.mainNotification = action.data;
             break;
 
         case LOAD_NOTIFICATION_FAILURE:
-            draft.loadNotificaionLoading = false;
-            draft.loadNotificaionDone = true;
-            draft.loadNotificaionError = action.error;
+            draft.loadNotificationLoading = false;
+            draft.loadNotificationDone = true;
+            draft.loadNotificationError = action.error;
             break;
 
         ///////////////////////////////////////
         case ADD_NOTIFICATION_REQUEST:
-            draft.addNotificaionLoading = true;
-            draft.addNotificaionDone = false;
-            draft.addNotificaionError = null;
+            draft.addNotificationLoading = true;
+            draft.addNotificationDone = false;
+            draft.addNotificationError = null;
             break;
 
         case ADD_NOTIFICATION_SUCCESS:
             console.log('🐢 ADD_COMPLAIN_SUCCESS : ', action.data);
             const newNotificaton = action.data;
-            draft.addNotificaionLoading = false;
-            draft.addNotificaionDone = true;
-            draft.addNotificaionError = null;
-            draft.mainNotificaion = [newNotificaton, ...draft.mainNotificaion];
-            console.log('🐢 draft.mainComplainCard : ', draft.mainNotificaion);
+            draft.addNotificationLoading = false;
+            draft.addNotificationDone = true;
+            draft.addNotificationError = null;
+            draft.mainNotification = [newNotificaton, ...draft.mainNotification];
+            console.log('🐢 draft.mainNotification : ', draft.mainNotification);
             break;
 
         case ADD_NOTIFICATION_FAILURE:
-            draft.addNotificaionLoading = false;
-            draft.addNotificaionDone = false;
-            draft.addNotificaionError = action.error;
+            draft.addNotificationLoading = false;
+            draft.addNotificationDone = false;
+            draft.addNotificationError = action.error;
             console.log('🐢 ADD_NOTIFICATION_FAILURE : ', action.error);
             break;
 
         ////////////////////////////////////////
         case REMOVE_NOTIFICATION_REQUEST:
-            draft.removeNotificaionLoading = true;
-            draft.removeNotificaionDone = false;
-            draft.removeNotificaionError = null;
+            draft.removeNotificationLoading = true;
+            draft.removeNotificationDone = false;
+            draft.removeNotificationError = null;
             break;
 
         case REMOVE_NOTIFICATION_SUCCESS:
-            draft.removeNotificaionLoading = false;
-            draft.removeNotificaionDone = true;
-            draft.removeNotificaionError = null;
+            draft.removeNotificationLoading = false;
+            draft.removeNotificationDone = true;
+            draft.removeNotificationError = null;
             break;
 
         case REMOVE_NOTIFICATION_FAILURE:
-            draft.removeNotificaionLoading = false;
-            draft.removeNotificaionDone = false;
-            draft.removeNotificaionError = action.error;
+            draft.removeNotificationLoading = false;
+            draft.removeNotificationDone = false;
+            draft.removeNotificationError = action.error;
             break;
 
         ////////////////////////////////////////

@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Avatar } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { List, Avatar } from "antd";
 import { HeartFilled, RetweetOutlined, MessageOutlined, UserAddOutlined, NotificationOutlined, GiftOutlined, TeamOutlined, CrownFilled } from '@ant-design/icons';
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
 
@@ -35,9 +37,12 @@ const Description = styled.div`
   font-size: 14px;
 `;
 
-const Notification = ({ notiType, sender, target }) => {
-  const renderIcon = () => {
-    switch (notiType) {
+const Notification = ({ noti }) => {
+  console.log('🔍 noti 전체:', noti);
+
+
+  const renderIcon = (type) => {
+    switch (type) {
       case NOTIFICATION_TYPE.LIKE:
         return <HeartFilled style={{ color: 'hotpink' }} />;
       case NOTIFICATION_TYPE.RETWEET:
@@ -66,7 +71,10 @@ const Notification = ({ notiType, sender, target }) => {
   };
 
   // 알림 유형에 맞는 텍스트 내용 렌더링
-  const renderContent = () => {
+  const renderContent = (noti) => {
+    const sender = noti?.Sender || 'Dan';
+    const notiType = noti?.type;
+
     switch (notiType) {
       case NOTIFICATION_TYPE.LIKE:
         return `${sender.nickname}님이 당신의 게시물을 좋아요했습니다.`;
@@ -94,13 +102,11 @@ const Notification = ({ notiType, sender, target }) => {
         return '알 수 없는 알림';
     }
   };
-
   return (
     <Container>
-      <IconWrapper>{renderIcon()}</IconWrapper>
-      <Avatar style={{ marginRight: 12 }} />
+      <IconWrapper>{renderIcon(noti.type)}</IconWrapper>
       <Content>
-        <Title>{renderContent()}</Title>
+        <Title>{renderContent(noti)}</Title>
       </Content>
     </Container>
   );

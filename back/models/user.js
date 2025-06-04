@@ -29,8 +29,9 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = (db) => {
     //일 대 다 
     //Notification
-    db.User.belongsToMany(db.User, { through: 'Notification', as: 'Receiver', foreignKey: 'SenderId' });
-    db.User.belongsToMany(db.User, { through: 'Notification', as: 'Sender', foreignKey: 'ReceiverId' });
+    db.User.hasMany(db.Notification, { foreignKey: 'SenderId', as: 'SentNotifications', });
+    db.User.hasMany(db.Notification, { foreignKey: 'ReceiverId', as: 'ReceivedNotifications', });
+
     // Complain
     db.User.hasMany(db.Complain, { foreignKey: 'ReporterId' });
 
