@@ -4,6 +4,8 @@ import { Input, Button, Avatar } from 'antd';
 import Link from 'next/Link';
 import PostCard from '../post/PostCard';
 import Profile from '../Profile';
+import GroupDropDown from '../groups/GroupDropdown';
+import GroupList from '../groups/GroupList';
 
 const Container = styled.div`
   padding: 20px;
@@ -21,7 +23,8 @@ const TabsContainer = styled.div`
 const Tab = styled.div`
   cursor: pointer;
   border-bottom: ${({ active }) => (active ? '2px solid black' : 'none')};
-  margin: 5%;
+  margin-left: 5%;
+  margin-right: 5%;
 `;
 
 const MemberCard = styled.div`
@@ -55,20 +58,11 @@ const SearchResult = ({ results }) => {
         <div>🔍 검색 결과가 없습니다.</div>
       ) : (
         currentList.map((item) => (
-          <li key={item.id}>
-            {activeTab === 'post' && (
-              <PostCard post={item} /> // 🔥 바로 item 넘기면 됨
-            )}
-            {activeTab === 'group' && (
-              <>
-                <p>👥 그룹명: {item.title}</p>
-                <p>소개: {item.content}</p>
-              </>
-            )}
-            {activeTab === 'member' && (
-              <Profile user={item} />
-            )}
-          </li>
+          <div key={item.id}>
+            {activeTab === 'post' && <PostCard post={item} />}
+            {activeTab === 'group' && <GroupList group={item} />}
+            {activeTab === 'member' && <Profile user={item} />}
+          </div>
         ))
       )}
     </Container>
