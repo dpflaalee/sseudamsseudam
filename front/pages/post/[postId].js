@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import DetailCard from '@/components/Detail/DetailCard';
+import DetailCard from '@/components/detail/DetailCard';
 import { useRouter } from 'next/router';
 
 const PostDetailPage = () => {
   const router = useRouter();
   const { postId } = router.query;  // URL에서 postId를 받아옵니다.
-  
+
   const [post, setPost] = useState(null);
 
   useEffect(() => {

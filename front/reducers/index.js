@@ -5,6 +5,7 @@ import post from './post';
 import user from './user';
 import complain from './complain';
 import animal from './animal';
+import notification from './notification';
 
 const rootReducer = combineReducers({
   index: (state = {}, action) => {
@@ -20,5 +21,6 @@ const rootReducer = combineReducers({
   post,
   complain,
   animal,
+  notification,
 });
 export default rootReducer;

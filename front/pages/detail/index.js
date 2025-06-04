@@ -1,5 +1,5 @@
 import axios from 'axios';
-import DetailCard from '@/components/Detail/DetailCard';
+import DetailCard from '@/components/detail/DetailCard';
 
 const DetailPage = ({ post }) => {
   if (!post) {
