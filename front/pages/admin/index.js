@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { Card, Row, Col, Button, Typography } from 'antd';
-import AppLayout from '@/components/AppLayout';
+import AppLayout from "../../components/AppLayout";
 import PrizeManage from '@/components/Prize/PrizeManage';
+import 'antd/dist/antd.css';
 
+import { useSelector } from "react-redux";
+
+import ComplainCard from "@/components/complains/ComplainCard";
+import PostCard from "../../components/post/PostCard";
 
 const { Title, Text } = Typography;
 
-import ComplainCard from "../../components/complains/ComplainCard";
-import PostCard from "../../components/PostCard";
-
-
-const AdminIndex = () => {
-  const [activeSection, setActiveSection] = useState(null); 
-
-  return (
-    <AppLayout>
-      {/* 상단 프로필 카드 */}
+const adminPage = () => {
+    const [activeSection, setActiveSection] = useState(null); 
+    const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
+    return (
+        <AppLayout>
+            {/* 상단 프로필 카드 */}
       <Card style={{ background: '#e6f7ff', marginBottom: 24 }}>
         <Row align="middle" gutter={16}>
           <Col>
@@ -56,8 +57,12 @@ const AdminIndex = () => {
       {/* 조건부로 보여줄 컴포넌트들 */}
       {activeSection === 'prize' && <PrizeManage />}
       {/* 다른 섹션도 여기에 조건부로 추가 가능 */}
-    </AppLayout>
-  );
-};
+            {mainPosts.map((c) => {
+                return (
+                    <PostCard post={c} key={c.id} />
+                );
+            })}
+        </AppLayout>);
+}
 
-export default AdminIndex;
+export default adminPage;

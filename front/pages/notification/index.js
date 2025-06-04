@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import AppLayout from "../../components/AppLayout";
 import 'antd/dist/antd.css';
+import NotificationButton from "@/components/notifications/NotificationButton";
 
 const Notification = () => {
 
@@ -8,7 +9,8 @@ const Notification = () => {
     return (
         <AppLayout>
             <>
-                알림페이지
+                <NotificationButton />
+
             </>
         </AppLayout >
     );
