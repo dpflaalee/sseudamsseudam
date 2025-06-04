@@ -39,7 +39,7 @@ const RightWrapper = styled.div`
 const menuItems = [
   { key: 'notice', label: '공지', icon: <NotificationOutlined />, path: '/notice' },
   { key: 'home', label: '홈', icon: <HomeOutlined />, path: '/' },
-  { key: 'groups', label: '그룹', icon: <TeamOutlined />, path: '/group' },
+  { key: 'groups', label: '그룹', icon: <TeamOutlined />, path: '/groups' },
   { key: 'notification', label: '알림', icon: <BellOutlined />, path: '/notification' },
   { key: 'search', label: '검색', icon: <SearchOutlined />, path: '/search' },
   { key: 'chat', label: '채팅', icon: <MailOutlined />, path: '/chat' },
