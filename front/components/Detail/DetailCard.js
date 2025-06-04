@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, Avatar, Button, Popover, Modal, Input, Space, Select, Comment, List  } from 'antd';
+import { Card, Avatar, Button, Popover, Modal, Input, Space, Select, List  } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST,LOAD_POST_REQUEST } from '@/reducers/post';
@@ -9,10 +9,8 @@ import Link from 'next/Link';
 
 import CommentForm from '../Comment/CommentForm';
 import Comment from '../Comment/Comment';
-import PostImages from '../post/PostImages';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
 
 const DetailCard = ({ post }) => {
   const id = useSelector(state => state.user.user?.id);
@@ -91,11 +89,9 @@ const DetailCard = ({ post }) => {
       <Card
         actions={[
           <RetweetOutlined key="retweet" />,
-          like ? (
-            <HeartTwoTone twoToneColor="#f00" key="heart" onClick={onClickunLike} />
-          ) : (
-            <HeartOutlined key="heart" onClick={onClickLike} />
-          ),
+          like
+            ? <span key="heart"><HeartTwoTone twoToneColor="#f00" onClick={onClickunLike} /> {post.Likers.length}</span>
+            : <span key="heart"><HeartOutlined onClick={onClickLike} /> {post.Likers.length}</span>,
           <MessageOutlined key="comment" />,
           <Popover
             content={
