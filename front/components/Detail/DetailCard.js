@@ -4,7 +4,7 @@ import {EllipsisOutlined,HeartOutlined,HeartTwoTone,MessageOutlined,RetweetOutli
 import { useSelector, useDispatch } from 'react-redux';
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
 
-import PostImages from '../post/PostImages';
+import PostImages from '../Post/PostImages';
 import { useRouter } from 'next/router';
 import CommentForm from '../comment/CommentForm';
 import Comment from '../comment/Comment';
