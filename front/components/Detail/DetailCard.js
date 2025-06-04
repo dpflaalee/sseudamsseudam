@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { Card, Avatar, Button, Popover, Modal, Input, Space, Select, Comment  } from 'antd';
+import { Card, Avatar, Button, Popover, Modal, Input, Space, Select, Comment } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
 import PostImages from '../Post/PostImages';
 import { useRouter } from 'next/router'; // <-- useRouter import 추가
-import CommentForm from '../Comment/CommentForm';
+import CommentForm from '../comment/CommentForm';
 
 const DetailCard = ({ post }) => {
   const id = useSelector(state => state.user.user?.id);
