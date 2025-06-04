@@ -11,9 +11,8 @@ router.post('/', async (req, res, next) => {
             targetType: req.body.targetType,
             targetId: req.body.targetId,
             reason: req.body.reason,
-            reporterId: req.body.reporter,  // ✅ 외래키
+            reporterId: req.body.reporter,
         });
-
 
         res.status(201).json(complain); // 원하는 형식으로 가공 가능
     } catch (err) {
