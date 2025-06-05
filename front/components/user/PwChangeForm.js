@@ -1,18 +1,26 @@
 import React, { useCallback,useState } from "react";
 import {Form,Input, Button,Card, Typography } from 'antd';
 import axios from "axios";
+import { useRouter } from "next/router";
+
+
 const FindForm = () => {
+    const router = useRouter();
+    const {userEmail, token} = router.query;
+    console.log(router.query)
+    console.log('userEmail',userEmail);
     const { Title } = Typography;
-    const [userEmail, setUserEmail] = useState('');
-    const onChangeUserEmail = useCallback((e)=>{
-        setUserEmail(e.target.value);
+    const [newPassword, setNewPassword] = useState('');
+    
+    const onChangeUserPassword = useCallback((e)=>{
+        setNewPassword(e.target.value);
     })
-    const onSearchPassword = useCallback(async ()=>{
+    const onSubmitPassword = useCallback(async ()=>{
         console.log(userEmail);
-       const response = await axios.post(`http://localhost:3065/user/email/${userEmail}`,{},{
-            withCredentials: true,
-        })
-    },[userEmail])
+    //    const response = await axios.post(`http://localhost:3065/user/passwordChg/${userEmail}/${userPassword}/${token}`,{},{
+    //         withCredentials: true,
+    //     })
+    },[newPassword])
 
     //////////////////////////////
     return (
@@ -27,16 +35,16 @@ const FindForm = () => {
           
         }}>
             <Card title="">
-                <Title level={4}>비밀번호 찾기</Title>
+                <Title level={4}>비밀번호 변경</Title>
                 
-                <Form onFinish={onSearchPassword}>
-                    <span style={{fontSize:"10px", color:"lightgray"}}>이메일로 비밀번호 변경 메일이 발송됩니다.</span>
+                <Form onFinish={onSubmitPassword}>
+                    <span style={{fontSize:"10px", color:"lightgray"}}>변경할 비밀번호를 입력해주세요.</span>
                     <Form.Item 
                     >
-                        <Input type="" value={userEmail} onChange={onChangeUserEmail} placeholder="email"/>
+                        <Input type="" value={newPassword} onChange={onChangeUserPassword} placeholder="새로운 비밀번호 입력"/>
                     </Form.Item>
                     <Button type="primary" style={{width:'100%'}} htmlType="submit" className="email-form-button">
-                        비밀번호 찾기
+                        비밀번호 변경
                     </Button>
                 </Form>
             </Card>
