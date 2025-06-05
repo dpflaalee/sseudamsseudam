@@ -79,12 +79,6 @@ const Comment = ({ comments = [], postId }) => {
 
   return (
     <Wrapper>
-      <ComplainForm
-        open={openReport}
-        onClose={() => setOpenReport(false)}
-        TARGET_TYPE={TARGET_TYPE.COMMENT}
-        targetId={targetId}
-      />
       <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
         댓글 {comments.length}개
       </div>
@@ -101,6 +95,13 @@ const Comment = ({ comments = [], postId }) => {
             <Menu.Item danger onClick={() => handleReport(comment.id)}>
               신고하기
             </Menu.Item>
+            <ComplainForm
+              open={openReport}
+              onClose={() => setOpenReport(false)}
+              TARGET_TYPE={TARGET_TYPE.COMMENT}
+              targetId={targetId}
+              targetUserNickname={comment.User?.nickname}
+            />
           </Menu>
         );
 

@@ -1,11 +1,17 @@
 import React from "react";
 import LoginForm from "../components/user/LoginForm";
-import AppLayout from "@/components/AppLayout";
 const login = () => {
     return (
-        <AppLayout>
+        <div
+             style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "100vh", // 화면 전체 높이 확보
+            }}
+        >
             <LoginForm />
-        </AppLayout>
+        </div>
     );
 };
 

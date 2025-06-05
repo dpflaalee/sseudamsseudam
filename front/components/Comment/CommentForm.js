@@ -75,6 +75,7 @@ const CommentForm = ({ post, onAddLocalComment }) => {
     dispatch({
       type: ADD_COMMENT_REQUEST,
       data: { content: comment, userId: id, postId: post.id },
+      postAuthorId: post.User.id,
     });
   }, [comment, id, post.id, dispatch]);
 

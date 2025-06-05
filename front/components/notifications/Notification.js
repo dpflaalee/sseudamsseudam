@@ -3,19 +3,8 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { List, Avatar } from "antd";
-import { HeartFilled, RetweetOutlined, MessageOutlined, UserAddOutlined, NotificationOutlined, GiftOutlined, TeamOutlined, CrownFilled } from '@ant-design/icons';
+import { HeartFilled, RetweetOutlined, MessageOutlined, UserAddOutlined, NotificationOutlined, GiftOutlined, TeamOutlined, CrownFilled, CloseOutlined } from '@ant-design/icons';
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
-
-const Container = styled.div`
-  display: flex;
-  padding: 16px;
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  transition: background 0.2s;
-  &:hover {
-    background: #f9f9f9;
-  }
-`;
 
 const IconWrapper = styled.div`
   font-size: 20px;
@@ -37,7 +26,28 @@ const Description = styled.div`
   font-size: 14px;
 `;
 
-const Notification = ({ noti }) => {
+const Container = styled.div`
+  display: flex;
+  padding: 16px;
+  background: ${(props) => (props.isRead ? '#fff' : '#e6f7ff')}; // 읽지 않은 알림은 파란 배경
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s;
+  &:hover {
+    background: #f0f0f0;
+  }
+`;
+
+const DeleteButton = styled.button`
+  border: none;
+  background: transparent;
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  &:hover {
+    color: #ff4d4f;
+  }
+`;
+const Notification = ({ noti, onDelete }) => {
   console.log('🔍 noti 전체:', noti);
 
 
@@ -103,11 +113,14 @@ const Notification = ({ noti }) => {
     }
   };
   return (
-    <Container>
+    <Container isRead={noti.isRead}>
       <IconWrapper>{renderIcon(noti.type)}</IconWrapper>
       <Content>
         <Title>{renderContent(noti)}</Title>
       </Content>
+      <DeleteButton onClick={() => onDelete(noti.id)}>
+        <CloseOutlined />
+      </DeleteButton>
     </Container>
   );
 };

@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { all, fork, put, takeLatest, throttle, call } from 'redux-saga/effects';
 import shortId from 'shortid';
+import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification';
+import NOTIFICATION_TYPE from '../../shared/constants/NOTIFICATION_TYPE';
 
 import {
   LOAD_POST_REQUEST,
@@ -8,7 +10,7 @@ import {
   LOAD_POST_FAILURE,
   LOAD_POSTS_REQUEST,
   LOAD_POSTS_SUCCESS,
-  LOAD_POSTS_FAILURE,  
+  LOAD_POSTS_FAILURE,
   ADD_POST_FAILURE,
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
@@ -26,8 +28,8 @@ import {
   REMOVE_COMMENT_REQUEST,
   REMOVE_COMMENT_SUCCESS,
 
-  LOAD_HASHTAG_POSTS_FAILURE, 
-  LOAD_HASHTAG_POSTS_REQUEST, 
+  LOAD_HASHTAG_POSTS_FAILURE,
+  LOAD_HASHTAG_POSTS_REQUEST,
   LOAD_HASHTAG_POSTS_SUCCESS,
 
   LIKE_POST_REQUEST,
@@ -153,6 +155,19 @@ function* addComment(action) {
       type: ADD_COMMENT_SUCCESS,
       data: result.data,
     });
+
+    // 알림 보내기
+    console.log('💥');
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.COMMENT,
+        SenderId: action.data.userId,
+        ReceiverId: action.postAuthorId,
+        targetId: result.data.id,
+      },
+    });
+
   } catch (err) {
     console.error(err);
     yield put({
@@ -308,16 +323,20 @@ function* watchUploadImages() {
 
 export default function* postSaga() {
   yield all([
-    fork(watchLoadPost),  
-    fork(watchLoadPosts),      
+    fork(watchLoadPost),
+    fork(watchLoadPosts),
     fork(watchAddPost),
     fork(watchUpdatePost),
     fork(watchRemovePost),
     fork(watchAddComment),
+<<<<<<< HEAD
     fork(watchRemoveComment),
     fork(watchLoadHashtagPosts),    
+=======
+    fork(watchLoadHashtagPosts),
+>>>>>>> 2e4766c71cd65c1ae44e54e2fd6e308a968167b4
     fork(watchLikePost),
     fork(watchUnlikePost),
-    fork(watchUploadImages),    
+    fork(watchUploadImages),
   ]);
 }
