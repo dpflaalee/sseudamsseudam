@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { Avatar, Dropdown, Menu, Button } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
+import router from 'next/router';
 
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
+import { REMOVE_COMMENT_REQUEST } from '../../reducers/post';
 
 const Wrapper = styled.div`
   margin-top: 24px;
@@ -51,7 +54,8 @@ const Text = styled.div`
   line-height: 1.4;
 `;
 
-const Comment = ({ comments = [] }) => {
+const Comment = ({ comments = [], postId }) => {
+  const dispatch = useDispatch();
   const [targetId, setTargetId] = useState(null);
   const [openReport, setOpenReport] = useState(false);
 
@@ -59,6 +63,19 @@ const Comment = ({ comments = [] }) => {
     setTargetId(commentId);
     setOpenReport(true);
   };
+
+  //댓글 삭제
+  const onRemoveComment = useCallback((commentId) => {
+    if (!postId) {
+      return alert('게시글 정보가 없습니다.');
+    }
+    console.log('댓글 삭제 요청, commentId:', commentId);
+    dispatch({
+      type: REMOVE_COMMENT_REQUEST,
+      data: { postId, commentId },
+    });
+    window.location.reload();
+  },[postId, dispatch]);
 
   return (
     <Wrapper>
@@ -80,7 +97,7 @@ const Comment = ({ comments = [] }) => {
         const menu = (
           <Menu>
             <Menu.Item>수정</Menu.Item>
-            <Menu.Item danger>삭제</Menu.Item>
+            <Menu.Item danger onClick={() => onRemoveComment(comment.id)}>삭제</Menu.Item>
             <Menu.Item danger onClick={() => handleReport(comment.id)}>
               신고하기
             </Menu.Item>

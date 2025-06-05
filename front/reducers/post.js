@@ -32,6 +32,11 @@ export const initialState = {
   addCommentDone: false,
   addCommentError: null,
 
+  removeCommentLoading: false,
+  removeCommentDone: false,
+  removeCommentError: null,
+
+
   uploadImagesLoading: false,
   uploadImagesDone: false,
   uploadImagesError: null,
@@ -84,6 +89,10 @@ export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
 export const ADD_COMMENT_REQUEST = 'ADD_COMMENT_REQUEST';
 export const ADD_COMMENT_SUCCESS = 'ADD_COMMENT_SUCCESS';
 export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
+
+export const REMOVE_COMMENT_REQUEST = 'REMOVE_COMMENT_REQUEST';
+export const REMOVE_COMMENT_SUCCESS = 'REMOVE_COMMENT_SUCCESS';
+export const REMOVE_COMMENT_FAILURE = 'REMOVE_COMMENT_FAILURE';
 
 export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
 export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
@@ -197,7 +206,27 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.addCommentLoading = false;
       draft.addCommentError = action.error;
       break;
-      
+    case REMOVE_COMMENT_REQUEST:
+      draft.removeCommentLoading = true;
+      draft.removeCommentDone = false;
+      draft.removeCommentError = null;
+      break;
+    case REMOVE_COMMENT_SUCCESS: {
+      draft.removeCommentLoading = false;
+      draft.removeCommentDone = true;
+      // 댓글이 달린 포스트 찾기
+      const post = draft.mainPosts.find((v) => v.id === action.data.postId);
+      if (post) {
+        // 댓글 삭제
+        post.Comments = post.Comments.filter((c) => c.id !== action.data.commentId);
+      }
+      break;
+    }
+    case REMOVE_COMMENT_FAILURE:
+      draft.removeCommentLoading = false;
+      draft.removeCommentError = action.error;
+      break;      
+
     case UPLOAD_IMAGES_REQUEST:
       draft.uploadImagesLoading = true;
       draft.uploadImagesDone = false;
