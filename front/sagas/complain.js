@@ -7,7 +7,7 @@ import {
 } from '../reducers/complain';
 
 //////////////////////////////////////////////////////////
-function loadComplainAPI(data) {
+function loadComplainAPI() {
   return axios.get(`/admin/complain`);
 }
 
@@ -19,7 +19,8 @@ function* loadComplain(action) {
       data: result.data,
     });
   } catch (err) {
-    console.log('saga: complain : loadComplain : ', err);
+    console.log('🚨 complainSaga : loadComplain : ', err);
+    next(err);
     yield put({
       type: LOAD_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -30,19 +31,18 @@ function* loadComplain(action) {
 
 
 function addComplainAPI(data) {
-  //return axios.post(`/admin/complain`);
+  return axios.post('/complain', data);
 }
 
 function* addComplain(action) {
   try {
-    //const result = yield call(addComplainAPI, action.data);
-    console.log('🦞 sagas:  addComplain : ', action.data);
+    const result = yield call(addComplainAPI, action.data);
     yield put({
       type: ADD_COMPLAIN_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (err) {
-    console.log('🚨 saga : addComplain : error : ', err);
+    console.log('🚨 complainSaga : addComplain : ', err);
     yield put({
       type: ADD_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -62,7 +62,7 @@ function* removeComplain(action) {
       data: result.data,
     });
   } catch (err) {
-    console.log('saga: complain : removeComplain : ', err);
+    console.log('🚨 complainSaga : removeComplain : ', err);
     yield put({
       type: REMOVE_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -78,7 +78,6 @@ function* watchLoadComplain() {
 }
 
 function* watchAddComplain() {
-  console.log('🍻 watchAddComplain');
   yield takeLatest(ADD_COMPLAIN_REQUEST, addComplain);
 }
 

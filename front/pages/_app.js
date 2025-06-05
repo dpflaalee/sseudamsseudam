@@ -7,10 +7,11 @@ import wrapper from '../store/configureStore';
 
 const Ssdam = ({ Component, ...rest }) => {
   const { store, props } = wrapper.useWrappedStore(rest);
+  const { pageProps } = props;
   return (
     <Provider store={store}>
       <Head>
-        <meta charset="utf-8" />
+        <meta charSet="utf-8" />
         <title>Ssdam</title>
       </Head>
       <Component />
@@ -18,8 +19,8 @@ const Ssdam = ({ Component, ...rest }) => {
   );
 };
 Ssdam.propType = {
-
-  Component: PropTypes.elementType.isRequired
+  Component: PropTypes.elementType.isRequired,
+  pageProps : PropTypes.any.isRequired
 }
 
 export default Ssdam;
