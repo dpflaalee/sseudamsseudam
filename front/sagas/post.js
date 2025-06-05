@@ -24,6 +24,9 @@ import {
   ADD_COMMENT_FAILURE,
   ADD_COMMENT_REQUEST,
   ADD_COMMENT_SUCCESS,
+  REMOVE_COMMENT_FAILURE,
+  REMOVE_COMMENT_REQUEST,
+  REMOVE_COMMENT_SUCCESS,
 
   LOAD_HASHTAG_POSTS_FAILURE,
   LOAD_HASHTAG_POSTS_REQUEST,
@@ -173,6 +176,25 @@ function* addComment(action) {
     });
   }
 }
+function removeCommentAPI(data) {
+  return axios.delete(`/post/${data.postId}/comment/${data.commentId}`);
+}
+
+function* removeComment(action) {
+  try {
+    const result = yield call(removeCommentAPI, action.data);
+    yield put({
+      type: REMOVE_COMMENT_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: REMOVE_COMMENT_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 
 function uploadImagesAPI(data) {
   return axios.post('/post/images', data);
@@ -279,6 +301,10 @@ function* watchAddComment() {
   yield takeLatest(ADD_COMMENT_REQUEST, addComment);
 }
 
+function* watchRemoveComment() {
+  yield takeLatest(REMOVE_COMMENT_REQUEST, removeComment);
+}
+
 function* watchLoadHashtagPosts() {
   yield throttle(5000, LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
 }
@@ -303,7 +329,12 @@ export default function* postSaga() {
     fork(watchUpdatePost),
     fork(watchRemovePost),
     fork(watchAddComment),
+<<<<<<< HEAD
+    fork(watchRemoveComment),
+    fork(watchLoadHashtagPosts),    
+=======
     fork(watchLoadHashtagPosts),
+>>>>>>> 2e4766c71cd65c1ae44e54e2fd6e308a968167b4
     fork(watchLikePost),
     fork(watchUnlikePost),
     fork(watchUploadImages),
