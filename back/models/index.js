@@ -22,6 +22,7 @@ db.Place = require('./place')(sequelize, Sequelize);  // 모듈연결   sequeliz
 db.Group = require('./group')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.Complain = require('./complain')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.Notification = require('./notification')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.NotificationSetting = require('./notificaionSetting')(sequelize, Sequelize);
 db.Calendar = require('./calendar')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 
 db.Chatting = require('./chatting')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
