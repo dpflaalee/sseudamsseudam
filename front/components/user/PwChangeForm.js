@@ -7,8 +7,6 @@ import { useRouter } from "next/router";
 const FindForm = () => {
     const router = useRouter();
     const {userEmail, token} = router.query;
-    console.log(router.query)
-    console.log('userEmail',userEmail);
     const { Title } = Typography;
     const [newPassword, setNewPassword] = useState('');
     
