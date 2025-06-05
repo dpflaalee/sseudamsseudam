@@ -2,8 +2,9 @@ import axios from 'axios';
 import { all, fork, put, takeLatest, throttle, call } from 'redux-saga/effects';
 import {
     LOAD_NOTIFICATION_REQUEST, LOAD_NOTIFICATION_SUCCESS, LOAD_NOTIFICATION_FAILURE,
+    READ_ALL_NOTIFICATION_REQUEST, READ_ALL_NOTIFICATION_SUCCESS, READ_ALL_NOTIFICATION_FAILURE,
     ADD_NOTIFICATION_REQUEST, ADD_NOTIFICATION_SUCCESS, ADD_NOTIFICATION_FAILURE,
-    REMOVE_NOTIFICATION_REQUEST, REMOVE_NOTIFICATION_SUCCESS, REMOVE_NOTIFICATION_FAILURE
+    REMOVE_NOTIFICATION_REQUEST, REMOVE_NOTIFICATION_SUCCESS, REMOVE_NOTIFICATION_FAILURE,
 } from '../reducers/notification';
 
 //////////////////////////////////////////////////////////
@@ -30,8 +31,26 @@ function* loadNotification(action) {
     }
 }
 
+/////////////////////////////////////////
+function readAllNotificationAPI(userId) {
+    return axios.patch('/notification/readAll', { userId });
+}
 
+function* readAllNotification(action) {
+    try {
+        yield call(readAllNotificationAPI, action.data);
+        yield put({
+            type: READ_ALL_NOTIFICATION_SUCCESS,
+        });
+    } catch (err) {
+        yield put({
+            type: READ_ALL_NOTIFICATION_FAILURE,
+            error: err.response?.data,
+        });
+    }
+}
 
+/////////////////////////////////////////
 function addNotificationAPI(data) {
     console.log('🔱 API로 넘길 데이터:', data);
     return axios.post('/notification', data); // 
@@ -54,16 +73,16 @@ function* addNotification(action) {
     }
 }
 
-function removeNotificationAPI(data) {
-    return axios.delete('/notification');
+function removeNotificationAPI(id) {
+    return axios.delete(`/notification/${id}`);
 }
 
 function* removeNotification(action) {
     try {
-        const result = yield call(removeNotificationAPI, action.data);
+        yield call(removeNotificationAPI, action.data);
         yield put({
             type: REMOVE_NOTIFICATION_SUCCESS,
-            data: result.data,
+            data: action.data,
         });
     } catch (err) {
         console.log('🚨 notificationSaga :  ', err);
@@ -81,6 +100,10 @@ function* watchLoadNotification() {
     yield throttle(5000, LOAD_NOTIFICATION_REQUEST, loadNotification);
 }
 
+function* watchReadAllNotification() {
+    yield takeLatest(READ_ALL_NOTIFICATION_REQUEST, readAllNotification);
+}
+
 function* watchAddNotification() {
     console.log('🦞 watchAddNotification'),
         yield takeLatest(ADD_NOTIFICATION_REQUEST, addNotification);
@@ -95,6 +118,7 @@ export default function* notificationSaga() {
     yield all([  //  all - 동시에 배열로 받은 fork들을 동시에 실행 
         console.log('🦞 notificationSaga'),
         fork(watchLoadNotification),
+        fork(watchReadAllNotification),
         fork(watchAddNotification),
         fork(watchRemoveNotification),
     ]);

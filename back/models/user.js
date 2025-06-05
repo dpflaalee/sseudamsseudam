@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
     //Notification
     db.User.hasMany(db.Notification, { foreignKey: 'SenderId', as: 'SentNotifications', });
     db.User.hasMany(db.Notification, { foreignKey: 'ReceiverId', as: 'ReceivedNotifications', });
+    db.User.hasMany(db.NotificationSetting, {
+      foreignKey: 'UserId',
+      as: 'NotificationSettings',
+      onDelete: 'CASCADE',
+    });
 
     // Complain
     db.User.hasMany(db.Complain, { foreignKey: 'ReporterId' });
