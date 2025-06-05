@@ -15,8 +15,8 @@ router.post('/', async (req, res, next) => {
         const notification = await Notification.create({
             type: req.body.notiType,
             targetId: req.body.targetId,
-            SenderId: req.body.senderId,
-            ReceiverId: req.body.receiverId,
+            SenderId: req.body.SenderId,
+            ReceiverId: req.body.ReceiverId,
         });
 
         const fullNotification = await Notification.findOne({
@@ -54,5 +54,35 @@ router.get('/', async (req, res, next) => {
         res.status(500).send('알림 조회 실패');
     }
 });
+
+// 알림 읽음 처리
+// 전체 알림 읽음 처리
+router.patch('/readAll', async (req, res, next) => {
+    try {
+        await Notification.update(
+            { isRead: true },
+            { where: { ReceiverId: req.body.userId } }
+        );
+        res.status(200).json({ message: '모든 알림 읽음 처리 완료' });
+    } catch (err) {
+        console.error('🚨 전체 읽음 처리 에러:', err);
+        res.status(500).send('전체 읽음 처리 실패');
+    }
+});
+
+// 알림 삭제
+// 알림 삭제
+router.delete('/:id', async (req, res, next) => {
+    try {
+        await Notification.destroy({
+            where: { id: req.params.id },
+        });
+        res.status(200).json({ message: '알림 삭제 완료', id: req.params.id });
+    } catch (err) {
+        console.error('🚨 알림 삭제 중 에러:', err);
+        res.status(500).send('알림 삭제 실패');
+    }
+});
+
 
 module.exports = router;

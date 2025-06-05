@@ -57,12 +57,11 @@ app.use('/api', (req, res) => { res.send('Link Test') });
 
 app.use('/post', post);
 app.use('/posts', posts);
-app.use('/hashtag' , hashtag);
+app.use('/hashtag', hashtag);
 app.use('/user', user);
 app.use('/complain', complain);
 app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
-
 
 app.listen(3065, () => { console.log('server...'); });
