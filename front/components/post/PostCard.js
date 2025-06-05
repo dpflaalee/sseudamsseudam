@@ -1,12 +1,17 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Card, Avatar, Button, List, Popover, Modal, Input, Space, Select } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
 import PostImages from './PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
+<<<<<<< HEAD
+import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST } from '@/reducers/post';
+=======
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
+>>>>>>> 2e4766c71cd65c1ae44e54e2fd6e308a968167b4
 
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
@@ -20,7 +25,10 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
 
   const [newContent, setNewContent] = useState(post.content);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+<<<<<<< HEAD
+=======
   const { removePostLoading, removePostDone } = useSelector(state => state.post)
+>>>>>>> 2e4766c71cd65c1ae44e54e2fd6e308a968167b4
 
   // 좋아요
   const onClickLike = useCallback(() => {
@@ -51,16 +59,22 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const like = post.Likers?.find((v) => v.id === id);
 
   //수정
-  const openEditModal = () => {
+  const openEditModal = useCallback(() => {
     setEditModalVisible(true);
-  };
-  const closeEditModal = () => {
+  }, []);
+  const closeEditModal = useCallback(() => {
     setEditModalVisible(false);
-  };
-  const handleEditSubmit = () => {
-    // console.log('수정된 내용:', newContent);
+  }, []);
+  const handleEditSubmit = useCallback(() => {
+    if (newContent.trim() === post.content.trim()) {
+      return closeEditModal();
+    }
+    dispatch({
+      type: UPDATE_POST_REQUEST,
+      data: { PostId: post.id, content: newContent }
+    });
     setEditModalVisible(false);
-  };
+  }, [newContent, post, dispatch]);
 
   //삭제
   const openDeleteModal = () => {
@@ -69,10 +83,12 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const closeDeleteModal = () => {
     setDeleteModalVisible(false);
   };
-  const handleDelete = () => {
-    console.log('게시물이 삭제되었습니다.');
-    setDeleteModalVisible(false);
-  };
+  const handleDelete = useCallback(() => {
+    dispatch({ 
+      type: REMOVE_POST_REQUEST,
+      data: post.id 
+    });  
+  },[]);
 
   return (
     <div style={{ margin: '3%' }}>
@@ -149,7 +165,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         </div>
 
         <Input.TextArea
-          // value={newContent}
+          value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
           rows={4}
           placeholder="내용을 수정하세요"
@@ -176,5 +192,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     </div >
   );
 };
+
+PostCard.propTypes = { post: PropTypes.object.isRequired };
 
 export default PostCard;

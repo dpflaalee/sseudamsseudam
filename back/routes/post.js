@@ -111,6 +111,52 @@ router.get('/:postId', async (req, res, next) => {
   }
 });
 
+// 글 수정
+router.patch( '/:postId', isLoggedIn, async (req, res, next) => {
+  const hashtags = req.body.content.match(/#[^\s#]+/g);
+  try {
+    await Post.update({
+      content: req.body.content,
+    }, {
+      where: {
+        id: req.params.postId,
+        UserId: req.user.id,
+      }
+    });
+    const post = await Post.findOne({where:{id:req.params.postId}}); 
+    if (hashtags) { 
+      const result = await Promise.all( hashtags.map( 
+        (tag) => Hashtag.findOrCreate({
+          where: { content: tag.slice(1).toLowerCase()}, 
+        })
+      ));
+      await post.setHashtags(result.map( (v) => v[0] ));
+    }
+    res.status(200).json({ PostId: parseInt(req.params.postId, 10), content: req.body.content });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+// 글 삭제
+router.delete('/:postId', isLoggedIn, async (req, res, next) => {
+  try{
+    await Post.destroy({
+      where: {
+        id: req.params.postId,
+        UserId: req.user.id 
+      }
+    });
+    res.status(200).json({ PostId: parseInt( req.params.postId , 10 ) });
+
+  } catch(error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+// 댓글 추가
 router.post('/:postId/comment', isLoggedIn, async (req,res,next) => {
   try{
     const post = await Post.findOne({where: {id: req.params.postId}});
@@ -127,6 +173,26 @@ router.post('/:postId/comment', isLoggedIn, async (req,res,next) => {
       include: [{ model: User, attributes:['id', 'nickname']}]
     });
     res.status(200).json(fullComment);
+  } catch(error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+// 댓글 삭제
+router.delete('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) => {
+  try{
+    const { postId, commentId } = req.params;
+
+    await Comment.destroy({
+      where: {
+        id: commentId,
+        PostId: req.params.postId,
+        UserId: req.user.id 
+      }
+    });
+    res.status(200).json({ PostId: parseInt(postId, 10), CommentId: parseInt(commentId, 10) });
+
   } catch(error) {
     console.error(error);
     next(error);
