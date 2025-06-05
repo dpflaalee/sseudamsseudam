@@ -24,7 +24,7 @@ export default SchedulePage;
 //   const [content, setContent] = useState('');
 //   const [startDate, setStartDate] = useState('');
 //   const [endDate, setEndDate] = useState('');
-//   //id, createdAt, updatedAt은 제외
+//   //id, createdAt, updatedAt 제외
 
 //   const addSchedule =  async (s) => {
 //     s.preventDefault();

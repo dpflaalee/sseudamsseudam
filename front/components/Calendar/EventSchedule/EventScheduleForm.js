@@ -2,6 +2,7 @@ import React from 'react';
 import { Divider, DatePicker, Input, Form, Button, message } from 'antd';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/router';
 
 const { RangePicker } = DatePicker;
  
@@ -12,6 +13,7 @@ const formItemLayout = {
 
 const EventSchedule = () => {
   const [form] = Form.useForm();
+  const router = useRouter();
 
 const onFinish = async (values) => {
   try {
@@ -27,7 +29,6 @@ const onFinish = async (values) => {
 
     if (response.status === 200 || response.status === 201) {
       message.success('일정 등록 완료');
-      alert('등록이 완료되었습니다!');
       form.resetFields();
     } else {
       message.error('일정 등록 실패 (서버 응답 오류)');
@@ -37,6 +38,10 @@ const onFinish = async (values) => {
     message.error('일정 등록 실패');
   }
 };
+
+  const handleCancel = () => {
+    router.push('/main')
+  };
 
   return (
     <>
@@ -50,7 +55,7 @@ const onFinish = async (values) => {
         }
       `}</style>
       <Divider />
-      <div style={{display: 'flex', flexDirection: 'column', gap: '8px', width: '100%',  backgroundColor: '#ffffff', padding: '20px 200px 25px 200px', }} >
+      <div style={{display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '560px', width: '100%',  backgroundColor: '#ffffff', padding: '20px 200px 25px 200px', }} >
         <h3>일정 추가</h3>
         <Form
           {...formItemLayout}
@@ -79,7 +84,7 @@ const onFinish = async (values) => {
             <Button type="primary" htmlType="submit" block>등록</Button>
           </Form.Item>
           <Form.Item>
-            <Button htmlType="button" onClick={() => form.resetFields()} block>취소</Button>
+            <Button htmlType="button" onClick={handleCancel} block>취소</Button>
           </Form.Item>
         </Form>
       </div>

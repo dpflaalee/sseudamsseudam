@@ -6,6 +6,7 @@ import user from './user';
 import complain from './complain';
 import animal from './animal';
 import notification from './notification';
+import todolist from './todolist';
 
 const rootReducer = combineReducers({
   index: (state = {}, action) => {
@@ -22,5 +23,6 @@ const rootReducer = combineReducers({
   complain,
   animal,
   notification,
+  todolist,
 });
 export default rootReducer;

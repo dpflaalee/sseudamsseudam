@@ -1,42 +1,80 @@
 import { all, call, put, fork, takeLatest } from 'redux-saga/effects';
 import axios from 'axios';
 import {
-  LOAD_TODOS_REQUEST,
-  LOAD_TODOS_SUCCESS,
-  LOAD_TODOS_FAILURE,
+  LOAD_TODOLIST_REQUEST,
+  LOAD_TODOLIST_SUCCESS,
+  LOAD_TODOLIST_FAILURE,
+
+  ADD_TODOLIST_REQUEST,
+  ADD_TODOLIST_SUCCESS,
+  ADD_TODOLIST_FAILURE
 } from '../reducers/todolist';
 
 function loadTodolistApi() {
-  return axios.get('/api/todolist');
+  return axios.get('/api/calendars');
 }
  
 function* loadTodolist() {
   try {
     const result = yield call(loadTodolistApi);
     yield put({
-      type: LOAD_TODOS_SUCCESS,
-      data: result.data
+      type: LOAD_TODOLIST_SUCCESS,
+      data: result.data,
     });
   } catch (error) {
     yield put({
-      type: LOAD_TODOS_FAILURE,
+      type: LOAD_TODOLIST_FAILURE,
       error: error.response.data
     });
   }
 }
 
-//2) ACTION 기능 추가
-function* watchLoad() {
-  yield takeLatest(LOAD_TODOS_REQUEST, loadTodolist);
+function addTodolistApi(data) {
+  return axios.post('/api/calendars', data); // 일정 추가
 }
 
-///1) all
+function* addTodolist(action) {
+  try {
+    const result = yield call(addTodolistApi, action.data); // action.data는 { title, content, startDate, endDate }
+    yield put({
+      type: ADD_TODOLIST_SUCCESS,
+      data: result.data, // 추가 후 전체 목록을 반환받을 경우
+    });
+  } catch (error) {
+    yield put({
+      type: ADD_TODOLIST_FAILURE,
+      error: error.response?.data || error.message,
+    });
+  }
+}
+
+function* watchLoadTodolist() {
+  yield takeLatest(LOAD_TODOLIST_REQUEST, loadTodolist);
+}
+
+function* watchAddTodolist() {
+  yield takeLatest(ADD_TODOLIST_REQUEST, addTodolist);
+}
+
 export default function* todolistSaga() {
   yield all([
-      fork(watchLoad),
+    fork(watchLoadTodolist),
+    fork(watchAddTodolist),
   ]);
-  // yield takeLatest(LOAD_TODOS_REQUEST, loadTodos);
 }
+
+// //2) ACTION 기능 추가
+// function* watchLoad() {
+//   yield takeLatest(LOAD_TODOLIST_REQUEST, loadTodolist);
+// }
+
+// ///1) all
+// export default function* todolistSaga() {
+//   yield all([
+//       fork(watchLoad),
+//   ]);
+//   // yield takeLatest(LOAD_TODOS_REQUEST, loadTodos);
+// }
 
 /*
 import { call, put, takeLatest } from 'redux-saga/effects';

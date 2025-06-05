@@ -3,6 +3,7 @@ import { CheckCircleOutlined } from '@ant-design/icons';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
 
 function EnglishCalendar() {
   const [date, setDate] = useState(new Date());
@@ -36,6 +37,7 @@ const CalendarUI = styled.div`
   .react-calendar {
     border: none !important;
     box-shadow: none !important;
+    max-width: 19em !important;
   }
 
   .react-calendar__tile:disabled {
@@ -85,6 +87,11 @@ const CalendarUI = styled.div`
   .react-calendar--selectRange .react-calendar__tile--hover {
     background-color: #A1EEBD !important;
   }
+
+  .dRvjkr .react-calendar__tile {
+    font-size: 14px !important;
+    text-align: center;
+  }
 `;
 
 const CalendarTitle = styled.div`
@@ -94,17 +101,16 @@ const CalendarTitle = styled.div`
 `;
 
 const items = getItem('챌린지 참여 현황', <CheckCircleOutlined />);
-
+  const router = useRouter();
   return (
     <CalendarUI>
-      <CalendarTitle>
+      <CalendarTitle onClick={() => router.push('/challenge')} style={{cursor: 'pointer'}}>
         {items.icon}
         <span style={{ marginLeft: '8px' }}>{items.label}</span>
       </CalendarTitle>
       <Calendar
         onChange={setDate}
         value={date}
-        
         locale="en-US" // 영어(미국) 로케일 설정
       />
     </CalendarUI>

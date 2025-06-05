@@ -14,6 +14,8 @@ const dateView = {
 const date = {
   color: '#807E7E',
   fontSize: '13px',
+  marginLeft: '5px',
+  // marginTop: '0.5em',
 };
  
 const EventScheduleManage = () => {
@@ -43,7 +45,7 @@ const EventScheduleManage = () => {
 
         <div style={{display: 'flex', justifyContent: 'space-between', marginLeft: '0%', marginRight: '0%', gap: '10px'}}>
           <div style={{display: 'flex', alignItems: 'center'}}>
-            <h3 style={{marginBottom: '-2%'}}>메가주 일산</h3>
+            <h3 style={{marginBottom: '-1%'}}>메가주 일산</h3>
             <span style={date}>NN.NN.NN(D) ~ NN.NN.NN(D)</span>
           </div>
           <div style={{display: 'flex', alignItems: 'center', marginLeft: 'auto', marginRight: '0%', flexDirection: 'row', gap: '10px'}}>
