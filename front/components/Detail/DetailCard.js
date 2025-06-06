@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Avatar, Button, Popover, Modal, Input, Space, Select } from 'antd';
 import {EllipsisOutlined,HeartOutlined,HeartTwoTone,MessageOutlined,RetweetOutlined,CloseOutlined,} from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
-import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
+import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST } from '@/reducers/post';
 
-import PostImages from '../Post/PostImages';
+import PostImages from '../post/PostImages';
 import { useRouter } from 'next/router';
 import CommentForm from '../comment/CommentForm';
 import Comment from '../comment/Comment';
@@ -14,9 +14,11 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { Option } = Select;
+  const [newContent, setNewContent] = useState(post.content);  
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const { removePostDone } = useSelector((state) => state.post);
   const [localComments, setLocalComments] = useState(post.Comments || []);
   const [open, setOpen] = useState(false);
 
@@ -36,17 +38,41 @@ const DetailCard = ({ post, onRefreshPost }) => {
     dispatch({ type: UNLIKE_POST_REQUEST, data: post.id });
   }, [id, dispatch, post.id]);
 
-  const openEditModal = () => setEditModalVisible(true);
-  const closeEditModal = () => setEditModalVisible(false);
+  //수정
+  const openEditModal = useCallback(() => {
+    setEditModalVisible(true);
+  }, []);
+  const closeEditModal = useCallback(() => {
+    setEditModalVisible(false);
+  }, []);
+  const handleEditSubmit = useCallback(() => {
+    if (newContent.trim() === post.content.trim()) {
+      return closeEditModal();
+    }
+    dispatch({
+      type: UPDATE_POST_REQUEST,
+      data: { PostId: post.id, content: newContent }
+    });
+    setEditModalVisible(false);
+    router.push('/main');
+  }, [newContent, post, dispatch, router, closeEditModal]);
 
-  const openDeleteModal = () => setDeleteModalVisible(true);
-  const closeDeleteModal = () => setDeleteModalVisible(false);
-
-  const handleDelete = () => {
-    console.log('게시물이 삭제되었습니다.');
+  //삭제
+  const openDeleteModal = () => {
+    setDeleteModalVisible(true);
+  };
+  const closeDeleteModal = () => {
     setDeleteModalVisible(false);
   };
-
+  const handleDelete = useCallback(() => {
+    dispatch({ 
+      type: REMOVE_POST_REQUEST,
+      data: post.id 
+    });    
+    setDeleteModalVisible(false);
+    router.push('/main');
+    },[dispatch, post.id, router]);
+  
   return (
     <div style={{ margin: '3%' }}>
       <Card
@@ -79,7 +105,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
         extra={
           <CloseOutlined
             style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }}
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/main')}
           />
         }
       >
@@ -94,16 +120,17 @@ const DetailCard = ({ post, onRefreshPost }) => {
       </Card>
 
       <CommentForm post={post} onAddLocalComment={onRefreshPost} />
-      <Comment comments={localComments} />
+      <Comment comments={localComments} postId={post.id} />
 
       <Modal
-        open={editModalVisible}
+        visible={editModalVisible}
+        onOk={handleEditSubmit}
         onCancel={closeEditModal}
         footer={null}
         width={600}
       >
         <div style={{ display: 'flex', marginBottom: 16 }}>
-          <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: 10 }}>게시물 수정</span>
+          <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px'}}>게시물 수정</span>
           <Space>
             <Select defaultValue="public" style={{ width: 120 }}>
               <Option value="public">전체공개</Option>
@@ -112,24 +139,30 @@ const DetailCard = ({ post, onRefreshPost }) => {
             </Select>
           </Space>
         </div>
-        <Input.TextArea rows={4} placeholder="내용을 수정하세요" />
+
+        <Input.TextArea
+          value={newContent}
+          onChange={(e) => setNewContent(e.target.value)}
+          rows={4}
+          placeholder="내용을 수정하세요"
+        />
+        
         <div style={{ marginTop: 16, textAlign: 'right' }}>
-          <Button type="primary" onClick={closeEditModal}>
+          <Button onClick={handleEditSubmit} type="primary">
             수정 완료
           </Button>
         </div>
       </Modal>
-
       <Modal
         title="게시물 삭제"
-        open={deleteModalVisible}
+        visible={deleteModalVisible}
         onOk={handleDelete}
         onCancel={closeDeleteModal}
         okText="삭제"
         cancelText="취소"
         cancelButtonProps={{ danger: true }}
       >
-        <p>이 게시물을 정말 삭제하시겠습니까?</p>
+      <p>이 게시물을 정말 삭제하시겠습니까?</p>
       </Modal>
     </div>
   );
