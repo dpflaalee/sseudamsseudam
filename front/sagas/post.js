@@ -329,12 +329,8 @@ export default function* postSaga() {
     fork(watchUpdatePost),
     fork(watchRemovePost),
     fork(watchAddComment),
-<<<<<<< HEAD
-    fork(watchRemoveComment),
-    fork(watchLoadHashtagPosts),    
-=======
+    fork(watchRemoveComment), 
     fork(watchLoadHashtagPosts),
->>>>>>> 2e4766c71cd65c1ae44e54e2fd6e308a968167b4
     fork(watchLikePost),
     fork(watchUnlikePost),
     fork(watchUploadImages),
