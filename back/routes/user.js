@@ -6,7 +6,7 @@ const passport = require('passport');
 const nodemailer = require('nodemailer');
 const { User , Post } = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
-const {smtpTransport} = require('../config/email');
+//const {smtpTransport} = require('../config/email');
 
 // create :  객체.create({})
 // select :  객체.findAll , 객체.findOne
