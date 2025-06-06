@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from 'prop-types';
-import 'antd/dist/antd.css'; // 공통css
+import 'antd/dist/antd.css';
 import Head from 'next/head';
 import { Provider } from 'react-redux';
 import wrapper from '../store/configureStore';
@@ -11,6 +11,7 @@ const Ssdam = ({ Component}) => {
   //const { pageProps } = props;
   return (
     //<Provider store={store}>
+
     <>
       <Head>
         <meta charSet="utf-8" />

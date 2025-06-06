@@ -38,6 +38,8 @@ const upload = multer({
 //1. 프로필 생성
 router.post('/animalform', isLoggedIn, upload.single('aniProfile'), async (req, res, next) => {
   try{
+    console.log('✅ 요청 본문:', req.body);
+    req.user = {id: 1};
     const animal = await Animal.create({
       aniName: req.body.aniName,
       aniAge: req.body.aniAge,

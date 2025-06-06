@@ -30,6 +30,7 @@ function addAniProfileAPI(formData) {
   // return axios.post('/animal/animalform', data, {
   //   withCredentials: true,
   // });
+
 }
 function * addAniProfile(action) {
   try {
@@ -113,6 +114,7 @@ function* watchLoadAnimalProfile() {
 function* watchLoadAnimalList() {
   yield takeLatest(LOAD_ANIMAL_LIST_REQUEST, loadAnimalList);
 }
+
 
 export default function* animalSaga() {
   yield all([
