@@ -5,23 +5,24 @@ import Head from 'next/head';
 import { Provider } from 'react-redux';
 import wrapper from '../store/configureStore';
 
-
-const Ssdam = ({ Component, ...rest }) => {
-  const { store, props } = wrapper.useWrappedStore(rest);
-  const { pageProps } = props;
+const Ssdam = ({ Component}) => {
+  //const { store, props } = wrapper.useWrappedStore(rest);
+  //const { pageProps } = props;
   return (
-    <Provider store={store}>
+    //<Provider store={store}>
+    <>
       <Head>
         <meta charSet="utf-8" />
         <title>Ssdam</title>
       </Head>
       <Component />
-    </Provider>
+    </>
+    //</Provider>
   );
 };
 Ssdam.propType = {
   Component: PropTypes.elementType.isRequired,
-  pageProps : PropTypes.any.isRequired
+ // pageProps : PropTypes.any.isRequired
 }
 
-export default Ssdam;
+export default wrapper.withRedux(Ssdam);
