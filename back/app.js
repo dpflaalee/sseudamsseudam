@@ -20,6 +20,8 @@ const search = require('./routes/search');
 const notification = require('./routes/notification');
 const prize = require('./routes/prize');
 const randomBox = require('./routes/randomBox');
+const animal = require('./routes/animal');
+
 
 //환경설정
 dotenv.config();
@@ -67,6 +69,9 @@ app.use('/search', search);
 app.use('/notification', notification);
 app.use('/prize', prize);
 app.use('/randomBox', randomBox);
+app.use('/animal', animal);
+app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
+
 require('./jobs/giveRandomBoxJob');
 
 app.listen(3065, () => { console.log('server...'); });
