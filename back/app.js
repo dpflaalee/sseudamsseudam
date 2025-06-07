@@ -18,7 +18,11 @@ const complain = require('./routes/complain');
 const admin = require('./routes/admin');
 const search = require('./routes/search');
 const notification = require('./routes/notification');
+<<<<<<< HEAD
 const groups = require('./routes/group');
+=======
+const animal = require('./routes/animal');
+>>>>>>> ffa54d31fd9222fce522230b10e2cf46932ebfc1
 
 //환경설정
 dotenv.config();
@@ -64,6 +68,11 @@ app.use('/complain', complain);
 app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
+<<<<<<< HEAD
 app.use('/groups', groups);
+=======
+app.use('/animal', animal);
+app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
+>>>>>>> ffa54d31fd9222fce522230b10e2cf46932ebfc1
 
 app.listen(3065, () => { console.log('server...'); });
