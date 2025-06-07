@@ -10,10 +10,10 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Category.associate = (db) => {
-    db.Category.belongsToMany(db.Group, { through: 'GroupCategory', as: '' });
+    db.Category.belongsToMany(db.Group, { through: 'GroupCategory'});
     db.Category.hasMany(db.Prize);
     db.Category.hasMany(db.Animal);
-    db.Category.belongsToMany(db.Post, { through: 'PostCategory', as: '' });
+    db.Category.belongsToMany(db.Post, { through: 'PostCategory'});
   }
   return Category;
 }

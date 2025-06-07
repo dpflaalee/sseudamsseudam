@@ -18,6 +18,7 @@ const complain = require('./routes/complain');
 const admin = require('./routes/admin');
 const search = require('./routes/search');
 const notification = require('./routes/notification');
+const groups = require('./routes/group');
 
 //환경설정
 dotenv.config();
@@ -63,6 +64,7 @@ app.use('/complain', complain);
 app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
+app.use('/groups', groups);
 
 
 app.listen(3065, () => { console.log('server...'); });

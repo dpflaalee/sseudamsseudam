@@ -16,8 +16,8 @@ module.exports = (sequelize, DataTypes) => {
   Group.associate = (db) => {
     db.Group.hasMany(db.Post);
     db.Group.belongsTo(db.OpenScope);
-    db.Group.belongsToMany(db.Category, { through: 'GroupCategory', as: '' });
-    db.Group.belongsToMany(db.User, { through: 'GroupMember', as: '' })
+    db.Group.belongsToMany(db.Category, { through: 'GroupCategory'});
+    db.Group.belongsToMany(db.User, { through: 'GroupMember'})
   }
   return Group;
 };
