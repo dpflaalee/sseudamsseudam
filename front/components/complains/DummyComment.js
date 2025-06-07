@@ -48,80 +48,22 @@ const Divider = styled.div`
   margin: 16px 0;
 `;
 
-const DummyComment = (data) => {
-    const [comments, setComments] = useState([
-        {
-            id: 1,
-            user: { id: 2, nickname: '철수' },
-            content: '정말 좋은 글이네요!',
-            date: '2025.05.29',
-        },
-        {
-            id: 2,
-            user: { id: 3, nickname: '영희' },
-            content: '많은 도움이 되었습니다 :)',
-            date: '2025.05.29',
-        },
-    ]);
-
-    const [targetId, setTargetId] = useState(null);
-    const [openReport, setOpenReport] = useState(false);
-
-    const handleAddComment = (newComment) => {
-        setComments((prev) => [
-            ...prev,
-            {
-                id: prev.length + 1,
-                nickname: '나',
-                content: newComment,
-                date: new Date().toLocaleDateString(),
-            },
-        ]);
-    };
-
-    const handleReport = (commentId) => {
-        setTargetId(commentId);
-        setOpenReport(true);
-    };
-
+const DummyComment = ({ comment }) => {
     return (
         <Wrapper>
-
-            <Divider />
-            <ComplainForm
-                open={openReport}
-                onClose={() => setOpenReport(false)}
-                TARGET_TYPE={TARGET_TYPE.COMMENT}
-                targetId={targetId}
-            />
-            {comments.map((comment) => {
-                const menu = (
-                    <Menu>
-                        <Menu.Item danger onClick={() => handleReport(comment.id)}>
-                            신고하기
-                        </Menu.Item>
-                    </Menu>
-                );
-
-                return (
-                    <CommentItem key={comment.id}>
-                        <Left>
-                            <Avatar />
-                            <Content>
-                                <Nickname>{comment.user.nickname}</Nickname>
-                                <Text>{comment.content}</Text>
-                                <Date>{comment.date}</Date>
-                            </Content>
-                        </Left>
-                        <Dropdown overlay={menu} trigger={['click']}>
-                            <Button type="text" icon={<MoreOutlined />} />
-                        </Dropdown>
-                    </CommentItem>
-                );
-            })}
-
+            <CommentItem key={comment.id}>
+                <Left>
+                    <Avatar />
+                    <Content>
+                        <Nickname>{comment?.User?.nickname}</Nickname>
+                        <Text>{comment.content}</Text>
+                        <Date>{comment.createdAt}</Date>
+                    </Content>
+                </Left>
+            </CommentItem>
         </Wrapper>
     );
 };
+
 
 export default DummyComment;

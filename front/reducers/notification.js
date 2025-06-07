@@ -8,6 +8,10 @@ export const LOAD_NOTIFICATION_REQUEST = 'LOAD_NOTIFICATION_REQUEST';
 export const LOAD_NOTIFICATION_SUCCESS = 'LOAD_NOTIFICATION_SUCCESS';
 export const LOAD_NOTIFICATION_FAILURE = 'LOAD_NOTIFICATION_FAILURE';
 
+export const READ_ALL_NOTIFICATION_REQUEST = 'READ_ALL_NOTIFICATION_REQUEST';
+export const READ_ALL_NOTIFICATION_SUCCESS = 'READ_ALL_NOTIFICATION_SUCCESS';
+export const READ_ALL_NOTIFICATION_FAILURE = 'READ_ALL_NOTIFICATION_FAILURE';
+
 export const ADD_NOTIFICATION_REQUEST = 'ADD_NOTIFICATION_REQUEST';
 export const ADD_NOTIFICATION_SUCCESS = 'ADD_NOTIFICATION_SUCCESS';
 export const ADD_NOTIFICATION_FAILURE = 'ADD_NOTIFICATION_FAILURE';
@@ -21,6 +25,10 @@ export const initialState = {
     loadNotificationLoading: false,
     loadNotificationDone: false,
     loadNotificationError: null,
+
+    readNotificationLoading: false,
+    readNotificationDone: false,
+    readNotificationErorr: null,
 
     addNotificationLoading: false,
     addNotificationDone: false,
@@ -56,8 +64,30 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
 
         case LOAD_NOTIFICATION_FAILURE:
             draft.loadNotificationLoading = false;
-            draft.loadNotificationDone = true;
+            draft.loadNotificationDone = false;
             draft.loadNotificationError = action.error;
+            console.log('🚨 notificationReducer :  ', action.error);
+            break;
+
+        ///////////////////////////////////////
+        case READ_ALL_NOTIFICATION_REQUEST:
+            draft.readNotificationLoading = true;
+            draft.readNotificationDone = false;
+            draft.readNotificationErorr = null;
+            break;
+
+        case READ_ALL_NOTIFICATION_SUCCESS:
+            draft.mainNotification = draft.mainNotification.map((n) => ({
+                ...n,
+                isRead: true,
+            }));
+            break;
+
+        case READ_ALL_NOTIFICATION_FAILURE:
+            draft.readNotificationLoading = false;
+            draft.readNotificationDone = false;
+            draft.readNotificationErorr = action.error
+            console.log('🚨 notificationReducer :  ', action.error);
             break;
 
         ///////////////////////////////////////
@@ -92,6 +122,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             break;
 
         case REMOVE_NOTIFICATION_SUCCESS:
+            console.log('🐢 REMOVE_NOTIFICATION_SUCCESS : ', action.data);
+            draft.mainNotification = draft.mainNotification.filter((n) => n.id !== action.data);
             draft.removeNotificationLoading = false;
             draft.removeNotificationDone = true;
             draft.removeNotificationError = null;

@@ -3,7 +3,7 @@ import { Modal, Button as AntButton, Avatar, Input, Upload } from 'antd';
 import { CloseOutlined, InboxOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { userInput } from '../../hooks/userInput';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ADD_COMPLAIN_REQUEST } from '../../reducers/complain';
 
 const StyledModal = styled(Modal)`
@@ -52,15 +52,17 @@ const XButton = styled(AntButton)`
  
  `
 
-const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
+const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId, targetUserNickname }) => {
   const [content, setContent] = useState('');
-  //const user = useSelector(state => state.user);
-  const id = 1;
+  const user = useSelector(state => state.user);
   const dispatch = useDispatch();
   const onComplainSubmit = useCallback(() => {
+    console.log('💥유저 정보:', user);
+    console.log('💥ID:', user?.user?.id);
+
     console.log('💥TARGET_TYPE ', TARGET_TYPE);
     console.log('💥Reason : ', content);
-    console.log('💥Reporter : ', id);
+    console.log('💥Reporter : ', user.user.id);
     console.log('💥targetId : ', targetId);
     if (!content || !content.trim()) { return alert('게시글을 작성하세요.'); }
     dispatch({
@@ -69,14 +71,13 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
         targetType: TARGET_TYPE,
         targetId: targetId,
         reason: content,
-        reporterId: { id: id, nickname: 'Dan' },
-        createAt: '2025.06.02'
+        reporterId: user.user.id,
       }
     });
     console.log('🚀 Dispatched ADD_COMPLAIN_REQUEST');
     onClose();
     alert('신고가 완료되었습니다.');
-  }, [content, dispatch, id, onClose, TARGET_TYPE]);
+  }, [content, dispatch, user, onClose, TARGET_TYPE]);
   return (
     <StyledModal
       open={open}
@@ -93,7 +94,7 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId }) => {
       <UserInfo>
         <Avatar size={48} src="https://xsgames.co/randomusers/avatar.php?g=female" />
         <div>
-          <div>{'유저 닉네임'}</div>
+          <div>{targetUserNickname}</div>
         </div>
       </UserInfo>
       <ReasonInput rows={4} placeholder="신고 사유를 작성해주세요" name='content' onChange={(e) => setContent(e.target.value)} />
