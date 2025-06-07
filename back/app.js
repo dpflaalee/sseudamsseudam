@@ -18,6 +18,8 @@ const complain = require('./routes/complain');
 const admin = require('./routes/admin');
 const search = require('./routes/search');
 const notification = require('./routes/notification');
+const prize = require('./routes/prize');
+const randomBox = require('./routes/randomBox');
 
 //환경설정
 dotenv.config();
@@ -63,5 +65,8 @@ app.use('/complain', complain);
 app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
+app.use('/prize', prize);
+app.use('/randomBox', randomBox);
+require('./jobs/giveRandomBoxJob');
 
 app.listen(3065, () => { console.log('server...'); });
