@@ -24,9 +24,34 @@ import {
 
   UNFOLLOW_REQUEST,
   UNFOLLOW_SUCCESS,
-  UNFOLLOW_FAILURE
+  UNFOLLOW_FAILURE,
 
+  LOAD_MY_INFO_REQUEST, 
+  LOAD_MY_INFO_SUCCESS,
+  LOAD_MY_INFO_FAILURE
 } from '../reducers/user';
+
+function loadMyInfoAPI() {
+  return axios.get('/user');
+}
+
+function* loadMyInfo() {
+  try {
+    const result = yield call(loadMyInfoAPI);
+    yield put({
+      type: LOAD_MY_INFO_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error('🚨 LOAD_MY_INFO_FAILURE:', err);
+    console.error(err);
+    yield put({
+      type: LOAD_MY_INFO_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 
 ///// step3) 
 function  loginApi(data) {   //★   function* (X)
@@ -113,6 +138,9 @@ function* changeNickname(action) {
   }
 }
 ///// step2) ACTION 기능추가
+function* watchLoadMyInfo() {
+  yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo );  //LOG_IN 액션이 실행될때까지 기다리기
+}
 function* watchLogin() {
   yield takeLatest(LOG_IN_REQUEST, login );  //LOG_IN 액션이 실행될때까지 기다리기
 }
@@ -132,6 +160,7 @@ export default function* userSaga() {
       fork(watchLogin),
       fork(watchLogout),
       fork(watchSignup), 
+      fork(watchLoadMyInfo), 
       
       fork(watchChangeNickname),
   ]);
