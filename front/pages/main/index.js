@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Divider } from "antd";
 import PostCard from '@/components/post/PostCard';
 import PostForm from '@/components/post/PostForm';
-import Comment from '@/components/comment/Comment';
+import Comment from '@/components/Comment/Comment';
 import Profile from '@/components/Profile';
 import NotificationButton from "@/components/notifications/NotificationButton";
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'; 
