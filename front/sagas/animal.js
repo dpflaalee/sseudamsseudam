@@ -157,12 +157,18 @@ function* aniFollow(action) {
     // 알림
     console.log("🐕‍🦺 action.data.myAnimalId : ", action.data.myAnimalId);
     console.log("🐕‍🦺 ction.data.targetAnimalId : ", action.data.targetAnimalId);
+    const senderUserId = action.data.myAnimalId.User?.id;
+    const receiverUserId = action.data.targetAnimalId.User?.id;
+
+    console.log('🧞‍♀️ senderUserId : ', senderUserId);
+    console.log('🧞‍♀️ receiverUserId : ', receiverUserId);
+
     yield put({
       type: ADD_NOTIFICATION_REQUEST,
       data: {
         notiType: NOTIFICATION_TYPE.ANIMAL_FRIENDS,
-        SenderId: action.data.myAnimalId,
-        ReceiverId: action.data.targetAnimalId,
+        SenderId: senderUserId,
+        ReceiverId: receiverUserId,
       },
     });
     // E 알림 
