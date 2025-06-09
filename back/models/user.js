@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+     isAdmin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
     isDeleted:{
       type:DataTypes.BOOLEAN,
       allowNull:false,
@@ -70,7 +75,7 @@ module.exports = (sequelize, DataTypes) => {
     db.User.belongsToMany(db.User, { through: 'Follow', as: 'Followings', foreignKey: 'FollowerId' });
     //                                                      user.getFollowings()
     //MyPrize
-    db.User.belongsToMany(db.Prize, { through: 'MyPrize', foreignKey: 'UserId' });
+    db.User.belongsToMany(db.Prize, { through: db.MyPrize, foreignKey: 'UserId' });
     //UserGroup
     db.User.belongsToMany(db.Group, { through: 'GroupMember', as: 'joinedGroups', foreignKey: 'UserId' }); // 중간테이블 별칭 추가
     //MyPlace
