@@ -47,19 +47,21 @@ const EventScheduleList = () => {
     }
   };
 
-  const handleDeleteEvent = async (id) => {
+const handleDeleteEvent = async (id) => {
+  const isConfirmed = window.confirm('이벤트를 삭제하시겠습니까?');
+  if (isConfirmed) {
     try {
-      // DB에서 일정 삭제
       await axios.delete(`http://localhost:3065/calendar/${id}`);
       message.success('이벤트가 삭제되었습니다.');
 
-      // 화면에서 삭제된 이벤트 반영
       setSchedules(prevSchedules => prevSchedules.filter(schedule => schedule.id !== id));
     } catch (error) {
       console.error('이벤트 삭제 실패:', error);
       message.error('이벤트 삭제에 실패했습니다.');
     }
-  };
+  }
+};
+
 
   useEffect(() => {
     fetchSchedules();
