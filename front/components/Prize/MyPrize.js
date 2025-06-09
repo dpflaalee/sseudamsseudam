@@ -1,71 +1,77 @@
-import React, { useState } from "react";
+import React from "react";
+import { useRouter } from "next/router";
+import AppLayout from "@/components/AppLayout";
 import {
+  Avatar,
+  Typography,
+  Button,
   Card,
   Row,
   Col,
-  Button,
-  Modal,
+  Calendar,
 } from "antd";
-import Barcode from "react-barcode";
+import { UserOutlined } from "@ant-design/icons";
 
-// props: openRandomModal
-const MyPrize = ({ openRandomModal }) => {
-  const handleCouponUse = () => {
-    const isSuccess = Math.random() > 0.3; // 70% 확률로 성공
+const { Title, Text } = Typography;
 
-    if (isSuccess) {
-      Modal.success({
-          title: "교환권 발급 성공",
-          content: (
-            <div style={{ textAlign: "center" }}>
-              <p>온/오프라인 교환권이 발급되었습니다.</p>
-              <Barcode value="COUPON-123456" />   {/* 임시 바코드*/ }
-              <p>마이페이지에서도 확인할 수 있습니다.</p>
-            </div>
-          ),
-          okText: "확인",
-        });
-    }else {
-      Modal.error({
-        title: "쿠폰 사용 실패",
-        content: "일시적인 오류가 발생했습니다. 다시 시도해주세요.",
-        okText: "닫기",
+const MyPrize = () => {
+  const router = useRouter();
+
+  // category 객체를 받아 category.id로 API 호출
+  const openRandomModal = async (category) => {
+    try {
+      const res = await fetch(`/api/open-random-box?category=${category.id}`, {
+        method: 'POST',
+        credentials: 'include',
       });
+      if (!res.ok) throw new Error("서버 응답 실패");
+
+      const data = await res.json();
+      if (data.success) {
+        router.push(`/mypage/RandomBoxResult?status=success&item=${encodeURIComponent(data.itemName)}`);
+      } else {
+        router.push("/mypage/RandomBoxResult?status=fail");
+      }
+    } catch (error) {
+      console.error("에러 발생:", error);
+      router.push("/mypage/RandomBoxResult?status=fail");
     }
   };
 
+  // 예시 데이터: 실제론 백엔드에서 받아서 사용해야 합니다.
+  const prizes = [
+    {
+      id: 1,
+      category: { id: 1, content: "강아지" },
+      issuedAt: "2025-05-30",
+    },
+    {
+      id: 2,
+      category: { id: 2, content: "고양이" },
+      issuedAt: "2025-05-30",
+    },
+  ];
 
   return (
     <>
       {/* 내 박스 */}
       <Card title="내 박스" style={{ marginBottom: 24 }}>
         <Row gutter={[0, 16]}>
-          <Col span={24}>
-            <Card
-              type="inner"
-              title="강아지 랜덤박스"
-              extra={<Button danger onClick={openRandomModal}>사용</Button>}
-            >
-              유효기간: 2025/06/30
-              <br />
-              <span style={{ color: "#888" }}>
-                사용 시 일정 확률로 상품을 받을 수 있습니다.
-              </span>
-            </Card>
-          </Col>
-          <Col span={24}>
-            <Card
-              type="inner"
-              title="고양이 랜덤박스"
-              extra={<Button danger onClick={openRandomModal}>사용</Button>}
-            >
-              유효기간: 2025/06/30
-              <br />
-              <span style={{ color: "#888" }}>
-                사용 시 일정 확률로 상품을 받을 수 있습니다.
-              </span>
-            </Card>
-          </Col>
+          {prizes.map((prize) => (
+            <Col span={24} key={prize.id}>
+              <Card
+                type="inner"
+                title={`${prize.category.content} 랜덤박스`}
+                extra={
+                  <Button danger onClick={() => openRandomModal(prize.category)}>
+                    사용
+                  </Button>
+                }
+              >
+                유효기간: {new Date(prize.issuedAt).toLocaleDateString()}
+              </Card>
+            </Col>
+          ))}
         </Row>
       </Card>
 
@@ -76,34 +82,18 @@ const MyPrize = ({ openRandomModal }) => {
             <Card
               type="inner"
               title="쿠폰이름"
-              extra={<Button type="primary" onClick={handleCouponUse}>사용</Button>}
+              extra={<Button type="primary">사용</Button>}
             >
-              유효기간: 2025/06/30
-              <br />
-              <span style={{ color: "#888" }}>
-                발급 사유: 작성한 게시글이 주간 좋아요 1위로 선정되어 지급된 랜덤박스를 통해 발급된 쿠폰입니다.
-              </span>
-              <br />
-              <span style={{ color: "#888" }}>
-                쿠폰이 조기 마감될 수 있습니다. 사용에 유의 바랍니다.
-              </span>
+              유효기간: 2025/05/30
             </Card>
           </Col>
           <Col span={24}>
             <Card
               type="inner"
               title="쿠폰이름"
-              extra={<Button type="primary" onClick={handleCouponUse}>사용</Button>}
+              extra={<Button type="primary">사용</Button>}
             >
-              유효기간: 2025/06/30
-              <br />
-              <span style={{ color: "#888" }}>
-                발급 사유: 지난주 좋아요 순위 2위에 선정되어 지급된 랜덤박스에서 발급된 쿠폰입니다.
-              </span>
-              <br />
-              <span style={{ color: "#888" }}>
-                쿠폰이 조기 마감될 수 있습니다. 사용에 유의 바랍니다. 
-              </span>
+              유효기간: 2025/05/30
             </Card>
           </Col>
         </Row>
@@ -111,5 +101,5 @@ const MyPrize = ({ openRandomModal }) => {
     </>
   );
 };
-// 0604
+
 export default MyPrize;

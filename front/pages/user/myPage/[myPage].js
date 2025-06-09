@@ -6,12 +6,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { END } from 'redux-saga';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import wrapper from '../../store/configureStore';
-import { LOAD_USER_POSTS_REQUEST } from '../../reducers/post';
-import { LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../../reducers/user';
-const MyPage = () => {
+import wrapper from '../../../store/configureStore';
+import { LOAD_USER_POSTS_REQUEST } from '../../../reducers/post';
+import { LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../../../reducers/user';
+const MyPage = ({myPage}) => {
     const user = useSelector(state => state.user)
     console.log('myPage',user?.id);
+    const router = useRouter();
+    const {id} = router.query;
+    console.log('{id}=',{id});
     return (
         <AppLayout>
             <Profile />
@@ -19,7 +22,8 @@ const MyPage = () => {
     );
 }
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => { 
-    
+    console.log('context.params?.id=',context.params);
+    const {userId} = context.params;
   //1. cookie 설정
   const cookie = context.req ? context.req.headers.cookie : '';
   axios.defaults.headers.Cookie = '';
@@ -31,8 +35,24 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
  //context.store.dispatch({ type: LOAD_USER_REQUEST        ,   data: context.params.id, });
   context.store.dispatch(END);
 
-  await  context.store.sagaTask.toPromise();
+//   try{
+//     const res = await axios.get(`http://localhost:3065/user/myPage/${userId}`);
+//     const userData = res.data;
+//     await  context.store.sagaTask.toPromise();
+//     const state = context.store.getState();
+//     return {
+//       props: {
+//           userData,
+//       }
+//     }
+//   }catch(error){
+//     console.log('유저 조회 실패:',error);
+//     return {
+//         notFound: true,
+//     }
+//   }
+await  context.store.sagaTask.toPromise();
+    const state = context.store.getState();
   
-  const state = context.store.getState();
 }); 
 export default MyPage;

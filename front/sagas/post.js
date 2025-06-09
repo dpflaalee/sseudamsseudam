@@ -27,6 +27,9 @@ import {
   REMOVE_COMMENT_FAILURE,
   REMOVE_COMMENT_REQUEST,
   REMOVE_COMMENT_SUCCESS,
+  UPDATE_COMMENT_FAILURE,
+  UPDATE_COMMENT_REQUEST,
+  UPDATE_COMMENT_SUCCESS,
 
   LOAD_HASHTAG_POSTS_FAILURE,
   LOAD_HASHTAG_POSTS_REQUEST,
@@ -42,6 +45,10 @@ import {
   UPLOAD_IMAGES_FAILURE,
   UPLOAD_IMAGES_REQUEST,
   UPLOAD_IMAGES_SUCCESS,
+
+  RETWEET_REQUEST,
+  RETWEET_SUCCESS,
+  RETWEET_FAILURE
 } from '../reducers/post';
 
 function loadPostAPI(data) {
@@ -157,16 +164,32 @@ function* addComment(action) {
     });
 
     // 알림 보내기
-    console.log('💥');
-    yield put({
-      type: ADD_NOTIFICATION_REQUEST,
-      data: {
-        notiType: NOTIFICATION_TYPE.COMMENT,
-        SenderId: action.data.userId,
-        ReceiverId: action.postAuthorId,
-        targetId: result.data.id,
-      },
-    });
+    if (Boolean(action.isReComment)) {
+      console.log('😵 action.isReComment : ', action.isReComment);
+      console.log('😵 action.data : ', action.data);
+      yield put({
+        type: ADD_NOTIFICATION_REQUEST,
+        data: {
+          notiType: NOTIFICATION_TYPE.RECOMMENT,
+          SenderId: action.data.userId,
+          ReceiverId: action.data.CommentUserId,
+          targetId: result.data.id,
+        }
+      });
+    } else if (Boolean(action.isReComment)) {
+      console.log('😵🤷‍♀️ action.isReComment : ', action.isReComment);
+      console.log('😵🤷‍♀️ action.data : ', action.data);
+      yield put({
+        type: ADD_NOTIFICATION_REQUEST,
+        data: {
+          notiType: NOTIFICATION_TYPE.COMMENT,
+          SenderId: action.data.userId,
+          ReceiverId: action.postAuthorId,
+          targetId: result.data.id,
+        },
+      });
+    }
+
 
   } catch (err) {
     console.error(err);
@@ -187,10 +210,39 @@ function* removeComment(action) {
       type: REMOVE_COMMENT_SUCCESS,
       data: result.data,
     });
+
+    if (action.callback) {
+      yield call(action.callback);
+    }
   } catch (err) {
     console.error(err);
     yield put({
       type: REMOVE_COMMENT_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function updateCommentAPI(data) {
+  const { postId, commentId, content } = data;
+  return axios.patch(`/post/${postId}/comment/${commentId}`, { content });
+}
+
+function* updateComment(action) {
+  try {
+    const result = yield call(updateCommentAPI, action.data);
+    yield put({
+      type: UPDATE_COMMENT_SUCCESS,
+      data: result.data,
+    });
+
+    if (action.callback) {
+      yield call(action.callback);
+    }
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: UPDATE_COMMENT_FAILURE,
       error: err.response.data,
     });
   }
@@ -248,6 +300,9 @@ function* likePost(action) {
       type: LIKE_POST_SUCCESS,
       data: result.data,
     });
+    if (action.callback) {
+      yield call(action.callback);
+    }
   } catch (err) {
     console.error(err);
     yield put({
@@ -268,6 +323,9 @@ function* unlikePost(action) {
       type: UNLIKE_POST_SUCCESS,
       data: result.data,
     });
+    if (action.callback) {
+      yield call(action.callback);
+    }
   } catch (err) {
     console.error(err);
     yield put({
@@ -276,6 +334,27 @@ function* unlikePost(action) {
     });
   }
 }
+
+function retweetAPI(data) {
+  return axios.post(`/post/${data}/retweet`);
+}
+
+function* retweet(action) {
+  try {
+    const result = yield call(retweetAPI, action.data);
+    yield put({
+      type: RETWEET_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: RETWEET_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 
 function* watchLoadPost() {
   yield takeLatest(LOAD_POST_REQUEST, loadPost);
@@ -305,6 +384,10 @@ function* watchRemoveComment() {
   yield takeLatest(REMOVE_COMMENT_REQUEST, removeComment);
 }
 
+function* watchUpdateComment() {
+  yield takeLatest(UPDATE_COMMENT_REQUEST, updateComment);
+}
+
 function* watchLoadHashtagPosts() {
   yield throttle(5000, LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
 }
@@ -321,6 +404,10 @@ function* watchUploadImages() {
   yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
 }
 
+function* watchRetweet() {
+  yield takeLatest(RETWEET_REQUEST, retweet);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchLoadPost),
@@ -329,10 +416,12 @@ export default function* postSaga() {
     fork(watchUpdatePost),
     fork(watchRemovePost),
     fork(watchAddComment),
-    fork(watchRemoveComment), 
+    fork(watchRemoveComment),
+    fork(watchUpdateComment),
     fork(watchLoadHashtagPosts),
     fork(watchLikePost),
     fork(watchUnlikePost),
     fork(watchUploadImages),
+    fork(watchRetweet),
   ]);
 }

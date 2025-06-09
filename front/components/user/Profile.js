@@ -7,7 +7,9 @@ import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import useSelection from 'antd/lib/table/hooks/useSelection';
 import { useDispatch, useSelector } from 'react-redux';
 import { LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
+import {LOAD_POSTS_REQUEST} from '@/reducers/post'
 import Router from 'next/router';
+import PostCard from '../post/PostCard';
 
 
 const Wrapper = styled.div`
@@ -73,31 +75,32 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
-const Profile = () => {
+const Profile = ({ profile }) => {
   const dispatch = useDispatch();
-  const {logOutDone, logOutLoding} = useSelector(state => state.user);
+  const { logOutDone,user } = useSelector(state => state.user);
+  const {logOutLoding,mainPosts,hasMorePosts,loadPostsLoading} = useSelector(state => state.post);
   useEffect(() => {
-    if(logOutDone){  
+      if (hasMorePosts && !loadPostsLoading) {
+        const lastId = mainPosts[mainPosts.length - 1]?.id;
+        dispatch({
+          type: LOAD_POSTS_REQUEST,
+          lastId,
+        })
+      }
+    }, [mainPosts, hasMorePosts, loadPostsLoading]);
+  
+  useEffect(() => {
+    if (logOutDone) {
       console.log('클릭');
       Router.replace('/');
     }
-  },[logOutDone])
-  useEffect(() => {
+  }, [logOutDone])
 
-  })
-  // const {
-  //   nickname = '사용자명',
-  //   profileImage = null,
-  //   followerCount = 30,
-  //   postCount = 22,
-  //   followingCount = 124,
-  // } = user;
-  const {user} = useSelector(state => state.user);
-  console.log('user.userId=',user?.id);
-  
+  console.log('user.userId=', user?.id);
+
   const [open, setOpen] = useState(false);
   const onLogout = useCallback(() => {
-    dispatch({type: LOG_OUT_REQUEST})
+    dispatch({ type: LOG_OUT_REQUEST })
   });
   const [] = useState(false);
   const onUserDelete = useCallback(() => {
@@ -106,14 +109,35 @@ const Profile = () => {
       type: USER_DELETE_REQUEST,
     })
   });
+
+  //const isMyProfile = user && user.User?.id === profile.User?.id;
+
   const menu = (
     <Menu>
-      <Menu.Item key="edit">프로필 수정</Menu.Item>
-      <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
-      <Menu.Item key="logout" onClick={onLogout} loading={logOutLoding} >로그아웃</Menu.Item>
-      <Menu.Item key="withdraw" onClick={onUserDelete} danger>탈퇴하기</Menu.Item>
-      <Menu.Item onClick={() => setOpen(true)} danger>신고하기</Menu.Item>
-      {/* <ComplainForm open={open} onClose={() => setOpen(false)} TARGET_TYPE={TARGET_TYPE.USER} targetId={userId} /> */}
+        <>
+          <Menu.Item key="edit">프로필 수정</Menu.Item>
+          <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
+          <Menu.Item key="logout" onClick={onLogout}>
+            {logOutLoding ? '로그아웃 중...' : '로그아웃'}
+          </Menu.Item>
+          <Menu.Item key="withdraw" onClick={onUserDelete} danger>
+            탈퇴하기
+          </Menu.Item>
+        </>
+     {/* {isMyProfile ? (
+      ) : (
+        <>
+          <Menu.Item key="report" onClick={() => setOpen(true)} danger>
+            신고하기
+          </Menu.Item>
+          <ComplainForm
+            open={open}
+            onClose={() => setOpen(false)}
+            TARGET_TYPE={TARGET_TYPE.USER}
+            targetId={profile?.User?.id}
+          />
+        </>
+      )} */}
     </Menu>
   );
 
@@ -151,6 +175,11 @@ const Profile = () => {
           <Button>프로필 수정</Button>
         </ButtonRow>
       </Container>
+      {mainPosts.map((c) => {
+      return (
+          <PostCard post={c} key={c.id} />
+        );
+      })}
     </Wrapper>
   );
 };

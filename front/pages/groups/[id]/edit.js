@@ -1,16 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { Typography, Card, message, Spin } from 'antd';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/router'; 
 import AppLayout from '@/components/AppLayout';
 import GroupForm from '@/components/groups/GroupForm';
-
-const { Title } = Typography;
+import { LOAD_SINGLE_GROUP_REQUEST, UPDATE_GROUP_REQUEST } from '@/reducers/group'; 
 
 const EditGroupPage = () => {
-  const router = useRouter();
-  const { id } = router.query || {id:'42'}; //테스트용. 추후 삭제
+  const router = useRouter(); const dispatch = useDispatch(); const {groupId} = router.query;
+  const {singleGroup, updateGroupLoading, updateGroupDone} = useSelector((state) => state.group);
+  const {group} = useSelector((state)=>state.group)
 
-  const [loading, setLoading] = useState(true);
+  useEffect(()=>{
+    if(groupId){ dispatch({type: LOAD_SINGLE_GROUP_REQUEST, data: groupId}); }
+  }, [groupId]);
+
+  useEffect(()=>{
+    if(updateGroupDone){router.push(`/groups/${groupId}`);} //  수정 후 그룹상세로 이동
+  }, [updateGroupDone]);
+
+  const handleSubmit = (formData) =>{
+    dispatch({ type: UPDATE_GROUP_REQUEST, data: {groupId, ...formData} });
+  };
+
+  return(<AppLayout group={group}>
+    {singleGroup?(
+      <GroupForm
+        initialValues={{
+          title: singleGroup.title,
+          content: singleGroup.content,
+          categoryIds: singleGroup.Categories.map((c)=>c.id),
+          openScopeId: singleGroup.OpenScope?.id
+        }}
+        onFinish={handleSubmit}
+        isEditing={true}
+        loading={updateGroupLoading}
+      />
+    ):(<p>그룹 정보를 불러오는 중입니다...</p>)}
+  </AppLayout>)
+
+
+  //const { id } = router.query || {id:'42'}; //테스트용. 추후 삭제
+
+/*  const [loading, setLoading] = useState(true);
   const [initialValues, setInitialValues] = useState(null);
 
   // 그룹 정보 불러오기
@@ -56,7 +87,7 @@ const EditGroupPage = () => {
         )}
       </Card>
     </AppLayout>
-  );
+  );*/
 };
 
 export default EditGroupPage;

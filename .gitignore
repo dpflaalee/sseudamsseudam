@@ -1,3 +1,18 @@
+/.metadata/
+/tomcat9.0/
+/tomcat9.0/*.log
+/Servers/.project
+/Servers/.settings/
+/springboot2025/.metadata/
+/springboot2025/test1/.metadata/
+/springboot2025/test2/.metadata/
+/node_react/back/node_modules/
+/java_2025/node_react/back/.env/
+/back/node_modules/
+/front/node_modules/
+/front/.next/
+.gitignore
+
 # Created by https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,visualstudiocode,node,react
 

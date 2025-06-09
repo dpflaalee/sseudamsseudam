@@ -3,11 +3,16 @@ import { Card, Avatar, Button, Popover, Modal, Input, Space, Select } from 'antd
 import {EllipsisOutlined,HeartOutlined,HeartTwoTone,MessageOutlined,RetweetOutlined,CloseOutlined,} from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST } from '@/reducers/post';
+import Link from 'next/Link';
 
 import PostImages from '../post/PostImages';
 import { useRouter } from 'next/router';
 import CommentForm from '../comment/CommentForm';
 import Comment from '../comment/Comment';
+import PostCardContent from '../post/PostCardContent';
+
+import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
+import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
 
 const DetailCard = ({ post, onRefreshPost }) => {
   const id = useSelector((state) => state.user.user?.id);
@@ -23,20 +28,54 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const [open, setOpen] = useState(false);
 
   const like = post?.Likers?.some((v) => v.id === id);
+  const [liked, setLiked] = useState(post?.Likers?.some((v) => v.id === id));
+  const [likeLoading, setLikeLoading] = useState(false);
 
   useEffect(() => {
     setLocalComments(post.Comments || []);
   }, [post.Comments]);
 
-  const onClickLike = useCallback(() => {
-    if (!id) return alert('로그인이 필요합니다.');
-    dispatch({ type: LIKE_POST_REQUEST, data: post.id });
-  }, [id, dispatch, post.id]);
+  useEffect(() => {
+    setLiked(post?.Likers?.some((v) => v.id === id));
+  }, [post?.Likers, id]);
 
-  const onClickUnlike = useCallback(() => {
-    if (!id) return alert('로그인이 필요합니다.');
-    dispatch({ type: UNLIKE_POST_REQUEST, data: post.id });
-  }, [id, dispatch, post.id]);
+const onClickLike = useCallback(() => {
+  if (!id) {
+    return alert('로그인을 하시면 좋아요 추가가 가능합니다.');
+  }
+  setLiked(true); // 낙관적 업데이트
+
+  dispatch({
+    type: LIKE_POST_REQUEST,
+    data: post.id,
+    callback: () => {
+      onRefreshPost?.(); // 서버 최신화가 필요하면
+    },
+  });
+
+  dispatch({
+    type: ADD_NOTIFICATION_REQUEST,
+    data: {
+      notiType: NOTIFICATION_TYPE.LIKE,
+      SenderId: id,
+      ReceiverId: post.User.id,
+      targetId: post.id,
+    }
+  });
+}, [id, post.id, post.User.id, likeLoading]);
+
+  const onClickunLike = useCallback(() => {
+    if (!id) return alert('로그인을 하시면 좋아요 취소가 가능합니다.');
+    setLiked(false); // 낙관적 업데이트
+
+    dispatch({
+      type: UNLIKE_POST_REQUEST,
+      data: post.id,
+      callback: () => {
+        onRefreshPost?.();
+      },
+    });
+  }, [id]);
 
   //수정
   const openEditModal = useCallback(() => {
@@ -72,21 +111,33 @@ const DetailCard = ({ post, onRefreshPost }) => {
     setDeleteModalVisible(false);
     router.push('/main');
     },[dispatch, post.id, router]);
-  
+    
+  const [editMode, setEditMode] = useState(false);
+  const onClickUpdate = useCallback(() => { setEditMode(true); },[]);
+  const onCancelUpdate = useCallback(() => { setEditMode(false); },[]);
+  const onEditPost = useCallback((editText) => () => {
+    dispatch({
+      type: UPDATE_POST_REQUEST,
+      data: { PostId:post.id, content:editText }
+    });
+  },[post]);
+  const onRetweet = useCallback(() => {
+    if (!id) { return alert('로그인 후 리트윗이 가능합니다.'); }
+    return dispatch({
+      type: RETWEET_REQUEST,
+      data: post.id
+    });
+  });      
+
   return (
     <div style={{ margin: '3%' }}>
       <Card
+        cover={ post.Images && post.Images.length > 0 && <PostImages images={post.Images}/> }
         actions={[
           <RetweetOutlined key="retweet" />,
-          like ? (
-            <span key="heart">
-              <HeartTwoTone twoToneColor="#f00" onClick={onClickUnlike} /> {post.Likers.length}
-            </span>
-          ) : (
-            <span key="heart">
-              <HeartOutlined onClick={onClickLike} /> {post.Likers.length}
-            </span>
-          ),
+        liked
+          ? <span key="heart"><HeartTwoTone twoToneColor="#f00" onClick={onClickunLike} /> {post.Likers.length}</span>
+          : <span key="heart"><HeartOutlined onClick={onClickLike} /> {post?.Likers?.length}</span>,
           <span key="comment">
             <MessageOutlined /> {post.Comments?.length || 0}
           </span>,
@@ -109,18 +160,43 @@ const DetailCard = ({ post, onRefreshPost }) => {
           />
         }
       >
-        <Card.Meta
-          avatar={<Avatar />}
-          title={post?.User?.nickname || 'Unknown'}
-          description={post?.createdAt ? new Date(post.createdAt).toLocaleString() : ''}
-          style={{ marginBottom: 16 }}
-        />
-        <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>{post.content}</div>
-        <PostImages images={post?.Images || []} />
+      { post.RetweetId && post.Retweet ? (
+        <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
+          <Card.Meta
+            avatar={<Link href={`/user/${post.Retweet.User.id}`} prefetch={false}>
+                    <Avatar>{post.Retweet.User.nickname[0]}</Avatar></Link>} 
+            title={post.Retweet.User.nickname}
+            description={
+              <PostCardContent 
+                editMode={editMode}
+                onEditPost={onEditPost}
+                onCancelUpdate={onCancelUpdate}
+                postData={post.Retweet.content}
+              />} 
+          />
+        </Card>
+      ) : (
+          <Card.Meta
+            avatar={
+              <Link href={`/user/${post.User.id}`} prefetch={false}>
+                <Avatar>{post.User.nickname[0]}</Avatar>
+              </Link>
+            }
+            title={post.User.nickname}
+            description={
+              <PostCardContent
+                editMode={editMode}
+                onEditPost={onEditPost}
+                onCancelUpdate={onCancelUpdate}
+                postData={post.content}
+              />
+            }
+          />
+      )}              
       </Card>
 
       <CommentForm post={post} onAddLocalComment={onRefreshPost} />
-      <Comment comments={localComments} postId={post.id} />
+      <Comment comments={post.Comments} postId={post.id} post={post} onRefreshPost={onRefreshPost} />
 
       <Modal
         visible={editModalVisible}

@@ -1,17 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import LoginForm from "../components/user/LoginForm";
 
 import { useDispatch, useSelector } from 'react-redux';
 import Router from 'next/router';
 import { LOAD_MY_INFO_REQUEST, SIGN_UP_REQUEST } from '../reducers/user';
-import axios from 'axios';  
-import { END } from 'redux-saga'; 
+import axios from 'axios';
+import { END } from 'redux-saga';
 import wrapper from '../store/configureStore';
 
-const login = () => { 
+const login = () => {
     return (
         <div
-             style={{
+            style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -37,6 +37,19 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   context.store.dispatch(END);
 
   await  context.store.sagaTask.toPromise();
+   const state = context.store.getState();
+   console.log('state.user.me='+state.user.me);
+    if (state.user.me) {
+      return {
+        redirect: {
+          destination: '/main',
+          permanent: false,
+        },
+      };
+    }
+  return {
+    props: {},
+  };
 }); 
 ///////////////////////////////////////////////////////////
 export default login;
