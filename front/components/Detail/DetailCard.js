@@ -9,6 +9,9 @@ import { useRouter } from 'next/router';
 import CommentForm from '../comment/CommentForm';
 import Comment from '../comment/Comment';
 
+import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
+import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
+
 const DetailCard = ({ post, onRefreshPost }) => {
   const id = useSelector((state) => state.user.user?.id);
   const dispatch = useDispatch();
@@ -23,20 +26,54 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const [open, setOpen] = useState(false);
 
   const like = post?.Likers?.some((v) => v.id === id);
+  const [liked, setLiked] = useState(post?.Likers?.some((v) => v.id === id));
+  const [likeLoading, setLikeLoading] = useState(false);
 
   useEffect(() => {
     setLocalComments(post.Comments || []);
   }, [post.Comments]);
 
-  const onClickLike = useCallback(() => {
-    if (!id) return alert('로그인이 필요합니다.');
-    dispatch({ type: LIKE_POST_REQUEST, data: post.id });
-  }, [id, dispatch, post.id]);
+  useEffect(() => {
+    setLiked(post?.Likers?.some((v) => v.id === id));
+  }, [post?.Likers, id]);
 
-  const onClickUnlike = useCallback(() => {
-    if (!id) return alert('로그인이 필요합니다.');
-    dispatch({ type: UNLIKE_POST_REQUEST, data: post.id });
-  }, [id, dispatch, post.id]);
+const onClickLike = useCallback(() => {
+  if (!id) {
+    return alert('로그인을 하시면 좋아요 추가가 가능합니다.');
+  }
+  setLiked(true); // 낙관적 업데이트
+
+  dispatch({
+    type: LIKE_POST_REQUEST,
+    data: post.id,
+    callback: () => {
+      onRefreshPost?.(); // 서버 최신화가 필요하면
+    },
+  });
+
+  dispatch({
+    type: ADD_NOTIFICATION_REQUEST,
+    data: {
+      notiType: NOTIFICATION_TYPE.LIKE,
+      SenderId: id,
+      ReceiverId: post.User.id,
+      targetId: post.id,
+    }
+  });
+}, [id, post.id, post.User.id, likeLoading]);
+
+  const onClickunLike = useCallback(() => {
+    if (!id) return alert('로그인을 하시면 좋아요 취소가 가능합니다.');
+    setLiked(false); // 낙관적 업데이트
+
+    dispatch({
+      type: UNLIKE_POST_REQUEST,
+      data: post.id,
+      callback: () => {
+        onRefreshPost?.();
+      },
+    });
+  }, [id]);
 
   //수정
   const openEditModal = useCallback(() => {
@@ -78,15 +115,9 @@ const DetailCard = ({ post, onRefreshPost }) => {
       <Card
         actions={[
           <RetweetOutlined key="retweet" />,
-          like ? (
-            <span key="heart">
-              <HeartTwoTone twoToneColor="#f00" onClick={onClickUnlike} /> {post.Likers.length}
-            </span>
-          ) : (
-            <span key="heart">
-              <HeartOutlined onClick={onClickLike} /> {post.Likers.length}
-            </span>
-          ),
+        liked
+          ? <span key="heart"><HeartTwoTone twoToneColor="#f00" onClick={onClickunLike} /> {post.Likers.length}</span>
+          : <span key="heart"><HeartOutlined onClick={onClickLike} /> {post?.Likers?.length}</span>,
           <span key="comment">
             <MessageOutlined /> {post.Comments?.length || 0}
           </span>,
@@ -120,7 +151,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
       </Card>
 
       <CommentForm post={post} onAddLocalComment={onRefreshPost} />
-      <Comment comments={localComments} postId={post.id} />
+      <Comment comments={post.Comments} postId={post.id} post={post} />
 
       <Modal
         visible={editModalVisible}
