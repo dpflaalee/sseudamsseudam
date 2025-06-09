@@ -8,15 +8,23 @@ import animal from './animal';
 import notification from './notification';
 import todolist from './todolist';
 
-const rootReducer = combineReducers({
-  index: (state = {}, action) => {
-    switch (action.type) {
-      case HYDRATE:
-        console.log('HYDRATE', action);
-        return { ...state, ...action.payload };
-      default:
-        return { ...state }
+// (이전상태, 액션) => 다음상태
+const rootReducer = (state, action) => {
+  switch (action.type) {
+    case HYDRATE:
+      console.log('HYDRATE', action);
+      return action.payload;
+    default: {
+      const combinedReducer = combineReducers({
+        user,
+        post,
+        complain,
+        animal,
+        notification,
+      });
+      return combinedReducer(state, action);
     }
+<<<<<<< HEAD
   },
   user,
   post,
@@ -25,4 +33,24 @@ const rootReducer = combineReducers({
   notification,
   todolist,
 });
+=======
+  }
+};
+// const rootReducer = combineReducers({
+//   index: (state = {}, action) => {
+//     switch (action.type) {
+//       case HYDRATE:
+//         console.log('HYDRATE', action);
+//         return { ...state, ...action.payload };
+//       default:
+//         return { ...state }
+//     }
+//   },
+//   user,
+//   post,
+//   complain,
+//   animal,
+//   notification,
+// });
+>>>>>>> 40eb36b40a243cdce7d3730a781b1a858dec2d91
 export default rootReducer;

@@ -4,6 +4,7 @@ import Nav from './Nav';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
+<<<<<<< HEAD
 import PostCard from './post/PostCard';
 import DetailCard from './Detail/DetailCard'
 import Calendar from './Calendar/Calendar-ssen';
@@ -11,6 +12,8 @@ import Todolists from './Calendar/Todolist/Todolists';
 import EventScheduleForm from './Calendar/EventSchedule/EventScheduleForm';
 import EventScheduleList from './Calendar/EventSchedule/EventScheduleList';
 import EventScheduleManage from './Calendar/EventSchedule/EventScheduleManage';
+=======
+>>>>>>> 40eb36b40a243cdce7d3730a781b1a858dec2d91
 
 const AppLayoutWrapper = styled.div`
   min-height: 100vh;
