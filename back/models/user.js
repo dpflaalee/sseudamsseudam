@@ -22,7 +22,19 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    isDeleted:{
+      type:DataTypes.BOOLEAN,
+      allowNull:false,
+      defaultValue: false,
+    },
+    deleteAt:{
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    }
   }, {
+   // paranoid: true, // 소프트 삭제 활성화
+    //timestamps: true, // createdAt, updatedAt, deletedAt 자동 생성
     charset: 'utf8',
     collate: 'utf8_general_ci'
   });
@@ -60,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
     //MyPrize
     db.User.belongsToMany(db.Prize, { through: 'MyPrize', foreignKey: 'UserId' });
     //UserGroup
-    db.User.belongsToMany(db.Group, { through: 'GroupMember', as: 'joinedGroups', foreignKey: 'UserId' }); // 중간테이블 별칭 추가
+    db.User.belongsToMany(db.Group, { through: 'GroupMember', as: 'groupmembers', foreignKey: 'UserId' }); // 중간테이블 별칭 추가
     //MyPlace
     db.User.belongsToMany(db.Place, { through: 'MyPlace', as: 'Places' });
     //ChattingMemebers

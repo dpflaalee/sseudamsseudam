@@ -157,7 +157,6 @@ function* addComment(action) {
     });
 
     // 알림 보내기
-    console.log('💥');
     yield put({
       type: ADD_NOTIFICATION_REQUEST,
       data: {
@@ -329,7 +328,7 @@ export default function* postSaga() {
     fork(watchUpdatePost),
     fork(watchRemovePost),
     fork(watchAddComment),
-    fork(watchRemoveComment), 
+    fork(watchRemoveComment),
     fork(watchLoadHashtagPosts),
     fork(watchLikePost),
     fork(watchUnlikePost),

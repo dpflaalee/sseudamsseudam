@@ -58,7 +58,7 @@ app.use(passport.session()); //사용자 인증상태 저장
 
 //TEST
 app.get('/', (req, res) => { res.send('Express Test'); });
-app.use('/api', (req, res) => { res.send('Link Test') });
+//app.use('/api', (req, res) => { res.send('Link Test') });
 //app.use('/detail' , detail);
 
 app.use('/post', post);
@@ -70,6 +70,7 @@ app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
 app.use('/groups', groups);
+app.use('/api/groups', groups);
 app.use('/categories', categories);
 
 app.use('/prize', prize);
