@@ -6,7 +6,7 @@ const passport = require('passport');
 const nodemailer = require('nodemailer');
 const { User , Post } = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
-const {smtpTransport} = require('../config/email');
+//const {smtpTransport} = require('../config/email');
 
 // create :  객체.create({})
 // select :  객체.findAll , 객체.findOne
@@ -80,6 +80,7 @@ router.post('/login', isNotLoggedIn, async (req, res, next) => {
     3-2.  1) 로그인사용자확인  ,로그인한유저 정보반환         */
 router.get('/', async  (req, res, next) => { 
   // res.send('사용자정보조회');
+  console.log('사용자정보조회',req.user.id);
   try { 
     //1) 로그인사용자확인
     //2) 로그인한유저 정보반환
@@ -106,20 +107,49 @@ router.get('/', async  (req, res, next) => {
 //4. 로그아웃
 // POST : localhost:3065/user/logout    로그아웃기능입니다 출력
 router.post('/logout', isLoggedIn, (req, res, next) => {  // 사용자가 로그인상태면  로그아웃이 실행되도록
+  try{
+    req.logout(function (err) {
+      if (err) {  return next(err);   }
 
-  req.logout(function (err) {
-    if (err) {  return next(err);   }
-
-    req.session.destroy((err) => {   ///  
-      if (err) {
-        return next(err);
-      }
-      res.send('ok'); // 로그아웃 성공 응답
+      req.session.destroy((err) => {   ///  
+        if (err) {
+          return next(err);
+        }
+        res.send('ok'); // 로그아웃 성공 응답
+      });
     });
-  });
 
+  }catch(err){
+
+  }
 });
-
+//회원탈퇴
+router.post('/userDelete',isLoggedIn, async (req, res, next)=>{
+  console.log('탈퇴유저:',req.user.id);
+  try{
+    await User.update({
+      isDeleted: true,
+      deleteAt: new Date(),
+      updatedAt: new Date(),
+    }, {
+      where : { id : req.user.id }
+    });
+    req.logout(function(err){
+        if(err){
+          return next(err);
+        }   
+        req.session.destroy((err) => {
+          if(err){
+            return next(err)
+          }
+          return res.send('ok');
+      })
+    })
+  }catch(err){
+    console.error(err);
+    next(err);
+  }  
+});
 //5. 닉네임변경
 // POST : localhost:3065/user/nickname  닉네임변경 출력
 // 1. 로그인
@@ -140,6 +170,9 @@ router.post('/nickname', isLoggedIn, async (req, res, next) => {
     next(error);
   }
 });
+router.post('userDelete',isLoggedIn, async (req,res,next) =>{
+  
+})
 /////////////////////////////////////
 //6. 팔로우
 // PATCH : localhost:3065/users/:userId/follow  팔로우기능추가
