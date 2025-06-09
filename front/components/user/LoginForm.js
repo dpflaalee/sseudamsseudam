@@ -8,7 +8,16 @@ import userInput from '@/hooks/userInput';
 import Router from 'next/router';
 import { LOG_IN_REQUEST } from '@/reducers/user'; 
 
+<<<<<<< HEAD
  const CusLink = styled(Link)`color: #aaa`;
+=======
+import { LOAD_MY_INFO_REQUEST, SIGN_UP_REQUEST } from '../../reducers/user';
+import axios from 'axios';  
+import { END } from 'redux-saga'; 
+import wrapper from '../../store/configureStore';
+
+const CusLink = styled(Link)`color: #aaa`;
+>>>>>>> 40eb36b40a243cdce7d3730a781b1a858dec2d91
 
 const LoginForm = () => {
   const { logInLoading, logInDone, logInError } = useSelector(state => state.user);
@@ -23,7 +32,11 @@ const LoginForm = () => {
       Router.replace('/main');
     }
   },[logInDone])
-  useEffect(() => { if (logInError) {  alert(logInError);  } }, [logInError]);
+  useEffect(() => {
+    if (logInError) {
+        alert(logInError);  
+      } 
+  }, [logInError]);
 
   const onSubmitForm = useCallback(() => {
     console.log(email, password);
@@ -131,4 +144,21 @@ const LoginForm = () => {
     </div>
   )
 }
+
+///////////////////////////////////////////////////////////
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => { 
+  //1. cookie 설정
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  
+  if (context.req  && cookie ) { axios.defaults.headers.Cookie = cookie;   }
+
+  //2. redux 액션
+  context.store.dispatch({ type:LOAD_MY_INFO_REQUEST});
+  context.store.dispatch({ type: LOAD_POSTS_REQUEST });
+  context.store.dispatch(END);
+
+  await  context.store.sagaTask.toPromise();
+}); 
+///////////////////////////////////////////////////////////
 export default LoginForm;
