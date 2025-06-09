@@ -104,12 +104,28 @@ router.get('/:postId', async (req, res, next) => {
     if (!post) {
       return res.status(404).send('게시글이 존재하지 않습니다.');
     }
-    res.json(post);
+
+    // 댓글 데이터 가공: 부모댓글과 대댓글 분리 후 대댓글을 부모댓글에 묶기
+    const comments = post.Comments.map(comment => comment.toJSON());
+    const parentComments = comments.filter(c => !c.RecommentId);
+    const childComments = comments.filter(c => c.RecommentId);
+
+    const commentsWithReplies = parentComments.map(parent => ({
+      ...parent,
+      Recomments: childComments.filter(child => child.RecommentId === parent.id),
+    }));
+
+    // post 데이터에 댓글 배열 대체
+    const postData = post.toJSON();
+    postData.Comments = commentsWithReplies;
+
+    res.json(postData);
   } catch (error) {
     console.error(error);
     next(error);
   }
 });
+
 
 // 글 수정
 router.patch( '/:postId', isLoggedIn, async (req, res, next) => {
@@ -165,7 +181,8 @@ router.post('/:postId/comment', isLoggedIn, async (req,res,next) => {
     const comment = await Comment.create({
       content: req.body.content,
       PostId: parseInt(req.params.postId , 10),
-      UserId: req.user.id
+      UserId: req.user.id,
+      RecommentId: req.body.RecommentId || null,
     });
 
     const fullComment = await Comment.findOne({
