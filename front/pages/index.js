@@ -24,19 +24,19 @@ const login = () => {
 };
 
 ///////////////////////////////////////////////////////////
-export const getServerSideProps = wrapper.getServerSideProps(async (context) => { 
-  //1. cookie 설정
-  const cookie = context.req ? context.req.headers.cookie : '';
-  axios.defaults.headers.Cookie = '';
+// export const getServerSideProps = wrapper.getServerSideProps(async (context) => { 
+//   //1. cookie 설정
+//   const cookie = context.req ? context.req.headers.cookie : '';
+//   axios.defaults.headers.Cookie = '';
   
-  if (context.req  && cookie ) { axios.defaults.headers.Cookie = cookie;   }
+//   if (context.req  && cookie ) { axios.defaults.headers.Cookie = cookie;   }
 
-  //2. redux 액션
-  context.store.dispatch({ type:LOAD_MY_INFO_REQUEST});
-  //context.store.dispatch({ type: LOAD_POSTS_REQUEST });
-  context.store.dispatch(END);
+//   //2. redux 액션
+//   context.store.dispatch({ type:LOAD_MY_INFO_REQUEST});
+//   //context.store.dispatch({ type: LOAD_POSTS_REQUEST });
+//   context.store.dispatch(END);
 
-  await  context.store.sagaTask.toPromise();
-}); 
+//   await  context.store.sagaTask.toPromise();
+// }); 
 ///////////////////////////////////////////////////////////
 export default login;
