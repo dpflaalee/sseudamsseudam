@@ -49,6 +49,7 @@ const DeleteButton = styled.button`
 `;
 const Notification = ({ noti, onDelete }) => {
   console.log('🔍 noti 전체:', noti);
+  console.log('🔍 targetObject:', noti?.targetObject);
 
 
   const renderIcon = (type) => {
@@ -61,7 +62,7 @@ const Notification = ({ noti, onDelete }) => {
         return <MessageOutlined />;
       case NOTIFICATION_TYPE.FOLLOW:
         return <UserAddOutlined />;
-      case NOTIFICATION_TYPE.RECOMMNET:
+      case NOTIFICATION_TYPE.RECOMMENT:
         return <MessageOutlined style={{ color: '#0066CC' }} />;
       case NOTIFICATION_TYPE.RANDOMBOX:
         return <GiftOutlined style={{ color: '#FF9E00' }} />;
@@ -84,6 +85,7 @@ const Notification = ({ noti, onDelete }) => {
   const renderContent = (noti) => {
     const sender = noti?.Sender || 'Dan';
     const notiType = noti?.type;
+    const target = noti?.targetObject;
 
     switch (notiType) {
       case NOTIFICATION_TYPE.LIKE:
@@ -91,23 +93,35 @@ const Notification = ({ noti, onDelete }) => {
       case NOTIFICATION_TYPE.RETWEET:
         return `${sender.nickname}님이 당신의 게시물을 리트윗했습니다.`;
       case NOTIFICATION_TYPE.COMMENT:
-        return `${sender.nickname}님이 당신의 게시물에 댓글을 남겼습니다.`;
+        return [
+          `${sender.nickname}님이 당신의 게시물에 댓글을 남겼습니다.`,
+          <br key="br" />,
+          `: ${target?.content}`
+        ];
       case NOTIFICATION_TYPE.FOLLOW:
         return `${sender.nickname}님이 당신을 팔로우했습니다.`;
-      case NOTIFICATION_TYPE.RECOMMNET:
-        return `${sender.nickname}님이 당신의 댓글에 답글을 남겼습니다.`;
+      case NOTIFICATION_TYPE.RECOMMENT:
+        return [
+          `${sender.nickname}님이 당신의 댓글에 답글을 남겼습니다.`,
+          <br key="br" />,
+          `: ${target?.content}`
+        ];
       case NOTIFICATION_TYPE.RANDOMBOX:
         return `${sender.nickname}님! 랜덤박스가 도착했어요 확인해보세요!`;
       case NOTIFICATION_TYPE.GROUPAPPLY:
-        return `${sender.nickname}님이 그룹 신청을 했습니다.`;
+        return [
+          `${sender.nickname}님이 ${target?.title}에 함께 하고 싶어해요!`
+        ];
       case NOTIFICATION_TYPE.GROUPAPPLY_APPROVE:
-        return `${sender.nickname}님! 그룹에 가입 신청이 승입되었습니다.`;
+        return [
+          `${sender.nickname}님! ${target?.title} 그룹에 참여되었습니다.`
+        ];
       case NOTIFICATION_TYPE.GROUPAPPLY_REJECT:
-        return `${sender.nickname}님이 그룹 신청이 거절되었습니다.`;
+        return `${sender.nickname}님 그룹 신청이 거절되었습니다.`;
       case NOTIFICATION_TYPE.ADMIN_NOTI:
         return `관리자 알림: 새로운 공지가 등록되었습니다.`;
       case NOTIFICATION_TYPE.ANIMAL_FRIENDS:
-        return `${sender.nickname}님이 친구가 되고 싶어해요!`;
+        return `누군가가 ${target?.aniName || '(이름 없음)'}과(와) 친구가 되고 싶어해요!`;
       default:
         return '알 수 없는 알림';
     }

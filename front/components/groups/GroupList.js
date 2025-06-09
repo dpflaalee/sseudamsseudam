@@ -100,9 +100,9 @@ export default function GroupList({ group }) {
         </Col>
 
         <Col>
-          {isMember?(
+          {isMember ? (
             <Button type="primary" onClick={handleEnterGroup}> 이동하기 </Button>
-          ):(
+          ) : (
             <Button type="primary" onClick={handleJoin}> 가입하기 </Button>
           )}
 
