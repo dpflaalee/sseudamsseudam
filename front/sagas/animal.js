@@ -155,13 +155,14 @@ function* aniFollow(action) {
     });
 
     // 알림
+    console.log("🐕‍🦺 action.data.myAnimalId : ", action.data.myAnimalId);
+    console.log("🐕‍🦺 ction.data.targetAnimalId : ", action.data.targetAnimalId);
     yield put({
       type: ADD_NOTIFICATION_REQUEST,
       data: {
         notiType: NOTIFICATION_TYPE.ANIMAL_FRIENDS,
         SenderId: action.data.myAnimalId,
         ReceiverId: action.data.targetAnimalId,
-        targetId: result.data.id,
       },
     });
     // E 알림 
