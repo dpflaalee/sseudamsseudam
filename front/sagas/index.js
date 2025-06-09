@@ -1,13 +1,24 @@
 import { all, fork } from 'redux-saga/effects';
 import axios from 'axios';
 
+import postSaga from './post';
 import complainSaga from './complain';
+import userSaga from './user';
+import notificationSaga from './notification';
+import animalSaga from './animal';
+import groupSaga from './group';
 
-axios.defaults.baseURL = 'http://localhost:3065';  // 기본요청 url 설정
-axios.defaults.withCredentials = true;  // 쿠키 http요청에 포함시킬건지 설정
+axios.defaults.baseURL = 'http://localhost:3065';
+axios.defaults.withCredentials = true;
 
 export default function* rootSaga() {
-    yield all([
-        fork(complainSaga),
-    ]);
+  yield all([
+    fork(postSaga),
+    fork(complainSaga),
+    fork(userSaga),
+    fork(notificationSaga),
+    fork(animalSaga),
+    fork(groupSaga)
+
+  ]);
 }

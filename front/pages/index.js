@@ -1,19 +1,18 @@
 import React from "react";
-import AppLayout from "@/components/AppLayout";
-import 'antd/dist/antd.css';
-import Notification from "@/components/Notification";
-import Profile from '@/components/Profile'
-import CommentForm from "@/components/post/CommentForm";
-import Comment from "@/components/post/Comment";
+import LoginForm from "../components/user/LoginForm";
+const login = () => {
+    return (
+        <div
+             style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "100vh", // 화면 전체 높이 확보
+            }}
+        >
+            <LoginForm />
+        </div>
+    );
+};
 
-const Home = () => {
-  return (
-    <AppLayout>
-      <>
-        
-      </>
-    </AppLayout>
-  );
-}
-
-export default Home;
+export default login;

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-
-const { Post, User, Image, Comment, Hashtag, Complain } = require('../models');
+const TARGET_TYPE = require('./../../shared/constants/TARGET_TYPE');
+const { Post, User, Image, Comment, Hashtag, Complain, Randombox } = require('../models');
 const { Op } = require('sequelize');
 
 // 0. PostCard.js : 관리자가 쓴 글(공지사항) 보기
@@ -58,55 +58,51 @@ router.get('/', async (req, res, next) => {
 
 // 1. ComplainCard.js : 신고 내용 보기
 // /admin/complain
+// routes/complain.js
 router.get('/complain', async (req, res, next) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: '접근 권한이 없습니다.' });
-        }
-        const where = {};
-        if (parseInt(req.query.lastId, 10)) {
-            where.id = {
-                [Op.lt]: parseInt(req.query.lastId, 10)
-            }
-        };
-        const complainCard = await Complain.findAll({
-            where,
-            limit: 10,
-            order: [
-                ['createdAt', 'DESC'],
-            ],
+        const complains = await Complain.findAll({
             include: [
-                {
-                    model: User,
-                    attributes: ['id', 'nickname']
-                }, {
-                    model: Image
-                }, {
-                    model: Comment,
-                    include: [
-                        {
-                            model: User,
-                            attributes: ['id', 'nickname']
-                        }
-                    ]
-                }, {
-                    model: User, as: 'Likers',
-                    attributes: ['id']
-                }, {
-                    model: Post, as: 'Retweet',
-                    include: [{
-                        model: User,
-                        attributes: ['id', 'nickname']
-                    }, {
-                        model: Image
-                    }]      // 원본 글 작성자와 이미지 포함
-                }
-            ]
+                { model: User, as: 'Reporter', attributes: ['id', 'nickname'] },
+            ],
+            order: [['createdAt', 'DESC']],
         });
-        res.status(200).json(complainCard);
+
+        const complainsWithTarget = await Promise.all(complains.map(async (report) => {
+            let target = null;
+
+            if (report.targetType === TARGET_TYPE.POST) {
+                target = await Post.findOne({
+                    where: { id: report.targetId },
+                    include: [{ model: User, attributes: ['id', 'nickname'] }]
+                });
+            } else if (report.targetType === TARGET_TYPE.COMMENT) {
+                target = await Comment.findOne({
+                    where: { id: report.targetId },
+                    include: [{ model: User, attributes: ['id', 'nickname'] }]
+                });
+            } else if (report.targetType === TARGET_TYPE.USER) {
+                target = await User.findOne({
+                    where: { id: report.targetId },
+                    attributes: ['id', 'nickname', 'email']
+                });
+            } else if (report.targetType === TARGET_TYPE.RANDOMBOX) {
+                target = await Randombox.findOne({
+                    where: { id: report.targetId },
+                    attributes: ['id', 'nickname', 'email']
+                });
+            }
+
+            return {
+                ...report.toJSON(),
+                targetObject: target,
+            };
+        }));
+
+        res.status(200).json(complainsWithTarget);
     } catch (err) {
-        console.error(err);
-        next(err);
+        console.error('🚨 신고 목록 조회 실패: ', err);
+        res.status(500).send('신고 조회 실패');
     }
 });
 
