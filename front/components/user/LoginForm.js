@@ -8,12 +8,16 @@ import userInput from '@/hooks/userInput';
 import Router from 'next/router';
 import { LOG_IN_REQUEST } from '@/reducers/user'; 
 
+<<<<<<< HEAD
+ const CusLink = styled(Link)`color: #aaa`;
+=======
 import { LOAD_MY_INFO_REQUEST, SIGN_UP_REQUEST } from '../../reducers/user';
 import axios from 'axios';  
 import { END } from 'redux-saga'; 
 import wrapper from '../../store/configureStore';
 
 const CusLink = styled(Link)`color: #aaa`;
+>>>>>>> 40eb36b40a243cdce7d3730a781b1a858dec2d91
 
 const LoginForm = () => {
   const { logInLoading, logInDone, logInError } = useSelector(state => state.user);

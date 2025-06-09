@@ -6,6 +6,8 @@ import user from './user';
 import complain from './complain';
 import animal from './animal';
 import notification from './notification';
+import prize from './prize';
+import myPrize from './myPrize';
 
 // (이전상태, 액션) => 다음상태
 const rootReducer = (state, action) => {
@@ -20,6 +22,8 @@ const rootReducer = (state, action) => {
         complain,
         animal,
         notification,
+        prize,
+        myPrize,
       });
       return combinedReducer(state, action);
     }
