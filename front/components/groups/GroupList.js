@@ -4,19 +4,41 @@ import { useSelector } from "react-redux";
 import { Row, Col, Typography, Button, Card, Space } from "antd";
 import GroupDropDown from "./GroupDropdown";
 
+import { useDispatch } from "react-redux";
+//// 알림
+import { ADD_NOTIFICATION_REQUEST } from './../../reducers/notification';
+import NOTIFICATION_TYPE from "../../../shared/constants/NOTIFICATION_TYPE";
+//// E 알림
+
 const { Title, Text } = Typography;
 
 export default function GroupList({ group }) {
   const router = useRouter();
   const {me} = useSelector((state)=>state.user);
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+  const user = useState(state => state.user);
 
   const handleGroupClick = () => { setOpen((prev) => !prev); };
 
   const handleJoin = (e) => {
     e.stopPropagation();
     console.log(`가입 요청: ${group.title}`);
+<<<<<<< HEAD
+    //// 알림
+    dispatch({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.GROUPAPPLY,
+        SenderId: user.user.id,
+        ReceiverId: group.User.id,
+        targetId: group.id,
+      }
+    });
+    /// E 알림
+=======
     //가입 요청 로직 추가 예정
+>>>>>>> 21373db31c7d38f2d4a699e806eed704db855b07
   };
 
   const handleEnterGroup = (e) => { e.stopPropagation(); router.push(`/groups/${group.id}`); } // 가입한 그룹일 시 해당 그룹으로 이동
@@ -24,9 +46,13 @@ export default function GroupList({ group }) {
   const isMember = group.groupmembers?.some( (member) => member.userId === me?.id );
 
   // 카테고리 공백 추가
+<<<<<<< HEAD
+  const formattedCategory = group.category ? group.category.join(', ') : '';
+=======
   const formattedCategory = group.Categories?.map((c)=>c.content).join(", ") || "없음"; 
   //멤버 수 계산
   const memberCount = group.groupmembers?.length || 0;  
+>>>>>>> 21373db31c7d38f2d4a699e806eed704db855b07
 
   return (
     <Card
@@ -34,7 +60,7 @@ export default function GroupList({ group }) {
       style={{ width: "100%", marginBottom: 8 }}
       bodyStyle={{ padding: 16 }}
     >
-      <Row justify="space-between" align="middle"> 
+      <Row justify="space-between" align="middle">
         <Col>
           <Space direction="vertical" size={4}>
             <Row align="middle" gutter={8}>
@@ -50,7 +76,7 @@ export default function GroupList({ group }) {
             <Text type="secondary">카테고리: {formattedCategory}</Text>
           </Space>
         </Col>
- 
+
         <Col>
           {isMember?(
             <Button type="primary" onClick={handleEnterGroup}> 이동하기 </Button>
@@ -63,7 +89,7 @@ export default function GroupList({ group }) {
       </Row>
 
       {/* 드롭다운 정보 */}
-      {open&&( <div style={{ marginTop: 12 }}> <GroupDropDown group={group} /> </div> )}
+      {open && (<div style={{ marginTop: 12 }}> <GroupDropDown group={group} /> </div>)}
     </Card>
   );
 }

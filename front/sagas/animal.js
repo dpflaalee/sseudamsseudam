@@ -1,4 +1,4 @@
-import {all, put, takeLatest, call, fork} from 'redux-saga/effects';
+import { all, put, takeLatest, call, fork } from 'redux-saga/effects';
 import axios from 'axios';
 import {
   ADD_ANIPROFILE_REQUEST,
@@ -33,6 +33,9 @@ import {
   ANIUNFOLLOW_FAILURE,
 } from '../reducers/animal';
 
+import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification';
+import NOTIFICATION_TYPE from '../../shared/constants/NOTIFICATION_TYPE';
+
 // function addAniProfileAPI(data) {
 //   return axios.post('/animal/animalform', data); //백엔드 연동시 필요
 // }
@@ -44,7 +47,7 @@ function addAniProfileAPI(formData) {
   // });
 
 }
-function * addAniProfile(action) {
+function* addAniProfile(action) {
   try {
     const result = yield call(addAniProfileAPI, action.data);
     yield put({
@@ -93,7 +96,7 @@ function* removeAniProfile(action) {
     const result = yield call(removeAniProfileAPI, action.data);
     yield put({
       type: REMOVE_ANIPROFILE_SUCCESS,
-      data: result.data.animalId, 
+      data: result.data.animalId,
     });
   } catch (err) {
     yield put({
@@ -150,6 +153,26 @@ function* aniFollow(action) {
       type: ANIFOLLOW_SUCCESS,
       data: response.data,
     });
+
+    // 알림
+    console.log("🐕‍🦺 action.data.myAnimalId : ", action.data.myAnimalId);
+    console.log("🐕‍🦺 ction.data.targetAnimalId : ", action.data.targetAnimalId);
+    const senderUserId = action.data.myAnimalId.User?.id;
+    const receiverUserId = action.data.targetAnimalId.User?.id;
+
+    console.log('🧞‍♀️ senderUserId : ', senderUserId);
+    console.log('🧞‍♀️ receiverUserId : ', receiverUserId);
+
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.ANIMAL_FRIENDS,
+        SenderId: senderUserId,
+        ReceiverId: receiverUserId,
+      },
+    });
+    // E 알림 
+
   } catch (err) {
     console.error("❌ saga error:", err);
     yield put({
@@ -158,6 +181,7 @@ function* aniFollow(action) {
     });
   }
 }
+
 function aniUnFollowAPI({ targetAnimalId, myAnimalId }) {
   return axios.delete(`/animal/${targetAnimalId}/follow`, {
     data: { myAnimalId },
@@ -179,7 +203,7 @@ function* aniUnFollow(action) {
 }
 
 function removeAnifollowerAPI(id) {
-  return axios.delete(`/api/animal/${id}`); 
+  return axios.delete(`/api/animal/${id}`);
 }
 function* removeAniFollow(action) {
   try {
@@ -229,10 +253,10 @@ function* watchRemoveAniProfile() {
 function* watchLoadRecommendedAnimals() {
   yield takeLatest(LOAD_RECOMMENDED_ANIMALS_REQUEST, loadRecommendedAnimals);
 }
-function* watchAniFollow(){
+function* watchAniFollow() {
   yield takeLatest(ANIFOLLOW_REQUEST, aniFollow);
 }
-function* watchAniUnFollow(){
+function* watchAniUnFollow() {
   yield takeLatest(ANIUNFOLLOW_REQUEST, aniUnFollow);
 }
 export default function* animalSaga() {

@@ -73,31 +73,25 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
-const Profile = () => {
+const Profile = ({ profile }) => {
   const dispatch = useDispatch();
-  const {logOutDone, logOutLoding} = useSelector(state => state.user);
+  const { logOutDone, logOutLoding } = useSelector(state => state.user);
   useEffect(() => {
-    if(logOutDone){  
+    if (logOutDone) {
       console.log('클릭');
       Router.replace('/');
     }
-  },[logOutDone])
+  }, [logOutDone])
   useEffect(() => {
 
   })
-  // const {
-  //   nickname = '사용자명',
-  //   profileImage = null,
-  //   followerCount = 30,
-  //   postCount = 22,
-  //   followingCount = 124,
-  // } = user;
-  const {user} = useSelector(state => state.user);
-  console.log('user.userId=',user?.id);
-  
+
+  const { user } = useSelector(state => state.user);
+  console.log('user.userId=', user?.id);
+
   const [open, setOpen] = useState(false);
   const onLogout = useCallback(() => {
-    dispatch({type: LOG_OUT_REQUEST})
+    dispatch({ type: LOG_OUT_REQUEST })
   });
   const [] = useState(false);
   const onUserDelete = useCallback(() => {
@@ -106,14 +100,35 @@ const Profile = () => {
       type: USER_DELETE_REQUEST,
     })
   });
+
+  const isMyProfile = user && user.User?.id === profile.User?.id;
+
   const menu = (
     <Menu>
-      <Menu.Item key="edit">프로필 수정</Menu.Item>
-      <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
-      <Menu.Item key="logout" onClick={onLogout} loading={logOutLoding} >로그아웃</Menu.Item>
-      <Menu.Item key="withdraw" onClick={onUserDelete} danger>탈퇴하기</Menu.Item>
-      <Menu.Item onClick={() => setOpen(true)} danger>신고하기</Menu.Item>
-      {/* <ComplainForm open={open} onClose={() => setOpen(false)} TARGET_TYPE={TARGET_TYPE.USER} targetId={userId} /> */}
+      {isMyProfile ? (
+        <>
+          <Menu.Item key="edit">프로필 수정</Menu.Item>
+          <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
+          <Menu.Item key="logout" onClick={onLogout}>
+            {logOutLoding ? '로그아웃 중...' : '로그아웃'}
+          </Menu.Item>
+          <Menu.Item key="withdraw" onClick={onUserDelete} danger>
+            탈퇴하기
+          </Menu.Item>
+        </>
+      ) : (
+        <>
+          <Menu.Item key="report" onClick={() => setOpen(true)} danger>
+            신고하기
+          </Menu.Item>
+          <ComplainForm
+            open={open}
+            onClose={() => setOpen(false)}
+            TARGET_TYPE={TARGET_TYPE.USER}
+            targetId={profile?.User?.id}
+          />
+        </>
+      )}
     </Menu>
   );
 

@@ -6,18 +6,14 @@ import styled from 'styled-components';
 import Link from 'next/Link';
 import userInput from '@/hooks/userInput';
 import Router from 'next/router';
-import { LOG_IN_REQUEST } from '@/reducers/user'; 
+import { LOG_IN_REQUEST } from '@/reducers/user';
 
-<<<<<<< HEAD
- const CusLink = styled(Link)`color: #aaa`;
-=======
 import { LOAD_MY_INFO_REQUEST, SIGN_UP_REQUEST } from '../../reducers/user';
-import axios from 'axios';  
-import { END } from 'redux-saga'; 
+import axios from 'axios';
+import { END } from 'redux-saga';
 import wrapper from '../../store/configureStore';
 
 const CusLink = styled(Link)`color: #aaa`;
->>>>>>> 40eb36b40a243cdce7d3730a781b1a858dec2d91
 
 const LoginForm = () => {
   const { logInLoading, logInDone, logInError } = useSelector(state => state.user);
@@ -28,14 +24,14 @@ const LoginForm = () => {
   const dispatch = useDispatch();  //#4.   redux
 
   useEffect(() => {
-    if(logInDone){
+    if (logInDone) {
       Router.replace('/main');
     }
-  },[logInDone])
+  }, [logInDone])
   useEffect(() => {
     if (logInError) {
-        alert(logInError);  
-      } 
+      alert(logInError);
+    }
   }, [logInError]);
 
   const onSubmitForm = useCallback(() => {
@@ -48,17 +44,17 @@ const LoginForm = () => {
   }, [email, password]);
 
   return (
-    <div style={{ width: '100%', maxWidth: '700px', margin:'0 auto'}}>
-      <Form   style={{
-          width: '100%',         // form이 div 꽉 채우도록
-          maxWidth: '700px',     // 실제 form 너비 제한
-          margin: '0 auto',      // 가운데 정렬
-          border: '1px solid #ccc',
-          padding: '20px',
-          paddingRight: '120px',
-          boxSizing: 'border-box',
-          
-        }}
+    <div style={{ width: '100%', maxWidth: '700px', margin: '0 auto' }}>
+      <Form style={{
+        width: '100%',         // form이 div 꽉 채우도록
+        maxWidth: '700px',     // 실제 form 너비 제한
+        margin: '0 auto',      // 가운데 정렬
+        border: '1px solid #ccc',
+        padding: '20px',
+        paddingRight: '120px',
+        boxSizing: 'border-box',
+
+      }}
         name="basic"
         labelCol={{
           span: 8,
@@ -74,10 +70,10 @@ const LoginForm = () => {
         autoComplete="off"
       >
         <Form.Item
-         wrapperCol={{
+          wrapperCol={{
             offset: 8,
             span: 16,
-          }} style={{paddingLeft:'100px'}}>
+          }} style={{ paddingLeft: '100px' }}>
           <h1>INSTAGRAM</h1>
         </Form.Item>
         <Form.Item
@@ -93,9 +89,9 @@ const LoginForm = () => {
             },
           ]}
         >
-          
-          <Input placeholder="user@gmail.com 형식으로 입력" 
-              value={email} onChange={onChangeEmail} required   />
+
+          <Input placeholder="user@gmail.com 형식으로 입력"
+            value={email} onChange={onChangeEmail} required />
         </Form.Item>
 
         <Form.Item
@@ -111,8 +107,8 @@ const LoginForm = () => {
             },
           ]}
         >
-          <Input.Password placeholder="비밀번호 입력" 
-              value={password} onChange={onChangePassword} required />
+          <Input.Password placeholder="비밀번호 입력"
+            value={password} onChange={onChangePassword} required />
         </Form.Item>
 
         <Form.Item
@@ -132,11 +128,11 @@ const LoginForm = () => {
             span: 16,
           }}
         >
-          <Button type="primary" loading={logInLoading} style={{width:'100%'}} htmlType="submit">
+          <Button type="primary" loading={logInLoading} style={{ width: '100%' }} htmlType="submit">
             로그인
           </Button>
-          <div style={{marginLeft: '20px', textAlign: 'center', marginTop: '10px' }}>
-            <CusLink href={"/user/signup"} style={{paddingRight:'50px'}}>회원가입</CusLink> 
+          <div style={{ marginLeft: '20px', textAlign: 'center', marginTop: '10px' }}>
+            <CusLink href={"/user/signup"} style={{ paddingRight: '50px' }}>회원가입</CusLink>
             <CusLink href={"/user/find"}>비밀번호 찾기</CusLink>
           </div>
         </Form.Item>
@@ -146,19 +142,19 @@ const LoginForm = () => {
 }
 
 ///////////////////////////////////////////////////////////
-export const getServerSideProps = wrapper.getServerSideProps(async (context) => { 
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
   //1. cookie 설정
   const cookie = context.req ? context.req.headers.cookie : '';
   axios.defaults.headers.Cookie = '';
-  
-  if (context.req  && cookie ) { axios.defaults.headers.Cookie = cookie;   }
+
+  if (context.req && cookie) { axios.defaults.headers.Cookie = cookie; }
 
   //2. redux 액션
-  context.store.dispatch({ type:LOAD_MY_INFO_REQUEST});
+  context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
   context.store.dispatch({ type: LOAD_POSTS_REQUEST });
   context.store.dispatch(END);
 
-  await  context.store.sagaTask.toPromise();
-}); 
+  await context.store.sagaTask.toPromise();
+});
 ///////////////////////////////////////////////////////////
 export default LoginForm;
