@@ -60,6 +60,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             break;
 
         case LOAD_COMPLAIN_SUCCESS:
+            console.log('🐬 신고 목록 데이터', action.data);
             draft.loadComplainLoading = false;
             draft.loadComplainDone = true;
             draft.loadComplainError = null;
@@ -67,7 +68,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             break;
 
         case ADD_COMPLAIN_FAILURE:
-            console.log('🐬 신고 목록 데이터', action.data);
             draft.loadComplainLoading = false;
             draft.loadComplainDone = true;
             draft.loadComplainError = action.error;
