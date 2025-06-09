@@ -16,20 +16,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE, // DATETIME → DATE
       allowNull: false
     },
-    createAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    },
-    updateAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    }
   }, {
     charset: 'utf8',
     collate: 'utf8_general_ci',
-    timestamps: false, // createAt, updateAt 수동 정의 시 false
+    timestamps: true, 
   });
 
   // 관계 설정
