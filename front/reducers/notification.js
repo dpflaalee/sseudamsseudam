@@ -44,9 +44,6 @@ export const initialState = {
 //////////////////////////////////////////
 
 const reducer = (state = initialState, action) => produce(state, (draft) => {
-    console.log('🐬 Notification reducer');
-    console.log('🐬 Notification reducer : type', action.type);
-    console.log('🐬 Notification reducer : data', action.data);
     switch (action.type) {
         //////////////////////////////
         case LOAD_NOTIFICATION_REQUEST:
@@ -98,7 +95,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             break;
 
         case ADD_NOTIFICATION_SUCCESS:
-            console.log('🐢 ADD_COMPLAIN_SUCCESS : ', action.data);
+            console.log('🐢 ADD_NOTIFICATION_SUCCESS : ', action.data);
             const newNotificaton = action.data;
             draft.addNotificationLoading = false;
             draft.addNotificationDone = true;
