@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
 /.metadata/
 /tomcat9.0/
 /tomcat9.0/*.log
@@ -14,8 +11,8 @@
 /back/node_modules/
 /front/node_modules/
 /front/.next/
-=======
->>>>>>> caa5455 (test)
+.gitignore
+
 # Created by https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,visualstudiocode,node,react
 
@@ -217,9 +214,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-<<<<<<< HEAD
 # End of https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
-=======
-# End of https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,node,react
->>>>>>> fa4b5d9f4792afd91842fd14171d2d4b9982d2e5
->>>>>>> caa5455 (test)
