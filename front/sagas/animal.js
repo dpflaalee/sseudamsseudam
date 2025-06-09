@@ -154,24 +154,29 @@ function* aniFollow(action) {
       data: response.data,
     });
 
-    // 알림
-    console.log("🐕‍🦺 action.data.myAnimalId : ", action.data.myAnimalId);
-    console.log("🐕‍🦺 ction.data.targetAnimalId : ", action.data.targetAnimalId);
-    const senderUserId = action.data.myAnimalId.User?.id;
-    const receiverUserId = action.data.targetAnimalId.User?.id;
+    // 🐕‍🦺 동물 ID → 유저 ID 변환
+    const [senderRes, receiverRes] = yield all([
+      call(axios.get, `/animal/${action.data.myAnimalId}`),
+      call(axios.get, `/animal/${action.data.targetAnimalId}`),
+    ]);
 
-    console.log('🧞‍♀️ senderUserId : ', senderUserId);
-    console.log('🧞‍♀️ receiverUserId : ', receiverUserId);
-
-    yield put({
-      type: ADD_NOTIFICATION_REQUEST,
-      data: {
-        notiType: NOTIFICATION_TYPE.ANIMAL_FRIENDS,
-        SenderId: senderUserId,
-        ReceiverId: receiverUserId,
-      },
-    });
-    // E 알림 
+    const senderUserId = senderRes.data.animal?.User?.id;
+    const receiverUserId = receiverRes.data.animal?.User?.id;
+    if (senderUserId && receiverUserId) {
+      console.log('🦮 senderUserId : ', senderUserId);
+      console.log('🦮 receiverUserId : ', receiverUserId);
+      yield put({
+        type: ADD_NOTIFICATION_REQUEST,
+        data: {
+          notiType: NOTIFICATION_TYPE.ANIMAL_FRIENDS,
+          SenderId: senderUserId,
+          ReceiverId: receiverUserId,
+          targetId: action.data.targetAnimalId,
+        },
+      });
+    } else {
+      console.error("❌ 유저 ID 조회 실패", senderRes.data, receiverRes.data);
+    }
 
   } catch (err) {
     console.error("❌ saga error:", err);

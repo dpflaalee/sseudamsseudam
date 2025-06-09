@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const { Post, User, Group, Notification } = require('../models');
-
+const { Post, User, Group, Notification, Animal, Comment } = require('../models');
+const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
 const { Op } = require('sequelize');
 
 
@@ -40,15 +40,61 @@ router.post('/', async (req, res, next) => {
 router.get('/', async (req, res, next) => {
     try {
         const notifications = await Notification.findAll({
-            where: { ReceiverId: req.query.userId },
+            where: { ReceiverId: parseInt(req.query.userId, 10) },
             include: [
                 { model: User, as: 'Sender', attributes: ['id', 'nickname'] },
                 { model: User, as: 'Receiver', attributes: ['id', 'nickname'] },
             ],
-            order: [['createdAt', 'DESC']], // 최신순 정렬
+            order: [['createdAt', 'DESC']],
         });
 
-        res.status(200).json(notifications);
+        const enriched = await Promise.all(
+            notifications.map(async (noti) => {
+                let target = null;
+
+                switch (noti.type) {
+                    case NOTIFICATION_TYPE.COMMENT:
+                    case NOTIFICATION_TYPE.RECOMMNET:
+                        target = await Comment.findByPk(noti.targetId, {
+                            include: [{ model: User, attributes: ['id', 'nickname'] }],
+                        });
+                        break;
+
+                    case NOTIFICATION_TYPE.LIKE:
+                    case NOTIFICATION_TYPE.RETWEET:
+                        target = await Post.findByPk(noti.targetId, {
+                            include: [{ model: User, attributes: ['id', 'nickname'] }],
+                        });
+                        break;
+
+                    case NOTIFICATION_TYPE.GROUPAPPLY:
+                    case NOTIFICATION_TYPE.GROUPAPPLY_APPROVE:
+                    case NOTIFICATION_TYPE.GROUPAPPLY_REJECT:
+                        target = await Group.findByPk(noti.targetId);
+                        break;
+
+                    case NOTIFICATION_TYPE.ADMIN_NOTI:
+                        target = await Post.findByPk(noti.targetId, {
+                            include: [{ model: User, attributes: ['id', 'nickname'] }],
+                        });
+                        break;
+                    case NOTIFICATION_TYPE.ANIMAL_FRIENDS:
+                        target = await Animal.findByPk(noti.targetId, {
+                            include: [{ model: Animal, as: 'Followings', attributes: ['id', 'aniName'] }],
+                        })
+                }
+                if (!target) {
+                    console.warn(`⚠️ target을 찾을 수 없습니다. notiId=${noti.id}, targetId=${noti.targetId}`);
+                }
+
+                return {
+                    ...noti.toJSON(),
+                    targetObject: target,
+                };
+            })
+        );
+
+        res.status(200).json(enriched);
     } catch (err) {
         console.error('🚨 알림 조회 중 에러:', err);
         res.status(500).send('알림 조회 실패');
