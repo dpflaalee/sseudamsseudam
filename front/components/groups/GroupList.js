@@ -7,7 +7,6 @@ import axios from "axios";
 import { LOAD_MEMBERS_REQUEST } from "@/reducers/group";
 import { ADD_NOTIFICATION_REQUEST } from './../../reducers/notification';
 import NOTIFICATION_TYPE from "../../../shared/constants/NOTIFICATION_TYPE";
-//// E 알림
 
 const { Title, Text } = Typography;
 
@@ -54,8 +53,6 @@ export default function GroupList({ group }) {
   const handleEnterGroup = (e) => { e.stopPropagation(); router.push(`/groups/${group.id}`); } // 가입한 그룹일 시 해당 그룹으로 이동
 
   //현재 유저가 이 그룹에 가입했는지 확인
-  //const isMember = Array.isArray(group.groupmembers) && group.groupmembers.length > 0 && group.groupmembers.some(member => member.userId === me?.id);
-  //const isMember = Array.isArray(group.groupmembers) && group.groupmembers.some(member => member.userId === me?.id);
   const checkMembership = async ()=>{
     try{
       const response = await axios.get(`/api/groups/${group.id}/members/me`);
