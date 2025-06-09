@@ -25,9 +25,9 @@ const Index = () => {
     }
   }, [router.query]);
 
-  const openRandomModal = async (categoryId) => {
+  const openRandomModal = async (category) => {
     try {
-      const res = await fetch(`/api/open-random-box?category=${categoryId}`, {
+      const res = await fetch(`/api/open-random-box?category=${category.id}`, {
         method: 'POST',
         credentials: 'include',
       });
