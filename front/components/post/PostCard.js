@@ -5,13 +5,10 @@ import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, Retweet
 import PostImages from './PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
-<<<<<<< HEAD
 import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST } from '@/reducers/post';
-=======
-import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from '@/reducers/post';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
->>>>>>> 2e4766c71cd65c1ae44e54e2fd6e308a968167b4
+
 
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
@@ -25,10 +22,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
 
   const [newContent, setNewContent] = useState(post.content);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-<<<<<<< HEAD
-=======
   const { removePostLoading, removePostDone } = useSelector(state => state.post)
->>>>>>> 2e4766c71cd65c1ae44e54e2fd6e308a968167b4
 
   // 좋아요
   const onClickLike = useCallback(() => {
