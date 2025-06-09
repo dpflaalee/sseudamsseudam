@@ -272,6 +272,18 @@ router.delete('/follower/:userId', isLoggedIn, async (req, res, next) => {  //##
     next(error);
   }
 });
+router.get('/myPage/:userId', isLoggedIn, async (req, res, next) => {  //## 
+  try {
+    const user = await User.findOne({ where: { id: req.params.userId } });
+    if (!user) { res.status(403).send('유저를 확인해주세요'); }  //403 금지된.없는유저
+
+    await user.removeFollowings(req.user.id);  //##
+    res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 router.post('/sms/:phoneNum', async (req,res,next) =>{
   try{
@@ -333,7 +345,7 @@ router.post('/email/:userEmail', async (req, res, next) => {
         to : userEmail, //사용자가 입력한 이메일 -> 목적지 주소 이메일
         subject : " 인증 관련 메일 입니다. ",
         //html : '<h1>INSTAGRAM \n\n\n\n\n\n</h1>' + number
-        html: `<p>Please click the following link to verify your email address:</p>
+        html: `<p>링크를 클릭하면 비밀번호를 변경할 수 있습니다:</p>
         <p> <a href="http://localhost:3000/user/pwChange?userEmail=${userEmail}&token=${result.token}">Verify email</a></p>
         <p>This link will expire on ${result.expires}.</p>`
     }
