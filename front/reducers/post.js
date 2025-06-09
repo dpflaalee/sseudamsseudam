@@ -36,6 +36,9 @@ export const initialState = {
   removeCommentDone: false,
   removeCommentError: null,
 
+  updateCommentLoading: false,
+  updateCommentDone: false,
+  updateCommentError: null,
 
   uploadImagesLoading: false,
   uploadImagesDone: false,
@@ -93,6 +96,10 @@ export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
 export const REMOVE_COMMENT_REQUEST = 'REMOVE_COMMENT_REQUEST';
 export const REMOVE_COMMENT_SUCCESS = 'REMOVE_COMMENT_SUCCESS';
 export const REMOVE_COMMENT_FAILURE = 'REMOVE_COMMENT_FAILURE';
+
+export const UPDATE_COMMENT_REQUEST = 'UPDATE_COMMENT_REQUEST';
+export const UPDATE_COMMENT_SUCCESS = 'UPDATE_COMMENT_SUCCESS';
+export const UPDATE_COMMENT_FAILURE = 'UPDATE_COMMENT_FAILURE';
 
 export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
 export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
@@ -214,10 +221,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case REMOVE_COMMENT_SUCCESS: {
       draft.removeCommentLoading = false;
       draft.removeCommentDone = true;
-      // 댓글이 달린 포스트 찾기
       const post = draft.mainPosts.find((v) => v.id === action.data.postId);
       if (post) {
-        // 댓글 삭제
         post.Comments = post.Comments.filter((c) => c.id !== action.data.commentId);
       }
       break;
@@ -226,6 +231,20 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.removeCommentLoading = false;
       draft.removeCommentError = action.error;
       break;      
+    case UPDATE_COMMENT_REQUEST:
+      draft.updateCommentLoading = true;
+      draft.updateCommentDone = false;
+      draft.updateCommentError = null;
+      break;
+    case UPDATE_COMMENT_SUCCESS:
+      draft.updateCommentLoading = false;
+      draft.updateCommentDone = true;
+      draft.mainPosts.find((v) => v.id === action.data.PostId).content = action.data.content;
+      break;
+    case UPDATE_COMMENT_FAILURE:
+      draft.updateCommentLoading = false;
+      draft.updateCommentError = action.error;
+      break;
 
     case UPLOAD_IMAGES_REQUEST:
       draft.uploadImagesLoading = true;
