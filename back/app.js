@@ -51,22 +51,16 @@ app.use(passport.initialize()); // 인증처리 라이브러리 초기화
 app.use(passport.session()); //사용자 인증상태 저장
 
 //TEST
-<<<<<<< HEAD
 app.get('/', (req, res)=>{res.send('Express Test');});
-<<<<<<< HEAD
 app.use('/api', (req,res)=>{res.send('Link Test')});
 //app.use('/detail' , detail);
 app.use('/user' , user );
-=======
 app.get('/api', (req,res)=>{res.send('Link Test')});
 // app.use('/api/schedule', scheduleRouter); //캘린더 테스트용 코드
-app.use('/detail' , detail);
->>>>>>> 6712fc9 (WIP: 로컬 변경사항 저장)
-=======
+// app.use('/detail' , detail);
 app.get('/', (req, res) => { res.send('Express Test'); });
 app.use('/api', (req, res) => { res.send('Link Test') });
-//app.use('/detail' , detail);
->>>>>>> 8c940c422d3be339981965259287fb24bd54b7ac
+//app.use('/detail' , detail);node
 
 app.use('/post', post);
 app.use('/posts', posts);
