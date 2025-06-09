@@ -22,7 +22,19 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    isDeleted:{
+      type:DataTypes.BOOLEAN,
+      allowNull:false,
+      defaultValue: false,
+    },
+    deleteAt:{
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    }
   }, {
+   // paranoid: true, // 소프트 삭제 활성화
+    //timestamps: true, // createdAt, updatedAt, deletedAt 자동 생성
     charset: 'utf8',
     collate: 'utf8_general_ci'
   });

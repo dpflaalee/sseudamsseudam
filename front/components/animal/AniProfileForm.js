@@ -3,12 +3,15 @@ import { Input, Button, Select } from 'antd';
 import { useDispatch } from 'react-redux';
 import { addAniProfile } from '@/reducers/animal';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 
 const { Option } = Select;
 
 const categoryOptions = [
-  '강아지', '고양이', '햄스터', '파충류', '해수어',
-  '담수어', '기니피그', '고슴도치', '패럿'
+  { id: 1, name: '강아지' },
+  { id: 2, name: '고양이' },
+  { id: 3, name: '햄스터' },
+  { id: 4, name: '파충류' },
 ];
 
 const AniProfileForm = () => {
@@ -19,9 +22,9 @@ const AniProfileForm = () => {
   const [form, setForm] = useState({
     aniName: '',
     aniAge: '',
-    category: '',
-    aniProfile: '',
     previewUrl: '',
+    file: null,
+    categoryId: null,
   });
 
   const onClickImageUpload = useCallback(() => {
@@ -36,8 +39,8 @@ const AniProfileForm = () => {
     reader.onloadend = () => {
       setForm((prev) => ({
         ...prev,
-        aniProfile: reader.result,
-        previewUrl: reader.result,
+        aniProfile: file,
+        previewUrl: URL.createObjectURL(file),                     
       }));
     };
     reader.readAsDataURL(file);
@@ -54,29 +57,39 @@ const AniProfileForm = () => {
   const handleCategoryChange = (value) => {
     setForm((prev) => ({
       ...prev,
-      category: value,
+      categoryId: value,
     }));
   };
 
-  const handleSubmit = () => {
-    if (!form.aniProfile) {
-      alert('이미지를 업로드하세요!');
-      return;
+  const handleSubmit = async() => {
+    
+    const formData = new FormData();
+    formData.append('aniName', form.aniName);
+    formData.append('aniAge', form.aniAge);
+    formData.append('categoryId', form.categoryId);
+    formData.append('aniProfile', form.aniProfile); // 파일 전송
+
+    try {
+      const res = await axios.post('/animal/animalform', formData); // 서버에 프로필 등록 요청
+      const newAnimalId = res.data.id;
+      router.push(`/animal/${newAnimalId}`); // 상세 페이지로 이동
+    } catch (error) {
+      console.error('프로필 등록 중 오류:', error);
+      alert('등록 중 오류가 발생했습니다.');
     }
-    console.log('제출할 데이터',form);
-    dispatch(addAniProfile(form));
-    router.push('/animal/AniProfile');
   };
 
   return (
-    <div style={{
-      width: 300,
-      margin: 'auto',
-      padding: 20,
-      border: '1px solid #ddd',
-      borderRadius: 10,
-      textAlign: 'center',
-    }}>
+    <div
+      style={{
+        width: 300,
+        margin: 'auto',
+        padding: 20,
+        border: '1px solid #ddd',
+        borderRadius: 10,
+        textAlign: 'center',
+      }}
+    >
       {form.previewUrl ? (
         <img
           src={form.previewUrl}
@@ -90,14 +103,16 @@ const AniProfileForm = () => {
           }}
         />
       ) : (
-        <div style={{
-          width: 80,
-          height: 80,
-          borderRadius: '50%',
-          backgroundColor: '#111',
-          margin: 'auto',
-          marginBottom: 10,
-        }} />
+        <div
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            backgroundColor: '#111',
+            margin: 'auto',
+            marginBottom: 10,
+          }}
+        />
       )}
 
       <Input
@@ -113,17 +128,19 @@ const AniProfileForm = () => {
         value={form.aniAge}
         onChange={handleChange}
         placeholder="나이"
-        min='0'
+        min="0"
         style={{ marginBottom: 10 }}
       />
       <Select
         placeholder="동물 종"
-        value={form.category}
+        value={form.categoryId}
         onChange={handleCategoryChange}
         style={{ width: '100%', marginBottom: 10 }}
       >
         {categoryOptions.map((option) => (
-          <Option key={option} value={option}>{option}</Option>
+          <Option key={option.id} value={option.id}>
+            {option.name}
+          </Option>
         ))}
       </Select>
 
@@ -137,7 +154,9 @@ const AniProfileForm = () => {
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <Button onClick={onClickImageUpload}>사진</Button>
-        <Button type="primary" onClick={handleSubmit}>프로필 등록하기</Button>
+        <Button type="primary" onClick={handleSubmit}>
+          프로필 등록하기
+        </Button>
       </div>
     </div>
   );

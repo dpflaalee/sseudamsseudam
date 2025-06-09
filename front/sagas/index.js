@@ -6,6 +6,8 @@ import complainSaga from './complain';
 import userSaga from './user';
 import notificationSaga from './notification';
 import animalSaga from './animal';
+import prizeSaga from './prize';         
+import myPrizeSaga from './myPrize';    
 import groupSaga from './group';
 
 axios.defaults.baseURL = 'http://localhost:3065';
@@ -18,7 +20,8 @@ export default function* rootSaga() {
     fork(userSaga),
     fork(notificationSaga),
     fork(animalSaga),
-    fork(groupSaga)
-
+    fork(groupSaga),
+    fork(prizeSaga),       
+    fork(myPrizeSaga),     
   ]);
 }

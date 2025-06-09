@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Input, Button, Avatar } from 'antd';
 import Link from 'next/Link';
 import PostCard from '../post/PostCard';
-import Profile from '../Profile';
+import Profile from '../user/Profile';
 import GroupDropDown from '../groups/GroupDropdown';
 import GroupList from '../groups/GroupList';
 
