@@ -25,8 +25,8 @@ const EventScheduleList = () => {
 
   const handleAddEvent = () => router.push('/schedule/regischedule');
   const handleChangeEvent = (id) => {
-  router.push(`/schedule/editschedule?id=${id}`); // 쿼리파라미터로 보냄
-};
+    router.push(`/schedule/editschedule?id=${id}`);
+  };
 
   const fetchSchedules = async () => {
     try {
@@ -44,6 +44,20 @@ const EventScheduleList = () => {
     } catch (error) {
       console.error('일정 불러오기 실패:', error);
       message.error('일정 데이터를 불러오지 못했습니다.');
+    }
+  };
+
+  const handleDeleteEvent = async (id) => {
+    try {
+      // DB에서 일정 삭제
+      await axios.delete(`http://localhost:3065/calendar/${id}`);
+      message.success('이벤트가 삭제되었습니다.');
+
+      // 화면에서 삭제된 이벤트 반영
+      setSchedules(prevSchedules => prevSchedules.filter(schedule => schedule.id !== id));
+    } catch (error) {
+      console.error('이벤트 삭제 실패:', error);
+      message.error('이벤트 삭제에 실패했습니다.');
     }
   };
 
@@ -125,7 +139,7 @@ const EventScheduleList = () => {
                 }}
               >
                 <Button type="primary" onClick={() => handleChangeEvent(schedule.id)}>이벤트 수정</Button>
-                <Button>이벤트 삭제</Button>
+                <Button onClick={() => handleDeleteEvent(schedule.id)}>이벤트 삭제</Button>
               </div>
             </div>
             <span style={dateView}>{schedule.content}</span>

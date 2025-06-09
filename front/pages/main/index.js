@@ -8,7 +8,7 @@ import PostForm from '@/components/post/PostForm';
 import Comment from '@/components/comment/Comment';
 import Profile from '@/components/user/Profile';
 import NotificationButton from "@/components/notifications/NotificationButton";
-import { LOAD_POSTS_REQUEST } from '@/reducers/post'; 
+import { LOAD_POSTS_REQUEST } from '@/reducers/post';
 import AnimalList from '@/components/animal/AnimalList';
 //// import 수정
 const Home = () => {
@@ -49,7 +49,7 @@ const Home = () => {
 
   return (
     <AppLayout>
-      <AnimalList animals={userAnimals}/>
+      <AnimalList animals={userAnimals} />
       {user && <PostForm />}
       {mainPosts.map((c) => {
         return (

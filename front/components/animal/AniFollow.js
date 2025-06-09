@@ -12,6 +12,11 @@ import {
   ANIUNFOLLOW_REQUEST,
 } from "@/reducers/animal";
 
+// 알림
+import { ADD_NOTIFICATION_REQUEST } from "@/reducers/notification";
+import NOTIFICATION_TYPE from "../../../shared/constants/NOTIFICATION_TYPE";
+// E 알림
+
 const { TabPane } = Tabs;
 
 const AniFollow = () => {
@@ -36,6 +41,15 @@ const AniFollow = () => {
         type: ANIUNFOLLOW_REQUEST,
         data: { targetAnimalId: Number(targetAnimalId), myAnimalId: Number(id) },
       });
+      // dispatch({
+      //   type: ADD_NOTIFICATION_REQUEST,
+      //   data: {
+      //     notiType: NOTIFICATION_TYPE.ANIMAL_FRIENDS,
+      //     SenderId: id,
+      //     RecieverId: targetAnimalId?.User.id,
+      //     targetId: targetAnimalId
+      //   }
+      // });
     } else {
       dispatch({
         type: ANIFOLLOW_REQUEST,
@@ -53,7 +67,7 @@ const AniFollow = () => {
   }, [id]);
   useEffect(() => {
   }, [recommendedAnimals]);
-  
+
   const renderList = (data, isLoading, emptyMessage) => {
     if (isLoading) return <Spin />;
     if (!data || data.length === 0) {
@@ -63,7 +77,7 @@ const AniFollow = () => {
         </div>
       );
     }
-  
+
     return (
       <List
         itemLayout="horizontal"
@@ -72,8 +86,8 @@ const AniFollow = () => {
           <List.Item
             actions={[
               <Button key="friend" type={item.isFollowing ? "default" : "primary"}
-              danger={item.isFollowing}
-              onClick={() => handleFollowToggle(item.id, item.isFollowing)}>
+                danger={item.isFollowing}
+                onClick={() => handleFollowToggle(item.id, item.isFollowing)}>
                 {item.isFollowing ? "친구" : "친구 맺기"}
               </Button>,
             ]}
@@ -87,8 +101,8 @@ const AniFollow = () => {
                 )
               }
               title={item.aniName || '이름 없음'}
-              />
-            </List.Item>
+            />
+          </List.Item>
         )}
       />
     );

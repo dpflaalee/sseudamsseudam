@@ -1,12 +1,12 @@
-const express =  require('express');
+const express = require('express');
 const router = express.Router();
 
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');  // file system
 
-const{Op, Sequelize} = require('sequelize');
-const { Animal, User , Category } = require('../models');
+const { Op, Sequelize } = require('sequelize');
+const { Animal, User, Category } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 const category = require('../models/category');
 const animal = require('../models/animal');
@@ -15,30 +15,29 @@ const user = require('../models/user');
 //폴더
 try {
   fs.accessSync('animalProfile');
-}catch(error){
+} catch (error) {
   console.log('animalProfile 폴더가 없으면 생성합니다');
   fs.mkdirSync('animalProfile');
 }
 
 //1. 업로드 설정
 const upload = multer({
-  storage: multer.diskStorage({ 
+  storage: multer.diskStorage({
     destination(req, file, done) {  // 지정경로
-      done(null,  'animalProfile');  //지정경로 지정 - 콜백  
+      done(null, 'animalProfile');  //지정경로 지정 - 콜백  
     },
     filename(req, file, done) {  // 업로드된 파일이름 지정
-      const ext      = path.extname(file.originalname);       
+      const ext = path.extname(file.originalname);
       const basename = 'ani_' + Date.now() + ext;
       done(null, basename);
     },
   }),
-  limits : { fileSize: 20*1024*1024 }   // 10MB
+  limits: { fileSize: 20 * 1024 * 1024 }   // 10MB
 });
 
 //1. 프로필 생성
 router.post('/animalform', isLoggedIn, upload.single('aniProfile'), async (req, res, next) => {
-  try{
-    req.user = {id: 1};
+  try {
     const animal = await Animal.create({
       aniName: req.body.aniName,
       aniAge: req.body.aniAge,
@@ -47,7 +46,7 @@ router.post('/animalform', isLoggedIn, upload.single('aniProfile'), async (req, 
       CategoryId: req.body.categoryId,
     });
     res.status(201).json(animal);
-  } catch(error){
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: '서버 에러 발생', error });
     next(error);
@@ -98,23 +97,23 @@ router.get('/:animalId', async (req, res, next) => {
 
 //3. 프로필 삭제
 router.delete('/:animalId', isLoggedIn, async (req, res, next) => {
-  try { 
-      const deleted = await Animal.destroy({   
-        where: {
-          id: req.params.animalId,    // 삭제하려는 프로필id
-          //UserId : req.user.id   // 프로필소유한 유저
-        }
-      }); 
-      
-      // if (deleted === 0) {
-      //   return res.status(403).json({ message: '권한이 없습니다.' });
-      // }
-      
-      res.status(200).json({ animalId: parseInt(req.params.animalId, 10), deleted });
-    } catch (error) { 
-      console.error(error);
-      next(error);
-    }
+  try {
+    const deleted = await Animal.destroy({
+      where: {
+        id: req.params.animalId,    // 삭제하려는 프로필id
+        //UserId : req.user.id   // 프로필소유한 유저
+      }
+    });
+
+    // if (deleted === 0) {
+    //   return res.status(403).json({ message: '권한이 없습니다.' });
+    // }
+
+    res.status(200).json({ animalId: parseInt(req.params.animalId, 10), deleted });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 //4. 프로필 수정
@@ -131,8 +130,8 @@ router.patch('/:animalId', isLoggedIn, async (req, res, next) => {
         UserId: req.user.id,
       },
     });
-    res.status(200).json({animalId: req.params.animalId});
-  }catch(error){
+    res.status(200).json({ animalId: req.params.animalId });
+  } catch (error) {
     console.log(error);
     next(error);
   }
@@ -160,7 +159,7 @@ router.patch('/:animalId/follow', isLoggedIn, async (req, res, next) => {
 router.delete('/:animalId/follow', isLoggedIn, async (req, res, next) => {
   try {
     const targetAnimal = await Animal.findByPk(req.params.animalId);
-    const followerAnimal = await Animal.findByPk(Number(req.body.myAnimalId)); 
+    const followerAnimal = await Animal.findByPk(Number(req.body.myAnimalId));
 
     if (!targetAnimal || !followerAnimal) {
       return res.status(404).send('해당 동물 프로필을 찾을 수 없습니다.');
@@ -217,7 +216,7 @@ router.get('/:animalId/recommendations', async (req, res, next) => {
         },
       },
       limit: 5,
-      order: [ [Sequelize.literal('RAND()')] ], // 랜덤 추천
+      order: [[Sequelize.literal('RAND()')]], // 랜덤 추천
       attributes: ['id', 'aniName', 'aniProfile']
     });
 
@@ -229,7 +228,7 @@ router.get('/:animalId/recommendations', async (req, res, next) => {
 });
 
 router.get('/myanimals', isLoggedIn, async (req, res) => {
-  const animals = await Animal.findAll({ where: { UserId: req.user.id }});
+  const animals = await Animal.findAll({ where: { UserId: req.user.id } });
   res.json(animals);
 });
 // //9. 동물 프로필 상세 보기

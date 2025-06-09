@@ -1,7 +1,7 @@
 const { User, Post, Prize, Animal, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const cron = require('node-cron');
-
+ 
 // 매주 월요일 9시에 실행
 cron.schedule('0 9 * * 1', async () => {
   console.log('🎁 랜덤박스 자동 지급 시작:', new Date());

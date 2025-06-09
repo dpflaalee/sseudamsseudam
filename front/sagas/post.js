@@ -27,6 +27,9 @@ import {
   REMOVE_COMMENT_FAILURE,
   REMOVE_COMMENT_REQUEST,
   REMOVE_COMMENT_SUCCESS,
+  UPDATE_COMMENT_FAILURE,
+  UPDATE_COMMENT_REQUEST,
+  UPDATE_COMMENT_SUCCESS,  
 
   LOAD_HASHTAG_POSTS_FAILURE,
   LOAD_HASHTAG_POSTS_REQUEST,
@@ -157,7 +160,6 @@ function* addComment(action) {
     });
 
     // 알림 보내기
-    console.log('💥');
     yield put({
       type: ADD_NOTIFICATION_REQUEST,
       data: {
@@ -191,6 +193,26 @@ function* removeComment(action) {
     console.error(err);
     yield put({
       type: REMOVE_COMMENT_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function updateCommentAPI(data) {
+  return axios.patch(`/post/${data.postId}/comment`, data);
+}
+
+function* updateComment(action) {
+  try {
+    const result = yield call(updatePostAPI, action.data);
+    yield put({
+      type: UPDATE_COMMENT_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: UPDATE_COMMENT_FAILURE,
       error: err.response.data,
     });
   }
@@ -248,6 +270,9 @@ function* likePost(action) {
       type: LIKE_POST_SUCCESS,
       data: result.data,
     });
+    if (action.callback) {
+      yield call(action.callback);
+    }
   } catch (err) {
     console.error(err);
     yield put({
@@ -268,6 +293,9 @@ function* unlikePost(action) {
       type: UNLIKE_POST_SUCCESS,
       data: result.data,
     });
+    if (action.callback) {
+      yield call(action.callback);
+    }
   } catch (err) {
     console.error(err);
     yield put({
@@ -305,6 +333,10 @@ function* watchRemoveComment() {
   yield takeLatest(REMOVE_COMMENT_REQUEST, removeComment);
 }
 
+function* watchUpdateComment() {
+  yield takeLatest(UPDATE_COMMENT_REQUEST, updateComment);
+}
+
 function* watchLoadHashtagPosts() {
   yield throttle(5000, LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
 }
@@ -329,7 +361,8 @@ export default function* postSaga() {
     fork(watchUpdatePost),
     fork(watchRemovePost),
     fork(watchAddComment),
-    fork(watchRemoveComment), 
+    fork(watchRemoveComment),
+    fork(watchUpdateComment), 
     fork(watchLoadHashtagPosts),
     fork(watchLikePost),
     fork(watchUnlikePost),

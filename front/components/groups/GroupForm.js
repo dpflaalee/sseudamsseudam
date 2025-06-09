@@ -1,20 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import { Space, Form, Input, Select, Checkbox, Button, Typography, Card, message, } from 'antd';
+import axios from 'axios';
+import { Space, Form, Input, Select, Checkbox, Button, Typography, message, } from 'antd';
 
-const { Title } = Typography; const { TextArea } = Input; const { Option } = Select;
+const { TextArea } = Input; const { Option } = Select;
 
-//더미카테고리
-const categoryOptions = ['강아지', '고양이', '햄스터', '도마뱀', '뱀', '다묘', '다견'];
+const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => { 
+  const [form] = Form.useForm(); const router = useRouter(); const { groupId } = router.query;
+  const {createGroupLoading, updateGroupLoading, } = useSelector((state)=>state.group);
+  const [categoryOptions, setCategoryOptions]= useState([]);
 
-const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => { const [form] = Form.useForm();
+  const handleFinish = (values) => {
+    const categoryIds = values.categories;
+    const openScopeId = values.isPrivate? 2 : 1;
 
+    const playload = {title:values.title, content: values.content, categoryIds, openScopeId};
+    onFinish(mode==='edit'?{...playload, groupId} : playload);
+
+    //if(mode==='edit'){ onSubmit({...playload, groupId});  //수정모드
+    //} else{ onSubmit(playload); } //생성모드 
+  } 
+
+  useEffect(()=>{
+    const fetchCategories = async()=>{
+      try{
+        const res = await axios.get('/categories');
+        setCategoryOptions(res.data);
+      }catch(err){console.error('카테고리 로드 실패:', err); message.error('카테고리를 불러오지 못했습니다.');}
+    };
+    fetchCategories();
+  }, []);
+/////////////////////////////////////////////////////////////////////////////
   return (
     <Form
       form={form}
       layout="vertical"
-      onFinish={onFinish}
-      initialValues={{ title: '', categories: [], description: '', isPrivate: false,  ...initialValues, }}
+      onFinish={handleFinish}
+      initialValues={{ title: '', categories: [], content: '', isPrivate: false,  ...initialValues, }}
     >
       <Form.Item
         label="그룹명"
@@ -30,17 +53,15 @@ const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => { const
         rules={[{ required: true, message: '카테고리를 하나 이상 선택해주세요.' }]}
       >
         <Select mode="multiple" placeholder="카테고리를 선택하세요">
-          {categoryOptions.map((cat) => (
-            <Option key={cat} value={cat}>
-              {cat}
-            </Option>
+          {categoryOptions.map((cat)=>(
+            <Option key={cat.id} value={cat.id}> {cat.content} </Option>
           ))}
         </Select>
       </Form.Item>
 
       <Form.Item
         label="소개 및 규칙"
-        name="description"
+        name="content"
         rules={[{ required: true, message: '소개 및 규칙을 입력해주세요.' }]}
       >
         <TextArea rows={5} placeholder="그룹 소개 및 규칙을 입력하세요" />
@@ -52,8 +73,8 @@ const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => { const
 
       <Form.Item>
         <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button onClick={() => router.back()}>취소</Button>
-          <Button type="primary" htmlType="submit">
+          <Button onClick={() => router.back('/groups')}>취소</Button>
+          <Button type="primary" htmlType="submit" loading={mode === 'edit' ? updateGroupLoading : createGroupLoading}>
             {mode === 'edit' ? '그룹 수정' : '그룹 생성'}
           </Button>
         </Space>
