@@ -5,11 +5,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
-    updateAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    },
     issuedReason: {
       type: DataTypes.STRING(100),
       allowNull: false
@@ -34,7 +29,10 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   //관계 설정
-  
+  MyPrize.associate = (db) => {
+    db.MyPrize.belongsTo(db.User, { foreignKey: 'UserId', as: 'user' });
+    db.MyPrize.belongsTo(db.Prize, { foreignKey: 'PrizeId', as: 'prize' });
+  };
 
   return MyPrize;
 };
