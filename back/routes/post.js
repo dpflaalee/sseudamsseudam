@@ -217,6 +217,44 @@ router.delete('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) 
   }
 });
 
+router.patch('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) => {
+  try {
+    const { postId, commentId } = req.params;
+    const { content } = req.body;
+
+    // 댓글 존재 확인 및 권한 체크
+    const comment = await Comment.findOne({
+      where: {
+        id: commentId,
+        PostId: postId,
+        UserId: req.user.id,  // 로그인한 사용자만 수정 가능
+      }
+    });
+
+    if (!comment) {
+      return res.status(404).send('댓글이 없거나 권한이 없습니다.');
+    }
+
+    // 댓글 내용 업데이트
+    await Comment.update(
+      { content },
+      { where: { id: commentId } }
+    );
+
+    // 수정된 댓글 조회 (작성자 정보 포함)
+    const updatedComment = await Comment.findOne({
+      where: { id: commentId },
+      include: [{ model: User, attributes: ['id', 'nickname'] }]
+    });
+
+    res.status(200).json(updatedComment);
+
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 // 좋아요 추가
 router.patch('/:postId/like', isLoggedIn, async (req, res, next) => {
   try {

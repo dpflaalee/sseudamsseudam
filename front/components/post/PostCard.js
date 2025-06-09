@@ -10,7 +10,6 @@ import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import PostCardContent from './PostCardContent';
 
-
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
 
@@ -21,7 +20,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const dispatch = useDispatch();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const onClickUpdate = useCallback(() => { setEditMode(true); },[]);
   const onCancelUpdate = useCallback(() => { setEditMode(false); },[]);
   const onEditPost = useCallback((editText) => () => {
     dispatch({
