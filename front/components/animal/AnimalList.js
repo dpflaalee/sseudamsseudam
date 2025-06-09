@@ -6,8 +6,9 @@ import AniProfile from '@/pages/animal/AniProfile';
 
 const AnimalList = ({ animals }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   // const { animals } = useSelector((state) => state.animal);
-  const imageBaseUrl = 'http://localhost:3065/uploads/animalProfile'; 
+  const imageBaseUrl = 'http://localhost:3065/uploads/animalProfile';
 
   const handleClick = (id) => {
     router.push(`/animal/${id}`);
@@ -24,7 +25,7 @@ const AnimalList = ({ animals }) => {
           <Avatar
             size={64}
             src={ani.aniProfile ? `${imageBaseUrl}/${ani.aniProfile}` : undefined}
-            style={{ backgroundColor: '#ddd' ,  margin: 10}}
+            style={{ backgroundColor: '#ddd', margin: 10 }}
           />
           <div style={{ marginTop: 8 }}>{ani.aniName}</div>
         </div>

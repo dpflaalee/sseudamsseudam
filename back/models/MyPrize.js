@@ -1,10 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
   const MyPrize = sequelize.define('MyPrize', {
-    createAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    },
     issuedReason: {
       type: DataTypes.STRING(100),
       allowNull: false
@@ -25,11 +20,14 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     charset: 'utf8',
     collate: 'utf8_general_ci',
-    timestamps: false
+    //timestamps: false
   });
 
-  //관계 설정
-  
+  // //관계 설정
+  // MyPrize.associate = (db) => {
+  //   db.MyPrize.belongsTo(db.User, { foreignKey: 'UserId', as: 'user' });
+  //   db.MyPrize.belongsTo(db.Prize, { foreignKey: 'PrizeId', as: 'prize' });
+  // };
 
   return MyPrize;
 };

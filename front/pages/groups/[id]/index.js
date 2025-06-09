@@ -15,11 +15,12 @@ const GroupMain = () => {
   const {id:groupId}=router.query;
   const {mainPosts}=useSelector((state)=>state.post); //그룹별 게시물
   const [activeTab, setActiveTab] = useState("timeline");
+  const {group} = useSelector((state)=>state.group)
   
   const isLeader = true; //방장 테스트용
 
   return (
-    <AppLayout>
+    <AppLayout group={group}>
       <GroupHeader groupId={groupId}  activeTab={activeTab} setActiveTab={setActiveTab} isLeader={isLeader} />
       {activeTab === "timeline" && (<>
         <PostForm groupId={groupId} isGroup />
