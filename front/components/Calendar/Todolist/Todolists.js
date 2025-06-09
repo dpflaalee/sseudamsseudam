@@ -21,7 +21,6 @@ const gridStyle = {
   width: '100%',
   textAlign: 'left',
   cursor: 'pointer',
-  // boxShadow: '0 0 0 0', //호버 섀도우 없애기
 };
 
 const gridbar = {
@@ -35,12 +34,23 @@ const gridbar = {
 };
 
 const dateView = {
+  //marginLeft: '0px', //일자가 이상하게 나옴
   color: '#807E7E',
 };
 
 const CardTitle = styled.span`
   padding: 0px !important;
   width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start; /* 왼쪽 정렬 */
+`;
+
+const EventLabel = styled.span`
+  color: #FC5185; // 마젠타 색상
+  font-weight: bold;
+  margin-right: 5px;
+  display: inline; /* 인라인 요소로 처리 */
 `;
 
 const Todolists = () => {
@@ -88,9 +98,15 @@ const Todolists = () => {
         >
           {events.map(event => (
             <Card.Grid style={gridStyle} key={event.id}>
-              {event.title}
-              <span style={dateView}><br />
-                {formatRange(event.startDate, event.endDate)}</span>
+              <CardTitle>
+                {/* '챌린지'라는 단어가 포함된 경우 'EVENT!' 표시 */}
+                {event.title.includes('챌린지') && (
+                  <EventLabel>EVENT!</EventLabel> //글자 이상하게 나옴 수정 필요
+                )}
+                {event.title}
+                <span style={dateView}><br />
+                  {formatRange(event.startDate, event.endDate)}</span>
+              </CardTitle>
             </Card.Grid>
           ))}
 
