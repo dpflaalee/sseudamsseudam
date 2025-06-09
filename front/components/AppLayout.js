@@ -50,10 +50,6 @@ const AppLayout = ({ children }) => {
             {/* 메인컨텐츠 상단고정영역추가 */}
             <ContentHeader />
             {children}
-            <EventScheduleForm />
-            <EventScheduleList />
-            <EventScheduleChange />
-            <EventScheduleManage />
           </ColWithOrder>
 
           {/* Right Sidebar */}
