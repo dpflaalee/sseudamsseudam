@@ -23,7 +23,6 @@ function* loadNotification(action) {
         });
     } catch (err) {
         console.log('🚨 notificaionSaga : loadNotification : ', err);
-        next(err);
         yield put({
             type: LOAD_NOTIFICATION_FAILURE,
             error: err.response.data,

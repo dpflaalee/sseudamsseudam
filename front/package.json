@@ -8,7 +8,7 @@
   "author": "ssdam",
   "license": "ISC",
   "dependencies": {
-    "@ant-design/icons": "^5.6.1",
+    "@ant-design/icons": "^6.0.0",
     "@next/bundle-analyzer": "^15.3.3",
     "antd": "^4.24.16",
     "axios": "^1.9.0",
@@ -27,6 +27,7 @@
     "react-dom": "^18.3.1",
     "react-is": "^19.1.0",
     "react-redux": "^8.0.5",
+    "react-router-dom": "^7.6.2",
     "react-slick": "^0.30.3",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.8",
