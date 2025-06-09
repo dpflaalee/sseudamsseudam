@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import Notification from './Notification';
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 
 const NotificationButton = () => {
-    const [notifications, setNotifications] = useState([]);
+    const [mainNotification, setNotifications] = useState([]);
+    const sender = useSelector(state => state.user);
+    console.log('📑 sender', sender);
     const dispatch = useDispatch();
-    const dummyUser = {
-        id: 2,
-        nickname: 'Dan',
-        avatar: 'https://example.com/avatar.jpg',
-    };
+
 
     // 알림 타입별로 버튼 클릭 시 해당 알림을 추가하는 함수
     const handleNotificationClick = (notiType) => {
@@ -21,9 +19,9 @@ const NotificationButton = () => {
             type: ADD_NOTIFICATION_REQUEST,
             data: {
                 notiType: notiType,
-                senderId: dummyUser.id,
-                receiverId: 3,
-                targetId: 5,
+                SenderId: sender.user.id,
+                ReceiverId: sender.user.id,
+                targetId: 2,
             }
         });
     };
@@ -67,7 +65,7 @@ const NotificationButton = () => {
             </div>
 
             <div>
-                {notifications.map((noti, index) => (
+                {mainNotification.map((noti, index) => (
                     <Notification
                         key={index}
                         notiType={noti.notiType}

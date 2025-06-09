@@ -13,10 +13,15 @@ const morgan = require('morgan'); //요청상태 모니터
 const user = require('./routes/user');
 const post = require('./routes/post');
 const posts = require('./routes/posts');
+const hashtag = require('./routes/hashtag');
 const complain = require('./routes/complain');
 const admin = require('./routes/admin');
 const search = require('./routes/search');
 const notification = require('./routes/notification');
+const prize = require('./routes/prize');
+const randomBox = require('./routes/randomBox');
+const animal = require('./routes/animal');
+
 
 //환경설정
 dotenv.config();
@@ -56,11 +61,17 @@ app.use('/api', (req, res) => { res.send('Link Test') });
 
 app.use('/post', post);
 app.use('/posts', posts);
+app.use('/hashtag', hashtag);
 app.use('/user', user);
 app.use('/complain', complain);
 app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
+app.use('/prize', prize);
+app.use('/randomBox', randomBox);
+app.use('/animal', animal);
+app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
 
+require('./jobs/giveRandomBoxJob');
 
 app.listen(3065, () => { console.log('server...'); });

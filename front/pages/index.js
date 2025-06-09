@@ -1,60 +1,42 @@
-import 'antd/dist/antd.css';
-import React, { useEffect } from 'react';
-import AppLayout from '../components/AppLayout';
+import React from "react";
+import LoginForm from "../components/user/LoginForm";
+
 import { useDispatch, useSelector } from 'react-redux';
-import { Divider } from "antd";
-import PostCard from '@/components/post/PostCard';
-import PostForm from '@/components/post/PostForm';
-import Comment from '@/components/Comment/Comment';
-import Profile from '@/components/Profile';
-import NotificationButton from "@/components/notifications/NotificationButton";
-import { LOAD_POSTS_REQUEST } from '../reducers/post';
-//// import 수정
-const Home = () => {
-  const dispatch = useDispatch();
-  const { user } = useSelector(state => state.user);
-  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
-  const { mainComplainCard } = useSelector((state) => state.complain);
+import Router from 'next/router';
+import { LOAD_MY_INFO_REQUEST, SIGN_UP_REQUEST } from '../reducers/user';
+import axios from 'axios';  
+import { END } from 'redux-saga'; 
+import wrapper from '../store/configureStore';
 
-  useEffect(() => {
-    if (hasMorePosts && !loadPostsLoading) {
-      const lastId = mainPosts[mainPosts.length - 1]?.id;
-      dispatch({
-        type: LOAD_POSTS_REQUEST,
-        lastId,
-      })
-    }
-  }, [mainPosts, hasMorePosts, loadPostsLoading]);
+const login = () => { 
+    return (
+        <div
+             style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "100vh", // 화면 전체 높이 확보
+            }}
+        >
+            <LoginForm />
+        </div>
+    );
+};
 
-  useEffect(() => {
-    function onScroll() {
-      console.log(window.screenY, document.documentElement.clientHeight, document.documentElement.scrollHeight)
-      if (window.screenY + document.documentElement.clientHeight > document.documentElement.scrollHeight - 200) {
-        if (hasMorePosts && !loadPostsLoading) {
-          dispatch({
-            type: LOAD_POSTS_REQUEST,
-            data: mainPosts[mainPosts.length - 1]?.id,
-          })
-        }
-      }
-    }
-    window.addEventListener('scroll', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-    }
-  }, [mainPosts, hasMorePosts, loadPostsLoading]);
+///////////////////////////////////////////////////////////
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => { 
+  //1. cookie 설정
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  
+  if (context.req  && cookie ) { axios.defaults.headers.Cookie = cookie;   }
 
-  return (
-    <AppLayout>
-      {user && <PostForm />}
-      {mainPosts.map((c) => {
-        return (
-          <PostCard post={c} key={c.id} />
-        );
-      })}
+  //2. redux 액션
+  context.store.dispatch({ type:LOAD_MY_INFO_REQUEST});
+  //context.store.dispatch({ type: LOAD_POSTS_REQUEST });
+  context.store.dispatch(END);
 
-    </AppLayout>
-  );
-}
-
-export default Home;
+  await  context.store.sagaTask.toPromise();
+}); 
+///////////////////////////////////////////////////////////
+export default login;

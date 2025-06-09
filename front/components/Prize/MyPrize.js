@@ -102,7 +102,7 @@ const MyPrize = ({ openRandomModal }) => {
               </span>
               <br />
               <span style={{ color: "#888" }}>
-                쿠폰이 조기 마감될 수 있습니다. 사용에 유의 바랍니다.
+                쿠폰이 조기 마감될 수 있습니다. 사용에 유의 바랍니다. 
               </span>
             </Card>
           </Col>
@@ -111,5 +111,5 @@ const MyPrize = ({ openRandomModal }) => {
     </>
   );
 };
-
+// 0604
 export default MyPrize;

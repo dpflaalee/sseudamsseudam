@@ -1,52 +1,74 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Card, Avatar, Button, List, Popover, Modal, Input, Space, Select } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
 import PostImages from './PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
-import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST } from '@/reducers/post';
+import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST } from '@/reducers/post';
+import ComplainForm from '../complains/ComplainForm';
+import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
-const PostCard = ({post, isGroup=false}) => { // 그룹용 추가코드
-  const id = useSelector( state => state.user.user?.id );  
+
+import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
+import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
+
+const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
+  const id = useSelector(state => state.user.user?.id);
   const [open, setOpen] = useState(false);
   const { Option } = Select;
-  const dispatch = useDispatch();  
+  const dispatch = useDispatch();
   const [editModalVisible, setEditModalVisible] = useState(false);
 
   const [newContent, setNewContent] = useState(post.content);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const {removePostLoading , removePostDone} = useSelector( state => state.post )
+  const { removePostLoading, removePostDone } = useSelector(state => state.post)
 
   // 좋아요
-  const onClickLike = useCallback(() => { 
-    if (!id) {return alert('로그인을 하시면 좋아요 추가가 가능합니다.');}
-    return dispatch({
+  const onClickLike = useCallback(() => {
+    if (!id) { return alert('로그인을 하시면 좋아요 추가가 가능합니다.'); }
+    dispatch({
       type: LIKE_POST_REQUEST,
       data: post.id
     });
-  }, [id] );
+    dispatch({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.LIKE,
+        SenderId: id,
+        ReceiverId: post.User.id,
+        targetId: post.id,
+      }
+    });
+  }, [id]);
 
-  const onClickunLike = useCallback(() => { 
-    if (!id) {return alert('로그인을 하시면 좋아요 추가가 가능합니다.');}
+  const onClickunLike = useCallback(() => {
+    if (!id) { return alert('로그인을 하시면 좋아요 추가가 가능합니다.'); }
     return dispatch({
       type: UNLIKE_POST_REQUEST,
       data: post.id
     });
-  }, [id] );
+  }, [id]);
 
   const like = post.Likers?.find((v) => v.id === id);
 
   //수정
-  const openEditModal = () => {
+  const openEditModal = useCallback(() => {
     setEditModalVisible(true);
-  };
-  const closeEditModal = () => {
+  }, []);
+  const closeEditModal = useCallback(() => {
     setEditModalVisible(false);
-  };
-  const handleEditSubmit = () => {
-    // console.log('수정된 내용:', newContent);
+  }, []);
+  const handleEditSubmit = useCallback(() => {
+    if (newContent.trim() === post.content.trim()) {
+      return closeEditModal();
+    }
+    dispatch({
+      type: UPDATE_POST_REQUEST,
+      data: { PostId: post.id, content: newContent }
+    });
     setEditModalVisible(false);
-  };
+  }, [newContent, post, dispatch]);
 
   //삭제
   const openDeleteModal = () => {
@@ -55,20 +77,22 @@ const PostCard = ({post, isGroup=false}) => { // 그룹용 추가코드
   const closeDeleteModal = () => {
     setDeleteModalVisible(false);
   };
-  const handleDelete = () => {
-    console.log('게시물이 삭제되었습니다.');
-    setDeleteModalVisible(false);
-  };
+  const handleDelete = useCallback(() => {
+    dispatch({ 
+      type: REMOVE_POST_REQUEST,
+      data: post.id 
+    });  
+  },[]);
 
-  return(
-    <div style={{margin:'3%'}}>
+  return (
+    <div style={{ margin: '3%' }}>
       <Card
-        title={isGroup? `[그룹]${post.User?.nickname}`:post.User?.nickname} // 그룹용 추가코드
+        title={isGroup ? `[그룹]${post.User?.nickname}` : post.User?.nickname} // 그룹용 추가코드
         actions={[
           <RetweetOutlined key="retweet" />,
           like
             ? <span key="heart"><HeartTwoTone twoToneColor="#f00" onClick={onClickunLike} /> {post.Likers.length}</span>
-            : <span key="heart"><HeartOutlined onClick={onClickLike} /> {post.Likers.length}</span>,
+            : <span key="heart"><HeartOutlined onClick={onClickLike} /> {post?.Likers?.length}</span>,
           <span key="comment">
             <Link href={`/post/${post.id}`} passHref>
               <MessageOutlined /> {post.Comments?.length || 0}
@@ -76,33 +100,45 @@ const PostCard = ({post, isGroup=false}) => { // 그룹용 추가코드
           </span>,
           <Popover content={(
             <Button.Group>
-                <>
+              <>
                 <Button onClick={openEditModal}>수정</Button>
                 <Button type="danger" onClick={openDeleteModal}>삭제</Button>
-                </>
-                <>
+              </>
+              <>
                 <Button onClick={() => setOpen(true)}>신고하기</Button>
-                </>
+              </>
             </Button.Group>
           )}>
-            <EllipsisOutlined />
+            < EllipsisOutlined />
           </Popover>
         ]}
       >
+        {/* 신고 모달 */}
+        {open && (
+          <ComplainForm
+            open={open}
+            targetId={post.id}
+            TARGET_TYPE={TARGET_TYPE.POST}
+            targetUserNickname={post.User?.nickname}
+            onClose={() => setOpen(false)}
+          />
+        )}
+        {/* E 신고 모달 */}
+
         <Card.Meta avatar={<Avatar></Avatar>}
-                   title={post.User ? post.User.nickname : 'Unknown'} 
-                    description={
-                    post.meta && post.meta.createdAt
-                      ? new Date(post.meta.createdAt).toLocaleString()
-                      : null
-                    }
-                   style={{ marginBottom: 16 }}
+          title={post.User ? post.User.nickname : 'Unknown'}
+          description={
+            post.meta && post.meta.createdAt
+              ? new Date(post.meta.createdAt).toLocaleString()
+              : null
+          }
+          style={{ marginBottom: 16 }}
         />
         <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>
-        {post.content}
+          {post.content}
         </div>
         {post.Images && post.Images.length > 0 && <PostImages images={post.Images} />}
-      </Card>
+      </Card >
 
       <Modal
         visible={editModalVisible}
@@ -112,7 +148,7 @@ const PostCard = ({post, isGroup=false}) => { // 그룹용 추가코드
         width={600}
       >
         <div style={{ display: 'flex', marginBottom: 16 }}>
-          <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px'}}>게시물 수정</span>
+          <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px' }}>게시물 수정</span>
           <Space>
             <Select defaultValue="public" style={{ width: 120 }}>
               <Option value="public">전체공개</Option>
@@ -123,12 +159,12 @@ const PostCard = ({post, isGroup=false}) => { // 그룹용 추가코드
         </div>
 
         <Input.TextArea
-          // value={newContent}
+          value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
           rows={4}
           placeholder="내용을 수정하세요"
         />
-        
+
         <div style={{ marginTop: 16, textAlign: 'right' }}>
           <Button onClick={handleEditSubmit} type="primary">
             수정 완료
@@ -144,11 +180,13 @@ const PostCard = ({post, isGroup=false}) => { // 그룹용 추가코드
         cancelText="취소"
         cancelButtonProps={{ danger: true }}
       >
-      <p>이 게시물을 정말 삭제하시겠습니까?</p>
+        <p>이 게시물을 정말 삭제하시겠습니까?</p>
       </Modal>
 
-    </div>
-  ); 
+    </div >
+  );
 };
+
+PostCard.propTypes = { post: PropTypes.object.isRequired };
 
 export default PostCard;

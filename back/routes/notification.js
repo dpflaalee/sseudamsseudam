@@ -15,57 +15,74 @@ router.post('/', async (req, res, next) => {
         const notification = await Notification.create({
             type: req.body.notiType,
             targetId: req.body.targetId,
-            SenderId: req.body.senderId,
-            ReceiverId: req.body.receiverId,
+            SenderId: req.body.SenderId,
+            ReceiverId: req.body.ReceiverId,
         });
 
-        res.status(201).json(notification);
+        const fullNotification = await Notification.findOne({
+            where: { id: notification.id },
+            include: [
+                { model: User, as: 'Sender', attributes: ['id', 'nickname'] },
+                { model: User, as: 'Receiver', attributes: ['id', 'nickname'] },
+            ],
+        });
+
+        res.status(201).json(fullNotification);
     } catch (err) {
         console.error('🚨 알림 생성 중 에러:', err);
+        console.error('🔍 Sequelize Validation Errors:', err.errors?.map(e => e.message));
         res.status(500).send('알림 실패');
     }
 });
 
 
-// 알림 보내기
-router.get('', async (req, res, next) => {
-    // targetId종류 : 유저, 포스트, 댓글, 랜덤박스, 그룹, 관리자(포스트), 동물 프로필
+// 알림 보기
+router.get('/', async (req, res, next) => {
     try {
-        switch (notiType) {
-            case RETWEET:
-                const targetRetweet = await Post.findOne({ where: { retweetId: targetId } });
-                break;
-            case COMMENT:
-                const targetComment = await Comment.findOne({ where: { id: targetId } });
-                break;
-            case LIKE:
-                const targetLike = await Post.findOne({ where: { id: targetId } });
-                break;
-            case REPLY:
-                const targetRecommnet = await Comment.findOne({ where: { recommenetId: targetId } });
-                break;
-            case RANDOMBOX:
-                const targetRandomBox = await Randombox.findOne({ where: { id: targetId } });
-                break;
-            case GROUPAPPLY:
-                const targetGroup = await Group.findOne({ where: { id: targetId } });
-                break;
-            case GROUPAPPLY_APPROVE:
-                const targetGroup_approve = await Group.findOne({ where: { id: targetId } });
-                break;
-            case GROUPAPPLY_REJECT:
-                const targetGroup_reject = await Group.findOne({ where: { id: targetId } });
-                break;
-            case ADMIN_NOTI:
-                const targetAdminNoti = await Post.findOne({ where: { id: targetId } })
-                break;
-        }
+        const notifications = await Notification.findAll({
+            where: { ReceiverId: req.query.userId },
+            include: [
+                { model: User, as: 'Sender', attributes: ['id', 'nickname'] },
+                { model: User, as: 'Receiver', attributes: ['id', 'nickname'] },
+            ],
+            order: [['createdAt', 'DESC']], // 최신순 정렬
+        });
 
+        res.status(200).json(notifications);
     } catch (err) {
-        console.error('🚨 searchRouter : ', err);
-        res.status(500).send('알림 실패');
+        console.error('🚨 알림 조회 중 에러:', err);
+        res.status(500).send('알림 조회 실패');
     }
-
 });
+
+// 알림 읽음 처리
+// 전체 알림 읽음 처리
+router.patch('/readAll', async (req, res, next) => {
+    try {
+        await Notification.update(
+            { isRead: true },
+            { where: { ReceiverId: req.body.userId } }
+        );
+        res.status(200).json({ message: '모든 알림 읽음 처리 완료' });
+    } catch (err) {
+        console.error('🚨 전체 읽음 처리 에러:', err);
+        res.status(500).send('전체 읽음 처리 실패');
+    }
+});
+
+// 알림 삭제
+// 알림 삭제
+router.delete('/:id', async (req, res, next) => {
+    try {
+        await Notification.destroy({
+            where: { id: req.params.id },
+        });
+        res.status(200).json({ message: '알림 삭제 완료', id: req.params.id });
+    } catch (err) {
+        console.error('🚨 알림 삭제 중 에러:', err);
+        res.status(500).send('알림 삭제 실패');
+    }
+});
+
 
 module.exports = router;

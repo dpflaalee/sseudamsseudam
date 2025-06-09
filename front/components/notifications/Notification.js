@@ -1,19 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Avatar } from 'antd';
-import { HeartFilled, RetweetOutlined, MessageOutlined, UserAddOutlined, NotificationOutlined, GiftOutlined, TeamOutlined, CrownFilled } from '@ant-design/icons';
-import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
+import { useDispatch, useSelector } from 'react-redux';
 
-const Container = styled.div`
-  display: flex;
-  padding: 16px;
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  transition: background 0.2s;
-  &:hover {
-    background: #f9f9f9;
-  }
-`;
+import { List, Avatar } from "antd";
+import { HeartFilled, RetweetOutlined, MessageOutlined, UserAddOutlined, NotificationOutlined, GiftOutlined, TeamOutlined, CrownFilled, CloseOutlined } from '@ant-design/icons';
+import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
 
 const IconWrapper = styled.div`
   font-size: 20px;
@@ -35,9 +26,33 @@ const Description = styled.div`
   font-size: 14px;
 `;
 
-const Notification = ({ notiType, sender, target }) => {
-  const renderIcon = () => {
-    switch (notiType) {
+const Container = styled.div`
+  display: flex;
+  padding: 16px;
+  background: ${(props) => (props.isRead ? '#fff' : '#e6f7ff')}; // 읽지 않은 알림은 파란 배경
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s;
+  &:hover {
+    background: #f0f0f0;
+  }
+`;
+
+const DeleteButton = styled.button`
+  border: none;
+  background: transparent;
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  &:hover {
+    color: #ff4d4f;
+  }
+`;
+const Notification = ({ noti, onDelete }) => {
+  console.log('🔍 noti 전체:', noti);
+
+
+  const renderIcon = (type) => {
+    switch (type) {
       case NOTIFICATION_TYPE.LIKE:
         return <HeartFilled style={{ color: 'hotpink' }} />;
       case NOTIFICATION_TYPE.RETWEET:
@@ -66,7 +81,10 @@ const Notification = ({ notiType, sender, target }) => {
   };
 
   // 알림 유형에 맞는 텍스트 내용 렌더링
-  const renderContent = () => {
+  const renderContent = (noti) => {
+    const sender = noti?.Sender || 'Dan';
+    const notiType = noti?.type;
+
     switch (notiType) {
       case NOTIFICATION_TYPE.LIKE:
         return `${sender.nickname}님이 당신의 게시물을 좋아요했습니다.`;
@@ -94,14 +112,15 @@ const Notification = ({ notiType, sender, target }) => {
         return '알 수 없는 알림';
     }
   };
-
   return (
-    <Container>
-      <IconWrapper>{renderIcon()}</IconWrapper>
-      <Avatar style={{ marginRight: 12 }} />
+    <Container isRead={noti.isRead}>
+      <IconWrapper>{renderIcon(noti.type)}</IconWrapper>
       <Content>
-        <Title>{renderContent()}</Title>
+        <Title>{renderContent(noti)}</Title>
       </Content>
+      <DeleteButton onClick={() => onDelete(noti.id)}>
+        <CloseOutlined />
+      </DeleteButton>
     </Container>
   );
 };

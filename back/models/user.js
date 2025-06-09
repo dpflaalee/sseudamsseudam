@@ -22,15 +22,33 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    isDeleted:{
+      type:DataTypes.BOOLEAN,
+      allowNull:false,
+      defaultValue: false,
+    },
+    deleteAt:{
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    }
   }, {
+   // paranoid: true, // 소프트 삭제 활성화
+    //timestamps: true, // createdAt, updatedAt, deletedAt 자동 생성
     charset: 'utf8',
     collate: 'utf8_general_ci'
   });
   User.associate = (db) => {
     //일 대 다 
     //Notification
-    db.User.belongsToMany(db.User, { through: 'Notification', as: 'Receiver', foreignKey: 'SenderId' });
-    db.User.belongsToMany(db.User, { through: 'Notification', as: 'Sender', foreignKey: 'ReceiverId' });
+    db.User.hasMany(db.Notification, { foreignKey: 'SenderId', as: 'SentNotifications', });
+    db.User.hasMany(db.Notification, { foreignKey: 'ReceiverId', as: 'ReceivedNotifications', });
+    db.User.hasMany(db.NotificationSetting, {
+      foreignKey: 'UserId',
+      as: 'NotificationSettings',
+      onDelete: 'CASCADE',
+    });
+
     // Complain
     db.User.hasMany(db.Complain, { foreignKey: 'ReporterId' });
 
