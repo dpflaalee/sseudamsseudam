@@ -9,12 +9,15 @@ import Comment from '@/components/comment/Comment';
 import Profile from '@/components/user/Profile';
 import NotificationButton from "@/components/notifications/NotificationButton";
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'; 
+import AnimalList from '@/components/animal/AnimalList';
 //// import 수정
 const Home = () => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.user);
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
   const { mainComplainCard } = useSelector((state) => state.complain);
+
+  const { userAnimals, selectedAnimal } = useSelector((state) => state.animal);
 
   useEffect(() => {
     if (hasMorePosts && !loadPostsLoading) {
@@ -46,6 +49,7 @@ const Home = () => {
 
   return (
     <AppLayout>
+      <AnimalList animals={userAnimals}/>
       {user && <PostForm />}
       {mainPosts.map((c) => {
         return (
