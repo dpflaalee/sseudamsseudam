@@ -5,15 +5,9 @@ import Head from 'next/head';
 import { Provider } from 'react-redux';
 import wrapper from '../store/configureStore';
 
-<<<<<<< HEAD
-const Ssdam = ({ Component, ...rest }) => {
-  const { store, props } = wrapper.useWrappedStore(rest);
-  const { pageProps } = props;
-=======
-const Ssdam = ({ Component}) => {
+const Ssdam = ({ Component }) => {
   //const { store, props } = wrapper.useWrappedStore(rest);
   //const { pageProps } = props;
->>>>>>> 40eb36b40a243cdce7d3730a781b1a858dec2d91
   return (
     //<Provider store={store}>
     <>

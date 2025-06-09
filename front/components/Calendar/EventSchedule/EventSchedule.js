@@ -1,74 +1,39 @@
-//챌린지 view
-import React from 'react';
-import { Divider, DatePicker, Input, Segmented, Form, Button } from 'antd';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import EventScheduleChange from '../components/EventScheduleChange'; // 경로 맞게 조정
 
-const { RangePicker } = DatePicker;
+const EditSchedule = () => {
+  const router = useRouter();
+  const { id } = router.query;
+  const [schedule, setSchedule] = useState(null);
 
-const formItemLayout = {
-  labelCol: { span: 0 },
-  wrapperCol: { span: 24 },
-};
- 
-const EventSchedules = () => {
-  const [form] = Form.useForm();
-  const variant = Form.useWatch('variant', form);
+  useEffect(() => {
+    if (id) {
+      axios
+        .get(`http://localhost:3065/calendar/${id}`)
+        .then((res) => setSchedule(res.data))
+        .catch((err) => {
+          console.error(err);
+          alert('일정 정보를 불러오는데 실패했습니다.');
+        });
+    }
+  }, [id]);
 
-  return (
-    <>
-      <style>{`
-        h3{
-        font-size: 20px;
-        font-weight: bold;
-        }
-        .ant-form-item {
-          margin-bottom: 15px !important;
-        }
-      `}</style>
-      <Divider />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', backgroundColor: '#ffffff', padding: '20px 200px 25px 200px' }}>
-      <h3>일정 추가</h3>
-        <Form
-          {...formItemLayout}
-          form={form}
-          variant={variant || 'filled'}
-          style={{ /* width: '100%' */ }}
-          initialValues={{ variant: 'filled' }}
-        >
-        <Form.Item
-          name="Input"
-          rules={[{ required: true, message: 'Please input!' }]}
-          style={{
-            width: '100%',
-          }}
-        >
-          <Input placeholder="챌린지 네임"/>
-        </Form.Item>
-        <Form.Item
-          name="TextArea"
-          rules={[{ required: true, message: 'Please input!' }]}
-          style={{
-            width: '100%',
-          }}
-        >
-          <Input.TextArea placeholder="챌린지 설명"/>
-        </Form.Item>
-        <Form.Item>
-          <RangePicker showTime style={{
-              minWidth: '500',
-              display: 'flex',
-              justifyContent: 'center',
-            }}/>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" block>등록</Button>
-        </Form.Item>
-        <Form.Item>
-          <Button block>취소</Button>
-        </Form.Item>
-        </Form>
-      </div>
-    </>
-  );
+  const handleSubmit = async (updatedData) => {
+    try {
+      await axios.put(`http://localhost:3065/calendar/${id}`, updatedData);
+      alert('일정이 성공적으로 수정되었습니다.');
+      router.push('/schedule'); // 수정 후 목록 페이지로 이동
+    } catch (error) {
+      console.error(error);
+      alert('일정 수정에 실패했습니다.');
+    }
+  };
+
+  if (!schedule) return <div>로딩 중...</div>;
+
+  return <EventScheduleChange schedule={schedule} onSubmit={handleSubmit} />;
 };
 
-export default EventSchedules;
+export default EditSchedule;

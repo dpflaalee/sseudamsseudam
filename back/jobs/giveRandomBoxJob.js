@@ -1,4 +1,4 @@
-const { User, Post, Prize, Animal, sequelize } = require('./models');
+const { User, Post, Prize, Animal, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const cron = require('node-cron');
 

@@ -21,36 +21,11 @@ const rootReducer = (state, action) => {
         complain,
         animal,
         notification,
+        todolist,
       });
       return combinedReducer(state, action);
     }
-<<<<<<< HEAD
-  },
-  user,
-  post,
-  complain,
-  animal,
-  notification,
-  todolist,
-});
-=======
   }
 };
-// const rootReducer = combineReducers({
-//   index: (state = {}, action) => {
-//     switch (action.type) {
-//       case HYDRATE:
-//         console.log('HYDRATE', action);
-//         return { ...state, ...action.payload };
-//       default:
-//         return { ...state }
-//     }
-//   },
-//   user,
-//   post,
-//   complain,
-//   animal,
-//   notification,
-// });
->>>>>>> 40eb36b40a243cdce7d3730a781b1a858dec2d91
+
 export default rootReducer;

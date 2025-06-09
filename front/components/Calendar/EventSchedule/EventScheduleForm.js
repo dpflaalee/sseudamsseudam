@@ -20,11 +20,13 @@ const onFinish = async (values) => {
     console.log('폼 제출 값:', values);
     const [start, end] = values.range;
 
-    const response = await axios.post('/api/schedule', {
+    const response = await axios.post('http://localhost:3065/calendar', {
       title: values.title,
       content: values.content,
       startDate: dayjs(start).toISOString(),
       endDate: dayjs(end).toISOString(),
+    }, {
+      withCredentials: true,  // 쿠키, 세션 전송을 위한 옵션
     });
 
     if (response.status === 200 || response.status === 201) {
@@ -61,7 +63,6 @@ const onFinish = async (values) => {
           {...formItemLayout}
           form={form}
           onFinish={onFinish}
-          initialValues={{ variant: 'filled' }}
         >
           <Form.Item name="title"
             rules={[{ required: true, message: '일정명을 입력하세요.' }]}

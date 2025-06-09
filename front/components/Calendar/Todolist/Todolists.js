@@ -1,30 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from 'antd';
 import { RightOutlined, CalendarOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
-import { useDispatch, useSelector } from 'react-redux';
-import { ADD_TODOLIST_REQUEST } from '../../../reducers/todolist';
-//import {useDispatch, useSelector} from 'reaxt-redux';
+import axios from 'axios';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ko';
+
+dayjs.locale('ko');
 
 function getItem(label, icon) {
   return { label, icon };
 }
 
 const item = getItem('일정 더 찾아보기', <RightOutlined />);
-const itemtwo = getItem('6월 일정', <CalendarOutlined />);
-
-export const initialState = {
-  todos: [],
-};
+const itemtwo = getItem(`${dayjs().month() + 1}월 일정`, <CalendarOutlined />);
 
 const gridStyle = {
   padding: '10px',
   width: '100%',
   textAlign: 'left',
   cursor: 'pointer',
-  // boxShadow: '0 0 0 0',    //호버 섀도우 없애기
-}; 
+  // boxShadow: '0 0 0 0', //호버 섀도우 없애기
+};
 
 const gridbar = {
   color: '#364F6B',
@@ -32,64 +30,77 @@ const gridbar = {
   width: '100%',
   textAlign: 'center',
   backgroundColor: '#ffffff',
-  boxShadow: '0 0 0 0',    //호버 섀도우 없애기
-  cursor: 'pointer'
+  boxShadow: '0 0 0 0', //호버 섀도우 없애기
+  cursor: 'pointer',
 };
 
 const dateView = {
-  color: '#807E7E', 
+  color: '#807E7E',
 };
 
 const CardTitle = styled.span`
-padding: 0px !important;
-// margin: -5px;
-width: 100%;
+  padding: 0px !important;
+  width: 100%;
 `;
 
 const Todolists = () => {
   const router = useRouter();
-  // const dispatch = useDispatch();
-  // const todos = useSelector((state) => state.todolist.todos) || [];
+  const [events, setEvents] = useState([]);
 
-  // const handleAddEvent = () => {
-  // const dummy = [...todos, {
-  //     content: '이벤트 일정',
-  //     date: '2025-06-10',
-  //   }];
-  //   dispatch({ type: ADD_TODOLIST_REQUEST, data: dummy });
-  // };
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await axios.get('http://localhost:3065/calendar');
+        const currentMonth = dayjs().month() + 1;
 
-  // const handleAddChallenge = () => {
-  // const dummy = [...todos, {
-  //     content: '챌린지 일정',
-  //     date: '2025-06-12',
-  //   }];
-  //   dispatch({ type: ADD_TODOLIST_REQUEST, data: dummy });
-  // };
-return (
-  <>
-    <div style={{marginBottom: "25px"}}>
-      <Card title={<CardTitle key="schedule" style={{cursor: 'pointer'}} onClick={() => router.push('/schedule')}>{itemtwo.icon} {itemtwo.label}</CardTitle>}>
-      <Card.Grid style={gridStyle}>Content
-        <span style={dateView}><br/>date</span>
-      </Card.Grid>
-      <Card.Grid style={gridStyle}>Content
-        <span style={dateView}><br/>date</span>
-      </Card.Grid>
-      <Card.Grid style={gridStyle}>Content
-        <span style={dateView}><br/>date</span>
-      </Card.Grid>
-      <Card.Grid style={gridStyle}>Content
-        <span style={dateView}><br/>date</span>
-      </Card.Grid>
-      <Card.Grid style={gridStyle}>Content
-        <span style={dateView}><br/>date</span>
-      </Card.Grid>
-      <Card.Grid style={gridbar}>{item.label} {item.icon}</Card.Grid>
-    </Card>
-  </div>
-</>
-);
+        // 월이 일치하는 일정만 추출
+        const filtered = res.data
+          .filter(event => dayjs(event.startDate).month() + 1 === currentMonth)
+          .sort((a, b) => new Date(a.endDate) - new Date(b.endDate)) // 종료일 기준 정렬
+          .slice(0, 5); // 최대 5개
+
+        setEvents(filtered);
+      } catch (err) {
+        console.error('일정 불러오기 실패:', err);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  const formatRange = (start, end) => {
+    return `${dayjs(start).format('YY.MM.DD(dd)')} ~ ${dayjs(end).format('YY.MM.DD(dd)')}`;
+  };
+
+  return (
+    <>
+      <div style={{ marginBottom: '25px' }}>
+        <Card
+          title={
+            <CardTitle
+              key="schedule"
+              style={{ cursor: 'pointer' }}
+              onClick={() => router.push('/schedule')}
+            >
+              {itemtwo.icon} {itemtwo.label}
+            </CardTitle>
+          }
+        >
+          {events.map(event => (
+            <Card.Grid style={gridStyle} key={event.id}>
+              {event.title}
+              <span style={dateView}><br />
+                {formatRange(event.startDate, event.endDate)}</span>
+            </Card.Grid>
+          ))}
+
+          <Card.Grid
+            style={gridbar}
+            onClick={() => router.push('/schedule')}>{item.label} {item.icon}</Card.Grid>
+        </Card>
+      </div>
+    </>
+  );
 };
 
 export default Todolists;
