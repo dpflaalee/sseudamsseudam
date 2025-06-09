@@ -18,10 +18,7 @@
     "moment": "^2.30.1",
     "next": "^13.4.13",
     "next-redux-wrapper": "^6.0.2",
-<<<<<<< HEAD
-=======
     "nodemailer": "^7.0.3",
->>>>>>> 2c158b0f319497155f5ca323153b5c9780c5dcaf
     "package.json": "^2.0.1",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
