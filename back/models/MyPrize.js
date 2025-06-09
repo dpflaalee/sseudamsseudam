@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
-      allowNull: false,
     issuedReason: {
       type: DataTypes.STRING(100),
       allowNull: false
