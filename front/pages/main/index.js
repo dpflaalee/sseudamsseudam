@@ -6,7 +6,7 @@ import { Divider } from "antd";
 import PostCard from '@/components/post/PostCard';
 import PostForm from '@/components/post/PostForm';
 import Comment from '@/components/comment/Comment';
-import Profile from '@/components/Profile';
+import Profile from '@/components/user/Profile';
 import NotificationButton from "@/components/notifications/NotificationButton";
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'; 
 import AnimalList from '@/components/animal/AnimalList';
