@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
 
     // 2. Prize belongs to many Users (유저가 당첨받은 상품들)
     db.Prize.belongsToMany(db.User, {
-      through: 'MyPrize',
+      through: db.MyPrize,
       foreignKey: 'PrizeId',
       as: 'users'
     });

@@ -1,16 +1,20 @@
-export default function handler(req, res) {
-  // 예: 랜덤 성공 여부 시뮬레이션
-  const isSuccess = Math.random() > 0.5;
+// pages/api/open-random-box.js
 
-  if (isSuccess) {
-    return res.status(200).json({
-      success: true,
-      itemName: "스타벅스 아메리카노 쿠폰",
+export default async function handler(req, res) {
+  const { category } = req.query;
+
+  try {
+    const backendRes = await fetch(`http://localhost:3065/randomBox/open/${category}`, {
+      method: 'POST',
+      headers: {
+        Cookie: req.headers.cookie, // 로그인 세션 전달
+      },
     });
-  } else {
-    return res.status(200).json({
-      success: false,
-      message: "랜덤박스 실패", // 클라이언트에서는 사용 안 해도 됨
-    });
+
+    const data = await backendRes.json();
+    return res.status(backendRes.status).json(data);
+  } catch (error) {
+    console.error('Proxy error:', error);
+    return res.status(500).json({ success: false, message: '프록시 서버 에러' });
   }
 }

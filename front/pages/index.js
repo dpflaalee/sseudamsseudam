@@ -4,16 +4,14 @@ import LoginForm from "../components/user/LoginForm";
 import { useDispatch, useSelector } from 'react-redux';
 import Router from 'next/router';
 import { LOAD_MY_INFO_REQUEST, SIGN_UP_REQUEST } from '../reducers/user';
-import axios from 'axios';  
-import { END } from 'redux-saga'; 
+import axios from 'axios';
+import { END } from 'redux-saga';
 import wrapper from '../store/configureStore';
 
-const login = () => { 
-    const {user} = useSelector(state => state.user)
-    console.log('user-',user);
+const login = () => {
     return (
         <div
-             style={{
+            style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",

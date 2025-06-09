@@ -17,9 +17,13 @@ const { Title, Text } = Typography;
 const MyPrize = () => {
   const router = useRouter();
 
-  const openRandomModal = async () => {
+  // category 인자를 받아서 API 호출하는 함수로 변경
+  const openRandomModal = async (categoryId) => {
     try {
-      const res = await fetch("/api/open-random-box");
+      const res = await fetch(`/api/open-random-box?category=${categoryId}`, {
+        method: 'POST',
+        credentials: 'include',
+      });
       if (!res.ok) throw new Error("서버 응답 실패");
 
       const data = await res.json();
@@ -42,7 +46,7 @@ const MyPrize = () => {
   );
 
   return (
-    <AppLayout >
+    <AppLayout>
       {/* 상단 프로필 */}
       <Card style={{ background: '#e6f7ff', marginBottom: 24 }}>
         <Row justify="space-between" align="middle">
@@ -66,57 +70,54 @@ const MyPrize = () => {
       </Card>
 
       {/* 내 박스 */}
-<Card title="내 박스" style={{ marginBottom: 24 }}>
-  <Row gutter={[0, 16]}>
-    <Col span={24}>
-      <Card
-        type="inner"
-        title="강아지 랜덤박스"
-        extra={<Button danger onClick={openRandomModal}>사용</Button>}
-      >
-        유효기간: 2025/05/30
+      <Card title="내 박스" style={{ marginBottom: 24 }}>
+        <Row gutter={[0, 16]}>
+          <Col span={24}>
+            <Card
+              type="inner"
+              title="강아지 랜덤박스"
+              extra={<Button danger onClick={() => openRandomModal('dog')}>사용</Button>}
+            >
+              유효기간: 2025/05/30
+            </Card>
+          </Col>
+          <Col span={24}>
+            <Card
+              type="inner"
+              title="고양이 랜덤박스"
+              extra={<Button danger onClick={() => openRandomModal('cat')}>사용</Button>}
+            >
+              유효기간: 2025/05/30
+            </Card>
+          </Col>
+        </Row>
       </Card>
-    </Col>
-    <Col span={24}>
-      <Card
-        type="inner"
-        title="고양이 랜덤박스"
-        extra={<Button danger onClick={openRandomModal}>사용</Button>}
-      >
-        유효기간: 2025/05/30
-      </Card>
-    </Col>
-  </Row>
-</Card>
 
-{/* 내 쿠폰함 */}
-<Card title="내 쿠폰함" style={{ marginBottom: 24 }}>
-  <Row gutter={[0, 16]}>
-    <Col span={24}>
-      <Card
-        type="inner"
-        title="쿠폰이름"
-        extra={<Button type="primary">사용</Button>}
-      >
-        유효기간: 2025/05/30
+      {/* 내 쿠폰함 */}
+      <Card title="내 쿠폰함" style={{ marginBottom: 24 }}>
+        <Row gutter={[0, 16]}>
+          <Col span={24}>
+            <Card
+              type="inner"
+              title="쿠폰이름"
+              extra={<Button type="primary">사용</Button>}
+            >
+              유효기간: 2025/05/30
+            </Card>
+          </Col>
+          <Col span={24}>
+            <Card
+              type="inner"
+              title="쿠폰이름"
+              extra={<Button type="primary">사용</Button>}
+            >
+              유효기간: 2025/05/30
+            </Card>
+          </Col>
+        </Row>
       </Card>
-    </Col>
-    <Col span={24}>
-      <Card
-        type="inner"
-        title="쿠폰이름"
-        extra={<Button type="primary">사용</Button>}
-      >
-        유효기간: 2025/05/30
-      </Card>
-    </Col>
-  </Row>
-</Card>
-
     </AppLayout>
   );
 };
 
 export default MyPrize;
-
-/* 내 쿠폰함 페이지(내 랜덤박스, 내 쿠폰함) */ 
