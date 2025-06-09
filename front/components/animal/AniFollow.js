@@ -53,7 +53,7 @@ const AniFollow = () => {
   }, [id]);
   useEffect(() => {
   }, [recommendedAnimals]);
-  
+
   const renderList = (data, isLoading, emptyMessage) => {
     if (isLoading) return <Spin />;
     if (!data || data.length === 0) {
@@ -63,7 +63,7 @@ const AniFollow = () => {
         </div>
       );
     }
-  
+
     return (
       <List
         itemLayout="horizontal"
@@ -72,8 +72,8 @@ const AniFollow = () => {
           <List.Item
             actions={[
               <Button key="friend" type={item.isFollowing ? "default" : "primary"}
-              danger={item.isFollowing}
-              onClick={() => handleFollowToggle(item.id, item.isFollowing)}>
+                danger={item.isFollowing}
+                onClick={() => handleFollowToggle(item.id, item.isFollowing)}>
                 {item.isFollowing ? "친구" : "친구 맺기"}
               </Button>,
             ]}
@@ -87,8 +87,8 @@ const AniFollow = () => {
                 )
               }
               title={item.aniName || '이름 없음'}
-              />
-            </List.Item>
+            />
+          </List.Item>
         )}
       />
     );

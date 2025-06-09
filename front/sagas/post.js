@@ -160,7 +160,6 @@ function* addComment(action) {
     });
 
     // 알림 보내기
-    console.log('💥');
     yield put({
       type: ADD_NOTIFICATION_REQUEST,
       data: {
