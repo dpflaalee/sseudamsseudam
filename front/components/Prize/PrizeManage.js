@@ -1,19 +1,43 @@
-import React, { useState } from 'react';
-import { Card, Row, Col, Button, Input, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Row, Col, Button, Typography } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addPrize,
+  modifyPrize,
+  removePrize,
+  loadPrizes,
+} from '@/reducers/prize';
 import PrizeForm from '@/components/prize/PrizeForm';
 import PrizeList from '@/components/prize/PrizeList';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const categoryData = [
-  { id: 1, name: '강아지' },
-  { id: 2, name: '고양이' },
+  { id: 1, content: '강아지' },
+  { id: 2, content: '고양이' },
 ];
 
 const PrizeManage = () => {
-  const [prizes, setPrizes] = useState([]);
+  const dispatch = useDispatch();
+
+  // Redux state
+  const { prizes, addPrizeDone, modifyPrizeDone, removePrizeDone } = useSelector(
+    (state) => state.prize
+  );
+
   const [formVisible, setFormVisible] = useState(false);
   const [editingPrize, setEditingPrize] = useState(null);
+
+  useEffect(() => {
+    dispatch(loadPrizes());
+  }, [dispatch]);
+
+  // 상품 추가/수정 후 모달 닫기
+  useEffect(() => {
+    if (addPrizeDone || modifyPrizeDone) {
+      setFormVisible(false);
+    }
+  }, [addPrizeDone, modifyPrizeDone]);
 
   const handleAddClick = () => {
     setEditingPrize(null);
@@ -21,20 +45,15 @@ const PrizeManage = () => {
   };
 
   const handleSubmit = (prize) => {
-    setPrizes(prev => {
-      const existingIndex = prev.findIndex(p => p.id === prize.id);
-      if (existingIndex !== -1) {
-        const updated = [...prev];
-        updated[existingIndex] = prize;
-        return updated;
-      }
-      return [...prev, prize];
-    });
-    setFormVisible(false);
+    if (editingPrize) {
+      dispatch(modifyPrize(prize));
+    } else {
+      dispatch(addPrize(prize));
+    }
   };
 
   const handleDelete = (id) => {
-    setPrizes(prev => prev.filter(p => p.id !== id));
+    dispatch(removePrize(id));
   };
 
   const handleEdit = (prize) => {
@@ -50,16 +69,18 @@ const PrizeManage = () => {
             <Title level={4}>상품 관리</Title>
           </Col>
           <Col>
-            <Button type="primary" onClick={handleAddClick}>+ 상품 추가</Button>
+            <Button type="primary" onClick={handleAddClick}>
+              + 상품 추가
+            </Button>
           </Col>
         </Row>
       </Card>
 
       <PrizeList
         prizes={prizes}
+        categories={categoryData}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        categories={categoryData}
       />
 
       <PrizeForm
@@ -74,5 +95,3 @@ const PrizeManage = () => {
 };
 
 export default PrizeManage;
-
-/* 상품 관리페이지 */

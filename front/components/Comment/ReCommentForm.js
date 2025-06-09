@@ -52,7 +52,7 @@ const SubmitButton = styled(Button)`
   padding: 4px 16px;
 `;
 
-const ReCommentForm = ({ post, parentCommentId, onAddLocalComment }) => {
+const ReCommentForm = ({ post, parentCommentId, onAddLocalComment, parentCommentUserId }) => {
   const { addCommentLoading, addCommentDone } = useSelector((state) => state.post);
   const id = useSelector((state) => state.user.user?.id);
   const nickname = useSelector((state) => state.user.user?.nickname);
@@ -72,10 +72,12 @@ const ReCommentForm = ({ post, parentCommentId, onAddLocalComment }) => {
     if (!comment.trim()) {
       return alert('댓글을 입력하세요.');
     }
+    console.log('👤 parentCommentUserId', parentCommentUserId);
     dispatch({
       type: ADD_COMMENT_REQUEST,
-      data: { content: comment, userId: id, postId: post.id, RecommentId: parentCommentId },
+      data: { content: comment, userId: id, postId: post.id, RecommentId: parentCommentId, CommentUserId: parentCommentUserId },
       postAuthorId: post.User.id,
+      isReComment: true,
     });
   }, [comment, id, post.id, dispatch]);
 
@@ -106,6 +108,7 @@ const ReCommentForm = ({ post, parentCommentId, onAddLocalComment }) => {
 ReCommentForm.propTypes = {
   post: PropTypes.object.isRequired,
   onAddLocalComment: PropTypes.func,
+  parentCommentUserId: PropTypes.number.isRequired,
 };
 
 export default ReCommentForm;

@@ -89,6 +89,11 @@ const ReComment = ({ comments = [], postId, post = {} }) => {
     window.location.reload();
   }, [postId, dispatch]);
 
+  ////////////////////////////////
+
+
+
+  ///////////////////////////////
   return (
     <Wrapper>
       <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
@@ -135,31 +140,32 @@ const ReComment = ({ comments = [], postId, post = {} }) => {
             </Dropdown>
 
             {/* 대댓글 폼과 리스트 토글로 보여주기 */}
-            {openReplies[comment.id] && (
-              <>
-                <ReCommentForm post={post} parentCommentId={comment.id} />
-                {comment.Recomments && comment.Recomments.length > 0 && (
-                  <div style={{ marginLeft: 40 }}>
-                    {comment.Recomments.map((recomment) => (
-                      <CommentItem key={recomment.id}>
-                        <Left>
-                          <Avatar>{recomment.User?.nickname?.[0] || 'U'}</Avatar>
-                          <Content>
-                            <NicknameDateWrapper>
-                              <Nickname>{recomment.User?.nickname || '알 수 없음'}</Nickname>
-                              <CommentDate>
-                                {recomment.createdAt && new Date(recomment.createdAt).toLocaleString()}
-                              </CommentDate>
-                            </NicknameDateWrapper>
-                            <Text>{recomment.content}</Text>
-                          </Content>
-                        </Left>
-                      </CommentItem>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
+            {
+              openReplies[comment] && (
+                <>
+                  <ReCommentForm post={post} parentCommentId={comment.id} parentCommentUserId={comment.User.id} />
+                  {comment.Recomments && comment.Recomments.length > 0 && (
+                    <div style={{ marginLeft: 40 }}>
+                      {comment.Recomments.map((recomment) => (
+                        <CommentItem key={recomment.id}>
+                          <Left>
+                            <Avatar>{recomment.User?.nickname?.[0] || 'U'}</Avatar>
+                            <Content>
+                              <NicknameDateWrapper>
+                                <Nickname>{recomment.User?.nickname || '알 수 없음'}</Nickname>
+                                <CommentDate>
+                                  {recomment.createdAt && new Date(recomment.createdAt).toLocaleString()}
+                                </CommentDate>
+                              </NicknameDateWrapper>
+                              <Text>{recomment.content}</Text>
+                            </Content>
+                          </Left>
+                        </CommentItem>
+                      ), console.log('🕵️ comment:', comment))}
+                    </div>
+                  )}
+                </>
+              )}
           </CommentItem>
         );
       })}
