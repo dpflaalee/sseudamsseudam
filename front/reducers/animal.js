@@ -2,7 +2,16 @@ import {produce} from 'immer';
 
 export const initialState = {
   animals: [],  // 동물 프로필 리스트
-  
+  selectedAnimal: null, // 현재 선택된 동물 상세 프로필
+
+  userAnimals: [],     // 선택한 동물의 유저가 가진 모든 동물 목록
+  myAnimals: [],       // 내 동물들 (내가 등록한 전체 리스트)
+
+  followers: [],
+  followings: [],
+
+  recommendedAnimals: [],
+
   addaniprofileLoading: false,  //동물프로필 추가 시도중
   addaniprofileDone: false,
   addAniprofileError: null,
@@ -11,9 +20,13 @@ export const initialState = {
   removeAniprofileDone: false,
   removeAniprofileError: null,
 
-  loadAniprofileLoading: false, //프로필 불러오기 시도중
-  loadAniprofileDone: false, 
-  loadAniprofileError: null,
+  loadAnimalProfileLoading: false, //프로필 불러오기 시도중
+  loadAnimalProfileDone: false,
+  loadAnimalProfileError: null,
+
+  loadAnimalListLoading: false, //
+  loadAnimalListDone: false,
+  loadAnimalListError: null,
 
   modifyAniprofileLoading: false, //프로필 수정 시도중
   modifyAniprofileDone: false,
@@ -38,19 +51,27 @@ export const initialState = {
   loadAnifollowingsLoading: false,  //팔로잉 불러오기 시도중
   loadAnifollowingsDone: false,
   loadAnifollowingsError: null,
+
+  loadRecommendedAnimalsLoading: false, //추천친구 불러오기
+  loadRecommendedAnimalsDone: false,
+  loadRecommendedAnimalsError: null,
 }
 
 export const ADD_ANIPROFILE_REQUEST = 'ADD_ANIPROFILE_REQUEST';
 export const ADD_ANIPROFILE_SUCCESS = 'ADD_ANIPROFILE_SUCCESS';
 export const ADD_ANIPROFILE_FAILURE = 'ADD_ANIPROFILE_FAILURE';
 
+export const LOAD_ANIMAL_PROFILE_REQUEST = 'LOAD_ANIMAL_PROFILE_REQUEST';
+export const LOAD_ANIMAL_PROFILE_SUCCESS = 'LOAD_ANIMAL_PROFILE_SUCCESS';
+export const LOAD_ANIMAL_PROFILE_FAILURE = 'LOAD_ANIMAL_PROFILE_FAILURE';
+
+export const LOAD_ANIMAL_LIST_REQUEST = 'LOAD_ANIMAL_LIST_REQUEST';
+export const LOAD_ANIMAL_LIST_SUCCESS = 'LOAD_ANIMAL_LIST_SUCCESS';
+export const LOAD_ANIMAL_LIST_FAILURE = 'LOAD_ANIMAL_LIST_FAILURE';
+
 export const REMOVE_ANIPROFILE_REQUEST = 'REMOVE_ANIPROFILE_REQUEST';
 export const REMOVE_ANIPROFILE_SUCCESS = 'REMOVE_ANIPROFILE_SUCCESS';
 export const REMOVE_ANIPROFILE_FAILURE = 'REMOVE_ANIPROFILE_FAILURE';
-
-export const LOAD_ANIPROFILE_REQUEST = 'LOAD_ANIPROFILE_REQUEST';
-export const LOAD_ANIPROFILE_SUCCESS = 'LOAD_ANIPROFILE_SUCCESS';
-export const LOAD_ANIPROFILE_FAILURE = 'LOAD_ANIPROFILE_FAILURE';
 
 export const ANIFOLLOW_REQUEST = 'ANIFOLLOW_REQUEST';
 export const ANIFOLLOW_SUCCESS = 'ANIFOLLOW_SUCCESS';
@@ -76,6 +97,10 @@ export const LOAD_ANIFOLLOWINGS_REQUEST = 'LOAD_ANIFOLLOWINGS_REQUEST';
 export const LOAD_ANIFOLLOWINGS_SUCCESS = 'LOAD_ANIFOLLOWINGS_SUCCESS';
 export const LOAD_ANIFOLLOWINGS_FAILURE = 'LOAD_ANIFOLLOWINGS_FAILURE';
 
+export const LOAD_RECOMMENDED_ANIMALS_REQUEST = 'LOAD_RECOMMENDED_ANIMALS_REQUEST';
+export const LOAD_RECOMMENDED_ANIMALS_SUCCESS = 'LOAD_RECOMMENDED_ANIMALS_SUCCESS';
+export const LOAD_RECOMMENDED_ANIMALS_FAILURE = 'LOAD_RECOMMENDED_ANIMALS_FAILURE';
+
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch(action.type){
     case ADD_ANIPROFILE_REQUEST:
@@ -86,25 +111,26 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case ADD_ANIPROFILE_SUCCESS:
       draft.addaniprofileLoading = false;
       draft.addaniprofileDone = true;
-      draft.animals.push(action.data);  // 새 프로필 추가
+      draft.animals.push(action.data);  // 프론트 메모리(redux)에 저장됨
       break;
     case ADD_ANIPROFILE_FAILURE:
       draft.addaniprofileLoading = false;
       draft.addAniprofileError = action.error;
       break;
-    case LOAD_ANIPROFILE_REQUEST:
-      draft.loadAniprofileLoading = true;
-      draft.loadAniprofileDone = false;
-      draft.loadAniprofileError = null;
+    case LOAD_ANIMAL_PROFILE_REQUEST:
+      draft.loadAnimalProfileLoading = true;
+      draft.loadAnimalProfileDone = false;
+      draft.loadAnimalProfileError = null;
       break;
-    case LOAD_ANIPROFILE_SUCCESS:
-      draft.loadAniprofileLoading = false;
-      draft.loadAniprofileDone = true;
-      draft.animals=action.data;
+    case LOAD_ANIMAL_PROFILE_SUCCESS:
+      draft.loadAnimalProfileLoading = false;
+      draft.loadAnimalProfileDone = true;
+      draft.selectedAnimal = action.data.animal;
+      draft.userAnimals = action.data.userAnimals;
       break;
-    case LOAD_ANIPROFILE_FAILURE:
-      draft.loadAniprofileLoading = false;
-      draft.loadAniprofileError = action.error;
+    case LOAD_ANIMAL_PROFILE_FAILURE:
+      draft.loadAnimalProfileLoading = false;
+      draft.loadAnimalProfileError = action.error;
       break;
     case ANIFOLLOW_REQUEST:
       draft.anifollowLoading = true;
@@ -114,7 +140,16 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case ANIFOLLOW_SUCCESS:
       draft.anifollowLoading = false;
       draft.anifollowDone = true;
-      draft.animals.Followings.push({id: action.animalId});
+      //추천 친구 리스트 업데이트
+      draft.recommendedAnimals = draft.recommendedAnimals.map((a) =>
+        a.id === action.data.followedId ? { ...a, isFollowing: true } : a
+      );
+      draft.followings = draft.followings.map((a) =>
+        a.id === action.data.followedId ? { ...a, isFollowing: true } : a
+      );
+      draft.followers = draft.followers.map((a) =>
+        a.id === action.data.followedId ? { ...a, isFollowing: true } : a
+      );
       break;
     case ANIFOLLOW_FAILURE:
       draft.anifollowLoading = false;
@@ -129,8 +164,14 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case ANIUNFOLLOW_SUCCESS:
       draft.aniunfollowLoading = false;
       draft.aniunfollowDone = true;
-      draft.animals = draft.animals.map((a) =>
-        a.id === action.data ? { ...a, isFollowing: false } : a
+      draft.recommendedAnimals = draft.recommendedAnimals.map((a) =>
+        a.id === action.data.unfollowedId ? { ...a, isFollowing: false } : a
+      );
+      draft.followings = draft.followings.map((a) =>
+        a.id === action.data.unfollowedId ? { ...a, isFollowing: false } : a
+      );
+      draft.followers = draft.followers.map((a) =>
+        a.id === action.data.unfollowedId ? { ...a, isFollowing: false } : a
       );
       break;
     case ANIUNFOLLOW_FAILURE:
@@ -152,7 +193,38 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.removeAniprofileLoading = false;
       draft.removeAniprofileError = action.error;
       break;
-
+    case LOAD_ANIFOLLOWERS_SUCCESS:
+      draft.loadAnifollowersLoading = false;
+      draft.loadAnifollowersDone = true;
+      const myFollowingIds = draft.followings.map(f => f.id);
+      draft.followers = action.data.map((follower) => ({
+        ...follower,
+        isFollowing: myFollowingIds.includes(follower.id),
+      }));
+      break;
+    case LOAD_ANIFOLLOWINGS_SUCCESS:
+      draft.loadAnifollowingsLoading = false;
+      draft.loadAnifollowingsDone = true;
+      draft.followings = action.data.map((a) => ({
+        ...a,
+        isFollowing: true,
+      }));
+      break;
+    case LOAD_RECOMMENDED_ANIMALS_REQUEST:
+      draft.loadRecommendedAnimalsLoading = true;
+      draft.loadRecommendedAnimalsDone = false;
+      draft.loadRecommendedAnimalsError = null;
+      break;
+    case LOAD_RECOMMENDED_ANIMALS_SUCCESS:
+      draft.loadRecommendedAnimalsLoading = false;
+      draft.loadRecommendedAnimalsDone = true;
+      draft.recommendedAnimals = action.data;
+      break;
+    case LOAD_RECOMMENDED_ANIMALS_FAILURE:
+      draft.loadRecommendedAnimalsLoading = false;
+      draft.loadRecommendedAnimalsError = action.error;
+      break;
+      
     default:
       break;
   }
@@ -165,16 +237,26 @@ export const addAniProfile = (data) => ({
   data,
 });
 
-export const loadAniProfiles = () => ({
-  type: LOAD_ANIPROFILE_REQUEST,
-});
-
 export const aniUnfollow = (id) => ({
   type: ANIUNFOLLOW_REQUEST,
   data: id,
 });
+export const anifollow = (id) => ({
+  type: ANIFOLLOW_REQUEST,
+  data: id,
+});
 
-export const removeAniFollow = (id) => ({
+export const removeAniProfile = (id) => ({
   type: REMOVE_ANIPROFILE_REQUEST,
+  data: id,
+});
+export const loadAnimalProfile = (id) => ({ 
+  type: LOAD_ANIMAL_PROFILE_REQUEST, data: id 
+});
+export const loadAnimalList = () => ({ 
+  type: LOAD_ANIMAL_LIST_REQUEST 
+});
+export const removeAniFollow = (id) => ({
+  type: REMOVE_ANIFOLLOW_REQUEST,
   data: id,
 });
