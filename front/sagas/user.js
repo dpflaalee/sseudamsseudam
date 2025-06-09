@@ -18,15 +18,45 @@ import {
   CHANGE_NICKNAME_SUCCESS,
   CHANGE_NICKNAME_FAILURE,
 
+  USER_DELETE_REQUEST,
+  USER_DELETE_SUCCESS,
+  USER_DELETE_FAILURE,
+
+
   FOLLOW_REQUEST,
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE,
 
   UNFOLLOW_REQUEST,
   UNFOLLOW_SUCCESS,
-  UNFOLLOW_FAILURE
+  UNFOLLOW_FAILURE,
 
+  LOAD_MY_INFO_REQUEST, 
+  LOAD_MY_INFO_SUCCESS,
+  LOAD_MY_INFO_FAILURE
 } from '../reducers/user';
+
+function loadMyInfoAPI() {
+  return axios.get('/user');
+}
+
+function* loadMyInfo() {
+  try {
+    const result = yield call(loadMyInfoAPI);
+    yield put({
+      type: LOAD_MY_INFO_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error('🚨 LOAD_MY_INFO_FAILURE:', err);
+    console.error(err);
+    yield put({
+      type: LOAD_MY_INFO_FAILURE,
+      error: err.response?.data,
+    });
+  }
+}
+
 
 ///// step3) 
 function  loginApi(data) {   //★   function* (X)
@@ -44,7 +74,7 @@ function* login(action) {
   } catch (error) {
     yield put({
       type: LOG_IN_FAILURE,
-      data: error.response.data
+      error: error.response.data,
     }) 
   }
 }
@@ -63,6 +93,24 @@ function* logout() {
   } catch (error) {
     yield put({
       type: LOG_OUT_FAILURE,
+      error: error.response.data
+    })
+  }
+}
+function  userDeleteApi() {   //★   function* (X)
+  return axios.post('/user/userDelete');
+}
+function* userDelete() {
+
+  try {
+    const result = yield call(userDeleteApi); //처리함수, 처리파라미터
+    //yield delay(1000);
+    yield put({
+      type: USER_DELETE_SUCCESS,
+    })
+  } catch (error) {
+    yield put({
+      type: USER_DELETE_FAILURE,
       data: error.response.data
     })
   }
@@ -113,11 +161,18 @@ function* changeNickname(action) {
   }
 }
 ///// step2) ACTION 기능추가
+function* watchLoadMyInfo() {
+  yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo );  //LOG_IN 액션이 실행될때까지 기다리기
+}
 function* watchLogin() {
   yield takeLatest(LOG_IN_REQUEST, login );  //LOG_IN 액션이 실행될때까지 기다리기
 }
 function* watchLogout() {
   yield takeLatest(LOG_OUT_REQUEST, logout);
+
+}
+function* watchUserDelete() {
+  yield takeLatest(USER_DELETE_REQUEST, userDelete);
 
 }
 function* watchSignup() {
@@ -132,6 +187,8 @@ export default function* userSaga() {
       fork(watchLogin),
       fork(watchLogout),
       fork(watchSignup), 
+      fork(watchLoadMyInfo), 
+      fork(watchUserDelete), 
       
       fork(watchChangeNickname),
   ]);

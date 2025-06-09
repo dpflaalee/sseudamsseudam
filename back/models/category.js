@@ -5,15 +5,15 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     }
   }, {
-    charset: 'utf8',
-    collate: 'utf8_general_ci'
+    charset: 'utf8mb4',
+    collate: 'utf8mb4_general_ci'
   });
 
   Category.associate = (db) => {
-    db.Category.belongsToMany(db.Group, { through: 'GroupCategory', as: '' });
+    db.Category.belongsToMany(db.Group, { through: 'GroupCategory'});
     db.Category.hasMany(db.Prize);
     db.Category.hasMany(db.Animal);
-    db.Category.belongsToMany(db.Post, { through: 'PostCategory', as: '' });
+    db.Category.belongsToMany(db.Post, { through: 'PostCategory'});
   }
   return Category;
 }

@@ -9,11 +9,7 @@ import {
   Row,
   Col,
 } from "antd";
-<<<<<<< HEAD
-import { UserOutlined,EllipsisOutlined } from "@ant-design/icons";
-=======
 import { UserOutlined, EllipsisOutlined } from "@ant-design/icons";
->>>>>>> 57217b8bd55a8690c26462018b004664a1ea8601
 import MyPrize from "@/components/prize/MyPrize";
 import { Dropdown, Menu } from "antd";
 
@@ -29,9 +25,12 @@ const Index = () => {
     }
   }, [router.query]);
 
-  const openRandomModal = async () => {
+  const openRandomModal = async (category) => {
     try {
-      const res = await fetch("/api/open-random-box");
+      const res = await fetch(`/api/open-random-box?category=${category.id}`, {
+        method: 'POST',
+        credentials: 'include',
+      });
       if (!res.ok) throw new Error("서버 응답 실패");
 
       const data = await res.json();
@@ -80,17 +79,15 @@ const Index = () => {
               <Dropdown
                 overlay={
                   <Menu>
-                    <Menu.Item key="report" onClick={() => router.push("/admin/complain")}> { /* 수정필요!! 신고 폼 */}
-                      신고 페이지로 이동   { /* 수정필요!! 관리자신고페이지말고 신고하기 폼으로 가게 */}
+                    <Menu.Item key="report" onClick={() => router.push("/report")}>
+                      신고하기     { /* 수정필요!! 신고하기 폼으로 가게 */}
                     </Menu.Item>
                   </Menu>
                 }
                 placement="bottomRight"
                 trigger={["click"]}
               >
-                <EllipsisOutlined
-                  style={{ fontSize: 20, cursor: "pointer" }}
-                />
+                <EllipsisOutlined style={{ fontSize: 20, cursor: "pointer" }} />
               </Dropdown>
             </Col>
           </Row>
@@ -99,7 +96,7 @@ const Index = () => {
 
       {/* 조건부 렌더링 */}
       {activeSection === "prize" && <MyPrize openRandomModal={openRandomModal} />}
-      {/* 필요 시 다른 섹션도 여기에 추가 */}
+      {/* 다른 섹션은 필요 시 여기에 추가 */}
     </AppLayout>
   );
 };

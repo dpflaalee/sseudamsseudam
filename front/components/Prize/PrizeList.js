@@ -4,18 +4,15 @@ import moment from 'moment';
 
 const { Text } = Typography;
 
-const PrizeList = ({ prizes, onEdit, onDelete, categories }) => {
-  const getCategoryName = (categoryId) =>
-    categories.find(c => c.id === categoryId)?.name || '알 수 없음';
-
+const PrizeList = ({ prizes, onEdit, onDelete }) => {
   return (
     <Card title="등록된 상품 리스트">
       <Row gutter={[0, 16]}>
-        {prizes.map(prize => (
+        {prizes.map((prize) => (
           <Col span={24} key={prize.id}>
             <Card
               type="inner"
-              title={`${getCategoryName(prize.categoryId)} - ${prize.content}`}
+              title={`${prize.category?.content || '알 수 없음'} - ${prize.content}`}
               extra={
                 <>
                   <Button
@@ -36,8 +33,10 @@ const PrizeList = ({ prizes, onEdit, onDelete, categories }) => {
                 </>
               }
             >
-              <Text>유효기간: {moment(prize.dueAt).format('YYYY-MM-DD')}</Text><br />
-              <Text>수량: {prize.quantity}</Text><br />
+              <Text>유효기간: {moment(prize.dueAt).format('YYYY-MM-DD')}</Text>
+              <br />
+              <Text>수량: {prize.quantity}</Text>
+              <br />
               <Text>확률: {prize.probability}%</Text>
             </Card>
           </Col>
