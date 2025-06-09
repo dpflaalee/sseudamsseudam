@@ -54,7 +54,7 @@ router.get('/', async (req, res, next) => {
 
                 switch (noti.type) {
                     case NOTIFICATION_TYPE.COMMENT:
-                    case NOTIFICATION_TYPE.RECOMMNET:
+                    case NOTIFICATION_TYPE.RECOMMENT:
                         target = await Comment.findByPk(noti.targetId, {
                             include: [{ model: User, attributes: ['id', 'nickname'] }],
                         });

@@ -62,7 +62,7 @@ const Notification = ({ noti, onDelete }) => {
         return <MessageOutlined />;
       case NOTIFICATION_TYPE.FOLLOW:
         return <UserAddOutlined />;
-      case NOTIFICATION_TYPE.RECOMMNET:
+      case NOTIFICATION_TYPE.RECOMMENT:
         return <MessageOutlined style={{ color: '#0066CC' }} />;
       case NOTIFICATION_TYPE.RANDOMBOX:
         return <GiftOutlined style={{ color: '#FF9E00' }} />;
@@ -100,8 +100,12 @@ const Notification = ({ noti, onDelete }) => {
         ];
       case NOTIFICATION_TYPE.FOLLOW:
         return `${sender.nickname}님이 당신을 팔로우했습니다.`;
-      case NOTIFICATION_TYPE.RECOMMNET:
-        return `${sender.nickname}님이 당신의 댓글에 답글을 남겼습니다.`;
+      case NOTIFICATION_TYPE.RECOMMENT:
+        return [
+          `${sender.nickname}님이 당신의 댓글에 답글을 남겼습니다.`,
+          <br key="br" />,
+          `: ${target?.content}`
+        ];
       case NOTIFICATION_TYPE.RANDOMBOX:
         return `${sender.nickname}님! 랜덤박스가 도착했어요 확인해보세요!`;
       case NOTIFICATION_TYPE.GROUPAPPLY:
