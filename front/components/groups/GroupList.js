@@ -2,20 +2,39 @@ import React, { useState } from "react";
 import { Row, Col, Typography, Button, Card, Space } from "antd";
 import GroupDropDown from "./GroupDropdown";
 
+import { useDispatch } from "react-redux";
+//// 알림
+import { ADD_NOTIFICATION_REQUEST } from './../../reducers/notification';
+import NOTIFICATION_TYPE from "../../../shared/constants/NOTIFICATION_TYPE";
+//// E 알림
+
 const { Title, Text } = Typography;
 
 export default function GroupList({ group }) {
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+  const user = useState(state => state.user);
 
   const handleGroupClick = () => { setOpen((prev) => !prev); };
 
   const handleJoin = (e) => {
     e.stopPropagation();
     console.log(`가입 요청: ${group.title}`);
+    //// 알림
+    dispatch({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.GROUPAPPLY,
+        SenderId: user.user.id,
+        ReceiverId: group.User.id,
+        targetId: group.id,
+      }
+    });
+    /// E 알림
   };
 
   // 카테고리 공백 추가
-  const formattedCategory = group.category ? group.category.join(', ') : '' ;
+  const formattedCategory = group.category ? group.category.join(', ') : '';
 
   return (
     <Card
@@ -23,7 +42,7 @@ export default function GroupList({ group }) {
       style={{ width: "100%", marginBottom: 8 }}
       bodyStyle={{ padding: 16 }}
     >
-      <Row justify="space-between" align="middle"> 
+      <Row justify="space-between" align="middle">
         <Col>
           <Space direction="vertical" size={4}>
             <Row align="middle" gutter={8}>
@@ -39,14 +58,14 @@ export default function GroupList({ group }) {
             <Text type="secondary">카테고리: {formattedCategory}</Text>
           </Space>
         </Col>
- 
+
         <Col>
           <Button type="primary" onClick={handleJoin}> 가입하기 </Button>
         </Col>
       </Row>
 
       {/* 드롭다운 정보 */}
-      {open&&( <div style={{ marginTop: 12 }}> <GroupDropDown group={group} /> </div> )}
+      {open && (<div style={{ marginTop: 12 }}> <GroupDropDown group={group} /> </div>)}
     </Card>
   );
 }
