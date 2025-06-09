@@ -29,7 +29,7 @@ import {
   REMOVE_COMMENT_SUCCESS,
   UPDATE_COMMENT_FAILURE,
   UPDATE_COMMENT_REQUEST,
-  UPDATE_COMMENT_SUCCESS,  
+  UPDATE_COMMENT_SUCCESS,
 
   LOAD_HASHTAG_POSTS_FAILURE,
   LOAD_HASHTAG_POSTS_REQUEST,
@@ -164,15 +164,32 @@ function* addComment(action) {
     });
 
     // 알림 보내기
-    yield put({
-      type: ADD_NOTIFICATION_REQUEST,
-      data: {
-        notiType: NOTIFICATION_TYPE.COMMENT,
-        SenderId: action.data.userId,
-        ReceiverId: action.postAuthorId,
-        targetId: result.data.id,
-      },
-    });
+    if (Boolean(action.isReComment)) {
+      console.log('😵 action.isReComment : ', action.isReComment);
+      console.log('😵 action.data : ', action.data);
+      yield put({
+        type: ADD_NOTIFICATION_REQUEST,
+        data: {
+          notiType: NOTIFICATION_TYPE.RECOMMENT,
+          SenderId: action.data.userId,
+          ReceiverId: action.data.CommentUserId,
+          targetId: result.data.id,
+        }
+      });
+    } else if (Boolean(action.isReComment)) {
+      console.log('😵🤷‍♀️ action.isReComment : ', action.isReComment);
+      console.log('😵🤷‍♀️ action.data : ', action.data);
+      yield put({
+        type: ADD_NOTIFICATION_REQUEST,
+        data: {
+          notiType: NOTIFICATION_TYPE.COMMENT,
+          SenderId: action.data.userId,
+          ReceiverId: action.postAuthorId,
+          targetId: result.data.id,
+        },
+      });
+    }
+
 
   } catch (err) {
     console.error(err);
@@ -400,7 +417,7 @@ export default function* postSaga() {
     fork(watchRemovePost),
     fork(watchAddComment),
     fork(watchRemoveComment),
-    fork(watchUpdateComment), 
+    fork(watchUpdateComment),
     fork(watchLoadHashtagPosts),
     fork(watchLikePost),
     fork(watchUnlikePost),

@@ -124,7 +124,6 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
       },
     });
   }, [postId, dispatch, onRefreshPost]);
-
   return (
     <Wrapper>
       <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
@@ -201,6 +200,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
               <ReCommentForm
                 post={post}
                 parentCommentId={comment.id}  // 여기가 핵심! 대댓글 대상 댓글 ID 전달
+                parentCommentUserId={comment.User.id}
                 onAddLocalComment={() => {
                   // 댓글 재요청 함수 등 있으면 여기에 호출
                 }}

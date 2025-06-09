@@ -52,7 +52,7 @@ function* loadMyInfo() {
     console.error(err);
     yield put({
       type: LOAD_MY_INFO_FAILURE,
-      error: err.response.data,
+      error: err.response?.data,
     });
   }
 }
@@ -74,7 +74,7 @@ function* login(action) {
   } catch (error) {
     yield put({
       type: LOG_IN_FAILURE,
-      data: error.response.data
+      error: error.response.data,
     }) 
   }
 }
@@ -93,7 +93,7 @@ function* logout() {
   } catch (error) {
     yield put({
       type: LOG_OUT_FAILURE,
-      data: error.response.data
+      error: error.response.data
     })
   }
 }

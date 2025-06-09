@@ -12,6 +12,11 @@ import {
   ANIUNFOLLOW_REQUEST,
 } from "@/reducers/animal";
 
+// 알림
+import { ADD_NOTIFICATION_REQUEST } from "@/reducers/notification";
+import NOTIFICATION_TYPE from "../../../shared/constants/NOTIFICATION_TYPE";
+// E 알림
+
 const { TabPane } = Tabs;
 
 const AniFollow = () => {
@@ -36,6 +41,15 @@ const AniFollow = () => {
         type: ANIUNFOLLOW_REQUEST,
         data: { targetAnimalId: Number(targetAnimalId), myAnimalId: Number(id) },
       });
+      // dispatch({
+      //   type: ADD_NOTIFICATION_REQUEST,
+      //   data: {
+      //     notiType: NOTIFICATION_TYPE.ANIMAL_FRIENDS,
+      //     SenderId: id,
+      //     RecieverId: targetAnimalId?.User.id,
+      //     targetId: targetAnimalId
+      //   }
+      // });
     } else {
       dispatch({
         type: ANIFOLLOW_REQUEST,

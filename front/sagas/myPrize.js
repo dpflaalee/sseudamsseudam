@@ -28,6 +28,7 @@ function* useMyPrize(action) {
   try {
     const result = yield call(useMyPrizeAPI, action.data);
     yield put({ type: USE_MY_PRIZE_SUCCESS, data: result.data });
+    yield put({ type: LOAD_MY_PRIZES_REQUEST }); // 사용 후 다시 로딩
   } catch (err) {
     yield put({ type: USE_MY_PRIZE_FAILURE, error: err.response?.data || err.message });
   }

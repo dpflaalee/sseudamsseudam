@@ -14,7 +14,7 @@ const { Title, Text } = Typography;
 
 export default function GroupList({ group }) {
   const router = useRouter();
-  const {me} = useSelector((state)=>state.user);
+  const { me } = useSelector((state) => state.user);
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const user = useState(state => state.user);
@@ -24,7 +24,6 @@ export default function GroupList({ group }) {
   const handleJoin = (e) => {
     e.stopPropagation();
     console.log(`가입 요청: ${group.title}`);
-<<<<<<< HEAD
     //// 알림
     dispatch({
       type: ADD_NOTIFICATION_REQUEST,
@@ -36,23 +35,17 @@ export default function GroupList({ group }) {
       }
     });
     /// E 알림
-=======
     //가입 요청 로직 추가 예정
->>>>>>> 21373db31c7d38f2d4a699e806eed704db855b07
   };
 
   const handleEnterGroup = (e) => { e.stopPropagation(); router.push(`/groups/${group.id}`); } // 가입한 그룹일 시 해당 그룹으로 이동
   //현재 유저가 이 그룹에 가입했는지 확인
-  const isMember = group.groupmembers?.some( (member) => member.userId === me?.id );
+  const isMember = group.groupmembers?.some((member) => member.userId === me?.id);
 
   // 카테고리 공백 추가
-<<<<<<< HEAD
-  const formattedCategory = group.category ? group.category.join(', ') : '';
-=======
-  const formattedCategory = group.Categories?.map((c)=>c.content).join(", ") || "없음"; 
+  const formattedCategory = group.Categories?.map((c) => c.content).join(", ") || "없음";
   //멤버 수 계산
-  const memberCount = group.groupmembers?.length || 0;  
->>>>>>> 21373db31c7d38f2d4a699e806eed704db855b07
+  const memberCount = group.groupmembers?.length || 0;
 
   return (
     <Card
@@ -78,9 +71,9 @@ export default function GroupList({ group }) {
         </Col>
 
         <Col>
-          {isMember?(
+          {isMember ? (
             <Button type="primary" onClick={handleEnterGroup}> 이동하기 </Button>
-          ):(
+          ) : (
             <Button type="primary" onClick={handleJoin}> 가입하기 </Button>
           )}
 

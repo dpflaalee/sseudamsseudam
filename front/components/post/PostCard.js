@@ -134,7 +134,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
       { post.RetweetId && post.Retweet ? (
         <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
           <Card.Meta
-            avatar={<Link href={`/user/${post.Retweet.User.id}`} prefetch={false}>
+            avatar={<Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
                     <Avatar>{post.Retweet.User.nickname[0]}</Avatar></Link>} 
             title={post.Retweet.User.nickname}
             description={
@@ -149,7 +149,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
       ) : (
           <Card.Meta
             avatar={
-              <Link href={`/user/${post.User.id}`} prefetch={false}>
+              <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
                 <Avatar>{post.User.nickname[0]}</Avatar>
               </Link>
             }
