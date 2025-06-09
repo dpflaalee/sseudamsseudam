@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { all, fork, put, takeLatest, throttle, call } from 'redux-saga/effects';
 import shortId from 'shortid';
+import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification';
+import NOTIFICATION_TYPE from '../../shared/constants/NOTIFICATION_TYPE';
 
 import {
   LOAD_POST_REQUEST,
@@ -8,7 +10,7 @@ import {
   LOAD_POST_FAILURE,
   LOAD_POSTS_REQUEST,
   LOAD_POSTS_SUCCESS,
-  LOAD_POSTS_FAILURE,  
+  LOAD_POSTS_FAILURE,
   ADD_POST_FAILURE,
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
@@ -22,9 +24,12 @@ import {
   ADD_COMMENT_FAILURE,
   ADD_COMMENT_REQUEST,
   ADD_COMMENT_SUCCESS,
+  REMOVE_COMMENT_FAILURE,
+  REMOVE_COMMENT_REQUEST,
+  REMOVE_COMMENT_SUCCESS,
 
-  LOAD_HASHTAG_POSTS_FAILURE, 
-  LOAD_HASHTAG_POSTS_REQUEST, 
+  LOAD_HASHTAG_POSTS_FAILURE,
+  LOAD_HASHTAG_POSTS_REQUEST,
   LOAD_HASHTAG_POSTS_SUCCESS,
 
   LIKE_POST_REQUEST,
@@ -150,10 +155,42 @@ function* addComment(action) {
       type: ADD_COMMENT_SUCCESS,
       data: result.data,
     });
+
+    // 알림 보내기
+    console.log('💥');
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.COMMENT,
+        SenderId: action.data.userId,
+        ReceiverId: action.postAuthorId,
+        targetId: result.data.id,
+      },
+    });
+
   } catch (err) {
     console.error(err);
     yield put({
       type: ADD_COMMENT_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+function removeCommentAPI(data) {
+  return axios.delete(`/post/${data.postId}/comment/${data.commentId}`);
+}
+
+function* removeComment(action) {
+  try {
+    const result = yield call(removeCommentAPI, action.data);
+    yield put({
+      type: REMOVE_COMMENT_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: REMOVE_COMMENT_FAILURE,
       error: err.response.data,
     });
   }
@@ -264,6 +301,10 @@ function* watchAddComment() {
   yield takeLatest(ADD_COMMENT_REQUEST, addComment);
 }
 
+function* watchRemoveComment() {
+  yield takeLatest(REMOVE_COMMENT_REQUEST, removeComment);
+}
+
 function* watchLoadHashtagPosts() {
   yield throttle(5000, LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
 }
@@ -282,15 +323,16 @@ function* watchUploadImages() {
 
 export default function* postSaga() {
   yield all([
-    fork(watchLoadPost),  
-    fork(watchLoadPosts),      
+    fork(watchLoadPost),
+    fork(watchLoadPosts),
     fork(watchAddPost),
     fork(watchUpdatePost),
     fork(watchRemovePost),
     fork(watchAddComment),
-    fork(watchLoadHashtagPosts),    
+    fork(watchRemoveComment), 
+    fork(watchLoadHashtagPosts),
     fork(watchLikePost),
     fork(watchUnlikePost),
-    fork(watchUploadImages),    
+    fork(watchUploadImages),
   ]);
 }

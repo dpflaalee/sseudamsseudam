@@ -12,6 +12,11 @@ export const CREATE_GROUP_REQUEST = 'CREATE_GROUP_REQUEST';
 export const CREATE_GROUP_SUCCESS = 'CREATE_GROUP_SUCCESS';
 export const CREATE_GROUP_FAILURE = 'CREATE_GROUP_FAILURE';
 
+// 그룹 단일 데이터 로딩
+export const LOAD_SINGLE_GROUP_REQUEST = 'LOAD_SINGLE_GROUP_REQUEST';
+export const LOAD_SINGLE_GROUP_SUCCESS = 'LOAD_SINGLE_GROUP_SUCCESS';
+export const LOAD_SINGLE_GROUP_FAILURE = 'LOAD_SINGLE_GROUP_FAILURE';
+
 //그룹 업데이트
 export const UPDATE_GROUP_REQUEST = 'UPDATE_GROUP_REQUEST';
 export const UPDATE_GROUP_SUCCESS = 'UPDATE_GROUP_SUCCESS';
@@ -67,6 +72,10 @@ export const initialState = {
   createGroupLoading: false,
   createGroupDone: false,
   createGroupError: null,
+  //단일그룹 불러오기
+  loadSingleGroupLoading : false,
+  loadSingleGroupDone : false,
+  loadSingleGroupError : null,
   // 그룹 수정
   updateGroupLoading: false,
   updateGroupDone: false,
@@ -125,8 +134,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         draft.loadGroupsError = null;
         break;
       case LOAD_GROUPS_SUCCESS:
-        draft.loadGroupsLoading = false;
         draft.groups = action.data;
+        draft.loadGroupsLoading = false;
         draft.loadGroupsDone = true;
         break;
       case LOAD_GROUPS_FAILURE:
@@ -148,7 +157,22 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         draft.createGroupLoading = false;
         draft.createGroupError = action.error; 
         break;       
-      //그룹 업데이트
+      //단일그룹 로딩
+      case LOAD_SINGLE_GROUP_REQUEST :
+        draft.loadSingleGroupLoading = true;
+        draft.loadSingleGroupDone = false;
+        draft.loadSingleGroupError = null;
+        break;
+      case LOAD_SINGLE_GROUP_SUCCESS :
+        draft.loadSingleGroupLoading = false;
+        draft.loadSingleGroupDone = true;
+        draft.singleGroup = action.data;  // 단일 그룹 데이터 저장용
+        break;
+      case LOAD_SINGLE_GROUP_FAILURE :
+        draft.loadSingleGroupLoading = false;
+        draft.loadSingleGroupError = action.error;
+        break;
+        //그룹 업데이트
       case UPDATE_GROUP_REQUEST:
         draft.updateGroupLoading = true;
         draft.updateGroupDone = false;

@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
     //Notification
     db.User.hasMany(db.Notification, { foreignKey: 'SenderId', as: 'SentNotifications', });
     db.User.hasMany(db.Notification, { foreignKey: 'ReceiverId', as: 'ReceivedNotifications', });
+    db.User.hasMany(db.NotificationSetting, {
+      foreignKey: 'UserId',
+      as: 'NotificationSettings',
+      onDelete: 'CASCADE',
+    });
 
     // Complain
     db.User.hasMany(db.Complain, { foreignKey: 'ReporterId' });
@@ -55,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
     //MyPrize
     db.User.belongsToMany(db.Prize, { through: 'MyPrize', foreignKey: 'UserId' });
     //UserGroup
-    db.User.belongsToMany(db.Group, { through: 'GroupMember', foreignKey: 'UserId' });
+    db.User.belongsToMany(db.Group, { through: 'GroupMember', as: 'joinedGroups', foreignKey: 'UserId' }); // 중간테이블 별칭 추가
     //MyPlace
     db.User.belongsToMany(db.Place, { through: 'MyPlace', as: 'Places' });
     //ChattingMemebers

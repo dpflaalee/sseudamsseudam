@@ -4,7 +4,9 @@ import axios from 'axios';
 import postSaga from './post';
 import complainSaga from './complain';
 import userSaga from './user';
-import notificaionSaga from './notification';
+import notificationSaga from './notification';
+import animalSaga from './animal';
+import groupSaga from './group';
 
 axios.defaults.baseURL = 'http://localhost:3065';
 axios.defaults.withCredentials = true;
@@ -14,7 +16,9 @@ export default function* rootSaga() {
     fork(postSaga),
     fork(complainSaga),
     fork(userSaga),
-    fork(notificaionSaga),
+    fork(notificationSaga),
+    fork(animalSaga),
+    fork(groupSaga)
 
   ]);
 }

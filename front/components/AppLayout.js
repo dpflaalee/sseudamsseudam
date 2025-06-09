@@ -4,8 +4,6 @@ import Nav from './Nav';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
-import PostCard from './post/PostCard';
-import DetailCard from './detail/DetailCard'
 
 const AppLayoutWrapper = styled.div`
   min-height: 100vh;
@@ -24,7 +22,7 @@ const ColWithOrder = styled(Col)`
   }
 `;
 
-const AppLayout = ({ children }) => {
+const AppLayout = ({ children, group }) => {
 
   return (
 
@@ -42,7 +40,7 @@ const AppLayout = ({ children }) => {
           {/* Main Content */}
           <ColWithOrder xs={24} md={12} className="main-col" style={{ padding: "0", borderRight: "3px solid #eee" }}>
             {/* 메인컨텐츠 상단고정영역추가 */}
-            <ContentHeader />
+            <ContentHeader  group={group} />
             {children}
           </ColWithOrder>
 

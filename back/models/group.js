@@ -10,14 +10,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
   }, {
-    charset: 'utf8',
-    collate: 'utf8_general_ci'
+    charset: 'utf8mb4',
+    collate: 'utf8mb4_general_ci'
   });
   Group.associate = (db) => {
     db.Group.hasMany(db.Post);
     db.Group.belongsTo(db.OpenScope);
     db.Group.belongsToMany(db.Category, { through: 'GroupCategory'});
-    db.Group.belongsToMany(db.User, { through: 'GroupMember'})
+    db.Group.belongsToMany(db.User, { through: 'GroupMember', as: 'groupmembers' })
   }
   return Group;
 };

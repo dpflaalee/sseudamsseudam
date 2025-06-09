@@ -19,6 +19,11 @@ const admin = require('./routes/admin');
 const search = require('./routes/search');
 const notification = require('./routes/notification');
 const groups = require('./routes/group');
+const categories = require('./routes/categories');
+const prize = require('./routes/prize');
+const randomBox = require('./routes/randomBox');
+const animal = require('./routes/animal');
+
 
 //환경설정
 dotenv.config();
@@ -58,13 +63,20 @@ app.use('/api', (req, res) => { res.send('Link Test') });
 
 app.use('/post', post);
 app.use('/posts', posts);
-app.use('/hashtag' , hashtag);
+app.use('/hashtag', hashtag);
 app.use('/user', user);
 app.use('/complain', complain);
 app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
 app.use('/groups', groups);
+app.use('/categories', categories);
 
+app.use('/prize', prize);
+app.use('/randomBox', randomBox);
+app.use('/animal', animal);
+app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
+
+require('./jobs/giveRandomBoxJob');
 
 app.listen(3065, () => { console.log('server...'); });
