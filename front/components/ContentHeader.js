@@ -50,7 +50,7 @@ const groupLeaderId = 1;
 const isGroupMember = true;
 //테스트용
 
-const ContentHeader = () => {
+const ContentHeader = ({group}) => {
   const router = useRouter();
 
   const [showDeleteModal, setShowDeleteModal]= useState(false);
@@ -66,7 +66,12 @@ const ContentHeader = () => {
   };
 
   const handelGroupMenyClick = ({key})=>{
-    if (key === 'edit') { router.push(`/groups/${router.query.id}/edit`);
+    if (!group) {
+      message.error('그룹 정보를 불러올 수 없습니다.');
+      return;
+    }
+
+    if (key === 'edit') { router.push(`/groups/${group.id}/edit`);
     } else if (key === 'delete') { setShowDeleteModal(true);
     } else if (key === 'leave') { setShowLeaveModal(true); }
   }
@@ -119,7 +124,7 @@ const ContentHeader = () => {
             <Button
               icon={<PlusOutlined />}
               style={{ border: 'none' }}
-              onClick={() => router.push('/groups/groupCreate')}
+              onClick={() => router.push('/groups/form')}
             />
             {isGroup && (
               <Dropdown overlay={groupMenu} trigger={['click']}>
