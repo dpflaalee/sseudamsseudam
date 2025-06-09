@@ -27,6 +27,7 @@ export const DELETE_GROUP_REQUEST = 'DELETE_GROUP_REQUEST';
 export const DELETE_GROUP_SUCCESS = 'DELETE_GROUP_SUCCESS';
 export const DELETE_GROUP_FAILURE = 'DELETE_GROUP_FAILURE';
 
+//멤버관리-------------------------------------------------
 //멤버 리스트 조회
 export const LOAD_MEMBERS_REQUEST = 'LOAD_MEMBERS_REQUEST';
 export const LOAD_MEMBERS_SUCCESS = 'LOAD_MEMBERS_SUCCESS';
@@ -41,6 +42,12 @@ export const KICK_MEMBER_FAILURE = 'KICK_MEMBER_FAILURE';
 export const TRANSFER_OWNERSHIP_REQUEST = 'TRANSFER_OWNERSHIP_REQUEST';
 export const TRANSFER_OWNERSHIP_SUCCESS = 'TRANSFER_OWNERSHIP_SUCCESS';
 export const TRANSFER_OWNERSHIP_FAILURE = 'TRANSFER_OWNERSHIP_FAILURE';
+
+//가입관리-------------------------------------------------- 
+//공개 그룹 가입
+export const JOIN_GROUP_REQUEST = 'JOIN_GROUP_REQUEST';
+export const JOIN_GROUP_SUCCESS = 'JOIN_GROUP_SUCCESS';
+export const JOIN_GROUP_FAILURE = 'JOIN_GROUP_FAILURE';
 
 //가입 신청
 export const APPLY_GROUP_REQUEST = 'APPLY_GROUP_REQUEST';
@@ -60,6 +67,7 @@ export const APPROVE_JOIN_FAILURE = 'APPROVE_JOIN_FAILURE';
 export const REJECT_JOIN_REQUEST = 'REJECT_JOIN_REQUEST';
 export const REJECT_JOIN_SUCCESS = 'REJECT_JOIN_SUCCESS';
 export const REJECT_JOIN_FAILURE = 'REJECT_JOIN_FAILURE';
+//멤버관리-------------------------------------------------
 
 //-------------- 초기값---------------//
 
@@ -85,6 +93,7 @@ export const initialState = {
   deleteGroupDone: false,
   deleteGroupError: null,
 
+//멤버관리-------------------------------------------------
   // 그룹 멤버 불러오기
   loadMembersLoading: false,
   loadMembersDone: false,
@@ -100,6 +109,11 @@ export const initialState = {
   transferOwnershipDone: false,
   transferOwnershipError: null,
 
+//------------------- 가입관리 -------------------//  
+  //공개 그룹 가입
+  joinGroupLoading: false,
+  joinGroupDone: false,
+  joinGroupError: null,
   // 가입 요청 신청
   applyGroupLoading: false,
   applyGroupDone: false,
@@ -256,6 +270,22 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         draft.transferOwnershipLoading = false;
         draft.transferOwnershipError = action.error;
         break;
+        
+  //------------------- 가입관리 -------------------//      
+      // 공개 그룹 즉시 가입
+      case JOIN_GROUP_REQUEST:
+        draft.joinGroupLoading = true;
+        draft.joinGroupDone = false;
+        draft.joinGroupError = null;
+        break;
+      case JOIN_GROUP_SUCCESS:
+        draft.joinGroupLoading = false;
+        draft.joinGroupDone = true;
+        break;
+      case JOIN_GROUP_FAILURE:
+        draft.joinGroupLoading = false;
+        draft.joinGroupError = action.error;
+        break;        
       //가입신청
       case APPLY_GROUP_REQUEST:
         draft.applyGroupLoading = true;

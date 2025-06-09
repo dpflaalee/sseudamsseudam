@@ -7,40 +7,29 @@ import complain from './complain';
 import animal from './animal';
 import notification from './notification';
 import group from './group';
+//import prize from './prize';
+//import myPrize from './myPrize';
 
 // (이전상태, 액션) => 다음상태
-// const rootReducer = (state, action) => {
-//   switch (action.type) {
-//     case HYDRATE:
-//       console.log('HYDRATE', action);
-//       return action.payload;
-//     default: {
-//       const combinedReducer = combineReducers({
-//         user,
-//         post,
-//         complain,
-//         animal,
-//         notification,
-//       });
-//       return combinedReducer(state, action);
-//     }
-//   }
-// };
-const rootReducer = combineReducers({
-  index: (state = {}, action) => {
-    switch (action.type) {
-      case HYDRATE:
-        console.log('HYDRATE', action);
-        return { ...state, ...action.payload };
-      default:
-        return { ...state }
+const rootReducer = (state, action) => {
+  switch (action.type) {
+    case HYDRATE:
+      console.log('HYDRATE', action);
+      return action.payload;
+    default: {
+      const combinedReducer = combineReducers({
+        user,
+        post,
+        complain,
+        animal,
+        notification,
+        //prize,
+        //myPrize,
+        group,
+      });
+      return combinedReducer(state, action);
     }
-  },
-  user,
-  post,
-  complain,
-  animal,
-  notification,
-  group,
-});
+  }
+};
+
 export default rootReducer;

@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
     //MyPrize
     db.User.belongsToMany(db.Prize, { through: 'MyPrize', foreignKey: 'UserId' });
     //UserGroup
-    db.User.belongsToMany(db.Group, { through: 'GroupMember', as: 'joinedGroups', foreignKey: 'UserId' }); // 중간테이블 별칭 추가
+    db.User.belongsToMany(db.Group, { through: 'GroupMember', as: 'groupmembers', foreignKey: 'UserId' }); // 중간테이블 별칭 추가
     //MyPlace
     db.User.belongsToMany(db.Place, { through: 'MyPlace', as: 'Places' });
     //ChattingMemebers
