@@ -6,6 +6,7 @@ import user from './user';
 import complain from './complain';
 import animal from './animal';
 import notification from './notification';
+import group from './group';
 import prize from './prize';
 import myPrize from './myPrize';
 
@@ -29,20 +30,22 @@ const rootReducer = (state, action) => {
     }
   }
 };
-// const rootReducer = combineReducers({
-//   index: (state = {}, action) => {
-//     switch (action.type) {
-//       case HYDRATE:
-//         console.log('HYDRATE', action);
-//         return { ...state, ...action.payload };
-//       default:
-//         return { ...state }
-//     }
-//   },
-//   user,
-//   post,
-//   complain,
-//   animal,
-//   notification,
-// });
+
+const rootReducer = combineReducers({
+  index: (state = {}, action) => {
+    switch (action.type) {
+      case HYDRATE:
+        console.log('HYDRATE', action);
+        return { ...state, ...action.payload };
+      default:
+        return { ...state }
+    }
+  },
+  user,
+  post,
+  complain,
+  animal,
+  notification,
+  group,
+});
 export default rootReducer;
