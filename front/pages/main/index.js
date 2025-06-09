@@ -5,8 +5,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Divider } from "antd";
 import PostCard from '@/components/post/PostCard';
 import PostForm from '@/components/post/PostForm';
+<<<<<<< HEAD
+import Comment from '@/components/Comment/Comment';
+import Profile from '@/components/Profile';
+=======
 import Comment from '@/components/comment/Comment';
 import Profile from '@/components/user/Profile';
+>>>>>>> 4c5c02d5e404992511331bcf8e0daac2a97d7e4e
 import NotificationButton from "@/components/notifications/NotificationButton";
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'; 
 import AnimalList from '@/components/animal/AnimalList';
