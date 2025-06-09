@@ -1,39 +1,22 @@
-import React, { useState } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Button,
-  Modal,
-} from "antd";
+import React from "react";
+import { Card, Row, Col, Button, Modal } from "antd";
 import Barcode from "react-barcode";
 
-// props: openRandomModal
-const MyPrize = ({ openRandomModal }) => {
-  const handleCouponUse = () => {
-    const isSuccess = Math.random() > 0.3; // 70% 확률로 성공
-
-    if (isSuccess) {
-      Modal.success({
-          title: "교환권 발급 성공",
-          content: (
-            <div style={{ textAlign: "center" }}>
-              <p>온/오프라인 교환권이 발급되었습니다.</p>
-              <Barcode value="COUPON-123456" />   {/* 임시 바코드*/ }
-              <p>마이페이지에서도 확인할 수 있습니다.</p>
-            </div>
-          ),
-          okText: "확인",
-        });
-    }else {
-      Modal.error({
-        title: "쿠폰 사용 실패",
-        content: "일시적인 오류가 발생했습니다. 다시 시도해주세요.",
-        okText: "닫기",
-      });
-    }
+// coupons: 쿠폰 배열, openRandomModal: 박스 사용 콜백 (부모에서 전달)
+const MyPrize = ({ coupons, openRandomModal }) => {
+  const handleUseBox = (categoryId) => {
+    openRandomModal(categoryId); // 부모에서 categoryId 처리
   };
 
+  const handleCouponUse = (couponId) => {
+    // 쿠폰 사용 로직 (API 호출 등)
+    // 여기서 성공/실패 모달 띄워도 됨
+    Modal.success({
+      title: "쿠폰 사용 성공",
+      content: `쿠폰 ID ${couponId}가 성공적으로 사용되었습니다.`,
+      okText: "확인",
+    });
+  };
 
   return (
     <>
@@ -44,7 +27,7 @@ const MyPrize = ({ openRandomModal }) => {
             <Card
               type="inner"
               title="강아지 랜덤박스"
-              extra={<Button danger onClick={openRandomModal}>사용</Button>}
+              extra={<Button danger onClick={() => handleUseBox(1)}>사용</Button>}
             >
               유효기간: 2025/06/30
               <br />
@@ -57,7 +40,7 @@ const MyPrize = ({ openRandomModal }) => {
             <Card
               type="inner"
               title="고양이 랜덤박스"
-              extra={<Button danger onClick={openRandomModal}>사용</Button>}
+              extra={<Button danger onClick={() => handleUseBox(2)}>사용</Button>}
             >
               유효기간: 2025/06/30
               <br />
@@ -72,44 +55,35 @@ const MyPrize = ({ openRandomModal }) => {
       {/* 내 쿠폰함 */}
       <Card title="내 쿠폰함" style={{ marginBottom: 24 }}>
         <Row gutter={[0, 16]}>
-          <Col span={24}>
-            <Card
-              type="inner"
-              title="쿠폰이름"
-              extra={<Button type="primary" onClick={handleCouponUse}>사용</Button>}
-            >
-              유효기간: 2025/06/30
-              <br />
-              <span style={{ color: "#888" }}>
-                발급 사유: 작성한 게시글이 주간 좋아요 1위로 선정되어 지급된 랜덤박스를 통해 발급된 쿠폰입니다.
-              </span>
-              <br />
-              <span style={{ color: "#888" }}>
-                쿠폰이 조기 마감될 수 있습니다. 사용에 유의 바랍니다.
-              </span>
-            </Card>
-          </Col>
-          <Col span={24}>
-            <Card
-              type="inner"
-              title="쿠폰이름"
-              extra={<Button type="primary" onClick={handleCouponUse}>사용</Button>}
-            >
-              유효기간: 2025/06/30
-              <br />
-              <span style={{ color: "#888" }}>
-                발급 사유: 지난주 좋아요 순위 2위에 선정되어 지급된 랜덤박스에서 발급된 쿠폰입니다.
-              </span>
-              <br />
-              <span style={{ color: "#888" }}>
-                쿠폰이 조기 마감될 수 있습니다. 사용에 유의 바랍니다. 
-              </span>
-            </Card>
-          </Col>
+          {coupons && coupons.length > 0 ? (
+            coupons.map((coupon) => (
+              <Col span={24} key={coupon.id}>
+                <Card
+                  type="inner"
+                  title={coupon.content}
+                  extra={
+                    <Button type="primary" onClick={() => handleCouponUse(coupon.id)}>
+                      사용
+                    </Button>
+                  }
+                >
+                  유효기간: {new Date(coupon.dueAt).toLocaleDateString()}
+                  <br />
+                  <Barcode value={coupon.barcode} />
+                  <br />
+                  <span style={{ color: "#888" }}>
+                    발급 사유: {coupon.issuedReason}
+                  </span>
+                </Card>
+              </Col>
+            ))
+          ) : (
+            <Col span={24}>쿠폰이 없습니다.</Col>
+          )}
         </Row>
       </Card>
     </>
   );
 };
-// 0604
+
 export default MyPrize;

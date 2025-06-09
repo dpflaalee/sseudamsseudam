@@ -18,6 +18,11 @@ import {
   CHANGE_NICKNAME_SUCCESS,
   CHANGE_NICKNAME_FAILURE,
 
+  USER_DELETE_REQUEST,
+  USER_DELETE_SUCCESS,
+  USER_DELETE_FAILURE,
+
+
   FOLLOW_REQUEST,
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE,
@@ -92,6 +97,24 @@ function* logout() {
     })
   }
 }
+function  userDeleteApi() {   //★   function* (X)
+  return axios.post('/user/userDelete');
+}
+function* userDelete() {
+
+  try {
+    const result = yield call(userDeleteApi); //처리함수, 처리파라미터
+    //yield delay(1000);
+    yield put({
+      type: USER_DELETE_SUCCESS,
+    })
+  } catch (error) {
+    yield put({
+      type: USER_DELETE_FAILURE,
+      data: error.response.data
+    })
+  }
+}
 
 //-- 
 function signUpAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
@@ -148,6 +171,10 @@ function* watchLogout() {
   yield takeLatest(LOG_OUT_REQUEST, logout);
 
 }
+function* watchUserDelete() {
+  yield takeLatest(USER_DELETE_REQUEST, userDelete);
+
+}
 function* watchSignup() {
   yield takeLatest(SIGN_UP_REQUEST, signUp);  //요청 10 ->응답1
 }
@@ -161,6 +188,7 @@ export default function* userSaga() {
       fork(watchLogout),
       fork(watchSignup), 
       fork(watchLoadMyInfo), 
+      fork(watchUserDelete), 
       
       fork(watchChangeNickname),
   ]);
