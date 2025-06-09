@@ -5,9 +5,10 @@ import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, Retweet
 import PostImages from './PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
-import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST } from '@/reducers/post';
+import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST, RETWEET_REQUEST } from '@/reducers/post';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
+import PostCardContent from './PostCardContent';
 
 
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
@@ -19,6 +20,15 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const { Option } = Select;
   const dispatch = useDispatch();
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const onClickUpdate = useCallback(() => { setEditMode(true); },[]);
+  const onCancelUpdate = useCallback(() => { setEditMode(false); },[]);
+  const onEditPost = useCallback((editText) => () => {
+    dispatch({
+      type: UPDATE_POST_REQUEST,
+      data: { PostId:post.id, content:editText }
+    });
+  },[post]);
 
   const [newContent, setNewContent] = useState(post.content);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -84,12 +94,21 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     });  
   },[]);
 
+  // 리트윗
+  const onRetweet = useCallback(() => {
+    if (!id) { return alert('로그인 후 리트윗이 가능합니다.'); }
+    return dispatch({
+      type: RETWEET_REQUEST,
+      data: post.id
+    });
+  });  
   return (
     <div style={{ margin: '3%' }}>
       <Card
         title={isGroup ? `[그룹]${post.User?.nickname}` : post.User?.nickname} // 그룹용 추가코드
+        cover={ post.Images && post.Images.length > 0 && <PostImages images={post.Images}/> }
         actions={[
-          <RetweetOutlined key="retweet" />,
+          <RetweetOutlined key="retweet" onClick={onRetweet} />,
           like
             ? <span key="heart"><HeartTwoTone twoToneColor="#f00" onClick={onClickunLike} /> {post.Likers.length}</span>
             : <span key="heart"><HeartOutlined onClick={onClickLike} /> {post?.Likers?.length}</span>,
@@ -112,7 +131,42 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             < EllipsisOutlined />
           </Popover>
         ]}
+        // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}
       >
+      { post.RetweetId && post.Retweet ? (
+        <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
+          <Card.Meta
+            avatar={<Link href={`/user/${post.Retweet.User.id}`} prefetch={false}>
+                    <Avatar>{post.Retweet.User.nickname[0]}</Avatar></Link>} 
+            title={post.Retweet.User.nickname}
+            description={
+              <PostCardContent 
+                editMode={editMode}
+                onEditPost={onEditPost}
+                onCancelUpdate={onCancelUpdate}
+                postData={post.Retweet.content}
+              />} 
+          />
+        </Card>
+      ) : (
+          <Card.Meta
+            avatar={
+              <Link href={`/user/${post.User.id}`} prefetch={false}>
+                <Avatar>{post.User.nickname[0]}</Avatar>
+              </Link>
+            }
+            title={post.User.nickname}
+            description={
+              <PostCardContent
+                editMode={editMode}
+                onEditPost={onEditPost}
+                onCancelUpdate={onCancelUpdate}
+                postData={post.content}
+              />
+            }
+          />
+
+      )}       
         {/* 신고 모달 */}
         {open && (
           <ComplainForm
@@ -125,19 +179,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         )}
         {/* E 신고 모달 */}
 
-        <Card.Meta avatar={<Avatar></Avatar>}
-          title={post.User ? post.User.nickname : 'Unknown'}
-          description={
-            post.meta && post.meta.createdAt
-              ? new Date(post.meta.createdAt).toLocaleString()
-              : null
-          }
-          style={{ marginBottom: 16 }}
-        />
-        <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>
-          {post.content}
-        </div>
-        {post.Images && post.Images.length > 0 && <PostImages images={post.Images} />}
       </Card >
 
       <Modal
