@@ -17,30 +17,41 @@ const CusLink = styled(Link)`color: #aaa`;
 
 const LoginForm = () => {
   const { logInLoading, logInDone, logInError } = useSelector(state => state.user);
+
   ///////////////////////////////////////////// code
   const [email, onChangeEmail] = userInput('');
   const [password, onChangePassword] = userInput('');
 
   const dispatch = useDispatch();  //#4.   redux
 
-  useEffect(() => {
-    if (logInDone) {
-      Router.replace('/main');
-    }
-  }, [logInDone])
+  const [errLoginFlag, setErrLoginFlag] = useState(false);
+  const [errLoginMsg, setErrLoginMsg] = useState('');
   useEffect(() => {
     if (logInError) {
-      alert(logInError);
-    }
+      console.log('logInError');
+        setErrLoginFlag(true);
+        setErrLoginMsg(logInError);
+        //alert(logInError);
+        logInError;
+      } 
   }, [logInError]);
 
+  useEffect(() => {
+    if(logInDone){
+      console.log('logInDone');
+      Router.replace('/main');
+    }
+  },[logInDone])
   const onSubmitForm = useCallback(() => {
+    setErrLoginFlag(false);
+    setErrLoginMsg('');
     console.log(email, password);
     //setIsLoggedIn(true);
     dispatch({
       type: LOG_IN_REQUEST,
       data: { email, password }
     });
+    
   }, [email, password]);
 
   return (
@@ -85,7 +96,7 @@ const LoginForm = () => {
           rules={[
             {
               required: true,
-              message: 'Please input your username!',
+              message: '이메일을 확인해주세요',
             },
           ]}
         >
@@ -103,7 +114,7 @@ const LoginForm = () => {
           rules={[
             {
               required: true,
-              message: 'Please input your password!',
+              message: "비밀번호를 확인해주세요",
             },
           ]}
         >

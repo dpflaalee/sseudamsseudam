@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import LoginForm from "../components/user/LoginForm";
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -37,6 +37,19 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   context.store.dispatch(END);
 
   await  context.store.sagaTask.toPromise();
+   const state = context.store.getState();
+   console.log('state.user.me='+state.user.me);
+    if (state.user.me) {
+      return {
+        redirect: {
+          destination: '/main',
+          permanent: false,
+        },
+      };
+    }
+  return {
+    props: {},
+  };
 }); 
 ///////////////////////////////////////////////////////////
 export default login;
