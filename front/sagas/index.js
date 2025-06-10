@@ -10,6 +10,7 @@ import prizeSaga from './prize';
 import myPrizeSaga from './myPrize';
 import groupSaga from './group';
 import notificationSettingSaga from './notificationSetting';
+import categorySaga from './category';
 
 axios.defaults.baseURL = 'http://localhost:3065';
 axios.defaults.withCredentials = true;
@@ -25,5 +26,6 @@ export default function* rootSaga() {
     fork(prizeSaga),
     fork(myPrizeSaga),
     fork(notificationSettingSaga),
+    fork(categorySaga),
   ]);
 }
