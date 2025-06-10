@@ -1,16 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Divider, DatePicker, Input, Form, Button, message } from 'antd';
+import axios from 'axios';
 import dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import localeData from 'dayjs/plugin/localeData';
-
-dayjs.extend(localizedFormat);
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(localeData);
-dayjs.locale('ko');
+import { useRouter } from 'next/router';
 
 const { RangePicker } = DatePicker;
 
@@ -21,6 +13,30 @@ const formItemLayout = {
 
 const ChallengeChange = ({ challenge, onSubmit }) => {
   const [form] = Form.useForm();
+  const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
+        if (res.data && Number(res.data.isAdmin) === 1) {
+          setIsAdmin(true);
+        } else {
+          alert('권한이 없습니다.');
+          router.replace('/main');
+        }
+      } catch (error) {
+        console.error('유저 정보 불러오기 실패:', error);
+        alert('권한이 없습니다.');
+        router.replace('/main');
+      } finally {
+        setIsChecking(false);
+      }
+    };
+    fetchUser();
+  }, [router]);
 
   useEffect(() => {
     if (challenge) {
@@ -44,65 +60,63 @@ const ChallengeChange = ({ challenge, onSubmit }) => {
   };
 
   const handleCancel = () => {
-    window.history.back();
+    router.push('/main');
   };
 
+  if (isChecking) return null;
+
   return (
-    <>
-      <style>{`
-        h3 {
-          font-size: 20px;
-          font-weight: bold;
-        }
-        .ant-form-item {
-          margin-bottom: 15px !important;
-        }
-      `}</style>
-      <Divider />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-          minWidth: '560px',
-          width: '100%',
-          backgroundColor: '#ffffff',
-          padding: '20px 200px 25px 200px',
-        }}
-      >
-        <h3>챌린지 수정</h3>
-        <Form {...formItemLayout} form={form} onFinish={handleFinish}>
-          <Form.Item
-            name="title"
-            rules={[{ required: true, message: '챌린지 이름을 입력하세요.' }]}>
-            <Input placeholder="챌린지 이름" />
-          </Form.Item>
+    isAdmin && (
+      <>
+        <style>{`
+          h3 {
+            font-size: 20px;
+            font-weight: bold;
+          }
+          .ant-form-item {
+            margin-bottom: 15px !important;
+          }
+        `}</style>
+        <Divider />
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            minWidth: '560px',
+            width: '100%',
+            backgroundColor: '#ffffff',
+            padding: '20px 200px 25px 200px',
+          }}
+        >
+          <h3>챌린지 수정</h3>
+          <Form {...formItemLayout} form={form} onFinish={handleFinish}>
+            <Form.Item name="title" rules={[{ required: true, message: '챌린지 이름을 입력하세요.' }]}>
+              <Input placeholder="챌린지 이름" />
+            </Form.Item>
 
-          <Form.Item
-            name="content"
-            rules={[{ required: true, message: '챌린지 설명을 입력하세요.' }]}>
-            <Input.TextArea placeholder="챌린지 설명" />
-          </Form.Item>
+            <Form.Item name="content" rules={[{ required: true, message: '챌린지 설명을 입력하세요.' }]}>
+              <Input.TextArea placeholder="챌린지 설명" />
+            </Form.Item>
 
-          <Form.Item
-            name="range"
-            rules={[{ required: true, message: '시작일과 종료일을 선택하세요.' }]}>
-            <RangePicker showTime style={{ width: '100%' }} />
-          </Form.Item>
+            <Form.Item name="range" rules={[{ required: true, message: '시작일과 종료일을 선택하세요.' }]}>
+              <RangePicker showTime style={{ width: '100%' }} />
+            </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block>
-              수정하기
-            </Button>
-          </Form.Item>
-          <Form.Item>
-            <Button htmlType="button" onClick={handleCancel} block>
-              취소
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
-    </>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block>
+                수정하기
+              </Button>
+            </Form.Item>
+            <Form.Item>
+              <Button htmlType="button" onClick={handleCancel} block>
+                취소
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      </>
+    )
   );
 };
 
