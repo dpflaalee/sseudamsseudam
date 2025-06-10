@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     dueAt: {
       type: DataTypes.DATE,
       allowNull: false  // Prize의 dueAt을 복사해서 초기화
-    }
+    },
   }, {
     charset: 'utf8',
     collate: 'utf8_general_ci',

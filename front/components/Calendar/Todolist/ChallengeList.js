@@ -4,23 +4,24 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
-dayjs.locale('ko');
 import weekday from 'dayjs/plugin/weekday';
+import ChallengeCalendar from '../Todolist/ChallengeCalendar';
+
+dayjs.locale('ko');
 dayjs.extend(weekday);
 
 const dateView = { color: '#807E7E' };
-const dateStyle = { color: '#807E7E', fontSize: '13px' };
+const dateStyle = { color: '#807E7E', fontSize: '13px', marginBottom: '5%', display: 'inline', verticalAlign: 'middle', textAlign: 'center' };
 
 const ChallengeList = () => {
   const router = useRouter();
   const [schedules, setSchedules] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // 1) 서버에서 현재 로그인한 유저 정보 받아오기
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get('http://localhost:3065/user');
+        const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
         setIsAdmin(Number(res.data.isAdmin) === 1);
       } catch (error) {
         console.error('유저 정보 불러오기 실패:', error);
@@ -30,7 +31,6 @@ const ChallengeList = () => {
     fetchUser();
   }, []);
 
-  // 2) 챌린지 일정 불러오기
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
@@ -57,7 +57,7 @@ const ChallengeList = () => {
       try {
         await axios.delete(`http://localhost:3065/calendar/${id}`);
         message.success('챌린지가 삭제되었습니다.');
-        setSchedules((prevSchedules) => prevSchedules.filter((schedule) => schedule.id !== id));
+        setSchedules((prev) => prev.filter((schedule) => schedule.id !== id));
       } catch (error) {
         console.error('챌린지 삭제 실패:', error);
         message.error('챌린지 삭제에 실패했습니다.');
@@ -89,10 +89,11 @@ const ChallengeList = () => {
           width: '100%',
           backgroundColor: '#ffffff',
           padding: '20px 200px 25px 200px',
-        }}
-      >
+        }}>
         <div style={{ display: 'flex' }}>
-          <h3 style={{ marginBottom: '0px' }}>진행 중인 챌린지</h3>
+          <h3 style={{ marginBottom: '0px' }}>
+            {isAdmin ? '진행 중인 챌린지' : '내 챌린지 참여현황'}
+          </h3>
           {isAdmin && (
             <div
               style={{
@@ -100,11 +101,8 @@ const ChallengeList = () => {
                 alignItems: 'center',
                 marginLeft: 'auto',
                 gap: '10px',
-              }}
-            >
-              <Button key="generate" type="primary" onClick={handleAddEvent}>
-                챌린지 생성
-              </Button>
+              }}>
+              <Button type="primary" onClick={handleAddEvent}>챌린지 생성</Button>
             </div>
           )}
         </div>
@@ -117,11 +115,10 @@ const ChallengeList = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 gap: '10px',
-              }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+              }}>
+              <div style={{ display: 'inline' }}>
                 <h3 style={{ display: 'inline', marginBottom: '-2%' }}>{schedule.title}</h3>
-                <span style={dateStyle}>{formatRange(schedule.startDate, schedule.endDate)}</span>
+                <span style={dateStyle}> {formatRange(schedule.startDate, schedule.endDate)}</span>
               </div>
               {isAdmin && (
                 <div
@@ -131,22 +128,21 @@ const ChallengeList = () => {
                     marginLeft: 'auto',
                     flexDirection: 'row',
                     gap: '10px',
-                  }}
-                >
-                  <Button type="primary" onClick={() => handleChangeEvent(schedule.id)}>
-                    챌린지 수정
-                  </Button>
+                  }}>
+                  <Button type="primary" onClick={() => handleChangeEvent(schedule.id)}>챌린지 수정</Button>
                   <Button onClick={() => handleDeleteEvent(schedule.id)}>챌린지 삭제</Button>
                 </div>
               )}
             </div>
-            <span style={dateView}>{schedule.content}</span>
+            {isAdmin && <span style={dateView}>{schedule.content}</span>}
+            <div style={{ width: '100%', marginTop: '10px', marginBottom: '10px' }}>
+              <ChallengeCalendar />
+            </div>
             <Divider />
+
           </div>
         ))}
-        <Button type="primary" htmlType="submit" block onClick={seeMore}>
-          더보기
-        </Button>
+        <Button type="primary" htmlType="submit" block onClick={seeMore}>더보기</Button>
       </div>
     </>
   );

@@ -63,23 +63,23 @@ const CalendarUI = styled.div`
   }
 
   .react-calendar__tile--now {
-    background: #A1EEBD !important;
+    background:rgb(171, 231, 247) !important;
     border-radius: 50%;
   }
 
   .react-calendar__tile--now:enabled:hover,
   .react-calendar__tile--now:enabled:focus {
-    background: #A1EEBD !important;
+    background: rgb(171, 231, 247) !important;
     border-radius: 50%;
   }
 
   .react-calendar__tile--hasActive:enabled:hover,
   .react-calendar__tile--hasActive:enabled:focus {
-    background: #A1EEBD !important;
+    background: rgb(171, 231, 247) !important;
   }
 
   .react-calendar__tile--active {
-    background: #A1EEBD !important;
+    background: rgb(171, 231, 247) !important;
     border-radius: 50%;
     color: white;
   }

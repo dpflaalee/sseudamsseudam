@@ -7,7 +7,7 @@ import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import useSelection from 'antd/lib/table/hooks/useSelection';
 import { useDispatch, useSelector } from 'react-redux';
 import { LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
-import {LOAD_POSTS_REQUEST} from '@/reducers/post'
+import { LOAD_POSTS_REQUEST } from '@/reducers/post'
 import Router from 'next/router';
 import PostCard from '../post/PostCard';
 
@@ -81,25 +81,45 @@ const Profile = (props) => {
   const {logOutLoding,mainPosts,hasMorePosts,loadPostsLoading} = useSelector(state => state.post);
   console.log('profile.postUserId=',props.postUserId);
   console.log('mainPosts',mainPosts.id);
+  console.log('user',user);
   const postUserId = props.postUserId;
   useEffect(() => {
     const lastId = mainPosts[mainPosts.length - 1]?.id;
-    if(user.id === props.postUserId){
-      dispatch({
-        type: LOAD_POSTS_REQUEST,
-        lastId,
-      })
-    }else{
-      dispatch({
+    console.log('입장1');
+    console.log(typeof props.postUserId);
+    const number = [1,2,3];
+    //다른 유저를 클릭했을 때는 되고
+    //본인을 클릭했을 때 안됨
+    //로그인 유저
+    if(postUserId){
+      //postuser
+      if(user.id == props.postUserId){
+        console.log('입장2');
+        dispatch({
+          type: LOAD_POSTS_REQUEST,
+          lastId,
+          number : number[0],
+          //userId: props.postUserId,
+        })
+      }else{
+        dispatch({
         type: LOAD_POSTS_REQUEST,
         lastId,
         userId: props.postUserId,
+        number : number[1],
+      })
+      }
+  }else{//비로그인
+    console.log('비로그인 입장');
+      dispatch({
+        type: LOAD_POSTS_REQUEST,
+        lastId,
       })
     }
-      if (hasMorePosts && !loadPostsLoading) {
-      }
-    }, [mainPosts, hasMorePosts, loadPostsLoading]);
-  
+    if (hasMorePosts && !loadPostsLoading) {
+    }
+  }, [mainPosts, hasMorePosts, loadPostsLoading]);
+
   useEffect(() => {
     if (logOutDone) {
       Router.replace('/');
@@ -121,7 +141,7 @@ const Profile = (props) => {
 
   const menu = (
     <Menu>
-    {isMyProfile ? (
+      {isMyProfile ? (
         <>
           <Menu.Item key="edit">프로필 수정</Menu.Item>
           <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
@@ -141,7 +161,7 @@ const Profile = (props) => {
             open={open}
             onClose={() => setOpen(false)}
             TARGET_TYPE={TARGET_TYPE.USER}
-            targetId={postUserId?.User?.id}
+            targetId={props.postUserId}
           />
         </>
       )}
@@ -170,7 +190,7 @@ const Profile = (props) => {
             <Stats>
               {user?.followerCount} 팔로잉  &nbsp;&nbsp;
               {user?.followingCount} 팔로워 &nbsp;&nbsp;
-              {mainPosts?.length} 게시물 
+              {mainPosts?.length} 게시물
             </Stats>
           </InfoBox>
         </TopRow>
@@ -183,7 +203,7 @@ const Profile = (props) => {
         </ButtonRow>
       </Container>
       {mainPosts.map((c) => {
-      return (
+        return (
           <PostCard post={c} key={c.id} />
         );
       })}
