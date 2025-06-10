@@ -3,7 +3,12 @@ module.exports = ( sequelize , DataTypes ) => {
     content: {
       type: DataTypes.TEXT,
       allowNull: false,
-    }
+    },
+    OpenScopeId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+    },
   },{
     charset: 'utf8mb4',
     collate: 'utf8mb4_general_ci'

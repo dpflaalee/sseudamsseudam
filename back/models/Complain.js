@@ -12,6 +12,10 @@ module.exports = (sequelize, DataTypes) => {
     reason: {
       type: DataTypes.STRING(255), // 선택사항: 신고 사유
       allowNull: true,
+    },
+    isBlind: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     }
   }, {
     charset: 'utf8',

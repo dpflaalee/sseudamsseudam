@@ -15,6 +15,10 @@ export const ADD_COMPLAIN_FAILURE = 'ADD_COMPLAIN_FAILURE';
 export const REMOVE_COMPLAIN_REQUEST = 'REMOVE_COMPLAIN_REQUEST';
 export const REMOVE_COMPLAIN_SUCCESS = 'REMOVE_COMPLAIN_SUCCESS';
 export const REMOVE_COMPLAIN_FAILURE = 'REMOVE_COMPLAIN_FAILURE';
+
+export const IS_BLIND_REQUEST = 'IS_BLIND_REQUEST';
+export const IS_BLIND_SUCCESS = 'IS_BLIND_SUCCESS';
+export const IS_BLIND_FAILURE = 'IS_BLIND_FAILURE';
 ///////////////////////////////////////////////////////////////////////
 
 export const initialState = {
@@ -30,20 +34,12 @@ export const initialState = {
     removeComplainDone: false,
     removeComplainError: null,
 
+    isBlindLoading: false,
+    isBlindDone: false,
+    isBlindError: null,
+
     mainComplainCard: [],
 };
-
-{/*/////////////////////////dummyComplain
-const dummyComplain = (data) => ({
-    id: shortId.generate(),
-    targetType: data.targetType,
-    targetId: data.targetId,
-    reason: data.reason,
-    reporter: { id: data.reporter, nickname: 'Dan' },
-    creatAt: data.creatAt
-});
-*/}
-
 
 //////////////////////////////////////////
 
@@ -116,6 +112,30 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             draft.removeComplainDone = action.error;
             break;
 
+        ////////////////////////////////////////
+        case IS_BLIND_REQUEST:
+            draft.isBlindLoading = true;
+            draft.isBlindDone = false;
+            draft.isBlindError = null;
+            break;
+        case IS_BLIND_SUCCESS:
+            console.log('🐢 IS_BLIND_SUCCESS : ', action.data);
+            draft.isBlindLoading = false;
+            draft.isBlindDone = true;
+            draft.isBlindError = null;
+            draft.mainComplainCard = draft.mainComplainCard.map((report) =>
+                report.targetId === action.data.targetId
+                    ? { ...report, isBlind: true }
+                    : report
+            );
+            break;
+
+        case IS_BLIND_FAILURE:
+            draft.isBlindLoading = false;
+            draft.isBlindDone = false;
+            draft.isBlindError = action.error;
+            console.log('🚨IS_BLIND_FAILURE : ', action.error);
+            break;
         ////////////////////////////////////////
         default:
             break;
