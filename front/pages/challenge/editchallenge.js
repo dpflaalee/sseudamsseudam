@@ -10,7 +10,15 @@ const EditChallengePage = () => {
   const [challenge, setChallenge] = useState(null);
 
   useEffect(() => {
-    if (!id) return; // id가 없으면 fetch 중단
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || user.isAdmin !== 1) {
+      alert('권한이 없습니다.');
+      router.replace('/main');
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (!id) return;
     const fetchChallenge = async () => {
       try {
         const res = await axios.get(`http://localhost:3065/calendar/${id}`);
@@ -24,7 +32,7 @@ const EditChallengePage = () => {
 
   const handleSubmit = async (updatedData) => {
     try {
-      await axios.put(`http://localhost:3065/calendar/${id}`, updatedData);
+      await axios.put(`http://localhost:3065/calendar/${id}`, updatedData); //db는 calendar 하나이므로 링크도 고정
       alert('챌린지가 성공적으로 수정되었습니다.');
       router.push('/challenge');
     } catch (error) {
@@ -32,12 +40,12 @@ const EditChallengePage = () => {
     }
   };
 
-  if (!challenge) return <div>로딩 중...</div>;
+  if (!challenge) return <div>로딩 중...</div>
 
   return (
-  <AppLayout>
-    <ChallengeChange challenge={challenge} onSubmit={handleSubmit} />
-  </AppLayout>
+    <AppLayout>
+      <ChallengeChange challenge={challenge} onSubmit={handleSubmit} />
+    </AppLayout>
   );
 };
 

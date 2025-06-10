@@ -104,9 +104,9 @@ const Todolists = () => {
                   <EventLabel>EVENT!</EventLabel> //글자 이상하게 나옴 수정 필요
                 )}
                 {event.title}
+              </CardTitle>
                 <span style={dateView}><br />
                   {formatRange(event.startDate, event.endDate)}</span>
-              </CardTitle>
             </Card.Grid>
           ))}
 

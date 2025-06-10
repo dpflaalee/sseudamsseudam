@@ -25,6 +25,7 @@ const EventScheduleList = () => {
   const handleChangeEvent = (id) => {
     router.push(`/challenge/editchallenge?id=${id}`);
   };
+  const seeMore = () => router.push('/challenge/morechallenge');
 
   const fetchSchedules = async () => {
     try {
@@ -33,22 +34,22 @@ const EventScheduleList = () => {
       const sortedSchedules = res.data.sort((a, b) => dayjs(a.startDate).isBefore(dayjs(b.startDate)) ? -1 : 1);
       setSchedules(sortedSchedules);
     } catch (error) {
-      console.error('일정 불러오기 실패:', error);
-      message.error('일정 데이터를 불러오지 못했습니다.');
+      console.error('챌린지 불러오기 실패:', error);
+      message.error('챌린지 데이터를 불러오지 못했습니다.');
     }
   };
 
   // 일정 삭제
   const handleDeleteEvent = async (id) => {
-    const isConfirmed = window.confirm('이벤트를 삭제하시겠습니까?');
+    const isConfirmed = window.confirm('챌린지를 삭제하시겠습니까?');
     if (isConfirmed) {
       try {
         await axios.delete(`http://localhost:3065/calendar/${id}`);
-        message.success('이벤트가 삭제되었습니다.');
+        message.success('챌린지가 삭제되었습니다.');
         setSchedules(prevSchedules => prevSchedules.filter(schedule => schedule.id !== id));
       } catch (error) {
-        console.error('이벤트 삭제 실패:', error);
-        message.error('이벤트 삭제에 실패했습니다.');
+        console.error('챌린지 삭제 실패:', error);
+        message.error('챌린지 삭제에 실패했습니다.');
       }
     }
   };
@@ -129,7 +130,7 @@ const EventScheduleList = () => {
             <Divider />
           </div>
         ))}
-        <Button type="primary" htmlType="submit" block>더보기</Button>
+        <Button type="primary" htmlType="submit" block onClick={seeMore}>더보기</Button>
       </div>
     </>
   );

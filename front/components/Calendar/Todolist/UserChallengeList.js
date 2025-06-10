@@ -20,13 +20,8 @@ const dateStyle = {
 };
 
 const UserChallengeList = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const [challenges, setChallenges] = useState([]);
-
-  const handleAddEvent = () => router.push('/challenge/regichallenge');
-  const handleChangeEvent = (id) => {
-    router.push(`/challenge/editchallenge?id=${id}`);
-  };
 
 const fetchChallenges = async () => {
   try {
@@ -46,25 +41,6 @@ const fetchChallenges = async () => {
     message.error('챌린지 데이터를 불러오지 못했습니다.');
   }
   };
-
-useEffect(() => {
-  fetchChallenges();
-}, [currentMonth]);
-
-const handleDeleteEvent = async (id) => {
-  const isConfirmed = window.confirm('챌린지를 삭제하시겠습니까?');
-  if (isConfirmed) {
-    try {
-      await axios.delete(`http://localhost:3065/calendar/${id}`);
-      message.success('챌린지가 삭제되었습니다.');
-
-      setChallenges(prevChallenges => prevChallenges.filter(challenge => challenge.id !== id));
-    } catch (error) {
-      console.error('챌린지 삭제 실패:', error);
-      message.error('챌린지 삭제에 실패했습니다.');
-    }
-  }
-};
 
   const formatRange = (start, end) => {
     const format = 'YY.MM.DD(dd)';
@@ -102,9 +78,6 @@ const handleDeleteEvent = async (id) => {
               gap: '10px',
             }}
           >
-            <Button key="generate" type="primary" onClick={handleAddEvent}>챌린지 생성</Button>
-            <LeftOutlined onClick={handlePrevMonth} />
-            <RightOutlined onClick={handleNextMonth} />
           </div>
         </div>
         <Divider />
@@ -130,15 +103,13 @@ const handleDeleteEvent = async (id) => {
                   gap: '10px',
                 }}
               >
-                <Button type="primary" onClick={() => handleChangeEvent(schedule.id)}>챌린지 수정</Button>
-                <Button onClick={() => handleDeleteEvent(schedule.id)}>챌린지 삭제</Button>
-              <ChallengeCalendar />
+              <Calendar />
               </div>
             </div>
             <span style={dateView}>{challenge.content}</span>
             <Divider />
             <Form.Item>
-            <Button type="primary" htmlType="submit" block>더보기</Button>
+            <Button type="primary" htmlType="submit" block onClick={seeMore}>더보기</Button>
           </Form.Item>
           </div>
         ))}
