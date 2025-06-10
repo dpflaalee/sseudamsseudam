@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Divider, DatePicker, Input, Form, Button, message } from 'antd';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -14,6 +14,29 @@ const formItemLayout = {
 const EventSchedule = () => {
   const [form] = Form.useForm();
   const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
+      if (res.data && Number(res.data.isAdmin) === 1) {
+        setIsAdmin(true);
+      } else {
+        alert('권한이 없습니다.');
+        router.replace('/main');
+      }
+    } catch (error) {
+      console.error('유저 정보 불러오기 실패:', error);
+      alert('권한이 없습니다.');
+      router.replace('/main');
+    } finally {
+      setIsChecking(false);
+    }
+  };
+  fetchUser();
+}, [router]);
 
 const onFinish = async (values) => {
   try {
@@ -45,7 +68,9 @@ const onFinish = async (values) => {
     router.push('/main')
   };
 
-  return (
+if (isChecking) return null;
+
+  return isAdmin && (
     <>
       <style>{`
         h3 {

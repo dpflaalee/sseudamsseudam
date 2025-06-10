@@ -101,7 +101,7 @@ const Todolists = () => {
               <CardTitle>
                 {/* '챌린지'라는 단어가 포함된 경우 'EVENT!' 표시 */}
                 {event.title.includes('챌린지') && (
-                  <EventLabel>EVENT!</EventLabel> //글자 이상하게 나옴 수정 필요
+                  <EventLabel>EVENT!</EventLabel>
                 )}
                 {event.title}
               </CardTitle>
