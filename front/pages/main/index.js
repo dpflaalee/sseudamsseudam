@@ -14,6 +14,7 @@ import { LOAD_MY_INFO_REQUEST } from '../../reducers/user';
 import wrapper from '../../store/configureStore';
 import {END} from 'redux-saga';
 import AnimalList from '@/components/animal/AnimalList';
+
 //// import 수정
 const Home = () => {
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ const Home = () => {
   const { mainComplainCard } = useSelector((state) => state.complain);
   const id = user?.id;
 
-  const { userAnimals, selectedAnimal } = useSelector((state) => state.animal);
+  const { myAnimals, selectedAnimal } = useSelector((state) => state.animal);
 
   useEffect(() => {
     if (mainPosts.length === 0) {
@@ -58,7 +59,7 @@ const Home = () => {
 
   return (
     <AppLayout>
-      <AnimalList animals={userAnimals} />
+      <AnimalList animals={myAnimals} />
       {user && <PostForm />}
       {mainPosts
         .filter((post) => {
