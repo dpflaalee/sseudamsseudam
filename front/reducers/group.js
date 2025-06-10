@@ -49,10 +49,18 @@ export const JOIN_GROUP_REQUEST = 'JOIN_GROUP_REQUEST';
 export const JOIN_GROUP_SUCCESS = 'JOIN_GROUP_SUCCESS';
 export const JOIN_GROUP_FAILURE = 'JOIN_GROUP_FAILURE';
 
+// 공개 그룹 가입 상태 리셋
+export const JOIN_GROUP_RESET = 'JOIN_GROUP_RESET';
+
+//비공개 그룹 가입 상태 리셋
+export const APPLY_GROUP_RESET = 'APPLY_GROUP_RESET';
+
 //가입 신청
 export const APPLY_GROUP_REQUEST = 'APPLY_GROUP_REQUEST';
 export const APPLY_GROUP_SUCCESS = 'APPLY_GROUP_SUCCESS';
 export const APPLY_GROUP_FAILURE = 'APPLY_GROUP_FAILURE';
+
+export const APPLY_GROUP_MESSAGE = 'APPLY_GROUP_MESSAGE';
 
 //가입 요청 불러오기
 export const LOAD_JOIN_REQUESTS_REQUEST = 'LOAD_JOIN_REQUESTS_REQUEST';
@@ -114,10 +122,17 @@ export const initialState = {
   joinGroupLoading: false,
   joinGroupDone: false,
   joinGroupError: null,
+  // 공개 그룹 가입 상태 리셋
+  joinGroupDone : false,
+  joinGroupError : null,  
   // 가입 요청 신청
   applyGroupLoading: false,
   applyGroupDone: false,
   applyGroupError: null,
+  //비공개 그룹 가입 상태 리셋
+  applyGroupDone : false,
+  applyGroupError : null,
+  applyGroupMessage : null,
   // 가입 요청 불러오기 (방장용)
   loadJoinRequestsLoading: false,
   loadJoinRequestsDone: false,
@@ -134,6 +149,7 @@ export const initialState = {
   groups: [],        // 그룹 리스트
   members: [],       // 현재 그룹의 멤버들
   joinRequests: [],  // 가입 요청 목록
+  singleGroup: null,
 };
 
 //-------------- next---------------//
@@ -285,6 +301,12 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       case JOIN_GROUP_FAILURE:
         draft.joinGroupLoading = false;
         draft.joinGroupError = action.error;
+        draft.joinGroupDone = false;
+        break;        
+      // 공개 그룹 가입 상태 리셋
+      case JOIN_GROUP_RESET:
+        draft.joinGroupDone = false;
+        draft.joinGroupError = null;
         break;        
       //가입신청
       case APPLY_GROUP_REQUEST:
@@ -299,7 +321,14 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       case APPLY_GROUP_FAILURE:
         draft.applyGroupLoading = false;
         draft.applyGroupError = action.error;
+        draft.applyGroupDone=false;
         break;
+      //비공개 그룹 가입 상태 리셋
+      case APPLY_GROUP_RESET:
+        draft.applyGroupDone = false;
+        draft.applyGroupError = null;
+        draft.applyGroupMessage = null;
+        break;        
       //가입신청 불러오기
       case LOAD_JOIN_REQUESTS_REQUEST:
         draft.loadJoinRequestsLoading = true;

@@ -22,7 +22,7 @@ function* loadGroups() {
   try {
     const result = yield call(loadGroupsAPI);
     yield put({ type: LOAD_GROUPS_SUCCESS, data: result.data });
-  } catch (err) { yield put({ type: LOAD_GROUPS_FAILURE, error: err.response.data });}
+  } catch (err) { yield put({ type: LOAD_GROUPS_FAILURE, error: err.response ? err.response.data : err.message });}
 }
 function* watchLoadGroups() { yield takeLatest(LOAD_GROUPS_REQUEST, loadGroups);}
 
@@ -73,7 +73,7 @@ function* loadMembers(action){
   try{
     console.log('멤버 로드 요청:', action);
     const result = yield call(loadMembersAPI, action.data);
-    console.log('API 응답 데이터:', result.data);
+    //console.log('API 응답 데이터:', result.data);
     yield put({ type: LOAD_MEMBERS_SUCCESS, data: result.data });
   }catch(err){yield put({ type: LOAD_MEMBERS_FAILURE, error: err.response.data });}
 }
@@ -101,7 +101,7 @@ function* watchTransferOwnership(){yield takeLatest(TRANSFER_OWNERSHIP_REQUEST, 
 
 //가입-----------------------------------------------------------------------------------
 //1. 공개그룹 즉시가입
-function joinGroupAPI(data){ return axios.post(`/groups/${data.groupId}/join`) }
+function joinGroupAPI(data){ console.log('joinGroupAPI 데이터----------------:', data); return axios.post(`/api/groups/${data.groupId}/join`); }
 function* joinGroup(action){
   try{
     yield call(joinGroupAPI, action.data);
@@ -111,11 +111,11 @@ function* joinGroup(action){
 function* watchJoinGroup(){yield takeLatest(JOIN_GROUP_REQUEST, joinGroup)}
 
 //2. 비공개그룹 가입처리
-function applyGroupAPI(data){ return axios.post(`/group/${data.groupId}/apply`); }
+function applyGroupAPI(data){ console.log('joinGroupAPI 데이터----------------:', data);  return axios.post(`/api/groups/${data.groupId}/apply`); }
 function* applyGroup(action){
   try{
     yield call(applyGroupAPI, action.data);
-    yield put({ type: APPLY_GROUP_SUCCESS })
+    yield put({ type: APPLY_GROUP_SUCCESS, message: "가입 신청이 완료되었습니다!" })
   }catch(err){yield put({ type: APPLY_GROUP_FAILURE, error: err.response.data || err.message })}
 }
 function* watchApplyGroup(){yield takeLatest(APPLY_GROUP_REQUEST, applyGroup)}
