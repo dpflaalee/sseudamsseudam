@@ -16,6 +16,7 @@ const Home = () => {
   const { user } = useSelector(state => state.user);
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
   const { mainComplainCard } = useSelector((state) => state.complain);
+  const id = user?.id;
 
   const { userAnimals, selectedAnimal } = useSelector((state) => state.animal);
 
@@ -51,12 +52,32 @@ const Home = () => {
     <AppLayout>
       <AnimalList animals={userAnimals} />
       {user && <PostForm />}
-      {mainPosts.map((c) => {
-        return (
-          <PostCard post={c} key={c.id} />
-        );
-      })}
+      {mainPosts
+        .filter((post) => {
+          const openScope = post.OpenScope?.content;
+          const myId = user?.id;
+          const postOwnerId = post.UserId;
 
+          if (myId === postOwnerId) return true;
+
+          // 전체공개
+          if (openScope === 'public') return true;
+
+          // 나만 보기
+          if (openScope === 'private') return false;
+
+          // 팔로워 공개
+          const followings = user?.Followings?.map(u => u.id) || [];
+          if (openScope === 'follower') {
+            return followings.includes(postOwnerId);
+          }
+          // 그룹은 홈에서 제외
+          if (openScope === 'group') return false;
+          return false;
+        })
+        .map((post) => (
+          <PostCard post={post} key={post.id} />
+      ))}
     </AppLayout>
   );
 }

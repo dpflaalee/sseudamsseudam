@@ -31,10 +31,27 @@ const app = express();
 
 //db연동
 const db = require('./models');
+
+async function seedOpenScopes() {
+  const count = await db.OpenScope.count();
+  if (count === 0) {
+    await db.OpenScope.bulkCreate([
+      { id: 1, name: 'public', createdAt: new Date(), updatedAt: new Date() },
+      { id: 2, name: 'private', createdAt: new Date(), updatedAt: new Date() },
+      { id: 3, name: 'follower', createdAt: new Date(), updatedAt: new Date() },
+      { id: 4, name: 'group', createdAt: new Date(), updatedAt: new Date() },
+    ]);
+    console.log('OpenScope 기본 데이터 삽입 완료');
+  }
+}
+
 db.sequelize
   .sync()
-  .then(() => { console.log('..........db'); })
+  .then(async () => { 
+    console.log('..........db');
+    await seedOpenScopes(); })
   .catch(console.error);
+  
 passportConfig();
 
 //기타 연동
@@ -51,7 +68,11 @@ app.use(session({
   saveUninitialized: false,
   resave: false,
   secret: process.env.COOKIE_SECRET,
-  cookie: { secure: false }  //  production 에서 true
+  cookie: {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',  // 크로스 도메인 쿠키 허용 정도 조절
+  }
 }));
 app.use(passport.initialize()); // 인증처리 라이브러리 초기화
 app.use(passport.session()); //사용자 인증상태 저장

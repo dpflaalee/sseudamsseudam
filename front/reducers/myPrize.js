@@ -30,11 +30,11 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case LOAD_MY_PRIZES_SUCCESS:
       draft.loadMyPrizesLoading = false;
       draft.loadMyPrizesDone = true;
-      draft.myPrizes = action.data;
+      draft.myPrizes = action.data || [];
       break;
     case LOAD_MY_PRIZES_FAILURE:
       draft.loadMyPrizesLoading = false;
-      draft.loadMyPrizesError = action.error;
+      draft.loadMyPrizesError = action.error || '알 수 없는 오류가 발생했습니다.';
       break;
 
     case USE_MY_PRIZE_REQUEST:
@@ -45,14 +45,16 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case USE_MY_PRIZE_SUCCESS:
       draft.useMyPrizeLoading = false;
       draft.useMyPrizeDone = true;
-      // 사용한 쿠폰은 상태에서 바로 제거하거나 isRead, usedAt 상태를 업데이트 할 수 있음
+      // 사용한 쿠폰의 isRead, usedAt 상태 업데이트
       draft.myPrizes = draft.myPrizes.map(p =>
-        p.id === action.data.id ? action.data : p
+        p.id === action.data.id
+          ? { ...p, isRead: true, usedAt: action.data.usedAt }
+          : p
       );
       break;
     case USE_MY_PRIZE_FAILURE:
       draft.useMyPrizeLoading = false;
-      draft.useMyPrizeError = action.error;
+      draft.useMyPrizeError = action.error || '쿠폰 사용 중 오류가 발생했습니다.';
       break;
 
     default:
