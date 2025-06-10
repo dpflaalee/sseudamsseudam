@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const Sequelize = require('sequelize');
 
 const multer = require('multer');  // 파일업로드
 const path = require('path');  // 경로
 const fs = require('fs');  // file system
 
-const { Post, User, Image, Comment, Hashtag } = require('../models');
+const { Post, User, Image, Comment, Hashtag, OpenScope } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 
 //이미지 폴더 생성
@@ -35,10 +36,21 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
   try {
     // 해시태그 추출
     const hashtags = req.body.content.match(/#[^\s#]+/g) //   /#/g    #찾아
+
+    const openScopeMap = {
+      public: 1,
+      private: 2,
+      follower: 3,
+      group: 4,
+    };
+    const OpenScopeId = openScopeMap[req.body.openScope] || 1;    
+
     // 게시글저장
     const post = await Post.create({
       content: req.body.content,
-      UserId: req.user.id
+      UserId: req.user.id,
+      OpenScopeId ,
+      GroupId: req.body.groupId || null,
     });
     // 해시태그 존재하면 - 해시태그 저장
     if (hashtags) {
@@ -70,6 +82,7 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
     const fullPost = await Post.findOne({
       where: { id: post.id },
       include: [
+        { model: OpenScope },
         { model: Image },
         { model: User, as: 'Likers', attributes: ['id'] },
         { model: User, attributes: ['id', 'nickname'] },
@@ -95,6 +108,7 @@ router.get('/:postId', async (req, res, next) => {
     const post = await Post.findOne({
       where: { id: req.params.postId },
       include: [
+        { model: OpenScope },
         { model: Image },
         { model: User, as: 'Likers', attributes: ['id'] },
         { model: User, attributes: ['id', 'nickname'] },
@@ -130,10 +144,21 @@ router.get('/:postId', async (req, res, next) => {
 
 // 글 수정
 router.patch('/:postId', isLoggedIn, async (req, res, next) => {
-  const hashtags = req.body.content.match(/#[^\s#]+/g);
   try {
+  const hashtags = req.body.content.match(/#[^\s#]+/g);
+  const { content, openScope } = req.body;
+
+  const openScopeMap = {
+    public: 1,
+    private: 2,
+    follower: 3,
+    group: 4,
+  };
+  const OpenScopeId  = openScopeMap[openScope] || 1;
+
     await Post.update({
-      content: req.body.content,
+      content,
+      OpenScopeId ,
     }, {
       where: {
         id: req.params.postId,
