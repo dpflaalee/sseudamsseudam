@@ -210,6 +210,10 @@ function* removeComment(action) {
       type: REMOVE_COMMENT_SUCCESS,
       data: result.data,
     });
+
+    if (action.callback) {
+      yield call(action.callback);
+    }
   } catch (err) {
     console.error(err);
     yield put({
@@ -220,16 +224,21 @@ function* removeComment(action) {
 }
 
 function updateCommentAPI(data) {
-  return axios.patch(`/post/${data.postId}/comment`, data);
+  const { postId, commentId, content } = data;
+  return axios.patch(`/post/${postId}/comment/${commentId}`, { content });
 }
 
 function* updateComment(action) {
   try {
-    const result = yield call(updatePostAPI, action.data);
+    const result = yield call(updateCommentAPI, action.data);
     yield put({
       type: UPDATE_COMMENT_SUCCESS,
       data: result.data,
     });
+
+    if (action.callback) {
+      yield call(action.callback);
+    }
   } catch (err) {
     console.error(err);
     yield put({

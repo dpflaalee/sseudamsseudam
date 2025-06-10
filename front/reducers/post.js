@@ -244,11 +244,16 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.updateCommentDone = false;
       draft.updateCommentError = null;
       break;
-    case UPDATE_COMMENT_SUCCESS:
+    case UPDATE_COMMENT_SUCCESS: {
       draft.updateCommentLoading = false;
       draft.updateCommentDone = true;
-      draft.mainPosts.find((v) => v.id === action.data.PostId).content = action.data.content;
+      const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
+      const comment = post?.Comments.find((c) => c.id === action.data.CommentId);
+      if (comment) {
+        comment.content = action.data.content;
+      }
       break;
+    }
     case UPDATE_COMMENT_FAILURE:
       draft.updateCommentLoading = false;
       draft.updateCommentError = action.error;
