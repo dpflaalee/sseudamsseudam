@@ -56,7 +56,6 @@ const NotificationPage = () => {
             axios.patch('/notification/readAll', {
                 userId: userId,
             }).then(() => {
-                console.log('✅ 전체 읽음 처리 요청 완료');
             }).catch((err) => {
                 console.error('🚨 전체 읽음 처리 실패:', err);
             });
@@ -82,14 +81,11 @@ const NotificationPage = () => {
                 alignItems: 'center',
                 marginBottom: 16
             }}>
-                <h2 style={{ margin: 0 }}>📬 알림함</h2>
+                <h2 style={{ margin: 0 }}></h2>
                 <Button onClick={goToSettingPage} type="default" size="middle">
                     ⚙ 알림 설정
                 </Button>
             </div>
-
-            <NotificationButton />
-
             <Tabs defaultActiveKey="all">
                 <TabPane tab="📬 전체" key="all">
                     {mainNotification.map((noti) => (

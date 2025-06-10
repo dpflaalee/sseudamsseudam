@@ -17,7 +17,6 @@ const Home = () => {
     const { user } = useSelector(state => state.user);
     const router = useRouter();
     const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
-    console.log('👩‍🦳 mainPosts ', mainPosts);
     useEffect(() => {
         if (!loadPostsLoading && (mainPosts.length === 0 || hasMorePosts)) {
             const lastId = mainPosts[mainPosts.length - 1]?.id || 0;
@@ -51,6 +50,9 @@ const Home = () => {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
                 <Button type="primary" onClick={() => router.push('/admin/complain')}>
                     신고 관리 페이지로 이동
+                </Button>
+                <Button type="primary" onClick={() => router.push('/mypage')}>
+                    마이페이지로 이동
                 </Button>
             </div>
             {mainPosts

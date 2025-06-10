@@ -5,12 +5,19 @@ import AppLayout from "@/components/AppLayout";
 import { Avatar, Typography, Button, Card, Row, Col, Empty } from "antd";
 import { loadMyPrizes } from "../../reducers/myPrize"; // 액션 임포트
 
+// 신고
+import ComplainForm from "../complains/ComplainForm";
+import TARGET_TYPE from "../../../shared/constants/TARGET_TYPE";
+
 const { Title, Text } = Typography;
 
 const MyPrize = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  // 신고자
+  const user = useSelector(state => state.user);
+  const userNickname = user.User?.nickname;
   const { myPrizes, loadMyPrizesLoading, loadMyPrizesError } = useSelector(
     (state) => state.myPrize
   );
@@ -30,7 +37,7 @@ const MyPrize = () => {
         method: "POST",
         credentials: "include",
       });
-      
+
       if (!res.ok) throw new Error("서버 응답 실패");
 
       const data = await res.json();
@@ -75,7 +82,7 @@ const MyPrize = () => {
           ) : (
             validPrizes.map((prize) => {
               console.log("🎯 Prize 데이터:", prize);
-              console.log("👉 카테고리 정보:", prize.category); 
+              console.log("👉 카테고리 정보:", prize.category);
               return (
                 <Col span={24} key={prize.id}>
                   <Card
@@ -89,6 +96,32 @@ const MyPrize = () => {
                   >
                     유효기간: {new Date(prize.dueAt).toLocaleDateString()}
                   </Card>
+                  <Dropdown
+                    overlay={
+                      <Menu>
+                        <Menu.Item key="report" onClick={() => setOpen(true)}>
+                          신고하기
+                        </Menu.Item>
+                      </Menu>
+                    }
+                    placement="bottomRight"
+                    trigger={["click"]}
+                  >
+                    <EllipsisOutlined style={{ fontSize: 20, cursor: "pointer" }} />
+                  </Dropdown>
+                  {/* 신고 모달 */}
+                  {
+                    open && (
+                      <ComplainForm
+                        open={open}
+                        targetId={prize.id}
+                        TARGET_TYPE={TARGET_TYPE.RANDOMBOX}
+                        targetUserNickname={userNickname}
+                        onClose={() => setOpen(false)}
+                      />
+                    )
+                  }
+                  {/* E 신고 모달 */}
                 </Col>
               );
             })

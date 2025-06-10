@@ -71,13 +71,13 @@ function* loadPost(action) {
   }
 }
 
-function loadPostsAPI(lastId,userId) {
+function loadPostsAPI(lastId, userId) {
   return axios.get(`/posts?lastId=${lastId || 0}&userId=${userId}`);
 }
 
 function* loadPosts(action) {
   try {
-    const result = yield call(loadPostsAPI, action.lastId,action.userId);
+    const result = yield call(loadPostsAPI, action.lastId, action.userId);
     yield put({
       type: LOAD_POSTS_SUCCESS,
       data: result.data,
@@ -186,7 +186,8 @@ function* addComment(action) {
           targetId: result.data.id,
         }
       });
-    } else if (Boolean(action.isReComment)) {
+    }
+    if (action.isReComment === false) {
       yield put({
         type: ADD_NOTIFICATION_REQUEST,
         data: {
@@ -197,8 +198,6 @@ function* addComment(action) {
         },
       });
     }
-
-
   } catch (err) {
     console.error(err);
     yield put({
