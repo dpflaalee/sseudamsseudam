@@ -60,14 +60,15 @@ router.post('/open/:category', isLoggedIn, async (req, res) => {
 });
 
 // 2) 유저가 받은 랜덤박스(쿠폰) 리스트 조회 (마이페이지) - isRead, usedAt 포함
-router.get('/my-prizes', isLoggedIn, async (req, res) => {
+router.get('/', isLoggedIn, async (req, res) => {
   try {
     const myPrizes = await MyPrize.findAll({
       where: { UserId: req.user.id },
       include: [
         {
           model: Prize,
-          include: [{ model: Category }],
+          as: 'prize',  
+          include: [{ model: Category, as: 'category' }],
         }
       ],
       order: [['createdAt', 'DESC']]
@@ -77,9 +78,9 @@ router.get('/my-prizes', isLoggedIn, async (req, res) => {
       success: true,
       data: myPrizes.map(mp => ({
         id: mp.id,
-        content: mp.Prize.content,
-        category: mp.Prize.Category.name,
-        barcode: mp.Prize.barcode,
+        content: mp.Prize ? mp.Prize.content : '상품 정보 없음',
+        category: mp.Prize && mp.Prize.Category ? mp.Prize.Category.content : '카테고리 없음',
+        barcode: mp.Prize ? mp.Prize.barcode : '',
         issuedAt: mp.createdAt,
         isRead: mp.isRead,
         usedAt: mp.usedAt,
