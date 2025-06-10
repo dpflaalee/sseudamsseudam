@@ -1,6 +1,6 @@
 const express = require('express');
 const {isLoggedIn} = require('./middlewares');
-const {Group, Category, User, OpenScope} = require('../models');
+const {Group, Category, User, OpenScope, GroupMember, GroupRequest} = require('../models');
 
 const router = express.Router();
 
@@ -81,5 +81,123 @@ router.delete('/:groupId', isLoggedIn, async(req,res,next)=>{
     res.status(200).json({groupId})
   }catch(error){console.error(error); next(error);}
 });
+
+//멤버관리----------------------------------------------------------------
+//1. 멤버 불러오기
+router.get('/:groupId/members', async(req, res, next)=>{
+  try{
+    const members = await User.findAll({
+      include: [{ model: Group, as: `groupmembers`, where: {id: req.params.groupId},  through: {attributes: ['isLeader'], model: GroupMember } }],
+      attributes:['id', 'nickname', 'email']
+    });
+    //멤버 데이터 가공
+    const formatted = members.map(member=>{
+      const gm=member.groupmembers[0].GroupMember;
+      return{id: member.id, nickname: member.nickname, email: member.email, isLeader: gm.isLeader};
+    });
+    res.status(200).json(formatted);
+  }catch(error){console.error(error); next(error);}
+});
+
+//1-1 특정 유저 정보 가져오기
+router.get('/:groupId/members/:userId', async(req,res,next)=>{
+  try{
+    const member = await User.findOne({
+      where: { id: req.params.userId },
+      include: [{
+        model: Group, as: 'groupmembers', where: {id: req.params.groupId}, through: { attributes: ['isLeader'], model: GroupMember }
+      }],
+      attributes: ['id', 'nickname', 'email']
+    });
+    if(!member){ return res.status(404).json({message: 'Member not Found'});}
+
+    const formatted = { id:member.id, nickname: member.nickname, email: member.email, isLeader: member.groupmembers[0].GroupMember.isLeader};
+    res.status(200).json(formatted);
+  }catch(error){console.error(error); next(error);}
+});
+
+// 로그인한 사용자 정보 (passport.js 등을 통해 세션에 저장된 정보)
+router.get('/:groupId/members/me', async (req, res, next) => {
+  try {
+    const me = req.user;  
+    const member = await User.findOne({
+      where: { id: me.id },
+      include: [{
+        model: Group,
+        as: 'groupmembers',
+        where: { id: req.params.groupId },
+        through: { attributes: ['isLeader'], model: GroupMember }
+      }],
+      attributes: ['id', 'nickname', 'email']
+    });
+
+    if (!member) { return res.status(404).json({ message: 'You are not a member of this group' }); }
+
+    const formatted = { id: member.id, nickname: member.nickname, email: member.email, isLeader: member.groupmembers[0].GroupMember.isLeader };
+
+    res.status(200).json(formatted);
+  } catch (error) {console.error(error); next(error);}
+});
+
+
+//2. 강퇴
+router.delete('/:groupId/members/:userId', async(req,res,next)=>{
+  try{
+    await GroupMember.destroy({ where: { GroupId: req.params.groupId, UserId: req.params.userId } });
+    res.status(200).json({success:true});
+  }catch(error){console.error(error); next(error);}
+});
+
+//3. 권한 위임
+router.patch('/:groupId/members/:userId/transfer', async(req,res,next)=>{
+  try{
+    //기존리더 제거
+    await GroupMember.update(
+      {isLeader: false},
+      {where: {GroupId:req.params.groupId, isLeader:true}}
+    )
+    //새 리더 지정
+    await GroupMember.update(
+      {isLeader: true},
+      {where:{GroupId: req.params.groupId, UserId: req.params.userId}}
+    );
+    res.status(200).json({userId: parseInt(req.params.userId, 10)})
+  }catch(err){console.error(err); next(err);}
+})
+
+//가입관리----------------------------------------------------------------
+//1. 즉시가입
+router.post('/:groupId/join', isLoggedIn, async(req,res,next)=>{
+  try{
+    const group = await Group.findByPk(req.params.groupId);
+    if(!group){return res.status(404).send('그룹을 찾을 수 없습니다.');}
+
+    //공개 여부 조건 체크
+    if(group.OpenScopeId !== 1){return res.status(403).send('가입에 실패했습니다.'); }
+
+    await GroupMember.create({ GroupId: group.id, UserId: req.user.id, isLeader: false, });
+    
+    res.status(200).send('그룹 가입에 성공하였습니다.');
+  }catch(err){console.error(err); next(err)}
+});
+
+//2. 비공개 그룹 가입
+router.post('/:groupId/request', isLoggedIn, async(req, res, next)=>{
+  try{
+    const group = await Group.findByPk(req.params.groupId);
+    if(!group){ return res.status(404).send('그룹을 찾을 수없습니다.') }
+
+    if(group.OpenScopeId===1){ return res.status(400).send('공개 그룹에는 가입 신청이 필요 없습니다.') }
+
+    const existingRequest = await GroupRequest.findOne({
+      where: { GroupId: group.id, UserId: req.user.id }
+    });
+
+    if(existingRequest) return res.status(400).send('이미 가입 신청이 전송되었습니다.');
+    
+    await GroupRequest.create({ GroupId: group.id, UserId: req.user.id, status: 'pending' });
+    res.status(200).send('가입 신청이 전송되었습니다.');
+  }catch(err){console.error(err); next(err);}
+})
 
 module.exports = router;

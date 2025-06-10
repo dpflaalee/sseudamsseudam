@@ -1,85 +1,84 @@
-import React from "react";
-import { Card, Row, Col, Button, Modal } from "antd";
-import Barcode from "react-barcode";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import AppLayout from "@/components/AppLayout";
+import { Avatar, Typography, Button, Card, Row, Col } from "antd";
+import { loadMyPrizes } from "../../reducers/myPrize"; // 액션 임포트  
 
-// coupons: 쿠폰 배열, openRandomModal: 박스 사용 콜백 (부모에서 전달)
-const MyPrize = ({ coupons, openRandomModal }) => {
-  const handleUseBox = (categoryId) => {
-    openRandomModal(categoryId); // 부모에서 categoryId 처리
+const { Title, Text } = Typography;
+
+const MyPrize = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  
+  // 리덕스에서 내 쿠폰 데이터 가져오기
+  const { myPrizes, loadMyPrizesLoading, loadMyPrizesError } = useSelector((state) => state.myPrize);
+
+  useEffect(() => {
+    dispatch(loadMyPrizes()); // 컴포넌트가 마운트되면 내 쿠폰 데이터 불러오기
+  }, [dispatch]);
+
+  // 랜덤박스 열기
+  const openRandomModal = async (category) => {
+    try {
+      const res = await fetch(`/api/open-random-box?category=${category.id}`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("서버 응답 실패");
+
+      const data = await res.json();
+      if (data.success) {
+        router.push(`/mypage/RandomBoxResult?status=success&item=${encodeURIComponent(data.itemName)}`);
+      } else {
+        router.push("/mypage/RandomBoxResult?status=fail");
+      }
+    } catch (error) {
+      console.error("에러 발생:", error);
+      router.push("/mypage/RandomBoxResult?status=fail");
+    }
   };
 
-  const handleCouponUse = (couponId) => {
-    // 쿠폰 사용 로직 (API 호출 등)
-    // 여기서 성공/실패 모달 띄워도 됨
-    Modal.success({
-      title: "쿠폰 사용 성공",
-      content: `쿠폰 ID ${couponId}가 성공적으로 사용되었습니다.`,
-      okText: "확인",
-    });
-  };
+  if (loadMyPrizesLoading) return <Text>로딩 중...</Text>;
+  if (loadMyPrizesError) return <Text>에러 발생: {loadMyPrizesError}</Text>;
 
   return (
     <>
       {/* 내 박스 */}
       <Card title="내 박스" style={{ marginBottom: 24 }}>
         <Row gutter={[0, 16]}>
-          <Col span={24}>
-            <Card
-              type="inner"
-              title="강아지 랜덤박스"
-              extra={<Button danger onClick={() => handleUseBox(1)}>사용</Button>}
-            >
-              유효기간: 2025/06/30
-              <br />
-              <span style={{ color: "#888" }}>
-                사용 시 일정 확률로 상품을 받을 수 있습니다.
-              </span>
-            </Card>
-          </Col>
-          <Col span={24}>
-            <Card
-              type="inner"
-              title="고양이 랜덤박스"
-              extra={<Button danger onClick={() => handleUseBox(2)}>사용</Button>}
-            >
-              유효기간: 2025/06/30
-              <br />
-              <span style={{ color: "#888" }}>
-                사용 시 일정 확률로 상품을 받을 수 있습니다.
-              </span>
-            </Card>
-          </Col>
+          {myPrizes.map((prize) => (
+            <Col span={24} key={prize.id}>
+              <Card
+                type="inner"
+                title={`${prize.category.content} 랜덤박스`}
+                extra={
+                  <Button danger onClick={() => openRandomModal(prize.category)}>
+                    사용
+                  </Button>
+                }
+              >
+                유효기간: {new Date(prize.issuedAt).toLocaleDateString()}
+              </Card>
+            </Col>
+          ))}
         </Row>
       </Card>
 
       {/* 내 쿠폰함 */}
       <Card title="내 쿠폰함" style={{ marginBottom: 24 }}>
         <Row gutter={[0, 16]}>
-          {coupons && coupons.length > 0 ? (
-            coupons.map((coupon) => (
-              <Col span={24} key={coupon.id}>
-                <Card
-                  type="inner"
-                  title={coupon.content}
-                  extra={
-                    <Button type="primary" onClick={() => handleCouponUse(coupon.id)}>
-                      사용
-                    </Button>
-                  }
-                >
-                  유효기간: {new Date(coupon.dueAt).toLocaleDateString()}
-                  <br />
-                  <Barcode value={coupon.barcode} />
-                  <br />
-                  <span style={{ color: "#888" }}>
-                    발급 사유: {coupon.issuedReason}
-                  </span>
-                </Card>
-              </Col>
-            ))
-          ) : (
-            <Col span={24}>쿠폰이 없습니다.</Col>
-          )}
+          {myPrizes.map((prize) => (
+            <Col span={24} key={prize.id}>
+              <Card
+                type="inner"
+                title={prize.content}
+                extra={<Button type="primary">사용</Button>}
+              >
+                유효기간: {new Date(prize.issuedAt).toLocaleDateString()}
+              </Card>
+            </Col>
+          ))}
         </Row>
       </Card>
     </>

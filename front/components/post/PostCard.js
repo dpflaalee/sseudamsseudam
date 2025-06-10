@@ -10,7 +10,6 @@ import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import PostCardContent from './PostCardContent';
 
-
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
 
@@ -21,8 +20,12 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const dispatch = useDispatch();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
+<<<<<<< HEAD
   const onClickUpdate = useCallback(() => { setEditMode(true); }, []);
   const onCancelUpdate = useCallback(() => { setEditMode(false); }, []);
+=======
+  const onCancelUpdate = useCallback(() => { setEditMode(false); },[]);
+>>>>>>> bceac53856d481f2ac5d45f85c3f86f47fc616aa
   const onEditPost = useCallback((editText) => () => {
     dispatch({
       type: UPDATE_POST_REQUEST,
@@ -143,6 +146,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         ]}
       // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}
       >
+<<<<<<< HEAD
         {post.RetweetId && post.Retweet ? (
           <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
             <Card.Meta
@@ -159,9 +163,27 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             />
           </Card>
         ) : (
+=======
+      { post.RetweetId && post.Retweet ? (
+        <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
+          <Card.Meta
+            avatar={<Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
+                    <Avatar>{post.Retweet.User.nickname[0]}</Avatar></Link>} 
+            title={post.Retweet.User.nickname}
+            description={
+              <PostCardContent 
+                editMode={editMode}
+                onEditPost={onEditPost}
+                onCancelUpdate={onCancelUpdate}
+                postData={post.Retweet.content}
+              />} 
+          />
+        </Card>
+      ) : (
+>>>>>>> bceac53856d481f2ac5d45f85c3f86f47fc616aa
           <Card.Meta
             avatar={
-              <Link href={`/user/${post.User.id}`} prefetch={false}>
+              <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
                 <Avatar>{post.User.nickname[0]}</Avatar>
               </Link>
             }

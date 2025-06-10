@@ -7,7 +7,9 @@ import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import useSelection from 'antd/lib/table/hooks/useSelection';
 import { useDispatch, useSelector } from 'react-redux';
 import { LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
+import {LOAD_POSTS_REQUEST} from '@/reducers/post'
 import Router from 'next/router';
+import PostCard from '../post/PostCard';
 
 
 const Wrapper = styled.div`
@@ -75,18 +77,25 @@ const DropdownBox = styled.div`
 
 const Profile = ({ profile }) => {
   const dispatch = useDispatch();
-  const { logOutDone, logOutLoding } = useSelector(state => state.user);
+  const { logOutDone,user } = useSelector(state => state.user);
+  const {logOutLoding,mainPosts,hasMorePosts,loadPostsLoading} = useSelector(state => state.post);
+  useEffect(() => {
+      if (hasMorePosts && !loadPostsLoading) {
+        const lastId = mainPosts[mainPosts.length - 1]?.id;
+        dispatch({
+          type: LOAD_POSTS_REQUEST,
+          lastId,
+        })
+      }
+    }, [mainPosts, hasMorePosts, loadPostsLoading]);
+  
   useEffect(() => {
     if (logOutDone) {
       console.log('클릭');
       Router.replace('/');
     }
   }, [logOutDone])
-  useEffect(() => {
 
-  })
-
-  const { user } = useSelector(state => state.user);
   console.log('user.userId=', user?.id);
 
   const [open, setOpen] = useState(false);
@@ -101,11 +110,10 @@ const Profile = ({ profile }) => {
     })
   });
 
-  const isMyProfile = user && user.User?.id === profile.User?.id;
+  //const isMyProfile = user && user.User?.id === profile.User?.id;
 
   const menu = (
     <Menu>
-      {isMyProfile ? (
         <>
           <Menu.Item key="edit">프로필 수정</Menu.Item>
           <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
@@ -116,6 +124,7 @@ const Profile = ({ profile }) => {
             탈퇴하기
           </Menu.Item>
         </>
+     {/* {isMyProfile ? (
       ) : (
         <>
           <Menu.Item key="report" onClick={() => setOpen(true)} danger>
@@ -128,7 +137,7 @@ const Profile = ({ profile }) => {
             targetId={profile?.User?.id}
           />
         </>
-      )}
+      )} */}
     </Menu>
   );
 
@@ -166,6 +175,11 @@ const Profile = ({ profile }) => {
           <Button>프로필 수정</Button>
         </ButtonRow>
       </Container>
+      {mainPosts.map((c) => {
+      return (
+          <PostCard post={c} key={c.id} />
+        );
+      })}
     </Wrapper>
   );
 };

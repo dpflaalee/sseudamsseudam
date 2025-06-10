@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useCallback } from 'react';
+=======
+import React, { useState, useCallback, useEffect } from 'react';
+>>>>>>> bceac53856d481f2ac5d45f85c3f86f47fc616aa
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Avatar, Dropdown, Menu, Button, List } from 'antd';
@@ -7,7 +11,7 @@ import router from 'next/router';
 
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-import { REMOVE_COMMENT_REQUEST } from '../../reducers/post';
+import { REMOVE_COMMENT_REQUEST,UPDATE_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST } from '../../reducers/post';
 import ReCommentForm from './ReCommentForm';
 import ReComment from './ReComment';
 
@@ -56,11 +60,15 @@ const Text = styled.div`
   line-height: 1.4;
 `;
 
-const Comment = ({ comments = [], postId, post = {} }) => {
+const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
   const dispatch = useDispatch();
   const [targetId, setTargetId] = useState(null);
   const [openReport, setOpenReport] = useState(false);
   const parentComments = comments.filter(comment => !comment.RecommentId);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editContent, setEditContent] = useState('');
+  const { updateCommentLoading, updateCommentDone, removeCommentLoading, removeCommentDone } = useSelector((state) => state.post);
+
 
   const handleReport = (commentId) => {
     setTargetId(commentId);
@@ -73,16 +81,53 @@ const Comment = ({ comments = [], postId, post = {} }) => {
     setReplyTargetId((prev) => (prev === commentId ? null : commentId));
   }, []);
 
+  //댓글 수정
+  const onClickEdit = useCallback((comment) => {
+    if (editingCommentId === comment.id) {
+      setEditingCommentId(null);
+      setEditContent('');
+    } else {
+      setEditingCommentId(comment.id);
+      setEditContent(comment.content);
+    }
+  }, [editingCommentId]);
+
+    const onChangeEditContent = useCallback((e) => {
+    setEditContent(e.target.value);
+  }, []);
+
+  const onSaveEdit = useCallback(() => {
+    if (!editContent.trim()) {
+      return alert('댓글 내용을 입력하세요.');
+    }
+    dispatch({
+      type: UPDATE_COMMENT_REQUEST,
+      data: {
+        postId,
+        commentId: editingCommentId,
+        content: editContent,
+      },
+      callback: () => {
+        onRefreshPost?.();  // 수정 성공 후 최신화 콜백 호출
+      },
+    });
+    setEditingCommentId(null);
+    setEditContent('');
+  }, [dispatch, editContent, editingCommentId, postId, onRefreshPost]);
+
   //댓글 삭제
   const onRemoveComment = useCallback((commentId) => {
     if (!postId) {
       return alert('게시글 정보가 없습니다.');
     }
-    console.log('댓글 삭제 요청, commentId:', commentId);
     dispatch({
       type: REMOVE_COMMENT_REQUEST,
       data: { postId, commentId },
+      callback: () => {
+        onRefreshPost?.();  // 삭제 성공 후 최신화 콜백 호출
+      },
     });
+<<<<<<< HEAD
     window.location.reload();
   }, [postId, dispatch]);
 
@@ -99,6 +144,9 @@ const Comment = ({ comments = [], postId, post = {} }) => {
       };
     });
 
+=======
+  }, [postId, dispatch, onRefreshPost]);
+>>>>>>> bceac53856d481f2ac5d45f85c3f86f47fc616aa
   return (
     <Wrapper>
       <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
@@ -112,7 +160,9 @@ const Comment = ({ comments = [], postId, post = {} }) => {
 
         const menu = (
           <Menu>
-            <Menu.Item>수정</Menu.Item>
+            <Menu.Item onClick={() => onClickEdit(comment)} loading={updateCommentLoading}>
+              {editingCommentId === comment.id ? '수정 취소' : '수정'}
+            </Menu.Item>
             <Menu.Item danger onClick={() => onRemoveComment(comment.id)}>삭제</Menu.Item>
             <Menu.Item danger onClick={() => handleReport(comment.id)}>
               신고하기
@@ -132,17 +182,36 @@ const Comment = ({ comments = [], postId, post = {} }) => {
             <CommentItem>
               <Left>
                 <Avatar>{comment.User?.nickname?.[0] || 'U'}</Avatar>
-                <Content>
-                  <NicknameDateWrapper>
-                    <Nickname>{comment.User?.nickname || '알 수 없음'}</Nickname>
-                    {createdAt && <CommentDate>{createdAt}</CommentDate>}
-                  </NicknameDateWrapper>
-                  <Text>{comment.content}</Text>
-                  <MessageOutlined
-                    style={{ marginTop: '12px', cursor: 'pointer' }}
-                    onClick={() => onClickReply(comment.id)}
+            <Content>
+              <NicknameDateWrapper>
+                <Nickname>{comment.User?.nickname || '알 수 없음'}</Nickname>
+                {createdAt && <CommentDate>{createdAt}</CommentDate>}
+              </NicknameDateWrapper>
+              
+              {editingCommentId === comment.id ? (
+                <>
+                  <textarea
+                    value={editContent}
+                    onChange={onChangeEditContent}
+                    rows={3}
+                    style={{ width: '100%', resize: 'none' }}
                   />
-                </Content>
+                  <div>
+                    <Button type="primary" onClick={onSaveEdit} style={{ marginRight: 8 }}>
+                      저장
+                    </Button>
+                    <Button onClick={() => setEditingCommentId(null)}>취소</Button>
+                  </div>
+                </>
+              ) : (
+                <Text>{comment.content}</Text>
+              )}
+
+              <MessageOutlined
+                style={{ marginTop: '12px', cursor: 'pointer' }}
+                onClick={() => onClickReply(comment.id)}
+              />
+            </Content>
               </Left>
               <Dropdown overlay={menu} trigger={['click']}>
                 <Button type="text" icon={<MoreOutlined />} />
