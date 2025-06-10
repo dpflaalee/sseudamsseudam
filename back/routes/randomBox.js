@@ -1,21 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const { Prize, MyPrize, Sequelize, sequelize, Category, User } = require('../models');
+const { Prize, MyPrize, Sequelize, sequelize, Category } = require('../models');
 const { Op } = Sequelize;
 const { isLoggedIn } = require('./middlewares');
 
-// 1) 카테고리별 랜덤박스 열기 - 확률 기반 추첨, 수량 차감 없이 MyPrize 발급 (수량 차감은 사용 시)
+// 1) 카테고리별 랜덤박스 열기 - 확률 기반 추첨, 수량 차감 없이 MyPrize 발급
 router.post('/open/:category', isLoggedIn, async (req, res) => {
   const { category } = req.params;
   const userId = req.user.id;
 
   try {
+    // 카테고리 유효성 검사
+    const categoryExists = await Category.findByPk(category);
+    if (!categoryExists) {
+      return res.status(400).json({ success: false, message: '존재하지 않는 카테고리입니다.' });
+    }
+
+    // 조건에 맞는 상품 조회
     const prizes = await Prize.findAll({
       where: {
         CategoryId: category,
         quantity: { [Op.gt]: 0 },
         dueAt: { [Op.gt]: new Date() },
-        probability: { [Op.gt]: 0 }
+        probability: { [Op.gt]: 0 },
       }
     });
 
@@ -23,14 +30,15 @@ router.post('/open/:category', isLoggedIn, async (req, res) => {
       return res.status(200).json({ success: false, message: '당첨 가능한 상품이 없습니다.' });
     }
 
-    const totalProb = prizes.reduce((sum, p) => sum + p.probability, 0);
-    const rand = Math.random() * totalProb;
+    // 확률 기반 랜덤 추첨
+    const totalProbability = prizes.reduce((sum, p) => sum + p.probability, 0);
+    const random = Math.random() * totalProbability;
 
-    let sum = 0;
+    let cumulative = 0;
     let selectedPrize = null;
     for (const prize of prizes) {
-      sum += prize.probability;
-      if (rand <= sum) {
+      cumulative += prize.probability;
+      if (random <= cumulative) {
         selectedPrize = prize;
         break;
       }
@@ -40,6 +48,7 @@ router.post('/open/:category', isLoggedIn, async (req, res) => {
       return res.status(200).json({ success: false, message: '아쉽지만 당첨되지 않았습니다.' });
     }
 
+    // MyPrize 발급 (수량 차감은 쿠폰 사용 시 처리)
     await sequelize.transaction(async (t) => {
       await MyPrize.create({
         UserId: userId,
@@ -54,12 +63,12 @@ router.post('/open/:category', isLoggedIn, async (req, res) => {
       itemName: selectedPrize.content,
     });
   } catch (err) {
-    console.error(err);
+    console.error('랜덤박스 오류:', err.message, err);
     return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 });
 
-// 2) 유저가 받은 랜덤박스(쿠폰) 리스트 조회 (마이페이지) - isRead, usedAt 포함
+// 2) 유저가 받은 랜덤박스(쿠폰) 리스트 조회 (마이페이지)
 router.get('/', isLoggedIn, async (req, res) => {
   try {
     const myPrizes = await MyPrize.findAll({
@@ -67,7 +76,7 @@ router.get('/', isLoggedIn, async (req, res) => {
       include: [
         {
           model: Prize,
-          as: 'prize',  
+          as: 'prize',
           include: [{ model: Category, as: 'category' }],
         }
       ],
@@ -78,16 +87,22 @@ router.get('/', isLoggedIn, async (req, res) => {
       success: true,
       data: myPrizes.map(mp => ({
         id: mp.id,
-        content: mp.Prize ? mp.Prize.content : '상품 정보 없음',
-        category: mp.Prize && mp.Prize.Category ? mp.Prize.Category.content : '카테고리 없음',
-        barcode: mp.Prize ? mp.Prize.barcode : '',
+        content: mp.prize?.content || '상품 정보 없음',
+        category: mp.prize?.category
+          ? {
+              id: mp.prize.category.id,
+              content: mp.prize.category.content,
+            }
+          : null,
+        barcode: mp.prize?.barcode || '',
         issuedAt: mp.createdAt,
+        dueAt: mp.prize?.dueAt || null,
         isRead: mp.isRead,
         usedAt: mp.usedAt,
       }))
     });
   } catch (err) {
-    console.error(err);
+    console.error('쿠폰 목록 조회 오류:', err.message, err);
     return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 });
@@ -111,12 +126,12 @@ router.post('/use/:id', isLoggedIn, async (req, res) => {
     }
 
     await sequelize.transaction(async (t) => {
-      // 1. 쿠폰 사용 처리
+      // 쿠폰 사용 처리
       myPrize.isRead = true;
       myPrize.usedAt = new Date();
       await myPrize.save({ transaction: t });
 
-      // 2. 상품 수량 차감
+      // 상품 수량 차감
       const prize = await Prize.findByPk(myPrize.PrizeId, { transaction: t });
       if (prize.quantity > 0) {
         prize.quantity -= 1;
@@ -135,7 +150,7 @@ router.post('/use/:id', isLoggedIn, async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
+    console.error('쿠폰 사용 오류:', err.message, err);
     return res.status(500).json({ success: false, message: '쿠폰 사용 중 서버 오류가 발생했습니다.' });
   }
 });

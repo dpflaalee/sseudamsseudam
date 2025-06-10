@@ -20,11 +20,17 @@ const MyPrize = () => {
   }, [dispatch]);
 
   const openRandomModal = async (category) => {
+    if (!category || !category.id) {
+      alert("랜덤박스 카테고리 정보가 없습니다.");
+      return;
+    }
+
     try {
-      const res = await fetch(`/api/open-random-box?category=${category.id}`, {
+      const res = await fetch(`/api/random-box/open/${category.id}`, {
         method: "POST",
         credentials: "include",
       });
+      
       if (!res.ok) throw new Error("서버 응답 실패");
 
       const data = await res.json();
@@ -43,22 +49,21 @@ const MyPrize = () => {
     }
   };
 
-  // 🛡️ 유효한 랜덤박스만 필터링
+  // 유효한 랜덤박스만 필터링
   const validPrizes = myPrizes.filter(
     (prize) => prize && prize.content && prize.issuedAt
   );
 
   if (loadMyPrizesLoading) return <Text>로딩 중...</Text>;
   if (loadMyPrizesError)
-  return (
-    <Text type="danger">
-      에러 발생:{" "}
-      {typeof loadMyPrizesError === "object"
-        ? loadMyPrizesError.message || JSON.stringify(loadMyPrizesError)
-        : String(loadMyPrizesError)}
-    </Text>
-  );
-
+    return (
+      <Text type="danger">
+        에러 발생:{" "}
+        {typeof loadMyPrizesError === "object"
+          ? loadMyPrizesError.message || JSON.stringify(loadMyPrizesError)
+          : String(loadMyPrizesError)}
+      </Text>
+    );
 
   return (
     <>
@@ -68,21 +73,25 @@ const MyPrize = () => {
           {validPrizes.length === 0 ? (
             <Empty description="받은 랜덤박스가 없습니다." />
           ) : (
-            validPrizes.map((prize) => (
-              <Col span={24} key={prize.id}>
-                <Card
-                  type="inner"
-                  title={`${prize.category?.content || "알 수 없음"} 랜덤박스`}
-                  extra={
-                    <Button danger onClick={() => openRandomModal(prize.category)}>
-                      사용
-                    </Button>
-                  }
-                >
-                  유효기간: {new Date(prize.issuedAt).toLocaleDateString()}
-                </Card>
-              </Col>
-            ))
+            validPrizes.map((prize) => {
+              console.log("🎯 Prize 데이터:", prize);
+              console.log("👉 카테고리 정보:", prize.category); 
+              return (
+                <Col span={24} key={prize.id}>
+                  <Card
+                    type="inner"
+                    title={`${prize.category?.content || "알 수 없음"} 랜덤박스`}
+                    extra={
+                      <Button danger onClick={() => openRandomModal(prize.category)}>
+                        사용
+                      </Button>
+                    }
+                  >
+                    유효기간: {new Date(prize.dueAt).toLocaleDateString()}
+                  </Card>
+                </Col>
+              );
+            })
           )}
         </Row>
       </Card>
@@ -100,7 +109,7 @@ const MyPrize = () => {
                   title={prize.content}
                   extra={<Button type="primary">사용</Button>}
                 >
-                  유효기간: {new Date(prize.issuedAt).toLocaleDateString()}
+                  유효기간: {new Date(prize.dueAt).toLocaleDateString()}
                 </Card>
               </Col>
             ))
