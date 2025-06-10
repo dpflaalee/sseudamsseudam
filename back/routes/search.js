@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Post, User, Group } = require('../models');
+const { Post, User, Group, Image, Comment, OpenScope } = require('../models');
 const { Op } = require('sequelize');
 
 
@@ -14,6 +14,14 @@ router.get('/:searchInput', async (req, res, next) => {
             where: {
                 content: { [Op.like]: `%${keyword}%` },
             },
+            include: [
+                { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
+                { model: Image },
+                { model: Comment, include: [{ model: User, attributes: ['id', 'nickname', 'isAdmin'] }] },
+                { model: User, as: 'Likers', attributes: ['id'] },
+                { model: Post, as: 'Retweet', include: [{ model: User, attributes: ['id', 'nickname'] }, { model: Image }] },
+                { model: OpenScope }
+            ]
         });
 
         const groupResults = await Group.findAll({

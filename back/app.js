@@ -19,7 +19,7 @@ const admin = require('./routes/admin');
 const search = require('./routes/search');
 const notification = require('./routes/notification');
 const groups = require('./routes/group');
-const categories = require('./routes/categories');
+const category = require('./routes/category');
 const prize = require('./routes/prize');
 const randomBox = require('./routes/randomBox');
 const animal = require('./routes/animal');
@@ -93,7 +93,7 @@ app.use('/search', search);
 app.use('/notification', notification);
 app.use('/groups', groups);
 app.use('/api/groups', groups);
-app.use('/categories', categories);
+app.use('/category', category);
 
 app.use('/admin/prizes', prize);
 app.use('/api/random-box', randomBox);
