@@ -12,16 +12,16 @@ const Home = () => {
     const dispatch = useDispatch();
     const { user } = useSelector(state => state.user);
     const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
-
+    console.log('👩‍🦳 mainPosts ', mainPosts);
     useEffect(() => {
-        if (hasMorePosts && !loadPostsLoading) {
-            const lastId = mainPosts[mainPosts.length - 1]?.id;
+        if (!loadPostsLoading && (mainPosts.length === 0 || hasMorePosts)) {
+            const lastId = mainPosts[mainPosts.length - 1]?.id || 0;
             dispatch({
                 type: LOAD_POSTS_REQUEST,
-                lastId,
-            })
+                data: lastId,
+            });
         }
-    }, [mainPosts, hasMorePosts, loadPostsLoading]);
+    }, []);
 
     useEffect(() => {
         function onScroll() {
@@ -44,13 +44,7 @@ const Home = () => {
     return (
         <AppLayout>
             {mainPosts
-                .filter((post) => {
-                    const openScope = post.OpenScope?.content;
-                    const myId = user?.id;
-                    const postOwnerId = post.UserId;
-                    const isAdmin = post.User?.isAdmin === true;
-                    return isAdmin;
-                })
+                .filter((post) => post.User.isAdmin)
                 .map((post) => (
                     <PostCard post={post} key={post.id} />
                 ))}
