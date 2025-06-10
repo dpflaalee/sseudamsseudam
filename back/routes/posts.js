@@ -4,7 +4,7 @@ const { Post, User, Image, Comment, OpenScope } = require('../models');
 const { Op } = require('sequelize');
 
 router.get('/', async (req, res, next) => {
-  try{
+  try {
     const where = {};
     if(req.query.userId){
       where.UserId = req.query.userId;
@@ -14,20 +14,20 @@ router.get('/', async (req, res, next) => {
       where,
       limit: 10,
       order: [
-        ['createdAt','DESC'],
-        [Comment,'createdAt','DESC']
+        ['createdAt', 'DESC'],
+        [Comment, 'createdAt', 'DESC']
       ],
       include: [
-        { model:User , attributes: ['id','nickname'] },
-        { model:Image },
-        { model: Comment, include: [{ model: User , attributes: ['id','nickname']}] },
+        { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
+        { model: Image },
+        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname', 'isAdmin'] }] },
         { model: User, as: 'Likers', attributes: ['id'] },
-        { model: Post, as: 'Retweet', include: [{ model: User, attributes: ['id','nickname'] }, { model: Image }] },
+        { model: Post, as: 'Retweet', include: [{ model: User, attributes: ['id', 'nickname'] }, { model: Image }] },
         { model: OpenScope }
       ]
     });
     res.status(200).json(posts);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
     next(error);
   }
