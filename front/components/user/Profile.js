@@ -75,17 +75,27 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
-const Profile = ({ profile }) => {
+const Profile = (props) => {
   const dispatch = useDispatch();
   const { logOutDone,user } = useSelector(state => state.user);
   const {logOutLoding,mainPosts,hasMorePosts,loadPostsLoading} = useSelector(state => state.post);
+  console.log('profile.postUserId=',props.postUserId);
+
   useEffect(() => {
+    const lastId = mainPosts[mainPosts.length - 1]?.id;
+    if(user.id === props.postUserId){
+      dispatch({
+        type: LOAD_POSTS_REQUEST,
+        lastId,
+      })
+    }else{
+      dispatch({
+        type: LOAD_POSTS_REQUEST,
+        lastId,
+        userId: props.postUserId,
+      })
+    }
       if (hasMorePosts && !loadPostsLoading) {
-        const lastId = mainPosts[mainPosts.length - 1]?.id;
-        dispatch({
-          type: LOAD_POSTS_REQUEST,
-          lastId,
-        })
       }
     }, [mainPosts, hasMorePosts, loadPostsLoading]);
   

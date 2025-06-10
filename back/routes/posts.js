@@ -6,6 +6,9 @@ const { Op } = require('sequelize');
 router.get('/', async (req, res, next) => {
   try{
     const where = {};
+    if(req.query.userId){
+      where.UserId = req.query.userId;
+    }
     if( parseInt(req.query.lastId, 10) ) { where.id={ [Op.lt]: parseInt(req.query.lastId, 10) } }
     const posts = await Post.findAll({
       where,
