@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { Post, User, Comment, Complain, Image } = require('../models');
+const { Post, User, Comment, Complain, Image, RandomBox } = require('../models');
 const { Op } = require('sequelize');
+const TARGET_TYPE = require('../../shared/constants/TARGET_TYPE');
 
 // 신고하기
 router.post('/', async (req, res, next) => {
@@ -20,54 +21,16 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-/// 신고 내용보기
-router.get('/post/:id', async (req, res, next) => {
+// 신고 내용 블라인드 처리
+router.patch('/blind', async (req, res, next) => {
+    console.log('🦠 router.patch: blind : ', req.body);
+    console.log('🦠 router.patch: blind : ', req.body.targetId);
     try {
-        const post = await Post.findOne({
-            where: { id: req.params.id },
-            include: [
-                { model: User, attributes: ['id', 'nickname'] },
-                { model: Comment },
-                { model: Image }
-            ]
-        });
-        if (!post) return res.status(404).send('게시글을 찾을 수 없습니다.');
-        res.status(200).json(post);
+        await Complain.update({ isBlind: true }, { where: { targetId: req.body.targetId } });
+        res.status(200).json({ message: '블라인드 처리 완료' });
     } catch (err) {
-        console.error(err);
-        next(err);
-    }
-});
-
-// routes/comment.js
-router.get('/comment/:id', async (req, res, next) => {
-    try {
-        const comment = await Comment.findOne({
-            where: { id: req.params.id },
-            include: [
-                { model: User, attributes: ['id', 'nickname'] }
-            ]
-        });
-        if (!comment) return res.status(404).send('댓글을 찾을 수 없습니다.');
-        res.status(200).json(comment);
-    } catch (err) {
-        console.error(err);
-        next(err);
-    }
-});
-
-// routes/user.js
-router.get('/user/:id', async (req, res, next) => {
-    try {
-        const user = await User.findOne({
-            where: { id: req.params.id },
-            attributes: ['id', 'nickname', 'email']
-        });
-        if (!user) return res.status(404).send('유저를 찾을 수 없습니다.');
-        res.status(200).json(user);
-    } catch (err) {
-        console.error(err);
-        next(err);
+        console.error('🚨 블라인드 처리 실패:', err);
+        res.status(500).send('실패');
     }
 });
 

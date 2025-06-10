@@ -48,7 +48,6 @@ const DeleteButton = styled.button`
   }
 `;
 const Notification = ({ noti, onDelete }) => {
-  console.log('🔍 noti 전체:', noti);
   console.log('🔍 targetObject:', noti?.targetObject);
 
 
@@ -91,7 +90,11 @@ const Notification = ({ noti, onDelete }) => {
       case NOTIFICATION_TYPE.LIKE:
         return `${sender.nickname}님이 당신의 게시물을 좋아요했습니다.`;
       case NOTIFICATION_TYPE.RETWEET:
-        return `${sender.nickname}님이 당신의 게시물을 리트윗했습니다.`;
+        return [
+          `${sender.nickname}님이 당신의 게시물을 리트윗했습니다.`,
+          <br key="br" />,
+          `: ${target?.Retweet?.content}`
+        ];
       case NOTIFICATION_TYPE.COMMENT:
         return [
           `${sender.nickname}님이 당신의 게시물에 댓글을 남겼습니다.`,

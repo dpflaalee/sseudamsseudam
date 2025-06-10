@@ -8,29 +8,48 @@ import {
 
 // --- API ---
 function loadMyPrizesAPI() {
-  return axios.get('/my-prizes');
+  return axios.get('http://localhost:3065/my-prizes', { withCredentials: true });
 }
 
 function* loadMyPrizes() {
   try {
     const result = yield call(loadMyPrizesAPI);
-    yield put({ type: LOAD_MY_PRIZES_SUCCESS, data: result.data });
+    yield put({
+      type: LOAD_MY_PRIZES_SUCCESS,
+      data: result.data.data || [],  // 방어적 처리
+    });
   } catch (err) {
-    yield put({ type: LOAD_MY_PRIZES_FAILURE, error: err.response?.data || err.message });
+    yield put({
+      type: LOAD_MY_PRIZES_FAILURE,
+      error: err.response?.data?.message || '서버 오류가 발생했습니다.',
+    });
   }
 }
 
 function useMyPrizeAPI(id) {
-  return axios.post(`/my-prizes/use/${id}`);
+  return axios.post(`http://localhost:3065/my-prizes/use/${id}`, null, { withCredentials: true });
 }
 
 function* useMyPrize(action) {
   try {
     const result = yield call(useMyPrizeAPI, action.data);
-    yield put({ type: USE_MY_PRIZE_SUCCESS, data: result.data });
+    // 응답 coupon 데이터가 result.data.coupon 안에 있음
+    const coupon = result.data.coupon || {};
+    yield put({
+      type: USE_MY_PRIZE_SUCCESS,
+      data: {
+        id: action.data, // 사용한 쿠폰 ID
+        usedAt: coupon.usedAt,
+        isRead: true,
+        // 필요하다면 더 추가
+      },
+    });
     yield put({ type: LOAD_MY_PRIZES_REQUEST }); // 사용 후 다시 로딩
   } catch (err) {
-    yield put({ type: USE_MY_PRIZE_FAILURE, error: err.response?.data || err.message });
+    yield put({
+      type: USE_MY_PRIZE_FAILURE,
+      error: err.response?.data?.message || err.message || '쿠폰 사용 중 오류가 발생했습니다.',
+    });
   }
 }
 
