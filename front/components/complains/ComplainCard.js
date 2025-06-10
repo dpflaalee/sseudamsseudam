@@ -4,50 +4,33 @@ import { Card, Button, Avatar } from 'antd';
 import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
+import { useDispatch } from 'react-redux';
 
 import DummyComment from './DummyComment';
-import DummyPost from './DummyPost';
 import DummyUser from './DummyUser';
 
 import PostCard from '../post/PostCard';
 import Comment from '../comment/Comment';
+import { IS_BLIND_REQUEST } from '@/reducers/complain';
 
 const ComplainCard = ({ report }) => {
     console.log('🐕‍🦺 ComplainCard : ', report);
-
-    const handleDelete = () => {
-        alert('신고 내역을 삭제합니다');
+    const dispatch = useDispatch();
+    const isBlind = () => {
+        //alert('신고 내역을 삭제합니다');
+        console.log('🐙 isBlind : ', report.targetId);
+        dispatch({
+            type: IS_BLIND_REQUEST,
+            data: {
+                targetId: report.targetId
+            }
+        });
     };
+
     const reporter = report.Reporter;
     console.log('💤 reporter ', reporter);
-    const [targetObject, setTargetObject] = useState(null);
-
-    useEffect(() => {
-        const fetchTargetData = async () => {
-            let url = '';
-            switch (report.targetType) {
-                case TARGET_TYPE.POST:
-                    url = `/complain/post/${report.targetId}`;
-                    break;
-                case TARGET_TYPE.COMMENT:
-                    url = `/complain/comment/${report.targetId}`;
-                    break;
-                case TARGET_TYPE.USER:
-                    url = `/complain/user/${report.targetId}`;
-                    break;
-            }
-
-            try {
-                const response = await axios.get(url);
-                console.log('📦 받아온 데이터:', response.data);
-                setTargetObject(response.data);
-            } catch (error) {
-                console.error(`🚨 대상 불러오기 실패 (${report.targetType}):`, error);
-            }
-        };
-        fetchTargetData();
-    }, [report]);
-
+    const targetObject = report.targetObject;
+    console.log('💤 targetObject :', targetObject);
 
     const renderByType = () => {
         if (!targetObject) {
@@ -96,7 +79,7 @@ const ComplainCard = ({ report }) => {
             style={{ marginBottom: 24 }}
             title={<span style={{ color: '#888' }}>{report.createdAt}</span>}
             extra={
-                <Button danger icon={<DeleteOutlined />} onClick={handleDelete}>
+                <Button danger icon={<DeleteOutlined />} onClick={isBlind}>
                     내용 삭제하기
                 </Button>
             }

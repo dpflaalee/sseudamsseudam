@@ -36,7 +36,6 @@ db.MyPrize = require('./myPrize')(sequelize, Sequelize);  // 모듈연결   sequ
 
 
 
-
 //#모델 관계설정
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {  // model안에  modelName associate 가 있다면 
