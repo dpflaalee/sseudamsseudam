@@ -24,6 +24,7 @@ const prize = require('./routes/prize');
 const randomBox = require('./routes/randomBox');
 const animal = require('./routes/animal');
 const calendar = require('./routes/calendar');
+const adminNoti = require('./routes/adminNoti');
 
 //환경설정
 dotenv.config();
@@ -80,7 +81,7 @@ app.use(passport.session()); //사용자 인증상태 저장
 
 //TEST
 app.get('/', (req, res) => { res.send('Express Test'); });
-app.use('/api', (req, res) => { res.send('Link Test') });
+//app.use('/api', (req, res) => { res.send('Link Test') });
 
 app.use('/post', post);
 app.use('/posts', posts);
@@ -95,10 +96,11 @@ app.use('/api/groups', groups);
 app.use('/categories', categories);
 
 app.use('/admin/prizes', prize);
-app.use('/my-prizes', randomBox);
+app.use('/api/random-box', randomBox);
 app.use('/animal', animal);
 app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
 app.use('/calendar', calendar);
+app.use('/adminNoti', adminNoti);
 
 require('./jobs/giveRandomBoxJob');
 

@@ -8,12 +8,14 @@ import {
 
 // --- API ---
 function loadMyPrizesAPI() {
-  return axios.get('http://localhost:3065/my-prizes', { withCredentials: true });
+  return axios.get('/api/random-box');
 }
 
 function* loadMyPrizes() {
   try {
     const result = yield call(loadMyPrizesAPI);
+    console.log("🎯 백엔드 응답 데이터:", result.data);
+
     yield put({
       type: LOAD_MY_PRIZES_SUCCESS,
       data: result.data.data || [],  // 방어적 처리
@@ -27,7 +29,7 @@ function* loadMyPrizes() {
 }
 
 function useMyPrizeAPI(id) {
-  return axios.post(`http://localhost:3065/my-prizes/use/${id}`, null, { withCredentials: true });
+  return axios.post(`/api/random-box/use/${id}`, null);
 }
 
 function* useMyPrize(action) {
@@ -41,7 +43,6 @@ function* useMyPrize(action) {
         id: action.data, // 사용한 쿠폰 ID
         usedAt: coupon.usedAt,
         isRead: true,
-        // 필요하다면 더 추가
       },
     });
     yield put({ type: LOAD_MY_PRIZES_REQUEST }); // 사용 후 다시 로딩
