@@ -6,4 +6,4 @@ const TARGET_TYPE = {
     POST: 'POST',
     RANDOMBOX: 'RANDOMBOX'
 }
-export default TARGET_TYPE;
+module.exports = TARGET_TYPE;

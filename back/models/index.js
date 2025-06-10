@@ -20,6 +20,8 @@ db.Category = require('./category')(sequelize, Sequelize);  // 모듈연결   se
 db.OpenScope = require('./openScope')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.Place = require('./place')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.Group = require('./group')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+db.GroupMember = require('./groupmember')(sequelize, Sequelize);
+db.GroupRequest = require('./groupRequest')(sequelize, Sequelize); 
 db.Complain = require('./complain')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.Notification = require('./notification')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.NotificationSetting = require('./notificaionSetting')(sequelize, Sequelize);
@@ -31,7 +33,6 @@ db.ChattingImage = require('./chattingImage')(sequelize, Sequelize);  // 모듈�
 db.ChattingMember = require('./chattingMember')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.BlackList = require('./blackList')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.MyPrize = require('./myPrize')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
-
 
 
 

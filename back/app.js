@@ -68,7 +68,11 @@ app.use(session({
   saveUninitialized: false,
   resave: false,
   secret: process.env.COOKIE_SECRET,
-  cookie: { secure: false }  //  production 에서 true
+  cookie: {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',  // 크로스 도메인 쿠키 허용 정도 조절
+  }
 }));
 app.use(passport.initialize()); // 인증처리 라이브러리 초기화
 app.use(passport.session()); //사용자 인증상태 저장
@@ -76,14 +80,6 @@ app.use(passport.session()); //사용자 인증상태 저장
 //TEST
 app.get('/', (req, res)=>{res.send('Express Test');});
 app.use('/api', (req,res)=>{res.send('Link Test')});
-//app.use('/detail' , detail);
-app.use('/user' , user );
-app.get('/api', (req,res)=>{res.send('Link Test')});
-// app.use('/api/schedule', scheduleRouter); //캘린더 테스트용 코드
-// app.use('/detail' , detail);
-app.get('/', (req, res) => { res.send('Express Test'); });
-app.use('/api', (req, res) => { res.send('Link Test') });
-//app.use('/detail' , detail);node
 
 app.use('/post', post);
 app.use('/posts', posts);
@@ -94,10 +90,11 @@ app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
 app.use('/groups', groups);
+app.use('/api/groups', groups);
 app.use('/categories', categories);
 
 app.use('/admin/prizes', prize);
-app.use('/randomBox', randomBox);
+app.use('/my-prizes', randomBox);
 app.use('/animal', animal);
 app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
 app.use('/calendar', calendar);

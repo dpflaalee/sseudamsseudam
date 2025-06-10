@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Post, User, Group, Notification, Animal, Comment } = require('../models');
+const { Post, User, Group, Notification, Animal, Comment, RandomBox } = require('../models');
 const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
 const { Op } = require('sequelize');
 
@@ -63,7 +63,19 @@ router.get('/', async (req, res, next) => {
                     case NOTIFICATION_TYPE.LIKE:
                     case NOTIFICATION_TYPE.RETWEET:
                         target = await Post.findByPk(noti.targetId, {
-                            include: [{ model: User, attributes: ['id', 'nickname'] }],
+                            include: [
+                                { model: User, attributes: ['id', 'nickname'] },
+                                { model: Post, as: 'Retweet', include: [{ model: User, attributes: ['id', 'nickname'] }] },
+                            ],
+
+                        });
+                        break;
+
+                    case NOTIFICATION_TYPE.FOLLOW:
+                        target = await User.findByPk(noti.targetId, {
+                            include: [
+                                { model: User, attributes: ['id', 'nickname'] }
+                            ]
                         });
                         break;
 
@@ -82,6 +94,11 @@ router.get('/', async (req, res, next) => {
                         target = await Animal.findByPk(noti.targetId, {
                             include: [{ model: Animal, as: 'Followings', attributes: ['id', 'aniName'] }],
                         })
+
+                    case NOTIFICATION_TYPE.RANDOMBOX:
+                        target = await RandomBox.findByPk(noti.targetId, {
+                            include: [{ model: RandomBox, as: 'MyPrize', attributes: ['id', 'content', 'isRead'] }],
+                        });
                 }
                 if (!target) {
                     console.warn(`⚠️ target을 찾을 수 없습니다. notiId=${noti.id}, targetId=${noti.targetId}`);

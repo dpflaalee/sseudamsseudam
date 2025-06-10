@@ -5,7 +5,7 @@ import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, Retweet
 import PostImages from './PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
-import { LIKE_POST_REQUEST,UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST, RETWEET_REQUEST } from '@/reducers/post';
+import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST, RETWEET_REQUEST } from '@/reducers/post';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import PostCardContent from './PostCardContent';
@@ -20,17 +20,18 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const dispatch = useDispatch();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const onCancelUpdate = useCallback(() => { setEditMode(false); },[]);
+  const onCancelUpdate = useCallback(() => { setEditMode(false); }, []);
   const onEditPost = useCallback((editText) => () => {
     dispatch({
       type: UPDATE_POST_REQUEST,
-      data: { PostId:post.id, content:editText }
+      data: { PostId: post.id, content: editText }
     });
-  },[post]);
+  }, [post]);
 
   const [newContent, setNewContent] = useState(post.content);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const { removePostLoading, removePostDone } = useSelector(state => state.post)
+  const { removePostLoading, removePostDone } = useSelector(state => state.post);
+  const { mainComplainCard } = useSelector(state => state.complain);
 
   // 좋아요
   const onClickLike = useCallback(() => {
@@ -86,20 +87,29 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     setDeleteModalVisible(false);
   };
   const handleDelete = useCallback(() => {
-    dispatch({ 
+    dispatch({
       type: REMOVE_POST_REQUEST,
-      data: post.id 
-    });  
-  },[]);
+      data: post.id
+    });
+  }, []);
 
   // 리트윗
   const onRetweet = useCallback(() => {
     if (!id) { return alert('로그인 후 리트윗이 가능합니다.'); }
     return dispatch({
       type: RETWEET_REQUEST,
-      data: post.id
+      data: post.id,
+      notiData: {
+        SenderId: id, // 로그인한 유저의 아이디
+        ReceiverId: post.User.id
+      }
     });
-  });  
+  });
+
+  // 신고 된 글 블라인드 처리
+  const isBlinded = mainComplainCard.some((report) => report.targetId === post.id && report.isBlind);
+  const content = isBlinded ? '신고된 게시글입니다.' : post.content;
+
   return (
     <div style={{ margin: '3%' }}>
       <Card
@@ -135,24 +145,24 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             < EllipsisOutlined />
           </Popover>
         ]}
-        // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}
+      // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}
       >
-      { post.RetweetId && post.Retweet ? (
-        <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
-          <Card.Meta
-            avatar={<Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
-                    <Avatar>{post.Retweet.User.nickname[0]}</Avatar></Link>} 
-            title={post.Retweet.User.nickname}
-            description={
-              <PostCardContent 
-                editMode={editMode}
-                onEditPost={onEditPost}
-                onCancelUpdate={onCancelUpdate}
-                postData={post.Retweet.content}
-              />} 
-          />
-        </Card>
-      ) : (
+        {post.RetweetId && post.Retweet ? (
+          <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
+            <Card.Meta
+              avatar={<Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
+                <Avatar>{post.Retweet.User.nickname[0]}</Avatar></Link>}
+              title={post.Retweet.User.nickname}
+              description={
+                <PostCardContent
+                  editMode={editMode}
+                  onEditPost={onEditPost}
+                  onCancelUpdate={onCancelUpdate}
+                  postData={post.Retweet.content}
+                />}
+            />
+          </Card>
+        ) : (
           <Card.Meta
             avatar={
               <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
@@ -165,22 +175,25 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
                 editMode={editMode}
                 onEditPost={onEditPost}
                 onCancelUpdate={onCancelUpdate}
-                postData={post.content}
+                postData={content}
               />
             }
           />
 
-      )}       
+        )
+        }
         {/* 신고 모달 */}
-        {open && (
-          <ComplainForm
-            open={open}
-            targetId={post.id}
-            TARGET_TYPE={TARGET_TYPE.POST}
-            targetUserNickname={post.User?.nickname}
-            onClose={() => setOpen(false)}
-          />
-        )}
+        {
+          open && (
+            <ComplainForm
+              open={open}
+              targetId={post.Retweet ? post.Retweet.id : post.id}
+              TARGET_TYPE={TARGET_TYPE.POST}
+              targetUserNickname={post.User?.nickname}
+              onClose={() => setOpen(false)}
+            />
+          )
+        }
         {/* E 신고 모달 */}
 
       </Card >

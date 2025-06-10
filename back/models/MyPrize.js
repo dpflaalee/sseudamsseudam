@@ -24,10 +24,10 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // //관계 설정
-  // MyPrize.associate = (db) => {
-  //   db.MyPrize.belongsTo(db.User, { foreignKey: 'UserId', as: 'user' });
-  //   db.MyPrize.belongsTo(db.Prize, { foreignKey: 'PrizeId', as: 'prize' });
-  // };
+  MyPrize.associate = (db) => {
+    db.MyPrize.belongsTo(db.User, { foreignKey: 'UserId', as: 'user' });
+    db.MyPrize.belongsTo(db.Prize, { foreignKey: 'PrizeId', as: 'prize' });
+  };
 
   return MyPrize;
 };
