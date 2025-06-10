@@ -81,6 +81,7 @@ const Profile = (props) => {
   const {logOutLoding,mainPosts,hasMorePosts,loadPostsLoading} = useSelector(state => state.post);
   console.log('profile.postUserId=',props.postUserId);
   console.log('mainPosts',mainPosts.id);
+  console.log('user',user);
   const postUserId = props.postUserId;
   useEffect(() => {
     const lastId = mainPosts[mainPosts.length - 1]?.id;
@@ -88,12 +89,12 @@ const Profile = (props) => {
       dispatch({
         type: LOAD_POSTS_REQUEST,
         lastId,
+        userId: props.postUserId,
       })
     }else{
       dispatch({
         type: LOAD_POSTS_REQUEST,
         lastId,
-        userId: props.postUserId,
       })
     }
       if (hasMorePosts && !loadPostsLoading) {
