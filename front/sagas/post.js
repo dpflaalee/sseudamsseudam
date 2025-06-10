@@ -51,13 +51,13 @@ import {
   RETWEET_FAILURE
 } from '../reducers/post';
 
-function loadPostAPI(data) {
-  return axios.get(`/post/${data}`);
+function loadPostAPI(data,userId,number) {
+  return axios.get(`/post/${data}/${userId}`);
 }
 
 function* loadPost(action) {
   try {
-    const result = yield call(loadPostAPI, action.data);
+    const result = yield call(loadPostAPI, action.data,action.userId,action.number);
     yield put({
       type: LOAD_POST_SUCCESS,
       data: result.data,
@@ -71,13 +71,22 @@ function* loadPost(action) {
   }
 }
 
-function loadPostsAPI(lastId, userId) {
-  return axios.get(`/posts?lastId=${lastId || 0}&userId=${userId}`);
+function loadPostsAPI(lastId,userId,number) {
+  console.log('number='+number);
+  if(number){
+    console.log('본인 게시물 클릭');
+    return axios.get(`/posts?lastId=${lastId || 0}&number=${number}`);
+  }else{
+    console.log('다른 게시물 클릭');
+    return axios.get(`/posts?lastId=${lastId || 0}&userId=${userId}`);
+  }
 }
 
 function* loadPosts(action) {
+  console.log('action.userId-=',action.userId);
+  console.log('action.number-=',action.number);
   try {
-    const result = yield call(loadPostsAPI, action.lastId, action.userId);
+    const result = yield call(loadPostsAPI, action.lastId,action.userId,action.number);
     yield put({
       type: LOAD_POSTS_SUCCESS,
       data: result.data,
@@ -378,11 +387,9 @@ function* retweet(action) {
 function* watchLoadPost() {
   yield takeLatest(LOAD_POST_REQUEST, loadPost);
 }
-
 function* watchLoadPosts() {
   yield throttle(5000, LOAD_POSTS_REQUEST, loadPosts);
 }
-
 function* watchAddPost() {
   yield takeLatest(ADD_POST_REQUEST, addPost);
 }
