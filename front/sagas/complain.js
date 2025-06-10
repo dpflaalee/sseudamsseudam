@@ -3,7 +3,8 @@ import { all, fork, put, takeLatest, throttle, call } from 'redux-saga/effects';
 import {
   LOAD_COMPLAIN_REQUEST, LOAD_COMPLAIN_SUCCESS, LOAD_COMPLAIN_FAILURE,
   ADD_COMPLAIN_REQUEST, ADD_COMPLAIN_SUCCESS, ADD_COMPLAIN_FAILURE,
-  REMOVE_COMPLAIN_REQUEST, REMOVE_COMPLAIN_SUCCESS, REMOVE_COMPLAIN_FAILURE
+  REMOVE_COMPLAIN_REQUEST, REMOVE_COMPLAIN_SUCCESS, REMOVE_COMPLAIN_FAILURE,
+  IS_BLIND_REQUEST, IS_BLIND_SUCCESS, IS_BLIND_FAILURE
 } from '../reducers/complain';
 
 //////////////////////////////////////////////////////////
@@ -20,7 +21,6 @@ function* loadComplain(action) {
     });
   } catch (err) {
     console.log('🚨 complainSaga : loadComplain : ', err);
-    next(err);
     yield put({
       type: LOAD_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -69,6 +69,29 @@ function* removeComplain(action) {
     });
   }
 }
+
+////////////////////////////
+function isBlindComplainAPI(data) {
+  console.log('🚩 isBlindComplainAPI : ', data);
+  return axios.patch('/complain/blind', data);
+}
+
+function* isBlindComplain(action) {
+  try {
+    console.log('🚩 isBlindComplain : ', action.data);
+    const result = yield call(isBlindComplainAPI, action.data);
+    yield put({
+      type: IS_BLIND_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.log('🚨 complainSaga : isBlindComplain : ', err);
+    yield put({
+      type: IS_BLIND_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 ///////////////////////////////////////////////////////
 
 
@@ -85,11 +108,16 @@ function* watchRemoveComplain() {
   yield takeLatest(REMOVE_COMPLAIN_REQUEST, removeComplain);
 }
 
+function* watchIsBlindComplain() {
+  yield takeLatest(IS_BLIND_REQUEST, isBlindComplain);
+}
+
 /////////////////////
 export default function* complainSaga() {
   yield all([  //  all - 동시에 배열로 받은 fork들을 동시에 실행 
     fork(watchLoadComplain),
     fork(watchAddComplain),
     fork(watchRemoveComplain),
+    fork(watchIsBlindComplain),
   ]);
 }
