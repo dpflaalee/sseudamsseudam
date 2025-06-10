@@ -2,22 +2,16 @@ const express = require('express');
 const router = express.Router();
 const TARGET_TYPE = require('./../../shared/constants/TARGET_TYPE');
 const { Post, User, Image, Comment, Hashtag, Complain, MyPrize, Prize } = require('../models');
-console.log('🔍 Post 모델 확인:', typeof Post);
-console.log('🔍 Comment 모델 확인:', typeof Comment);
 const { Op } = require('sequelize');
 
 // 0. PostCard.js : 관리자가 쓴 글(공지사항) 보기
 // admin/
 router.get('/', async (req, res, next) => {
     try {
-        const where = { userId: req.user.id }; // 로그인한 사용자의 게시물만 조회
-        if (parseInt(req.query.lastId, 10)) {
-            where.id = {
-                [Op.lt]: parseInt(req.query.lastId, 10)
-            }
-        }
-        const posts = await Post.findAll({
-            where,
+        const admin = await User.findOne({ where: { isAdmin: true } });
+        console.log('🎅 admin', admin);
+        const adminNoti = await Post.findAll({
+            where: { userId: admin.id },
             limit: 10,
             order: [
                 ['createdAt', 'DESC'],
@@ -51,7 +45,10 @@ router.get('/', async (req, res, next) => {
                 }
             ]
         });
-        res.status(200).json(posts);
+        if (!admin) {
+            return res.status(404).json({ message: '관리자 계정을 찾을 수 없습니다.' });
+        }
+        res.status(200).json(adminNoti);
     } catch (err) {
         console.error(err);
         next(err);
@@ -66,15 +63,15 @@ router.get('/complain', async (req, res, next) => {
         const complainList = await Complain.findAll({
             include: [
                 { model: User, as: 'Reporter', attributes: ['id', 'nickname'] },
-            ]
+            ],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
         });
 
         const enriched = await Promise.all(
             complainList.map(async (complain) => {
                 let target = null;
-                console.log('🦠 complain.targetType', complain.targetType);
-                console.log('🧪 complain.targetType =', complain.targetType, typeof complain.targetType);
-                console.log('🧪 TARGET_TYPE =', TARGET_TYPE);
 
                 switch (complain.targetType) {
                     case TARGET_TYPE.POST:
@@ -93,8 +90,16 @@ router.get('/complain', async (req, res, next) => {
                         });
                         break;
                     case TARGET_TYPE.RANDOMBOX:
-                        target = await Prize.findByPk(Number(complain.targetId), {
-                            include: [{ model: Prize, attributes: ['id', 'content'], }]
+                        target = await MyPrize.findByPk(Number(complain.targetId), {
+                            include: [{
+                                model: Prize,
+                                as: 'prize',
+                                attributes: ['id', 'content']
+                            }, {
+                                model: User,
+                                as: 'user',
+                                attributes: ['id', 'nickname']
+                            }]
                         });
                         break;
                 }

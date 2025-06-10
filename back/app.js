@@ -24,6 +24,7 @@ const prize = require('./routes/prize');
 const randomBox = require('./routes/randomBox');
 const animal = require('./routes/animal');
 const calendar = require('./routes/calendar');
+const adminNoti = require('./routes/adminNoti');
 
 //환경설정
 dotenv.config();
@@ -99,6 +100,7 @@ app.use('/my-prizes', randomBox);
 app.use('/animal', animal);
 app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
 app.use('/calendar', calendar);
+app.use('/adminNoti', adminNoti);
 
 require('./jobs/giveRandomBoxJob');
 
