@@ -75,21 +75,6 @@ const Index = () => {
             <Col>
               <Button onClick={() => setActiveSection("challenge")}>챌린지 현황</Button>
             </Col>
-            <Col>
-              <Dropdown
-                overlay={
-                  <Menu>
-                    <Menu.Item key="report" onClick={() => router.push("/report")}>
-                      신고하기     { /* 수정필요!! 신고하기 폼으로 가게 */}
-                    </Menu.Item>
-                  </Menu>
-                }
-                placement="bottomRight"
-                trigger={["click"]}
-              >
-                <EllipsisOutlined style={{ fontSize: 20, cursor: "pointer" }} />
-              </Dropdown>
-            </Col>
           </Row>
         </Col>
       </Card>

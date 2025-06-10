@@ -1,133 +1,157 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox, Card, Divider } from 'antd';
+import { UserOutlined, UploadOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../../reducers/post';
-import userInput from '../../hooks/userInput';  
+import userInput from '../../hooks/userInput';
 
-const PostForm = ({groupId, isGroup=false}) => { // 그룹용 추가코드
-
+const PostForm = ({ groupId, isGroup = false }) => {
   const { TextArea } = Input;
   const { Option } = Select;
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => { setIsModalOpen(true);};
+  const showModal = () => { setIsModalOpen(true); };
   const handleOk = () => { setIsModalOpen(false); };
   const handleCancel = () => { setIsModalOpen(false); };
+  const [openScope, setOpenScope] = useState('public');
 
-  const { imagePaths , addPostLoading, addPostDone } = useSelector((state) => state.post);
+  const { imagePaths, addPostLoading, addPostDone } = useSelector((state) => state.post);
 
   const dispatch = useDispatch();
-  const [text, onChangeText, setText] = userInput(''); 
+  const router = useRouter();
+  const [text, onChangeText, setText] = userInput('');
 
-  useEffect(() => { 
-    if (addPostDone) { setText('');  }
-  } , [addPostDone]);
+  useEffect(() => {
+    if (addPostDone) {
+      setText('');
+    }
+  }, [addPostDone]);
 
   const onSubmitForm = useCallback(() => {
-    if (!text || !text.trim()) { return alert('게시글을 작성하세요.');  }
-    const formData = new FormData();
-    imagePaths.forEach(( i ) => { formData.append('image' , i) });
-    formData.append('content', text);
-
-    if(isGroup && groupId ){formData.append('groupId', groupId);} // 그룹용 추가코드
+    if (!text || !text.trim()) return alert('게시글을 작성하세요.');
     
+    const user = useSelector(state => state.user);
+    const isAdmin = user.user.isAdmin;
+
+    const formData = new FormData();
+    imagePaths.forEach((i) => formData.append('image', i));
+    formData.append('content', text);
+    formData.append('openScope', openScope);
+    if (isGroup && groupId) { formData.append('groupId', groupId); }
+
     dispatch({
       type: ADD_POST_REQUEST,
-      data: formData  
+      data: formData,
+      isAdmin: isAdmin,
     });
-  }, [text ,imagePaths, groupId ]); // 그룹용 추가코드
+  }, [text, imagePaths, groupId]);
 
   const imageInput = useRef();
   const onClickImageUpload = useCallback(() => {
-      imageInput.current.click();
-  }, [imageInput.current]);
- 
+    imageInput.current.click();
+  }, []);
   const onChangeImage = useCallback((e) => {
-    console.log('.....images' , e.target.files);
-    const imageFormData = new FormData();
-
-    [].forEach.call( e.target.files, (f)=>{
+  const imageFormData = new FormData();
+    [].forEach.call(e.target.files, (f) => {
       imageFormData.append('image', f);
     });
-    dispatch({
-      type: UPLOAD_IMAGES_REQUEST,
-      data: imageFormData,
-    });
-  },[]);
+    dispatch({ type: UPLOAD_IMAGES_REQUEST, data: imageFormData });
+  }, []);
   const onRemoveImage = useCallback((index) => () => {
-    dispatch({
-      type: REMOVE_IMAGE,
-      data: index
-    });
-  },[]);  
-  
+    dispatch({ type: REMOVE_IMAGE, data: index });
+  }, []);
+  const goToMap = () => {
+    router.push('/map/kakao');
+  };
+
   return (
-    <Form layout="vertical" style={{ margin: '3%' }} encType="multipart/form-data" onFinish={onSubmitForm}>
-      <Form.Item name="text">
-        <Space direction="vertical" style={{ width: '100%' }}>
-          {/* 상단: 아바타 + 공개범위 */}
-          <Row align="middle" gutter={8}>
+    <Card style={{ margin: '3%', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+      <Form layout="vertical" encType="multipart/form-data" onFinish={onSubmitForm}>
+        <Form.Item>
+          <Row align="middle" justify="space-between" gutter={16} wrap={false}>
             <Col>
-              <Avatar icon={<UserOutlined />} />
-              {/* 또는 <Avatar src="프로필이미지URL" /> */}
+              <Avatar size="large" icon={<UserOutlined />} />
             </Col>
-            <Col>
-              <Select defaultValue="public" style={{ width: 120 }}>
-                <Option value="public">전체공개</Option>
-                <Option value="friends">친구공개</Option>
-                <Option value="private">비공개</Option>
-              </Select>
+            <Col flex="auto">
+              <Space>
+                <Select value={openScope} onChange={(value) => setOpenScope(value)} style={{ width: 150 }}>
+                  <Option value="public">전체 공개</Option>
+                  <Option value="private">나만 보기</Option>
+                  <Option value="follower">팔로워 공개</Option>
+                  <Option value="group">그룹 공개</Option>
+                </Select>
+                <Button onClick={() => setIsModalOpen(true)}>카테고리</Button>
+              </Space>
             </Col>
           </Row>
+        </Form.Item>
 
-          {/* 본문 입력 */}
+        <Form.Item>
           <TextArea
-            placeholder="게시글을 적어주세요"
-            maxLength={200} value={text}   onChange={onChangeText}
-            autoSize={{ minRows: 3, maxRows: 6 }}
+            placeholder="무슨 일이 있었나요?"
+            maxLength={300}
+            value={text}
+            onChange={onChangeText}
+            autoSize={{ minRows: 4, maxRows: 8 }}
           />
-        </Space>
-      </Form.Item>
-      <Form.Item>
-        <input
-          type="file"
-          multiple
-          hidden
-          ref={imageInput}
-          onChange={onChangeImage}
-        />
-        <Button onClick={onClickImageUpload}>사진 업로드</Button>
-        <Button>지도</Button>
+        </Form.Item>
 
-        <div style={{ float: 'right' }}>
-          <Button onClick={showModal} style={{ marginRight: 8 }}>
-            카테고리
-          </Button>
-          <Button type="primary" htmlType="submit" loading={addPostLoading}>
-            POST
-          </Button>
-        </div>
-      </Form.Item>
-      <div>
-        { Array.isArray( imagePaths ) ? imagePaths.map((v, i) => (
-          <div  key={v} style={{display:'inline-block'}} >
-            <img src={`http://localhost:3065/${v}`} style={{ width: '200px' }} />
-            <div><Button onClick={onRemoveImage(i)} >제거</Button></div>
-          </div>
-        )) : null }
-      </div>      
+        <Form.Item>
+          <Row justify="space-between" align="middle" style={{ flexWrap: 'wrap' }}>
+            <Col>
+              <Space>
+                <Button icon={<UploadOutlined />} onClick={onClickImageUpload}>
+                  사진 업로드
+                </Button>
+                <Button icon={<EnvironmentOutlined />} onClick={goToMap}>
+                  지도
+                </Button>
+              </Space>
+            </Col>
+            <Col>
+              <Space>
+                <Button type="primary" htmlType="submit" loading={addPostLoading}>
+                  POST
+                </Button>
+              </Space>
+            </Col>
+          </Row>
+        </Form.Item>
+
+        {Array.isArray(imagePaths) && imagePaths.length > 0 && (
+          <>
+            <Divider>업로드된 이미지</Divider>
+            <Row gutter={[16, 16]}>
+              {imagePaths.map((v, i) => (
+                <Col key={v}>
+                  <Card
+                    cover={<img alt={`업로드된 이미지 ${i + 1}`} src={`http://localhost:3065/${v}`} style={{ objectFit: 'cover', height: 180 }} />}
+                    actions={[<Button type="link" danger onClick={onRemoveImage(i)}>제거</Button>]}
+                    style={{ width: 200 }}
+                  />
+                </Col>
+              ))}
+            </Row>
+          </>
+        )}
+      </Form>
       <Modal
         title="카테고리 선택"
         open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
+        onOk={() => setIsModalOpen(false)}
+        onCancel={() => setIsModalOpen(false)}
         okText="확인"
         cancelText="취소"
       >
-        {/* 여기에 카테고리 선택 내용 작성 */}
-        <p><Checkbox>강아지</Checkbox><Checkbox>고양이</Checkbox></p>
+        <Checkbox.Group style={{ width: '100%' }}>
+          <Row gutter={[0, 8]}>
+            <Col span={12}><Checkbox value="dog">강아지</Checkbox></Col>
+            <Col span={12}><Checkbox value="cat">고양이</Checkbox></Col>
+            <Col span={12}><Checkbox value="other">기타</Checkbox></Col>
+          </Row>
+        </Checkbox.Group>
       </Modal>
-    </Form>  
+    </Card>
   );
 };
 

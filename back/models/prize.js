@@ -16,6 +16,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE, // DATETIME → DATE
       allowNull: false
     },
+    type: {
+      type: DataTypes.ENUM('randombox', 'coupon'),
+      allowNull: false,
+      defaultValue: 'randombox'
+    }
   }, {
     charset: 'utf8',
     collate: 'utf8_general_ci',

@@ -6,11 +6,11 @@ import EventScheduleChange from '../../components/Calendar/EventSchedule/EventSc
 
 const EditSchedulePage = () => {
   const router = useRouter();
-  const { id } = router.query;  // 쿼리 파라미터에서 id 받아오기
+  const { id } = router.query;
   const [schedule, setSchedule] = useState(null);
 
   useEffect(() => {
-    if (!id) return; // id가 없으면 fetch 중단
+    if (!id) return;
     const fetchSchedule = async () => {
       try {
         const res = await axios.get(`http://localhost:3065/calendar/${id}`);
@@ -32,9 +32,7 @@ const EditSchedulePage = () => {
     }
   };
 
-  if (!schedule) return <div>로딩 중...</div>;
-
-  return (
+return (
   <AppLayout>
     <EventScheduleChange schedule={schedule} onSubmit={handleSubmit} />
   </AppLayout>

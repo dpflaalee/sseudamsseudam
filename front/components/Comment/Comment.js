@@ -7,7 +7,7 @@ import router from 'next/router';
 
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-import { REMOVE_COMMENT_REQUEST,UPDATE_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST } from '../../reducers/post';
+import { REMOVE_COMMENT_REQUEST, UPDATE_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST } from '../../reducers/post';
 import ReCommentForm from './ReCommentForm';
 import ReComment from './ReComment';
 
@@ -88,7 +88,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
     }
   }, [editingCommentId]);
 
-    const onChangeEditContent = useCallback((e) => {
+  const onChangeEditContent = useCallback((e) => {
     setEditContent(e.target.value);
   }, []);
 
@@ -124,13 +124,26 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
       },
     });
   }, [postId, dispatch, onRefreshPost]);
+
+  // 신고 댓글 블라인드 처리
+  const mainComplainCard = useSelector(state => state.complain.mainComplainCard);
+  const processedParentComments = comments
+    .filter(comment => !comment.RecommentId)
+    .map(comment => {
+      const isBlind = mainComplainCard?.some(report => report.targetId === comment.id && report.isBlind);
+      return {
+        ...comment,
+        content: isBlind ? '신고된 댓글입니다.' : comment.content,
+      };
+    });
+
   return (
     <Wrapper>
       <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
         댓글 {parentComments.length}개
       </div>
       {parentComments.length === 0 && <div>댓글이 없습니다.</div>}
-      {parentComments.map((comment) => {
+      {processedParentComments.map((comment) => {
         const createdAt = comment.createdAt
           ? new Date(comment.createdAt).toLocaleString()
           : '';
@@ -159,36 +172,36 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
             <CommentItem>
               <Left>
                 <Avatar>{comment.User?.nickname?.[0] || 'U'}</Avatar>
-            <Content>
-              <NicknameDateWrapper>
-                <Nickname>{comment.User?.nickname || '알 수 없음'}</Nickname>
-                {createdAt && <CommentDate>{createdAt}</CommentDate>}
-              </NicknameDateWrapper>
-              
-              {editingCommentId === comment.id ? (
-                <>
-                  <textarea
-                    value={editContent}
-                    onChange={onChangeEditContent}
-                    rows={3}
-                    style={{ width: '100%', resize: 'none' }}
-                  />
-                  <div>
-                    <Button type="primary" onClick={onSaveEdit} style={{ marginRight: 8 }}>
-                      저장
-                    </Button>
-                    <Button onClick={() => setEditingCommentId(null)}>취소</Button>
-                  </div>
-                </>
-              ) : (
-                <Text>{comment.content}</Text>
-              )}
+                <Content>
+                  <NicknameDateWrapper>
+                    <Nickname>{comment.User?.nickname || '알 수 없음'}</Nickname>
+                    {createdAt && <CommentDate>{createdAt}</CommentDate>}
+                  </NicknameDateWrapper>
 
-              <MessageOutlined
-                style={{ marginTop: '12px', cursor: 'pointer' }}
-                onClick={() => onClickReply(comment.id)}
-              />
-            </Content>
+                  {editingCommentId === comment.id ? (
+                    <>
+                      <textarea
+                        value={editContent}
+                        onChange={onChangeEditContent}
+                        rows={3}
+                        style={{ width: '100%', resize: 'none' }}
+                      />
+                      <div>
+                        <Button type="primary" onClick={onSaveEdit} style={{ marginRight: 8 }}>
+                          저장
+                        </Button>
+                        <Button onClick={() => setEditingCommentId(null)}>취소</Button>
+                      </div>
+                    </>
+                  ) : (
+                    <Text>{comment.content}</Text>
+                  )}
+
+                  <MessageOutlined
+                    style={{ marginTop: '12px', cursor: 'pointer' }}
+                    onClick={() => onClickReply(comment.id)}
+                  />
+                </Content>
               </Left>
               <Dropdown overlay={menu} trigger={['click']}>
                 <Button type="text" icon={<MoreOutlined />} />

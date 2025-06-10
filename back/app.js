@@ -24,6 +24,7 @@ const prize = require('./routes/prize');
 const randomBox = require('./routes/randomBox');
 const animal = require('./routes/animal');
 const calendar = require('./routes/calendar');
+const adminNoti = require('./routes/adminNoti');
 
 //환경설정
 dotenv.config();
@@ -31,10 +32,28 @@ const app = express();
 
 //db연동
 const db = require('./models');
+
+async function seedOpenScopes() {
+  const count = await db.OpenScope.count();
+  if (count === 0) {
+    await db.OpenScope.bulkCreate([
+      { id: 1, content: 'public', createdAt: new Date(), updatedAt: new Date() },
+      { id: 2, content: 'private', createdAt: new Date(), updatedAt: new Date() },
+      { id: 3, content: 'follower', createdAt: new Date(), updatedAt: new Date() },
+      { id: 4, content: 'group', createdAt: new Date(), updatedAt: new Date() },
+    ]);
+    console.log('OpenScope 기본 데이터 삽입 완료');
+  }
+}
+
 db.sequelize
   .sync()
-  .then(() => { console.log('..........db'); })
+  .then(async () => {
+    console.log('..........db');
+    await seedOpenScopes();
+  })
   .catch(console.error);
+
 passportConfig();
 
 //기타 연동
@@ -51,22 +70,18 @@ app.use(session({
   saveUninitialized: false,
   resave: false,
   secret: process.env.COOKIE_SECRET,
-  cookie: { secure: false }  //  production 에서 true
+  cookie: {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',  // 크로스 도메인 쿠키 허용 정도 조절
+  }
 }));
 app.use(passport.initialize()); // 인증처리 라이브러리 초기화
 app.use(passport.session()); //사용자 인증상태 저장
 
 //TEST
-app.get('/', (req, res)=>{res.send('Express Test');});
-app.use('/api', (req,res)=>{res.send('Link Test')});
-//app.use('/detail' , detail);
-app.use('/user' , user );
-app.get('/api', (req,res)=>{res.send('Link Test')});
-// app.use('/api/schedule', scheduleRouter); //캘린더 테스트용 코드
-// app.use('/detail' , detail);
 app.get('/', (req, res) => { res.send('Express Test'); });
-app.use('/api', (req, res) => { res.send('Link Test') });
-//app.use('/detail' , detail);node
+//app.use('/api', (req, res) => { res.send('Link Test') });
 
 app.use('/post', post);
 app.use('/posts', posts);
@@ -77,13 +92,15 @@ app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
 app.use('/groups', groups);
+app.use('/api/groups', groups);
 app.use('/categories', categories);
 
 app.use('/admin/prizes', prize);
-app.use('/randomBox', randomBox);
+app.use('/api/random-box', randomBox);
 app.use('/animal', animal);
 app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
 app.use('/calendar', calendar);
+app.use('/adminNoti', adminNoti);
 
 require('./jobs/giveRandomBoxJob');
 
