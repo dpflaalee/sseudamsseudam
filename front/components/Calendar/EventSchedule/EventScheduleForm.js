@@ -5,72 +5,75 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 
 const { RangePicker } = DatePicker;
- 
+
 const formItemLayout = {
   labelCol: { span: 0 },
   wrapperCol: { span: 24 },
 };
 
-const EventSchedule = () => {
+const EventScheduleForm = () => {
   const [form] = Form.useForm();
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
-      if (res.data && Number(res.data.isAdmin) === 1) {
-        setIsAdmin(true);
-      } else {
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
+        if (res.data && Number(res.data.isAdmin) === 1) {
+          setIsAdmin(true);
+        } else {
+          alert('권한이 없습니다.');
+          router.replace('/main');
+        }
+      } catch (error) {
+        console.error('유저 정보 불러오기 실패:', error);
         alert('권한이 없습니다.');
         router.replace('/main');
+      } finally {
+        setIsChecking(false);
+      }
+    };
+    fetchUser();
+  }, [router]);
+
+  const onFinish = async (values) => {
+    try {
+      const [start, end] = values.range;
+
+      const response = await axios.post(
+        'http://localhost:3065/calendar',
+        {
+          title: values.title,
+          content: values.content,
+          startDate: dayjs(start).toISOString(),
+          endDate: dayjs(end).toISOString(),
+        },
+        { withCredentials: true }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        message.success('일정 등록 완료');
+        form.resetFields();
+        router.push('/calendar');
+      } else {
+        message.error('일정 등록 실패 (서버 응답 오류)');
       }
     } catch (error) {
-      console.error('유저 정보 불러오기 실패:', error);
-      alert('권한이 없습니다.');
-      router.replace('/main');
-    } finally {
-      setIsChecking(false);
+      console.error('등록 중 오류:', error);
+      message.error('일정 등록 실패');
     }
   };
-  fetchUser();
-}, [router]);
 
-const onFinish = async (values) => {
-  try {
-    console.log('폼 제출 값:', values);
-    const [start, end] = values.range;
-
-    const response = await axios.post('http://localhost:3065/calendar', {
-      title: values.title,
-      content: values.content,
-      startDate: dayjs(start).toISOString(),
-      endDate: dayjs(end).toISOString(),
-    }, {
-      withCredentials: true,  // 쿠키, 세션 전송을 위한 옵션
-    });
-
-    if (response.status === 200 || response.status === 201) {
-      message.success('일정 등록 완료');
-      form.resetFields();
-    } else {
-      message.error('일정 등록 실패 (서버 응답 오류)');
-    }
-  } catch (error) {
-    console.error('등록 중 오류:', error);
-    message.error('일정 등록 실패');
-  }
+const handleCancel = () => {
+  router.push('/schedule');
 };
 
-  const handleCancel = () => {
-    router.push('/main')
-  };
-
 if (isChecking) return null;
+if (!isAdmin) return null;
 
-  return isAdmin && (
+  return (
     <>
       <style>{`
         h3 {
@@ -82,35 +85,49 @@ if (isChecking) return null;
         }
       `}</style>
       <Divider />
-      <div style={{display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '560px', width: '100%',  backgroundColor: '#ffffff', padding: '20px 200px 25px 200px', }} >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          minWidth: '560px',
+          width: '100%',
+          backgroundColor: '#ffffff',
+          padding: '20px 200px 25px 200px',
+        }}
+      >
         <h3>일정 추가</h3>
-        <Form
-          {...formItemLayout}
-          form={form}
-          onFinish={onFinish}
-        >
-          <Form.Item name="title"
+        <Form {...formItemLayout} form={form} onFinish={onFinish}>
+          <Form.Item
+            name="title"
             rules={[{ required: true, message: '일정명을 입력하세요.' }]}
           >
             <Input placeholder="일정명" />
           </Form.Item>
 
-          <Form.Item name="content"
+          <Form.Item
+            name="content"
             rules={[{ required: true, message: '일정 설명을 입력하세요.' }]}
           >
             <Input.TextArea placeholder="일정 설명" />
           </Form.Item>
 
-          <Form.Item name="range"
+          <Form.Item
+            name="range"
             rules={[{ required: true, message: '시작일과 종료일을 선택하세요.' }]}
           >
             <RangePicker showTime style={{ width: '100%' }} />
           </Form.Item>
+
           <Form.Item>
-            <Button type="primary" htmlType="submit" block>등록</Button>
+            <Button type="primary" htmlType="submit" block>
+              등록
+            </Button>
           </Form.Item>
           <Form.Item>
-            <Button htmlType="button" onClick={handleCancel} block>취소</Button>
+            <Button htmlType="button" onClick={handleCancel} block>
+              취소
+            </Button>
           </Form.Item>
         </Form>
       </div>
@@ -118,4 +135,4 @@ if (isChecking) return null;
   );
 };
 
-export default EventSchedule;
+export default EventScheduleForm;

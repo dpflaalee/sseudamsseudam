@@ -60,7 +60,7 @@ const ChallengeChange = ({ challenge, onSubmit }) => {
   };
 
   const handleCancel = () => {
-    router.push('/main');
+    router.push('/challenge');
   };
 
   if (isChecking) return null;
@@ -94,15 +94,12 @@ const ChallengeChange = ({ challenge, onSubmit }) => {
             <Form.Item name="title" rules={[{ required: true, message: '챌린지 이름을 입력하세요.' }]}>
               <Input placeholder="챌린지 이름" />
             </Form.Item>
-
             <Form.Item name="content" rules={[{ required: true, message: '챌린지 설명을 입력하세요.' }]}>
               <Input.TextArea placeholder="챌린지 설명" />
             </Form.Item>
-
             <Form.Item name="range" rules={[{ required: true, message: '시작일과 종료일을 선택하세요.' }]}>
               <RangePicker showTime style={{ width: '100%' }} />
             </Form.Item>
-
             <Form.Item>
               <Button type="primary" htmlType="submit" block>
                 수정하기
