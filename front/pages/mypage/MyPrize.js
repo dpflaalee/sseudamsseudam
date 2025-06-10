@@ -18,9 +18,9 @@ const MyPrize = () => {
   const router = useRouter();
 
   // category 인자를 받아서 API 호출하는 함수로 변경
-  const openRandomModal = async (categoryId) => {
+  const openRandomModal = async (category) => {
     try {
-      const res = await fetch(`/api/open-random-box?category=${categoryId}`, {
+      const res = await fetch(`/api/open-random-box?category=${category.id}`, {
         method: 'POST',
         credentials: 'include',
       });

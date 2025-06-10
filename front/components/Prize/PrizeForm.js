@@ -8,7 +8,6 @@ const PrizeForm = ({ open, onCancel, onSubmit, editingPrize, categories }) => {
   const [form] = Form.useForm();
   const isEditing = !!editingPrize;
 
-  // editingPrize 값이 있으면 초기값 설정
   useEffect(() => {
     if (editingPrize) {
       form.setFieldsValue({
@@ -24,10 +23,13 @@ const PrizeForm = ({ open, onCancel, onSubmit, editingPrize, categories }) => {
     const formatted = {
       ...values,
       dueAt: values.dueAt.format('YYYY-MM-DD'),
-      updateAt: moment().format('YYYY-MM-DD'),
-      createAt: isEditing ? editingPrize.createAt : moment().format('YYYY-MM-DD'),
-      id: isEditing ? editingPrize.id : Date.now(),
+      CategoryId: values.categoryId,
     };
+
+    if (isEditing) {
+      formatted.id = editingPrize.id;
+    }
+
     onSubmit(formatted);
     form.resetFields();
   };
@@ -52,7 +54,7 @@ const PrizeForm = ({ open, onCancel, onSubmit, editingPrize, categories }) => {
           <Select placeholder="카테고리를 선택하세요">
             {categories.map((c) => (
               <Option key={c.id} value={c.id}>
-                {c.name}
+                {c.content}
               </Option>
             ))}
           </Select>

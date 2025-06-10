@@ -61,7 +61,7 @@ const CommentForm = ({ post, onAddLocalComment }) => {
 
   useEffect(() => {
     if (addCommentDone && onAddLocalComment) {
-      onAddLocalComment(); // 부모 컴포넌트의 fetchPost 호출
+      onAddLocalComment();
     }
   }, [addCommentDone, onAddLocalComment]);
 
@@ -75,6 +75,7 @@ const CommentForm = ({ post, onAddLocalComment }) => {
     dispatch({
       type: ADD_COMMENT_REQUEST,
       data: { content: comment, userId: id, postId: post.id },
+      isReComment: false,
       postAuthorId: post.User.id,
     });
   }, [comment, id, post.id, dispatch]);

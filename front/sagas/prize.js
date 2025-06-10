@@ -37,7 +37,8 @@ function* loadPrizes() {
 }
 
 function modifyPrizeAPI(data) {
-  return axios.put(`/admin/prizes/${data.id}`, data);
+  const { id, ...rest } = data;
+  return axios.patch(`/admin/prizes/${data.id}`, data);
 }
 
 function* modifyPrize(action) {
@@ -45,6 +46,7 @@ function* modifyPrize(action) {
     const result = yield call(modifyPrizeAPI, action.data);
     yield put({ type: MODIFY_PRIZE_SUCCESS, data: result.data });
   } catch (err) {
+    console.error('modifyPrize error:', err);
     yield put({ type: MODIFY_PRIZE_FAILURE, error: err.response?.data || err.message });
   }
 }

@@ -36,6 +36,9 @@ export const initialState = {
   removeCommentDone: false,
   removeCommentError: null,
 
+  updateCommentLoading: false,
+  updateCommentDone: false,
+  updateCommentError: null,
 
   uploadImagesLoading: false,
   uploadImagesDone: false,
@@ -48,6 +51,10 @@ export const initialState = {
   unlikePostDone: false,
   unlikePostError: null,
   
+  retweetLoading: false,
+  retweetDone: false,
+  retweetError: null,
+
 };
 
 export const addPost = {  type:'ADD_POST', }
@@ -94,6 +101,10 @@ export const REMOVE_COMMENT_REQUEST = 'REMOVE_COMMENT_REQUEST';
 export const REMOVE_COMMENT_SUCCESS = 'REMOVE_COMMENT_SUCCESS';
 export const REMOVE_COMMENT_FAILURE = 'REMOVE_COMMENT_FAILURE';
 
+export const UPDATE_COMMENT_REQUEST = 'UPDATE_COMMENT_REQUEST';
+export const UPDATE_COMMENT_SUCCESS = 'UPDATE_COMMENT_SUCCESS';
+export const UPDATE_COMMENT_FAILURE = 'UPDATE_COMMENT_FAILURE';
+
 export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
 export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
 export const UPLOAD_IMAGES_FAILURE = 'UPLOAD_IMAGES_FAILURE';
@@ -111,6 +122,10 @@ export const LIKE_POST_FAILURE = 'LIKE_POST_FAILURE';
 export const UNLIKE_POST_REQUEST = 'UNLIKE_POST_REQUEST';
 export const UNLIKE_POST_SUCCESS = 'UNLIKE_POST_SUCCESS';
 export const UNLIKE_POST_FAILURE = 'UNLIKE_POST_FAILURE';
+
+export const RETWEET_REQUEST = 'RETWEET_REQUEST';
+export const RETWEET_SUCCESS = 'RETWEET_SUCCESS';
+export const RETWEET_FAILURE = 'RETWEET_FAILURE';
 
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
@@ -214,10 +229,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case REMOVE_COMMENT_SUCCESS: {
       draft.removeCommentLoading = false;
       draft.removeCommentDone = true;
-      // 댓글이 달린 포스트 찾기
       const post = draft.mainPosts.find((v) => v.id === action.data.postId);
       if (post) {
-        // 댓글 삭제
         post.Comments = post.Comments.filter((c) => c.id !== action.data.commentId);
       }
       break;
@@ -226,6 +239,25 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.removeCommentLoading = false;
       draft.removeCommentError = action.error;
       break;      
+    case UPDATE_COMMENT_REQUEST:
+      draft.updateCommentLoading = true;
+      draft.updateCommentDone = false;
+      draft.updateCommentError = null;
+      break;
+    case UPDATE_COMMENT_SUCCESS: {
+      draft.updateCommentLoading = false;
+      draft.updateCommentDone = true;
+      const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
+      const comment = post?.Comments.find((c) => c.id === action.data.CommentId);
+      if (comment) {
+        comment.content = action.data.content;
+      }
+      break;
+    }
+    case UPDATE_COMMENT_FAILURE:
+      draft.updateCommentLoading = false;
+      draft.updateCommentError = action.error;
+      break;
 
     case UPLOAD_IMAGES_REQUEST:
       draft.uploadImagesLoading = true;
@@ -277,6 +309,22 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case UNLIKE_POST_FAILURE:
       draft.unlikePostLoading = false;
       draft.unlikePostError = action.error;
+      break; 
+      
+    case RETWEET_REQUEST:
+      draft.retweetLoading = true;
+      draft.retweetDone = false;
+      draft.retweetError = null;
+      break;
+    case RETWEET_SUCCESS: {
+      draft.retweetLoading = false;
+      draft.retweetDone = true;
+      draft.mainPosts.unshift(action.data);
+      break;
+    }
+    case RETWEET_FAILURE:
+      draft.retweetLoading = false;
+      draft.retweetError = action.error;
       break;      
 
       default:
