@@ -80,7 +80,7 @@ const Profile = (props) => {
   const { logOutDone,user } = useSelector(state => state.user);
   const {logOutLoding,mainPosts,hasMorePosts,loadPostsLoading} = useSelector(state => state.post);
   console.log('profile.postUserId=',props.postUserId);
-
+  const postUserId = props.postUserId;
   useEffect(() => {
     const lastId = mainPosts[mainPosts.length - 1]?.id;
     if(user.id === props.postUserId){
@@ -120,10 +120,11 @@ const Profile = (props) => {
     })
   });
 
-  //const isMyProfile = user && user.User?.id === profile.User?.id;
+  const isMyProfile = user && user.User?.id === postUserId;
 
   const menu = (
     <Menu>
+    {isMyProfile ? (
         <>
           <Menu.Item key="edit">프로필 수정</Menu.Item>
           <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
@@ -134,7 +135,6 @@ const Profile = (props) => {
             탈퇴하기
           </Menu.Item>
         </>
-     {/* {isMyProfile ? (
       ) : (
         <>
           <Menu.Item key="report" onClick={() => setOpen(true)} danger>
@@ -144,10 +144,10 @@ const Profile = (props) => {
             open={open}
             onClose={() => setOpen(false)}
             TARGET_TYPE={TARGET_TYPE.USER}
-            targetId={profile?.User?.id}
+            targetId={postUserId?.User?.id}
           />
         </>
-      )} */}
+      )}
     </Menu>
   );
 
@@ -171,9 +171,9 @@ const Profile = (props) => {
           <InfoBox>
             <Nickname>{user?.nickname}</Nickname>
             <Stats>
-              {user?.followerCount} 팔로잉 &nbsp;&nbsp;
-              {user?.postCount} 팔로워 &nbsp;&nbsp;
-              {user?.followingCount} 게시물
+              {user?.followerCount} 팔로잉  &nbsp;&nbsp;
+              {user?.followingCount} 팔로워 &nbsp;&nbsp;
+              {mainPosts?.length} 게시물 
             </Stats>
           </InfoBox>
         </TopRow>
