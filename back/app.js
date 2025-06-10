@@ -68,7 +68,11 @@ app.use(session({
   saveUninitialized: false,
   resave: false,
   secret: process.env.COOKIE_SECRET,
-  cookie: { secure: false }  //  production 에서 true
+  cookie: {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',  // 크로스 도메인 쿠키 허용 정도 조절
+  }
 }));
 app.use(passport.initialize()); // 인증처리 라이브러리 초기화
 app.use(passport.session()); //사용자 인증상태 저장
