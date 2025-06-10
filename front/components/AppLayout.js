@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
 import PostCard from './post/PostCard';
-import DetailCard from './Detail/DetailCard'
+import DetailCard from './detail/DetailCard';
 import Calendar from './Calendar/Calendar-ssen';
 import Todolists from './Calendar/Todolist/Todolists';
 import EventScheduleForm from './Calendar/EventSchedule/EventScheduleForm';
