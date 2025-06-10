@@ -102,6 +102,18 @@ function* addPost(action) {
       type: ADD_POST_SUCCESS,
       data: result.data,
     });
+    // 알림 보내기
+    if (Boolean(action.isAdmin)) {
+      yield put({
+        type: ADD_NOTIFICATION_REQUEST,
+        data: {
+          notiType: NOTIFICATION_TYPE.ADMIN_NOTI,
+          SenderId: action.data.userId,
+          ReceiverId: action.data.userId,
+          targetId: result.data.id,
+        }
+      });
+    }
   } catch (err) {
     console.error(err);
     yield put({

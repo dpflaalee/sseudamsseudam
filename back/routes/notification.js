@@ -8,10 +8,32 @@ const { Op } = require('sequelize');
 
 // 알림 저장
 router.post('/', async (req, res, next) => {
-    console.log('🦠 notificationRouter POST 진입');
-    console.log('📦 req.body:', req.body);
-
     try {
+        console.log('🦠 notificationRouter POST 진입');
+        console.log('📦 req.body:', req.body);
+
+        if (req.body.notiType === NOTIFICATION_TYPE.ADMIN_NOTI) {
+            const users = await User.findAll({
+                attributes: ['id'], // 불필요한 데이터 제거
+            });
+
+            const notifications = await Promise.all(
+                users.map((user) =>
+                    Notification.create({
+                        type: req.body.notiType,
+                        targetId: req.body.targetId,
+                        SenderId: req.body.SenderId,
+                        ReceiverId: user.id,
+                    })
+                )
+            );
+
+            return res.status(201).json({
+                message: `${notifications.length}명에게 관리자 공지 알림 발송 완료`,
+            });
+        }
+
+        // 일반 알림 처리
         const notification = await Notification.create({
             type: req.body.notiType,
             targetId: req.body.targetId,
@@ -30,10 +52,11 @@ router.post('/', async (req, res, next) => {
         res.status(201).json(fullNotification);
     } catch (err) {
         console.error('🚨 알림 생성 중 에러:', err);
-        console.error('🔍 Sequelize Validation Errors:', err.errors?.map(e => e.message));
         res.status(500).send('알림 실패');
     }
 });
+
+
 
 
 // 알림 보기
