@@ -9,8 +9,18 @@ const EditChallengePage = () => {
   const { id } = router.query;
   const [challenge, setChallenge] = useState(null);
 
+  // 관리자 권한 체크
   useEffect(() => {
-    if (!id) return; // id가 없으면 fetch 중단
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || user.isAdmin !== 1) {
+      alert('권한이 없습니다.');
+      router.replace('/main');  // 권한 없으면 메인으로 리다이렉트
+    }
+  }, [router]);
+
+  // 챌린지 데이터 불러오기
+  useEffect(() => {
+    if (!id) return;
     const fetchChallenge = async () => {
       try {
         const res = await axios.get(`http://localhost:3065/calendar/${id}`);
@@ -22,6 +32,7 @@ const EditChallengePage = () => {
     fetchChallenge();
   }, [id]);
 
+  // 수정 제출 핸들러
   const handleSubmit = async (updatedData) => {
     try {
       await axios.put(`http://localhost:3065/calendar/${id}`, updatedData);
@@ -32,12 +43,10 @@ const EditChallengePage = () => {
     }
   };
 
-  if (!challenge) return <div>로딩 중...</div>;
-
   return (
-  <AppLayout>
-    <ChallengeChange challenge={challenge} onSubmit={handleSubmit} />
-  </AppLayout>
+    <AppLayout>
+      <ChallengeChange challenge={challenge} onSubmit={handleSubmit} />
+    </AppLayout>
   );
 };
 
