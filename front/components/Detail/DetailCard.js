@@ -157,7 +157,13 @@ const DetailCard = ({ post, onRefreshPost }) => {
   return (
     <div style={{ margin: '3%' }}>
       <Card
-        cover={post.Images && post.Images.length > 0 && <PostImages images={post.Images} />}
+        cover={
+          post.Images && post.Images.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <PostImages images={post.Images} />
+            </div>
+          )
+        }
         actions={[
           <RetweetOutlined key="retweet" />,
           liked
