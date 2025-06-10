@@ -4,11 +4,19 @@ import { useRouter } from "next/router";
 import { Avatar, Typography, Button, Card, Row, Col, Empty } from "antd";
 import { loadMyPrizes, useMyPrize } from "../../reducers/myPrize";
 
+// 신고
+import ComplainForm from "../complains/ComplainForm";
+import TARGET_TYPE from "../../../shared/constants/TARGET_TYPE";
+
 const { Text } = Typography;
 
 const MyPrize = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+
+  // 신고자
+  const user = useSelector(state => state.user);
+  const userNickname = user.User?.nickname;
 
   const {
     myPrizes,
@@ -108,6 +116,32 @@ const MyPrize = () => {
                 >
                   유효기간: {new Date(prize.dueAt).toLocaleDateString()}
                 </Card>
+                <Dropdown
+                  overlay={
+                    <Menu>
+                      <Menu.Item key="report" onClick={() => setOpen(true)}>
+                        신고하기
+                      </Menu.Item>
+                    </Menu>
+                  }
+                  placement="bottomRight"
+                  trigger={["click"]}
+                >
+                  <EllipsisOutlined style={{ fontSize: 20, cursor: "pointer" }} />
+                </Dropdown>
+                {/* 신고 모달 */}
+                {
+                  open && (
+                    <ComplainForm
+                      open={open}
+                      targetId={prize.id}
+                      TARGET_TYPE={TARGET_TYPE.RANDOMBOX}
+                      targetUserNickname={userNickname}
+                      onClose={() => setOpen(false)}
+                    />
+                  )
+                }
+                {/* E 신고 모달 */}
               </Col>
             ))
           )}

@@ -51,7 +51,6 @@ function* readAllNotification(action) {
 
 /////////////////////////////////////////
 function addNotificationAPI(data) {
-    console.log('🔱 API로 넘길 데이터:', data);
     return axios.post('/notification', data); // 
 }
 
@@ -104,8 +103,7 @@ function* watchReadAllNotification() {
 }
 
 function* watchAddNotification() {
-    console.log('🦞 watchAddNotification'),
-        yield takeLatest(ADD_NOTIFICATION_REQUEST, addNotification);
+    yield takeLatest(ADD_NOTIFICATION_REQUEST, addNotification);
 }
 
 function* watchRemoveNotification() {
@@ -115,7 +113,6 @@ function* watchRemoveNotification() {
 /////////////////////
 export default function* notificationSaga() {
     yield all([  //  all - 동시에 배열로 받은 fork들을 동시에 실행 
-        console.log('🦞 notificationSaga'),
         fork(watchLoadNotification),
         fork(watchReadAllNotification),
         fork(watchAddNotification),

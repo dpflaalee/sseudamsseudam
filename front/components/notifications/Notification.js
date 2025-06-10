@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 
 import { List, Avatar } from "antd";
 import { HeartFilled, RetweetOutlined, MessageOutlined, UserAddOutlined, NotificationOutlined, GiftOutlined, TeamOutlined, CrownFilled, CloseOutlined } from '@ant-design/icons';
@@ -48,8 +49,57 @@ const DeleteButton = styled.button`
   }
 `;
 const Notification = ({ noti, onDelete }) => {
-  console.log('🔍 targetObject:', noti?.targetObject);
+  const router = useRouter(); // 라우터 훅 사용
 
+  const handleClick = () => {
+    const { type, targetId } = noti;
+
+    switch (type) {
+      case NOTIFICATION_TYPE.LIKE:
+      case NOTIFICATION_TYPE.RETWEET:
+      case NOTIFICATION_TYPE.ADMIN_NOTI:
+        router.push(`/post/${targetId}`);
+        break;
+      case NOTIFICATION_TYPE.COMMENT:
+      case NOTIFICATION_TYPE.RECOMMENT:
+        const PostId = noti.targetObject?.Post?.id;
+        const commentId = noti.targetObject?.id;
+        router.push(`/post/${PostId}?commentId=${targetId}`).then(() => {
+          setTimeout(() => {
+            const el = document.getElementById(`comment-${commentId}`);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+              // 색 강조
+              el.style.transition = 'background 0.8s ease';
+              el.style.background = '#fff1b8';
+
+              // 2초 후 다시 원래대로
+              setTimeout(() => {
+                el.style.background = '';
+              }, 2000);
+            }
+          }, 500);
+        });
+        break;
+      case NOTIFICATION_TYPE.FOLLOW:
+        router.push(`/user/${targetId}`);
+        break;
+      case NOTIFICATION_TYPE.GROUPAPPLY:
+      case NOTIFICATION_TYPE.GROUPAPPLY_APPROVE:
+      case NOTIFICATION_TYPE.GROUPAPPLY_REJECT:
+        router.push(`/groups/${targetId}`);
+        break;
+      case NOTIFICATION_TYPE.ANIMAL_FRIENDS:
+        router.push(`/animal/${targetId}`);
+        break;
+      case NOTIFICATION_TYPE.RANDOMBOX:
+        router.push(`/randombox`);
+        break;
+      default:
+        alert('링크가 없는 알림입니다.');
+    }
+  };
 
   const renderIcon = (type) => {
     switch (type) {
@@ -130,12 +180,15 @@ const Notification = ({ noti, onDelete }) => {
     }
   };
   return (
-    <Container isRead={noti.isRead}>
+    <Container isRead={noti.isRead} onClick={handleClick}>
       <IconWrapper>{renderIcon(noti.type)}</IconWrapper>
       <Content>
         <Title>{renderContent(noti)}</Title>
       </Content>
-      <DeleteButton onClick={() => onDelete(noti.id)}>
+      <DeleteButton onClick={(e) => {
+        e.stopPropagation();
+        onDelete(noti.id);
+      }} >
         <CloseOutlined />
       </DeleteButton>
     </Container>
