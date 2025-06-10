@@ -116,6 +116,8 @@ const MyPrize = () => {
                 >
                   유효기간: {new Date(prize.dueAt).toLocaleDateString()}
                 </Card>
+                
+                {/*
                 <Dropdown
                   overlay={
                     <Menu>
@@ -129,7 +131,7 @@ const MyPrize = () => {
                 >
                   <EllipsisOutlined style={{ fontSize: 20, cursor: "pointer" }} />
                 </Dropdown>
-                {/* 신고 모달 */}
+                {/* 신고 모달 */} {/*}
                 {
                   open && (
                     <ComplainForm
@@ -142,11 +144,13 @@ const MyPrize = () => {
                   )
                 }
                 {/* E 신고 모달 */}
+
               </Col>
             ))
           )}
         </Row>
       </Card>
+
 
       {/* 🎟 내 쿠폰함 */}
       <Card title="내 쿠폰함">
