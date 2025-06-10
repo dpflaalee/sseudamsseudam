@@ -13,6 +13,7 @@ const PostForm = ({groupId, isGroup=false}) => { // 그룹용 추가코드
   const showModal = () => { setIsModalOpen(true);};
   const handleOk = () => { setIsModalOpen(false); };
   const handleCancel = () => { setIsModalOpen(false); };
+  const [openScope, setOpenScope] = useState('public');
 
   const { imagePaths , addPostLoading, addPostDone } = useSelector((state) => state.post);
 
@@ -28,7 +29,7 @@ const PostForm = ({groupId, isGroup=false}) => { // 그룹용 추가코드
     const formData = new FormData();
     imagePaths.forEach(( i ) => { formData.append('image' , i) });
     formData.append('content', text);
-
+    formData.append('openScope', openScope);
     if(isGroup && groupId ){formData.append('groupId', groupId);} // 그룹용 추가코드
     
     dispatch({
@@ -72,10 +73,11 @@ const PostForm = ({groupId, isGroup=false}) => { // 그룹용 추가코드
               {/* 또는 <Avatar src="프로필이미지URL" /> */}
             </Col>
             <Col>
-              <Select defaultValue="public" style={{ width: 120 }}>
+              <Select value={openScope} onChange={(value) => setOpenScope(value)} style={{ width: 120 }}>
                 <Option value="public">전체공개</Option>
-                <Option value="friends">친구공개</Option>
-                <Option value="private">비공개</Option>
+                <Option value="private">나만 보기</Option>
+                <Option value="follower">팔로워공개</Option>
+                <Option value="group">그룹공개</Option>
               </Select>
             </Col>
           </Row>
