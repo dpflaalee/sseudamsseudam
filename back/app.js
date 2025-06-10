@@ -36,10 +36,10 @@ async function seedOpenScopes() {
   const count = await db.OpenScope.count();
   if (count === 0) {
     await db.OpenScope.bulkCreate([
-      { id: 1, name: 'public', createdAt: new Date(), updatedAt: new Date() },
-      { id: 2, name: 'private', createdAt: new Date(), updatedAt: new Date() },
-      { id: 3, name: 'follower', createdAt: new Date(), updatedAt: new Date() },
-      { id: 4, name: 'group', createdAt: new Date(), updatedAt: new Date() },
+      { id: 1, content: 'public', createdAt: new Date(), updatedAt: new Date() },
+      { id: 2, content: 'private', createdAt: new Date(), updatedAt: new Date() },
+      { id: 3, content: 'follower', createdAt: new Date(), updatedAt: new Date() },
+      { id: 4, content: 'group', createdAt: new Date(), updatedAt: new Date() },
     ]);
     console.log('OpenScope 기본 데이터 삽입 완료');
   }
@@ -47,11 +47,12 @@ async function seedOpenScopes() {
 
 db.sequelize
   .sync()
-  .then(async () => { 
+  .then(async () => {
     console.log('..........db');
-    await seedOpenScopes(); })
+    await seedOpenScopes();
+  })
   .catch(console.error);
-  
+
 passportConfig();
 
 //기타 연동
@@ -78,8 +79,8 @@ app.use(passport.initialize()); // 인증처리 라이브러리 초기화
 app.use(passport.session()); //사용자 인증상태 저장
 
 //TEST
-app.get('/', (req, res)=>{res.send('Express Test');});
-app.use('/api', (req,res)=>{res.send('Link Test')});
+app.get('/', (req, res) => { res.send('Express Test'); });
+app.use('/api', (req, res) => { res.send('Link Test') });
 
 app.use('/post', post);
 app.use('/posts', posts);
