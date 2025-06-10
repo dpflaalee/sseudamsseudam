@@ -71,13 +71,13 @@ function* loadPost(action) {
   }
 }
 
-function loadPostsAPI(lastId) {
-  return axios.get(`/posts?lastId=${lastId || 0}`);
+function loadPostsAPI(lastId,userId) {
+  return axios.get(`/posts?lastId=${lastId || 0}&userId=${userId}`);
 }
 
 function* loadPosts(action) {
   try {
-    const result = yield call(loadPostsAPI, action.lastId);
+    const result = yield call(loadPostsAPI, action.lastId,action.userId);
     yield put({
       type: LOAD_POSTS_SUCCESS,
       data: result.data,

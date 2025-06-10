@@ -114,7 +114,13 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     <div style={{ margin: '3%' }}>
       <Card
         title={isGroup ? `[그룹]${post.User?.nickname}` : post.User?.nickname} // 그룹용 추가코드
-        cover={post.Images && post.Images.length > 0 && <PostImages images={post.Images} />}
+        cover={
+          post.Images && post.Images.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <PostImages images={post.Images} />
+            </div>
+          )
+        }
         actions={[
           <RetweetOutlined key="retweet" onClick={onRetweet} />,
           like
