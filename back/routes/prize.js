@@ -15,7 +15,13 @@ router.post('/', isLoggedIn, isAdmin, async (req, res, next) => {
       dueAt,
       CategoryId
     });
-    res.status(201).json(prize);
+    
+    // 카테고리 포함해서 다시 조회
+    const fullPrize = await Prize.findByPk(prize.id, {
+        include: [{ model: Category, as: 'category' }],
+    });
+
+    res.status(201).json(fullPrize);
   } catch (error) {
     console.error(error);
     next(error);
@@ -59,7 +65,14 @@ router.patch('/:prizeId', isLoggedIn, isAdmin, async (req, res, next) => {
     if (!prize) return res.status(404).send('상품이 존재하지 않습니다.');
 
     await prize.update({ content, quantity, probability, dueAt, CategoryId });
-    res.json(prize);
+
+
+  // 수정 후 다시 조회해서 category 포함
+    const updatedPrize = await Prize.findByPk(prize.id, {
+      include: [{ model: Category, as: 'category' }],
+    });
+
+    res.json(updatedPrize);
   } catch (error) {
     console.error(error);
     next(error);
