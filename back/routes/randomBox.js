@@ -70,6 +70,9 @@ router.post('/open/:category', isLoggedIn, async (req, res) => {
 
 // 2) 유저가 받은 랜덤박스(쿠폰) 리스트 조회 (마이페이지)
 router.get('/', isLoggedIn, async (req, res) => {
+
+  console.log("📦 현재 로그인 사용자:", req.user);
+
   try {
     const myPrizes = await MyPrize.findAll({
       where: { UserId: req.user.id },
@@ -114,7 +117,7 @@ router.post('/use/:id', isLoggedIn, async (req, res) => {
 
   try {
     const myPrize = await MyPrize.findOne({
-      where: { id: myPrizeId, UserId: userId, isRead: false },
+      where: { id: myPrizeId, UserId: userId, isRead: false, usedAt: null  },
       include: [{ model: Prize }]
     });
 

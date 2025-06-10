@@ -1,24 +1,28 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import AppLayout from "@/components/AppLayout";
 import { Avatar, Typography, Button, Card, Row, Col, Empty } from "antd";
-import { loadMyPrizes } from "../../reducers/myPrize"; // 액션 임포트
+import { loadMyPrizes, useMyPrize } from "../../reducers/myPrize";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const MyPrize = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const { myPrizes, loadMyPrizesLoading, loadMyPrizesError } = useSelector(
-    (state) => state.myPrize
-  );
+  const {
+    myPrizes,
+    loadMyPrizesLoading,
+    loadMyPrizesError,
+    useMyPrizeLoading,
+    useMyPrizeError,
+  } = useSelector((state) => state.myPrize);
 
   useEffect(() => {
     dispatch(loadMyPrizes());
   }, [dispatch]);
 
+  // 랜덤박스 열기 함수 (기존 코드 유지)
   const openRandomModal = async (category) => {
     if (!category || !category.id) {
       alert("랜덤박스 카테고리 정보가 없습니다.");
@@ -30,7 +34,7 @@ const MyPrize = () => {
         method: "POST",
         credentials: "include",
       });
-      
+
       if (!res.ok) throw new Error("서버 응답 실패");
 
       const data = await res.json();
@@ -48,6 +52,21 @@ const MyPrize = () => {
       router.push("/mypage/RandomBoxResult?status=fail");
     }
   };
+
+  // 쿠폰 사용 함수
+  const handleUsePrize = useCallback(
+    (prizeId) => {
+      if (!prizeId) {
+        alert("잘못된 쿠폰입니다.");
+        return;
+      }
+
+      if (window.confirm("쿠폰을 사용하시겠습니까?")) {
+        dispatch(useMyPrize(prizeId));
+      }
+    },
+    [dispatch]
+  );
 
   // 유효한 랜덤박스만 필터링
   const validPrizes = myPrizes.filter(
@@ -73,25 +92,24 @@ const MyPrize = () => {
           {validPrizes.length === 0 ? (
             <Empty description="받은 랜덤박스가 없습니다." />
           ) : (
-            validPrizes.map((prize) => {
-              console.log("🎯 Prize 데이터:", prize);
-              console.log("👉 카테고리 정보:", prize.category); 
-              return (
-                <Col span={24} key={prize.id}>
-                  <Card
-                    type="inner"
-                    title={`${prize.category?.content || "알 수 없음"} 랜덤박스`}
-                    extra={
-                      <Button danger onClick={() => openRandomModal(prize.category)}>
-                        사용
-                      </Button>
-                    }
-                  >
-                    유효기간: {new Date(prize.dueAt).toLocaleDateString()}
-                  </Card>
-                </Col>
-              );
-            })
+            validPrizes.map((prize) => (
+              <Col span={24} key={prize.id}>
+                <Card
+                  type="inner"
+                  title={`${prize.category?.content || "알 수 없음"} 랜덤박스`}
+                  extra={
+                    <Button
+                      danger
+                      onClick={() => openRandomModal(prize.category)}
+                    >
+                      사용
+                    </Button>
+                  }
+                >
+                  유효기간: {new Date(prize.dueAt).toLocaleDateString()}
+                </Card>
+              </Col>
+            ))
           )}
         </Row>
       </Card>
@@ -107,7 +125,19 @@ const MyPrize = () => {
                 <Card
                   type="inner"
                   title={prize.content}
-                  extra={<Button type="primary">사용</Button>}
+                  extra={
+                    prize.isRead ? (
+                      <Button disabled>사용 완료</Button>
+                    ) : (
+                      <Button
+                        type="primary"
+                        loading={useMyPrizeLoading}
+                        onClick={() => handleUsePrize(prize.id)} // prize.id를 제대로 전달
+                      >
+                        사용
+                      </Button>
+                    )
+                  }
                 >
                   유효기간: {new Date(prize.dueAt).toLocaleDateString()}
                 </Card>
@@ -115,6 +145,11 @@ const MyPrize = () => {
             ))
           )}
         </Row>
+        {useMyPrizeError && (
+          <Text type="danger" style={{ marginTop: 8 }}>
+            쿠폰 사용 중 오류: {useMyPrizeError}
+          </Text>
+        )}
       </Card>
     </>
   );
