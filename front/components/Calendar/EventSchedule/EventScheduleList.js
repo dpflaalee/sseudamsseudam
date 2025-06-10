@@ -37,24 +37,24 @@ const handleChangeEvent = (id) => {
   router.push(`/schedule/editschedule?id=${id}`);
 };
 
-  const fetchSchedules = async () => {
-    try {
-      const res = await axios.get('http://localhost:3065/calendar');
-      const filtered = res.data.filter(item => {
-        const itemMonth = dayjs(item.startDate).month();
-        const itemYear = dayjs(item.startDate).year();
-        return (
-          itemMonth === currentMonth.month() &&
-          itemYear === currentMonth.year()
-        );
-      });
-      filtered.sort((a, b) => a.id - b.id);
-      setSchedules(filtered);
-    } catch (error) {
-      console.error('일정 불러오기 실패:', error);
-      message.error('일정 데이터를 불러오지 못했습니다.');
-    }
-  };
+const fetchSchedules = async () => {
+  try {
+    const res = await axios.get('http://localhost:3065/calendar');
+    const filtered = res.data.filter(item => {
+      const itemMonth = dayjs(item.startDate).month();
+      const itemYear = dayjs(item.startDate).year();
+      return (
+        itemMonth === currentMonth.month() &&
+        itemYear === currentMonth.year()
+      );
+    });
+    filtered.sort((a, b) => a.id - b.id);
+    setSchedules(filtered);
+  } catch (error) {
+    console.error('일정 불러오기 실패:', error);
+    message.error('일정 데이터를 불러오지 못했습니다.');
+  }
+};
 
 const handleDeleteEvent = async (id) => {
   const isConfirmed = window.confirm('이벤트를 삭제하시겠습니까?');
@@ -111,6 +111,12 @@ const formatRange = (start, end) => {
       >
         <div style={{ display: 'flex' }}>
           <h3 style={{ marginBottom: '0px' }}>{currentMonth.format('M월 일정')}</h3>
+          <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginLeft: 'auto',
+                gap: '10px',
+              }}>
           {isAdmin && (
             <div style={{
                 display: 'flex',
@@ -119,10 +125,11 @@ const formatRange = (start, end) => {
                 gap: '10px',
               }}>
             <Button key="generate" type="primary" onClick={handleAddEvent}>이벤트 생성</Button>
+          </div>
+          )}
             <LeftOutlined onClick={handlePrevMonth} />
             <RightOutlined onClick={handleNextMonth} />
           </div>
-          )}
         </div>
         <Divider />
 
