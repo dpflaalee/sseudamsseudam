@@ -102,6 +102,7 @@ const handleDeleteEvent = async (id) => {
               gap: '10px',
             }}
           >
+            <Button key="generate" type="primary" onClick={handleAddEvent}>챌린지 생성</Button>
             <LeftOutlined onClick={handlePrevMonth} />
             <RightOutlined onClick={handleNextMonth} />
           </div>
@@ -129,6 +130,8 @@ const handleDeleteEvent = async (id) => {
                   gap: '10px',
                 }}
               >
+                <Button type="primary" onClick={() => handleChangeEvent(schedule.id)}>챌린지 수정</Button>
+                <Button onClick={() => handleDeleteEvent(schedule.id)}>챌린지 삭제</Button>
               <ChallengeCalendar />
               </div>
             </div>
