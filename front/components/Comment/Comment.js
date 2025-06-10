@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Avatar, Dropdown, Menu, Button, List } from 'antd';
 import { MoreOutlined, MessageOutlined } from '@ant-design/icons';
@@ -86,13 +86,26 @@ const Comment = ({ comments = [], postId, post = {} }) => {
     window.location.reload();
   }, [postId, dispatch]);
 
+
+  // 신고 댓글 블라인드 처리
+  const mainComplainCard = useSelector(state => state.complain.mainComplainCard);
+  const processedParentComments = comments
+    .filter(comment => !comment.RecommentId)
+    .map(comment => {
+      const isBlind = mainComplainCard?.some(report => report.targetId === comment.id && report.isBlind);
+      return {
+        ...comment,
+        content: isBlind ? '신고된 댓글입니다.' : comment.content,
+      };
+    });
+
   return (
     <Wrapper>
       <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
         댓글 {parentComments.length}개
       </div>
       {parentComments.length === 0 && <div>댓글이 없습니다.</div>}
-      {parentComments.map((comment) => {
+      {processedParentComments.map((comment) => {
         const createdAt = comment.createdAt
           ? new Date(comment.createdAt).toLocaleString()
           : '';

@@ -165,8 +165,6 @@ function* addComment(action) {
 
     // 알림 보내기
     if (Boolean(action.isReComment)) {
-      console.log('😵 action.isReComment : ', action.isReComment);
-      console.log('😵 action.data : ', action.data);
       yield put({
         type: ADD_NOTIFICATION_REQUEST,
         data: {
@@ -177,8 +175,6 @@ function* addComment(action) {
         }
       });
     } else if (Boolean(action.isReComment)) {
-      console.log('😵🤷‍♀️ action.isReComment : ', action.isReComment);
-      console.log('😵🤷‍♀️ action.data : ', action.data);
       yield put({
         type: ADD_NOTIFICATION_REQUEST,
         data: {
@@ -337,6 +333,18 @@ function* retweet(action) {
       type: RETWEET_SUCCESS,
       data: result.data,
     });
+
+    // 알림
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.RETWEET,
+        SenderId: action.notiData.SenderId,
+        ReceiverId: action.notiData.ReceiverId,
+        targetId: result.data.id,
+      }
+    });
+    // E 알림
   } catch (err) {
     console.error(err);
     yield put({
