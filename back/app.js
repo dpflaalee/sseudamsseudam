@@ -81,7 +81,7 @@ app.use(passport.session()); //사용자 인증상태 저장
 
 //TEST
 app.get('/', (req, res) => { res.send('Express Test'); });
-app.use('/api', (req, res) => { res.send('Link Test') });
+//app.use('/api', (req, res) => { res.send('Link Test') });
 
 app.use('/post', post);
 app.use('/posts', posts);

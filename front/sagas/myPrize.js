@@ -14,6 +14,8 @@ function loadMyPrizesAPI() {
 function* loadMyPrizes() {
   try {
     const result = yield call(loadMyPrizesAPI);
+    console.log("🎯 백엔드 응답 데이터:", result.data);
+
     yield put({
       type: LOAD_MY_PRIZES_SUCCESS,
       data: result.data.data || [],  // 방어적 처리

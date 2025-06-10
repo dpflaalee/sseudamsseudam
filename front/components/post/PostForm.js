@@ -2,6 +2,7 @@ import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../../reducers/post';
 import userInput from '../../hooks/userInput';
 
@@ -18,6 +19,7 @@ const PostForm = ({ groupId, isGroup = false }) => { // 그룹용 추가코드
   const { imagePaths, addPostLoading, addPostDone } = useSelector((state) => state.post);
 
   const dispatch = useDispatch();
+  const router = useRouter();
   const [text, onChangeText, setText] = userInput('');
 
   useEffect(() => {
@@ -66,6 +68,10 @@ const PostForm = ({ groupId, isGroup = false }) => { // 그룹용 추가코드
     });
   }, []);
 
+  const goToMap = () => {
+    router.push('/map/kakao'); // kakaomap 페이지로 이동
+  };
+
   return (
     <Form layout="vertical" style={{ margin: '3%' }} encType="multipart/form-data" onFinish={onSubmitForm}>
       <Form.Item name="text">
@@ -103,7 +109,7 @@ const PostForm = ({ groupId, isGroup = false }) => { // 그룹용 추가코드
           onChange={onChangeImage}
         />
         <Button onClick={onClickImageUpload}>사진 업로드</Button>
-        <Button>지도</Button>
+        <Button onClick={goToMap}>지도</Button>
 
         <div style={{ float: 'right' }}>
           <Button onClick={showModal} style={{ marginRight: 8 }}>
