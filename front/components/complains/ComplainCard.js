@@ -7,10 +7,9 @@ import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import { useDispatch } from 'react-redux';
 
 import DummyComment from './DummyComment';
-import DummyUser from './DummyUser';
-
 import PostCard from '../post/PostCard';
 import Comment from '../comment/Comment';
+import Profile from '../user/Profile';
 import { IS_BLIND_REQUEST } from '@/reducers/complain';
 
 const ComplainCard = ({ report }) => {
@@ -65,7 +64,7 @@ const ComplainCard = ({ report }) => {
                 return (
                     <>
                         <div style={{ fontWeight: 'bold' }}>{reporter ? reporter.nickname : '알수 없음'}님이 유저 {report.targetId}를 신고했습니다.</div>
-                        <div style={{ padding: '8px', backgroundColor: '#fff7e6', marginTop: 8 }}>{targetObject && <DummyUser post={targetObject} />}</div>
+                        <div style={{ padding: '8px', backgroundColor: '#fff7e6', marginTop: 8 }}>{targetObject && <Profile postUserId={targetObject.id} />}</div>
                     </>
                 );
 

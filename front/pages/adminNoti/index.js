@@ -3,6 +3,10 @@ import React, { useEffect } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { Button } from 'antd';
+import { useRouter } from 'next/router';
+
+
 import PostCard from '@/components/post/PostCard';
 
 import { LOAD_POSTS_REQUEST } from '@/reducers/post';
@@ -11,6 +15,7 @@ import { LOAD_POSTS_REQUEST } from '@/reducers/post';
 const Home = () => {
     const dispatch = useDispatch();
     const { user } = useSelector(state => state.user);
+    const router = useRouter();
     const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
     console.log('👩‍🦳 mainPosts ', mainPosts);
     useEffect(() => {
@@ -43,6 +48,11 @@ const Home = () => {
 
     return (
         <AppLayout>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                <Button type="primary" onClick={() => router.push('/admin/complain')}>
+                    신고 관리 페이지로 이동
+                </Button>
+            </div>
             {mainPosts
                 .filter((post) => post.User.isAdmin)
                 .map((post) => (
