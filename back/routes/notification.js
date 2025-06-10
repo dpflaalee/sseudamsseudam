@@ -1,17 +1,39 @@
 const express = require('express');
 const router = express.Router();
 
-const { Post, User, Group, Notification, Animal, Comment, RandomBox } = require('../models');
+const { Post, User, Group, Notification, Animal, Comment, Prize, NotificationSetting } = require('../models');
 const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
 const { Op } = require('sequelize');
 
 
 // 알림 저장
 router.post('/', async (req, res, next) => {
-    console.log('🦠 notificationRouter POST 진입');
-    console.log('📦 req.body:', req.body);
-
     try {
+        console.log('🦠 notificationRouter POST 진입');
+        console.log('📦 req.body:', req.body);
+
+        if (req.body.notiType === NOTIFICATION_TYPE.ADMIN_NOTI) {
+            const users = await User.findAll({
+                attributes: ['id'], // 불필요한 데이터 제거
+            });
+
+            const notifications = await Promise.all(
+                users.map((user) =>
+                    Notification.create({
+                        type: req.body.notiType,
+                        targetId: req.body.targetId,
+                        SenderId: req.body.SenderId,
+                        ReceiverId: user.id,
+                    })
+                )
+            );
+
+            return res.status(201).json({
+                message: `${notifications.length}명에게 관리자 공지 알림 발송 완료`,
+            });
+        }
+
+        // 일반 알림 처리
         const notification = await Notification.create({
             type: req.body.notiType,
             targetId: req.body.targetId,
@@ -30,17 +52,36 @@ router.post('/', async (req, res, next) => {
         res.status(201).json(fullNotification);
     } catch (err) {
         console.error('🚨 알림 생성 중 에러:', err);
-        console.error('🔍 Sequelize Validation Errors:', err.errors?.map(e => e.message));
         res.status(500).send('알림 실패');
     }
 });
 
 
+
+
 // 알림 보기
 router.get('/', async (req, res, next) => {
     try {
+        const userId = parseInt(req.query.userId, 10);
+        // 1. 비활성화된 알림 타입 가져오기
+        const disabledSettings = await NotificationSetting.findAll({
+            where: {
+                UserId: userId,
+                enabled: false,
+            },
+            attributes: ['type'],
+        });
+
+        const disabledTypes = disabledSettings.map((s) => s.type);
+
+        // 2. 알림 가져오기 (꺼진 알림 타입 제외)
         const notifications = await Notification.findAll({
-            where: { ReceiverId: parseInt(req.query.userId, 10) },
+            where: {
+                ReceiverId: parseInt(req.query.userId, 10),
+                ...(disabledTypes.length > 0 && {
+                    type: { [Op.notIn]: disabledTypes },
+                }),
+            },
             include: [
                 { model: User, as: 'Sender', attributes: ['id', 'nickname'] },
                 { model: User, as: 'Receiver', attributes: ['id', 'nickname'] },
@@ -56,7 +97,10 @@ router.get('/', async (req, res, next) => {
                     case NOTIFICATION_TYPE.COMMENT:
                     case NOTIFICATION_TYPE.RECOMMENT:
                         target = await Comment.findByPk(noti.targetId, {
-                            include: [{ model: User, attributes: ['id', 'nickname'] }],
+                            include: [
+                                { model: User, attributes: ['id', 'nickname'] },
+                                { model: Post, attributes: ['id',] }
+                            ],
                         });
                         break;
 
@@ -147,5 +191,66 @@ router.delete('/:id', async (req, res, next) => {
     }
 });
 
+// 알림 설정 불러오기 (기본값 true 보완 포함)
+router.get('/notificationSetting/:userId', async (req, res, next) => {
+    try {
+        const userId = parseInt(req.params.userId, 10);
+
+        const settings = await NotificationSetting.findAll({
+            where: { userId },
+            attributes: ['type', 'enabled'],
+        });
+
+        // DB에서 가져온 설정을 객체로 정리
+        const settingMap = {};
+        settings.forEach((s) => {
+            settingMap[s.type] = s.enabled;
+        });
+
+        // 모든 타입에 대해 기본값 포함된 리스트 생성
+        const fullSettings = Object.entries(NOTIFICATION_TYPE).map(([key, typeValue]) => ({
+            type: typeValue,
+            enabled: settingMap.hasOwnProperty(typeValue) ? settingMap[typeValue] : true,
+        }));
+
+        res.status(200).json(fullSettings);
+    } catch (err) {
+        console.error('🚨 알림 설정 불러오기 실패:', err);
+        res.status(500).send('알림 설정 불러오기 실패');
+    }
+});
+
+// 알림 설정 갱신하기
+router.patch('/notificationSetting/:userId', async (req, res, next) => {
+    try {
+        const userId = parseInt(req.params.userId, 10);
+        const { type, enabled } = req.body;
+
+        // 기존 설정 있는지 확인
+        const existing = await NotificationSetting.findOne({
+            where: { UserId: userId, type: type },
+        });
+
+        if (existing) {
+            // 있으면 update
+            await NotificationSetting.update(
+                { enabled },
+                { where: { UserId: userId, type: type } }
+            );
+        } else {
+            // 없으면 create
+            await NotificationSetting.create({
+                type: type,
+                enabled: enabled,
+                UserId: userId
+            });
+        }
+
+        res.status(200).json({ message: '알림 설정이 저장되었습니다', type, enabled });
+    } catch (err) {
+        console.error('🚨 알림 설정 저장 실패:', err);
+        res.status(500).send('알림 설정 저장 실패');
+    }
+});
 
 module.exports = router;
