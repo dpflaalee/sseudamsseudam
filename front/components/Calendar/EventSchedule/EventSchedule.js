@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import EventScheduleChange from '../components/EventScheduleChange'; // 경로 맞게 조정
+import EventScheduleChange from '../../../components/Calendar/EventSchedule/EventScheduleChange';
 
 const EditSchedule = () => {
   const router = useRouter();
@@ -30,8 +30,6 @@ const EditSchedule = () => {
       alert('일정 수정에 실패했습니다.');
     }
   };
-
-  if (!schedule) return <div>로딩 중...</div>;
 
   return <EventScheduleChange schedule={schedule} onSubmit={handleSubmit} />;
 };

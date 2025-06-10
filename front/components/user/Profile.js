@@ -80,6 +80,7 @@ const Profile = (props) => {
   const { logOutDone, user } = useSelector(state => state.user);
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
   console.log('profile.postUserId=', props.postUserId);
+  console.log('mainPosts', mainPosts.id);
   const postUserId = props.postUserId;
   useEffect(() => {
     const lastId = mainPosts[mainPosts.length - 1]?.id;
@@ -101,12 +102,9 @@ const Profile = (props) => {
 
   useEffect(() => {
     if (logOutDone) {
-      console.log('클릭');
       Router.replace('/');
     }
   }, [logOutDone])
-
-  console.log('user.userId=', user?.id);
 
   const [open, setOpen] = useState(false);
   const onLogout = useCallback(() => {
@@ -114,13 +112,12 @@ const Profile = (props) => {
   });
   const [] = useState(false);
   const onUserDelete = useCallback(() => {
-    console.log('클릭');
     dispatch({
       type: USER_DELETE_REQUEST,
     })
   });
 
-  const isMyProfile = user && user.User?.id === postUserId;
+  const isMyProfile = user && user.id == postUserId;
 
   const menu = (
     <Menu>
