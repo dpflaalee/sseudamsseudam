@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Divider, DatePicker, Input, Form, Button, message } from 'antd';
+import axios from 'axios';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import localeData from 'dayjs/plugin/localeData';
+import { useRouter } from 'next/router';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utc);
@@ -21,6 +23,30 @@ const formItemLayout = {
 
 const EventScheduleChange = ({ schedule, onSubmit }) => {
   const [form] = Form.useForm();
+  const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
+      if (res.data && Number(res.data.isAdmin) === 1) {
+        setIsAdmin(true);
+      } else {
+        alert('권한이 없습니다.');
+        router.replace('/main');
+      }
+    } catch (error) {
+      console.error('유저 정보 불러오기 실패:', error);
+      alert('권한이 없습니다.');
+      router.replace('/main');
+    } finally {
+      setIsChecking(false);
+    }
+  };
+  fetchUser();
+}, [router]);
 
   useEffect(() => {
     if (schedule) {
@@ -47,7 +73,9 @@ const EventScheduleChange = ({ schedule, onSubmit }) => {
     window.history.back();
   };
 
-  return (
+if (isChecking) return null;
+
+  return isAdmin && (
     <>
       <style>{`
         h3 {
@@ -74,19 +102,19 @@ const EventScheduleChange = ({ schedule, onSubmit }) => {
         <Form {...formItemLayout} form={form} onFinish={handleFinish}>
           <Form.Item
             name="title"
-            rules={[{ required: true, message: '일정명을 입력하세요.' }]}>
+            rules={[{ required: true, message: '일정명을 입력하세요.' }]} >
             <Input placeholder="일정명" />
           </Form.Item>
 
           <Form.Item
             name="content"
-            rules={[{ required: true, message: '일정 설명을 입력하세요.' }]}>
+            rules={[{ required: true, message: '일정 설명을 입력하세요.' }]} >
             <Input.TextArea placeholder="일정 설명" />
           </Form.Item>
 
           <Form.Item
             name="range"
-            rules={[{ required: true, message: '시작일과 종료일을 선택하세요.' }]}>
+            rules={[{ required: true, message: '시작일과 종료일을 선택하세요.' }]} >
             <RangePicker showTime style={{ width: '100%' }} />
           </Form.Item>
 
