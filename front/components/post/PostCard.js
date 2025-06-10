@@ -20,12 +20,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const dispatch = useDispatch();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
-<<<<<<< HEAD
-  const onClickUpdate = useCallback(() => { setEditMode(true); }, []);
   const onCancelUpdate = useCallback(() => { setEditMode(false); }, []);
-=======
-  const onCancelUpdate = useCallback(() => { setEditMode(false); },[]);
->>>>>>> bceac53856d481f2ac5d45f85c3f86f47fc616aa
   const onEditPost = useCallback((editText) => () => {
     dispatch({
       type: UPDATE_POST_REQUEST,
@@ -146,11 +141,10 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         ]}
       // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}
       >
-<<<<<<< HEAD
         {post.RetweetId && post.Retweet ? (
           <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
             <Card.Meta
-              avatar={<Link href={`/user/${post.Retweet.User.id}`} prefetch={false}>
+              avatar={<Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
                 <Avatar>{post.Retweet.User.nickname[0]}</Avatar></Link>}
               title={post.Retweet.User.nickname}
               description={
@@ -163,24 +157,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             />
           </Card>
         ) : (
-=======
-      { post.RetweetId && post.Retweet ? (
-        <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
-          <Card.Meta
-            avatar={<Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
-                    <Avatar>{post.Retweet.User.nickname[0]}</Avatar></Link>} 
-            title={post.Retweet.User.nickname}
-            description={
-              <PostCardContent 
-                editMode={editMode}
-                onEditPost={onEditPost}
-                onCancelUpdate={onCancelUpdate}
-                postData={post.Retweet.content}
-              />} 
-          />
-        </Card>
-      ) : (
->>>>>>> bceac53856d481f2ac5d45f85c3f86f47fc616aa
           <Card.Meta
             avatar={
               <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
@@ -198,17 +174,20 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             }
           />
 
-        )}
+        )
+        }
         {/* 신고 모달 */}
-        {open && (
-          <ComplainForm
-            open={open}
-            targetId={post.Retweet ? post.Retweet.id : post.id}
-            TARGET_TYPE={TARGET_TYPE.POST}
-            targetUserNickname={post.User?.nickname}
-            onClose={() => setOpen(false)}
-          />
-        )}
+        {
+          open && (
+            <ComplainForm
+              open={open}
+              targetId={post.Retweet ? post.Retweet.id : post.id}
+              TARGET_TYPE={TARGET_TYPE.POST}
+              targetUserNickname={post.User?.nickname}
+              onClose={() => setOpen(false)}
+            />
+          )
+        }
         {/* E 신고 모달 */}
 
       </Card >

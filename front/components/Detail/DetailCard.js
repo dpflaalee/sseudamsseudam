@@ -221,11 +221,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
       </Card>
 
       <CommentForm post={post} onAddLocalComment={onRefreshPost} />
-<<<<<<< HEAD
-      <Comment comments={processedComments} postId={post.id} post={post} />
-=======
-      <Comment comments={post.Comments} postId={post.id} post={post} onRefreshPost={onRefreshPost} />
->>>>>>> bceac53856d481f2ac5d45f85c3f86f47fc616aa
+      <Comment comments={processedComments} postId={post.id} post={post} onRefreshPost={onRefreshPost} />
 
       <Modal
         visible={editModalVisible}
