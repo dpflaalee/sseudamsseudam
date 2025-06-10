@@ -6,14 +6,12 @@ import GroupForm from '@/components/groups/GroupForm';
 import { Typography, Card, message, Spin } from 'antd';
 import { CREATE_GROUP_REQUEST, UPDATE_GROUP_REQUEST, LOAD_SINGLE_GROUP_REQUEST } from '@/reducers/group';
 
-const { Title } = Typography;
-
 const GroupFormPage = () => {
   const router = useRouter(); const dispatch = useDispatch();
   const {groupId} = router.query;
 
   const isEdit = !!groupId;
-  const { singleGroup, loadSingleGroupLoading, createGroupDone } = useSelector((state)=>state.group);
+  const { singleGroup, loadSingleGroupLoading } = useSelector((state)=>state.group);
   //수정 시 기존 데이터 로드
   useEffect(()=>{
     if(isEdit){ dispatch({ type: LOAD_SINGLE_GROUP_REQUEST, data: groupId }); }
@@ -33,7 +31,6 @@ const GroupFormPage = () => {
     content: singleGroup.content,
     isPrivate: singleGroup.openScopeId === 2
   }: {};
-
 
   return (
     <AppLayout>

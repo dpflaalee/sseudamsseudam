@@ -18,8 +18,6 @@ const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => {
     const playload = {title:values.title, content: values.content, categoryIds, openScopeId};
     onFinish(mode==='edit'?{...playload, groupId} : playload);
 
-    //if(mode==='edit'){ onSubmit({...playload, groupId});  //수정모드
-    //} else{ onSubmit(playload); } //생성모드 
   } 
 
   useEffect(()=>{
