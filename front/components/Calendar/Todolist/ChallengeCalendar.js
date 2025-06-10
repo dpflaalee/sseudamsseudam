@@ -20,6 +20,7 @@ const CalendarUI = styled.div`
     aspect-ratio: 1 / 1;
     padding: 5px;
     min-width: 280px;
+    max-height: 300px;
   }
 
   .react-calendar__month-view__weekdays,
@@ -67,7 +68,7 @@ const CalendarUI = styled.div`
     position: absolute;
     width: 70%;
     height: 70%;
-    background-color: #A1EEBD;
+    background-color: rgb(171, 231, 247);
     border-radius: 50%;
     z-index: 1;
     top: 15%;
