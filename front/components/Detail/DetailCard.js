@@ -196,7 +196,7 @@ const onClickLike = useCallback(() => {
       </Card>
 
       <CommentForm post={post} onAddLocalComment={onRefreshPost} />
-      <Comment comments={post.Comments} postId={post.id} post={post} />
+      <Comment comments={post.Comments} postId={post.id} post={post} onRefreshPost={onRefreshPost} />
 
       <Modal
         visible={editModalVisible}
