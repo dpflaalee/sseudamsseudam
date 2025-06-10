@@ -92,7 +92,7 @@ const Todolists = () => {
               style={{ cursor: 'pointer' }}
               onClick={() => router.push('/schedule')}
             >
-              {itemtwo.icon} {itemtwo.label}
+              {itemtwo.icon}&nbsp;{itemtwo.label}
             </CardTitle>
           }
         >

@@ -67,7 +67,7 @@ const ChallengeForm = () => {
   };
 
   const handleCancel = () => {
-    router.push('/main');
+    router.push('/challenge');
   };
 
   if (isChecking) return null;

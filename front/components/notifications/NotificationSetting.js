@@ -27,7 +27,7 @@ const NotificationSetting = () => {
         if (!userId) return;
 
         axios
-            .get(`/notification-setting/${userId}`)
+            .get(`notification/notificationSetting/${userId}`)
             .then((res) => {
                 const result = {};
                 res.data.forEach((setting) => {
@@ -48,7 +48,7 @@ const NotificationSetting = () => {
         setSettings((prev) => ({ ...prev, [type]: enabled }));
 
         try {
-            await axios.patch('/notification-setting', {
+            await axios.patch(`/notification/notificationSetting/${userId}`, {
                 userId,
                 type,
                 enabled,
@@ -62,7 +62,7 @@ const NotificationSetting = () => {
     if (loading) return <Spin tip="불러오는 중..." />;
 
     return (
-        <Card title="🔔 알림 설정">
+        <Card>
             {Object.entries(typeLabels).map(([type, label]) => (
                 <div key={type} style={{ marginBottom: 12 }}>
                     <Checkbox

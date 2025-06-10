@@ -70,6 +70,9 @@ router.post('/open/:category', isLoggedIn, async (req, res) => {
 
 // 2) 유저가 받은 랜덤박스(쿠폰) 리스트 조회 (마이페이지)
 router.get('/', isLoggedIn, async (req, res) => {
+
+  console.log("📦 현재 로그인 사용자:", req.user);
+
   try {
     const myPrizes = await MyPrize.findAll({
       where: { UserId: req.user.id },
@@ -114,44 +117,64 @@ router.post('/use/:id', isLoggedIn, async (req, res) => {
 
   try {
     const myPrize = await MyPrize.findOne({
-      where: { id: myPrizeId, UserId: userId, isRead: false },
-      include: [{ model: Prize }]
+      where: { id: myPrizeId, UserId: userId, usedAt: null },
+      include: [{ model: Prize, as: 'prize' }]
     });
 
     if (!myPrize) {
-      return res.status(400).json({
-        success: false,
-        message: '쿠폰이 존재하지 않거나 이미 사용되었습니다.'
-      });
+      return res.status(400).json({ success: false, message: '잘못된 또는 이미 사용한 랜덤박스입니다.' });
     }
 
+    const prize = myPrize.prize;
+
+    let isHit = true; // 기본은 무조건 당첨 상품
+    let resultPrize = prize;
+
+    // 확률이 존재한다면 (= 랜덤박스라면), 당첨 여부 계산
+    if (prize.probability > 0 && prize.quantity > 0) {
+      const chance = Math.random() * 100;
+      isHit = chance <= prize.probability;
+      if (!isHit) resultPrize = null;
+    }
+
+    // 트랜잭션 처리
     await sequelize.transaction(async (t) => {
-      // 쿠폰 사용 처리
+      // 사용 처리
       myPrize.isRead = true;
       myPrize.usedAt = new Date();
       await myPrize.save({ transaction: t });
 
-      // 상품 수량 차감
-      const prize = await Prize.findByPk(myPrize.PrizeId, { transaction: t });
-      if (prize.quantity > 0) {
-        prize.quantity -= 1;
-        await prize.save({ transaction: t });
+      if (isHit && resultPrize) {
+        // 수량 차감
+        const prizeToUpdate = await Prize.findByPk(resultPrize.id, { transaction: t });
+        if (prizeToUpdate.quantity > 0) {
+          prizeToUpdate.quantity -= 1;
+          await prizeToUpdate.save({ transaction: t });
+        }
       }
     });
 
-    return res.status(200).json({
-      success: true,
-      message: '쿠폰이 성공적으로 사용되었습니다.',
-      coupon: {
-        name: myPrize.Prize.content,
-        barcode: myPrize.Prize.barcode,
-        usedAt: myPrize.usedAt,
-      }
-    });
+    // 응답
+    if (isHit && resultPrize) {
+      return res.status(200).json({
+        success: true,
+        message: '🎉 축하합니다! 쿠폰이 발급되었습니다.',
+        coupon: {
+          name: resultPrize.content,
+          barcode: resultPrize.barcode,
+          usedAt: new Date(),
+        }
+      });
+    } else {
+      return res.status(200).json({
+        success: false,
+        message: '😢 아쉽게도 이번에는 당첨되지 않았습니다.',
+      });
+    }
 
   } catch (err) {
-    console.error('쿠폰 사용 오류:', err.message, err);
-    return res.status(500).json({ success: false, message: '쿠폰 사용 중 서버 오류가 발생했습니다.' });
+    console.error('랜덤박스 사용 오류:', err.message, err);
+    return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 });
 
