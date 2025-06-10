@@ -10,6 +10,9 @@ const PostForm = ({ groupId, isGroup = false }) => {
   const { TextArea } = Input;
   const { Option } = Select;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => { setIsModalOpen(true); };
+  const handleOk = () => { setIsModalOpen(false); };
+  const handleCancel = () => { setIsModalOpen(false); };
   const [openScope, setOpenScope] = useState('public');
 
   const { imagePaths, addPostLoading, addPostDone } = useSelector((state) => state.post);
@@ -26,16 +29,20 @@ const PostForm = ({ groupId, isGroup = false }) => {
 
   const onSubmitForm = useCallback(() => {
     if (!text || !text.trim()) return alert('게시글을 작성하세요.');
+    
+    const user = useSelector(state => state.user);
+    const isAdmin = user.user.isAdmin;
 
     const formData = new FormData();
     imagePaths.forEach((i) => formData.append('image', i));
     formData.append('content', text);
     formData.append('openScope', openScope);
-    if (isGroup && groupId) formData.append('groupId', groupId);
+    if (isGroup && groupId) { formData.append('groupId', groupId); }
 
     dispatch({
       type: ADD_POST_REQUEST,
       data: formData,
+      isAdmin: isAdmin,
     });
   }, [text, imagePaths, groupId]);
 
@@ -44,7 +51,7 @@ const PostForm = ({ groupId, isGroup = false }) => {
     imageInput.current.click();
   }, []);
   const onChangeImage = useCallback((e) => {
-    const imageFormData = new FormData();
+  const imageFormData = new FormData();
     [].forEach.call(e.target.files, (f) => {
       imageFormData.append('image', f);
     });
@@ -128,7 +135,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
           </>
         )}
       </Form>
-
       <Modal
         title="카테고리 선택"
         open={isModalOpen}
