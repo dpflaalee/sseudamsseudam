@@ -80,7 +80,7 @@ app.use('/groups', groups);
 app.use('/categories', categories);
 
 app.use('/admin/prizes', prize);
-app.use('/randomBox', randomBox);
+app.use('/my-prizes', randomBox);
 app.use('/animal', animal);
 app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
 app.use('/calendar', calendar);
