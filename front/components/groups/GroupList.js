@@ -13,13 +13,12 @@ const { Title, Text } = Typography;
 
 export default function GroupList({ group }) {
   const router = useRouter(); const dispatch = useDispatch();
-  const {me} = useSelector((state)=>state.user);
   const {members, loadMembersLoading, loadMembersError} = useSelector((state)=>state.group)
   const [isMember, setIsMember] = useState(false);
   //console.log("멤버배열정상이니............", members);
 
   const [open, setOpen] = useState(false);
-  const user = useState(state => state.user);
+  const [user, setUser] = useState(state => state?.user || null);
 
   const handleGroupClick = () => { setOpen((prev) => !prev); };
 
@@ -39,15 +38,15 @@ export default function GroupList({ group }) {
     }catch(error){console.error("가입 요청 중 오류 발생", error); alert("가입 요청 중 오류가 발생했습니다.");}
 
     //// 알림
-    dispatch({
-      type: ADD_NOTIFICATION_REQUEST,
-      data: {
-        notiType: NOTIFICATION_TYPE.GROUPAPPLY,
-        SenderId: user.user.id,
-        ReceiverId: group.User.id,
-        targetId: group.id,
-      }
-    });
+    // dispatch({
+    //   type: ADD_NOTIFICATION_REQUEST,
+    //   data: {
+    //     notiType: NOTIFICATION_TYPE.GROUPAPPLY,
+    //     SenderId: user.user.id,
+    //     ReceiverId: group.User.id,
+    //     targetId: group.id,
+    //   }
+    // });
     /// E 알림
   };
 

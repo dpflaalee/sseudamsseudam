@@ -26,6 +26,7 @@
     "sequelize-cli": "^6.6.3"
   },
   "devDependencies": {
+    "@types/node-cron": "^3.0.11",
     "nodemon": "^2.0.22"
   },
   "description": ""
