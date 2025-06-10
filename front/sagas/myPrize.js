@@ -8,7 +8,7 @@ import {
 
 // --- API ---
 function loadMyPrizesAPI() {
-  return axios.get('/my-prizes');
+  return axios.get('http://localhost:3065/my-prizes', { withCredentials: true });
 }
 
 function* loadMyPrizes() {

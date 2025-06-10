@@ -64,20 +64,20 @@ const ContentHeader = ({group}) => {
     const selected = menuItems.find((item) => item.key === key);
     if (selected) { router.push(selected.path);  }
   };
-
-  const handelGroupMenyClick = ({key})=>{
-    if (!group) {
-      message.error('그룹 정보를 불러올 수 없습니다.');
-      return;
-    }
-
-    if (key === 'edit') { router.push(`/groups/${group.id}/edit`);
-    } else if (key === 'delete') { setShowDeleteModal(true);
-    } else if (key === 'leave') { setShowLeaveModal(true); }
+//----------------------------------------------------------code그룹관련메뉴
+const handelGroupMenyClick = ({key})=>{
+  if (!group) {
+    message.error('그룹 정보를 불러올 수 없습니다.');
+    return;
   }
+  
+  if (key === 'edit') { router.push(`/groups/${group.id}/edit`);
+} else if (key === 'delete') { setShowDeleteModal(true);
+} else if (key === 'leave') { setShowLeaveModal(true); }
+}
 
-  const groupMenu = (
-    <Menu onClick={handelGroupMenyClick}>
+const groupMenu = (
+  <Menu onClick={handelGroupMenyClick}>
       {isLeader && (
         <>
           <Menu.Item key="edit">수정하기</Menu.Item>
@@ -87,18 +87,19 @@ const ContentHeader = ({group}) => {
       {isGroupMember && <Menu.Item key="leave" danger>탈퇴하기</Menu.Item>}
     </Menu>
   )
-
+  
   const handleDeleteGroup = () => {
     setShowDeleteModal(false);
     message.success('그룹이 삭제되었습니다.');
     router.push('/groups');
   };
-
+  
   const handleLeaveGroup = ()=>{
     setShowLeaveModal(false);
     if(isLeader){message.warning('방장 권한을 다른 멤버에게 양도한 뒤 탈퇴할 수 있습니다.');}else{message.success('그룹에서 탈퇴했습니다.'); router.push('/groups')}
   }
-
+  //----------------------------------------------------------code그룹관련메뉴
+  
   return (
     <HeaderWrapper>
       <LeftWrapper>
@@ -118,6 +119,7 @@ const ContentHeader = ({group}) => {
         </Dropdown>
       </LeftWrapper>
 
+{/* ------------------------------------------view그룹관련메뉴 */}
       <RightWrapper>
         {router.pathname.startsWith('/groups') && (
           <>
@@ -133,6 +135,7 @@ const ContentHeader = ({group}) => {
             )}
           </>
         )}
+{/* ------------------------------------------view그룹관련메뉴 */}
         
       </RightWrapper>
       {/* 그룹삭제모달 */}

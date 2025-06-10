@@ -1,28 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import AppLayout from "@/components/AppLayout";
-import {
-  Avatar,
-  Typography,
-  Button,
-  Card,
-  Row,
-  Col,
-  Calendar,
-} from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import { Avatar, Typography, Button, Card, Row, Col } from "antd";
+import { loadMyPrizes } from "../../reducers/myPrize"; // 액션 임포트  
 
 const { Title, Text } = Typography;
 
 const MyPrize = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  
+  // 리덕스에서 내 쿠폰 데이터 가져오기
+  const { myPrizes, loadMyPrizesLoading, loadMyPrizesError } = useSelector((state) => state.myPrize);
 
-  // category 객체를 받아 category.id로 API 호출
+  useEffect(() => {
+    dispatch(loadMyPrizes()); // 컴포넌트가 마운트되면 내 쿠폰 데이터 불러오기
+  }, [dispatch]);
+
+  // 랜덤박스 열기
   const openRandomModal = async (category) => {
     try {
       const res = await fetch(`/api/open-random-box?category=${category.id}`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
       });
       if (!res.ok) throw new Error("서버 응답 실패");
 
@@ -38,26 +39,15 @@ const MyPrize = () => {
     }
   };
 
-  // 예시 데이터: 실제론 백엔드에서 받아서 사용해야 합니다.
-  const prizes = [
-    {
-      id: 1,
-      category: { id: 1, content: "강아지" },
-      issuedAt: "2025-05-30",
-    },
-    {
-      id: 2,
-      category: { id: 2, content: "고양이" },
-      issuedAt: "2025-05-30",
-    },
-  ];
+  if (loadMyPrizesLoading) return <Text>로딩 중...</Text>;
+  if (loadMyPrizesError) return <Text>에러 발생: {loadMyPrizesError}</Text>;
 
   return (
     <>
       {/* 내 박스 */}
       <Card title="내 박스" style={{ marginBottom: 24 }}>
         <Row gutter={[0, 16]}>
-          {prizes.map((prize) => (
+          {myPrizes.map((prize) => (
             <Col span={24} key={prize.id}>
               <Card
                 type="inner"
@@ -78,24 +68,17 @@ const MyPrize = () => {
       {/* 내 쿠폰함 */}
       <Card title="내 쿠폰함" style={{ marginBottom: 24 }}>
         <Row gutter={[0, 16]}>
-          <Col span={24}>
-            <Card
-              type="inner"
-              title="쿠폰이름"
-              extra={<Button type="primary">사용</Button>}
-            >
-              유효기간: 2025/05/30
-            </Card>
-          </Col>
-          <Col span={24}>
-            <Card
-              type="inner"
-              title="쿠폰이름"
-              extra={<Button type="primary">사용</Button>}
-            >
-              유효기간: 2025/05/30
-            </Card>
-          </Col>
+          {myPrizes.map((prize) => (
+            <Col span={24} key={prize.id}>
+              <Card
+                type="inner"
+                title={prize.content}
+                extra={<Button type="primary">사용</Button>}
+              >
+                유효기간: {new Date(prize.issuedAt).toLocaleDateString()}
+              </Card>
+            </Col>
+          ))}
         </Row>
       </Card>
     </>
