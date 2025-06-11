@@ -113,7 +113,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             draft.isBlindError = null;
             break;
         case IS_BLIND_SUCCESS:
-            console.log('🐢 IS_BLIND_SUCCESS : ', action.data);
             draft.isBlindLoading = false;
             draft.isBlindDone = true;
             draft.isBlindError = null;

@@ -8,13 +8,11 @@ import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 const NotificationButton = () => {
     const [mainNotification, setNotifications] = useState([]);
     const sender = useSelector(state => state.user);
-    console.log('📑 sender', sender);
     const dispatch = useDispatch();
 
 
     // 알림 타입별로 버튼 클릭 시 해당 알림을 추가하는 함수
     const handleNotificationClick = (notiType) => {
-        console.log('🐙 handleNotificationClick ', notiType)
         dispatch({
             type: ADD_NOTIFICATION_REQUEST,
             data: {
