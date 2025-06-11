@@ -66,11 +66,6 @@ const Stats = styled.div`
   color: #555;
 `;
 
-const ButtonRow = styled.div`
-  margin-top: 16px;
-  display: flex;
-  gap: 8px;
-`;
 
 const DropdownBox = styled.div`
   position: absolute;
@@ -78,6 +73,12 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
+const ButtonRow = styled.div`
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
+`;
 
 const Profile = (props) => {
   const dispatch = useDispatch();
@@ -234,34 +235,35 @@ const Profile = (props) => {
           <InfoBox>
             <Nickname>{isBlinded ? '신고 당한 유저입니다.' : (postUser?.nickname || '닉네임 없음')}</Nickname>
             <Stats>
-              {postUser?postUser?.Followings.length:0} 팔로잉  &nbsp;&nbsp;
-              {postUser?postUser?.Followers.length:0} 팔로워 &nbsp;&nbsp;
+              {postUser ? postUser?.Followings.length : 0} 팔로잉  &nbsp;&nbsp;
+              {postUser ? postUser?.Followers.length : 0} 팔로워 &nbsp;&nbsp;
               {mainPosts?.length} 게시물
             </Stats>
           </InfoBox>
         </TopRow>
-    {isMyProfile ? (
-        <ButtonRow>
-          <Button type="primary">내 쿠폰함</Button>
-          <Button>내 장소</Button>
-          <Button>챌린지 현황</Button>
-          <Button>프로필 수정</Button>
-        </ButtonRow>
-    ):(
-      <ButtonRow>
-          {/* <FollowButton post={props.postUserId} /> */}
-          <FollowButton postUser={postUser}
-                        setPostUser={setPostUser}
-                        currentUserId={user?.id} />
-          <Button>장소</Button>
-        </ButtonRow>
-    )}
+        {isMyProfile ? (
+          <ButtonRow>
+            <Button type="primary">내 쿠폰함</Button>
+            <Button>내 장소</Button>
+            <Button>챌린지 현황</Button>
+            <Button>프로필 수정</Button>
+          </ButtonRow>
+        ) : (
+          <ButtonRow>
+            {/* <FollowButton post={props.postUserId} /> */}
+            <FollowButton postUser={postUser}
+              setPostUser={setPostUser}
+              currentUserId={user?.id} />
+            <Button>장소</Button>
+          </ButtonRow>
+        )}
       </Container>
       {/* {!isBlinded && mainPosts.map((c) => {
         return (
           <PostCard post={c} key={c.id} />
         );
       })} */}
+
     </Wrapper>
   );
 };
