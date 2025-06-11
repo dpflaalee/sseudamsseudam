@@ -14,7 +14,6 @@ const { Title, Text } = Typography;
 
 const manage = () => {
     const [activeSection, setActiveSection] = useState(null);
-    const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
     return (
         <AppLayout>
             {/* 상단 프로필 카드 */}
@@ -59,11 +58,6 @@ const manage = () => {
             {activeSection === 'prize' && <PrizeManage />}
             {activeSection === 'category' && <CategoryManage />}
             {/* 다른 섹션도 여기에 조건부로 추가 가능 */}
-            {mainPosts.map((c) => {
-                return (
-                    <PostCard post={c} key={c.id} />
-                );
-            })}
         </AppLayout>);
 }
 

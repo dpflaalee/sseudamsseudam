@@ -132,6 +132,7 @@ const Notification = ({ noti, onDelete }) => {
 
   // 알림 유형에 맞는 텍스트 내용 렌더링
   const renderContent = (noti) => {
+    console.log('🐱‍🏍 noti', noti);
     const sender = noti?.Sender || 'Dan';
     const notiType = noti?.type;
     const target = noti?.targetObject;
