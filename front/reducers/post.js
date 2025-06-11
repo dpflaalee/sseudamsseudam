@@ -219,7 +219,12 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
     case ADD_COMMENT_SUCCESS: {
       const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
-      post.Comments.unshift(action.data);
+      if (post) {
+        if (!post.Comments) post.Comments = [];
+        post.Comments.unshift(action.data);
+      } else {
+        console.warn('ADD_COMMENT_SUCCESS: 게시글을 찾을 수 없습니다.', action.data.PostId);
+      }
       draft.addCommentLoading = false;
       draft.addCommentDone = true;
       break;

@@ -6,7 +6,7 @@ const multer = require('multer');  // 파일업로드
 const path = require('path');  // 경로
 const fs = require('fs');  // file system
 
-const { Post, User, Image, Comment, Hashtag, OpenScope } = require('../models');
+const { Post, User, Image, Comment, Hashtag, OpenScope, Category } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 
 //이미지 폴더 생성
@@ -77,6 +77,21 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
         await post.addImages(image);
       }
     }
+    // 카테고리 처리
+    if (req.body.categoryIds) {
+      const categoryIds = Array.isArray(req.body.categoryIds)
+        ? req.body.categoryIds
+        : [req.body.categoryIds];
+
+      // 기존 카테고리 연결 제거
+      await post.setCategorys([]);
+
+      // 새로 연결
+      const categories = await Category.findAll({
+        where: { id: categoryIds },
+      });
+      await post.addCategorys(categories);
+    }
 
     // 게시글 상세정보조회
     const fullPost = await Post.findOne({
@@ -86,7 +101,8 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
         { model: Image },
         { model: User, as: 'Likers', attributes: ['id'] },
         { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
-        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] }
+        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
+        { model: Category, as: 'Categorys', through: { attributes: [] } }
       ]
     });
 
@@ -215,7 +231,10 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => {
       where: { id: comment.id },
       include: [{ model: User, attributes: ['id', 'nickname'] }]
     });
-    res.status(200).json(fullComment);
+    res.status(200).json({
+      ...fullComment.toJSON(),
+      PostId: post.id,
+    });
   } catch (error) {
     console.error(error);
     next(error);
