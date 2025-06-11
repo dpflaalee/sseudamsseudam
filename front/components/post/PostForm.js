@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox, Card, Divider } from 'antd';
+import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox, Card, Divider, } from 'antd';
 import { UserOutlined, UploadOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -21,12 +21,27 @@ const PostForm = ({ groupId, isGroup = false }) => {
   const router = useRouter();
   const [text, onChangeText, setText] = userInput('');
   const user = useSelector(state => state.user);
+  const [link, setLink] = useState(null);
 
   useEffect(() => {
     if (addPostDone) {
       setText('');
     }
   }, [addPostDone]);
+
+  useEffect(() => {
+    const storedLink = localStorage.getItem('kakaoMapLink');
+    if (storedLink) {
+      setLink(storedLink);
+      localStorage.removeItem('kakaoMapLink');  // 한 번만 사용되도록 삭제
+    }
+  }, []);
+
+  useEffect(() => {
+    if (link) {
+      setText(prev => prev ? `${prev}\n[location](${link})` : `[location](${link})`);
+    }
+  }, [link]);
 
   const onSubmitForm = useCallback(() => {
     if (!text || !text.trim()) return alert('게시글을 작성하세요.');
@@ -63,6 +78,12 @@ const PostForm = ({ groupId, isGroup = false }) => {
   const goToMap = () => {
     router.push('/map/kakao');
   };
+  const openLink = () => {
+    // 카카오 지도 링크로 새 탭에서 열기
+    if (link) {
+      window.open(link, '_blank');
+    }
+  };  
 
   return (
     <Card style={{ margin: '3%', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
