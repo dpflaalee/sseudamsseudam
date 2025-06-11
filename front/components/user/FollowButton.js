@@ -52,7 +52,7 @@ const FollowButton = ({ postUser, setPostUser, currentUserId }) => {
       {isFollowing ? '언팔로우' : '팔로우'}
     </Button>
   );
-
+}
 FollowButton.propTypes  ={
   //post : PropTypes.string
   postUser: PropTypes.object.isRequired,
