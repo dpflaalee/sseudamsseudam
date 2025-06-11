@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import {CloseOutlined} from '@ant-design/icons';
 import { useRouter } from 'next/router';
 
-const KakaoMap = () => {
+const KakaoMap = ({ userName = '홍길동' }) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const mapRef = useRef(null);
   const markerRef = useRef(null);
@@ -54,13 +54,23 @@ const KakaoMap = () => {
       markerRef.current = marker;
 
       window.kakao.maps.event.addListener(marker, 'click', () => {
-        alert('마커를 클릭했습니다!');
+        const position = marker.getPosition();
+        const lat = position.getLat();
+        const lng = position.getLng();
+
+        const encodedUserName = encodeURIComponent(userName);
+
+        const link = `https://map.kakao.com/link/map/${encodedUserName},${lat},${lng}`;
+
+        localStorage.setItem('kakaoMapLink', link);
+        alert('위치 링크가 저장되었습니다. 글쓰기 화면에서 확인하세요!');
+        router.push('/main'); // 글쓰기 페이지로 이동
       });
 
-      const ps = new window.kakao.maps.services.Places();
-      placesRef.current = ps;
-    }
-  }, []);
+          const ps = new window.kakao.maps.services.Places();
+          placesRef.current = ps;
+        }
+      }, []);
 
   const handleSearch = () => {
     const ps = placesRef.current;

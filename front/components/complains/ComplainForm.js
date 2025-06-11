@@ -92,7 +92,7 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId, targetUserNickname
       </Header>
 
       <UserInfo>
-        <Avatar size={48} src="https://xsgames.co/randomusers/avatar.php?g=female" />
+        <Avatar size={48}>{targetUserNickname[0]}</Avatar>
         <div>
           <div>{targetUserNickname}</div>
         </div>

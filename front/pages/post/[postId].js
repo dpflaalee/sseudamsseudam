@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 
 import wrapper from '../../store/configureStore';
 import { LOAD_MY_INFO_REQUEST } from '../../reducers/user';
+import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import { END } from 'redux-saga';
 
 const PostDetailPage = () => {
@@ -32,6 +33,7 @@ const PostDetailPage = () => {
   return <DetailCard post={post} onRefreshPost={fetchPost} />;
 };
 
+//////////////////////////////////
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
   const cookie = context.req ? context.req.headers.cookie : '';
   axios.defaults.headers.Cookie = '';
@@ -41,10 +43,11 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   }
 
   context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
+  context.store.dispatch({ type: LOAD_COMPLAIN_REQUEST });
   context.store.dispatch(END);
   await context.store.sagaTask.toPromise();
 
   return { props: {} }; // 필요 시 추가적인 props 가능
 });
-
+///////////////////////////////////
 export default PostDetailPage;
