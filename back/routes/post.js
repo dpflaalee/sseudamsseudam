@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const Sequelize = require('sequelize');
 
 const multer = require('multer');  // 파일업로드
 const path = require('path');  // 경로
 const fs = require('fs');  // file system
 
-const { Post, User, Image, Comment, Hashtag } = require('../models');
+const { Post, User, Image, Comment, Hashtag, OpenScope, Category } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 
 //이미지 폴더 생성
@@ -35,10 +36,21 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
   try {
     // 해시태그 추출
     const hashtags = req.body.content.match(/#[^\s#]+/g) //   /#/g    #찾아
+
+    const openScopeMap = {
+      public: 1,
+      private: 2,
+      follower: 3,
+      group: 4,
+    };
+    const OpenScopeId = openScopeMap[req.body.openScope] || 1;
+
     // 게시글저장
     const post = await Post.create({
       content: req.body.content,
-      UserId: req.user.id
+      UserId: req.user.id,
+      OpenScopeId,
+      GroupId: req.body.groupId || null,
     });
     // 해시태그 존재하면 - 해시태그 저장
     if (hashtags) {
@@ -65,15 +77,32 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
         await post.addImages(image);
       }
     }
+    // 카테고리 처리
+    if (req.body.categoryIds) {
+      const categoryIds = Array.isArray(req.body.categoryIds)
+        ? req.body.categoryIds
+        : [req.body.categoryIds];
+
+      // 기존 카테고리 연결 제거
+      await post.setCategorys([]);
+
+      // 새로 연결
+      const categories = await Category.findAll({
+        where: { id: categoryIds },
+      });
+      await post.addCategorys(categories);
+    }
 
     // 게시글 상세정보조회
     const fullPost = await Post.findOne({
       where: { id: post.id },
       include: [
+        { model: OpenScope },
         { model: Image },
         { model: User, as: 'Likers', attributes: ['id'] },
-        { model: User, attributes: ['id', 'nickname'] },
-        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] }
+        { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
+        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
+        { model: Category, as: 'Categorys', through: { attributes: [] } }
       ]
     });
 
@@ -95,9 +124,10 @@ router.get('/:postId', async (req, res, next) => {
     const post = await Post.findOne({
       where: { id: req.params.postId },
       include: [
+        { model: OpenScope },
         { model: Image },
         { model: User, as: 'Likers', attributes: ['id'] },
-        { model: User, attributes: ['id', 'nickname'] },
+        { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
         { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
         { model: Post, as: 'Retweet', include: [User, Image] }
       ],
@@ -130,10 +160,21 @@ router.get('/:postId', async (req, res, next) => {
 
 // 글 수정
 router.patch('/:postId', isLoggedIn, async (req, res, next) => {
-  const hashtags = req.body.content.match(/#[^\s#]+/g);
   try {
+    const hashtags = req.body.content.match(/#[^\s#]+/g);
+    const { content, openScope } = req.body;
+
+    const openScopeMap = {
+      public: 1,
+      private: 2,
+      follower: 3,
+      group: 4,
+    };
+    const OpenScopeId = openScopeMap[openScope] || 1;
+
     await Post.update({
-      content: req.body.content,
+      content,
+      OpenScopeId,
     }, {
       where: {
         id: req.params.postId,
@@ -190,7 +231,10 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => {
       where: { id: comment.id },
       include: [{ model: User, attributes: ['id', 'nickname'] }]
     });
-    res.status(200).json(fullComment);
+    res.status(200).json({
+      ...fullComment.toJSON(),
+      PostId: post.id,
+    });
   } catch (error) {
     console.error(error);
     next(error);
@@ -220,28 +264,38 @@ router.delete('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) 
 router.patch('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) => {
   try {
     const { postId, commentId } = req.params;
-    const { content } = req.body;
+    const { content, isRecomment } = req.body;
 
-    // 댓글 존재 확인 및 권한 체크
-    const comment = await Comment.findOne({
-      where: {
-        id: commentId,
-        PostId: postId,
-        UserId: req.user.id,  // 로그인한 사용자만 수정 가능
-      }
-    });
+    let comment;
+
+    if (isRecomment) {
+      // 대댓글인 경우, postId 조건 제거하고, UserId 조건만 사용
+      comment = await Comment.findOne({
+        where: {
+          id: commentId,
+          UserId: req.user.id,
+        }
+      });
+    } else {
+      // 일반 댓글인 경우 기존 조건 유지
+      comment = await Comment.findOne({
+        where: {
+          id: commentId,
+          PostId: postId,
+          UserId: req.user.id,
+        }
+      });
+    }
 
     if (!comment) {
       return res.status(404).send('댓글이 없거나 권한이 없습니다.');
     }
 
-    // 댓글 내용 업데이트
     await Comment.update(
       { content },
       { where: { id: commentId } }
     );
 
-    // 수정된 댓글 조회 (작성자 정보 포함)
     const updatedComment = await Comment.findOne({
       where: { id: commentId },
       include: [{ model: User, attributes: ['id', 'nickname'] }]
@@ -283,52 +337,54 @@ router.delete('/:postId/like', isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.post('/:postId/retweet' , isLoggedIn , async(req, res, next) => {
+router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
   try {
-      //1. 기존 게시글 확인 - findOne
-      const post = await Post.findOne({
-        where: { id:req.params.postId },
-        include: [{model:Post, as: 'Retweet'}]
-      });
-      if (!post) {return res.status(403).send('게시글을 확인해주세요');}
+    //1. 기존 게시글 확인 - findOne
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+      include: [{ model: Post, as: 'Retweet' }]
+    });
+    if (!post) { return res.status(403).send('게시글을 확인해주세요'); }
 
-      //2. 리트윗-조건확인 : 본인글인지 확인 || 리트윗 한적있는지 확인
-      if ( req.user.id === post.UserId
-        || ( post.Retweet && post.Retweet.UserId === req.user.id )
-      ) {return res.status(403).send('본인게시물은 리트윗할 수 없습니다.');}      
-      
-      //3. 리트윗할 게시글 번호
-      const retweetTargetId = post.RetweetId || post.id
+    //2. 리트윗-조건확인 : 본인글인지 확인 || 리트윗 한적있는지 확인
+    if (req.user.id === post.UserId
+      || (post.Retweet && post.Retweet.UserId === req.user.id)
+    ) { return res.status(403).send('본인게시물은 리트윗할 수 없습니다.'); }
 
-      //4. 중복리트윗여부
-      const exPost = await Post.findOne({
-        where: {
-          UserId: req.user.id,
-          RetweetId: retweetTargetId,
-        }
-      })
-      if (exPost){ return res.status(403).send('이미 리트윗한 게시물입니다.'); }
+    //3. 리트윗할 게시글 번호
+    const retweetTargetId = post.RetweetId || post.id
 
-      //5. 리트윗 생성 - create
-      const retweet = await Post.create({
-          UserId: req.user.id, RetweetId: retweetTargetId, content: 'retweet',
-      });
+    //4. 중복리트윗여부
+    const exPost = await Post.findOne({
+      where: {
+        UserId: req.user.id,
+        RetweetId: retweetTargetId,
+      }
+    })
+    if (exPost) { return res.status(403).send('이미 리트윗한 게시물입니다.'); }
 
-      //6. 리트윗 상세조회
-      const retweetDetail = await Post.findOne({
-        where: { id:retweet.id },
-        include: [
-                  {model:Post, as: 'Retweet', include: [
-                    {model:User, attributes: ['id','nickname']},
-                    {model:Image}, 
-                  ]}, 
-                  {model:User, attributes: ['id','nickname']},
-                  {model:Image}, 
-                  {model:Comment, include: [{model:User, attributes: ['id','nickname']},]}, ]
-      });
+    //5. 리트윗 생성 - create
+    const retweet = await Post.create({
+      UserId: req.user.id, RetweetId: retweetTargetId, content: 'retweet',
+    });
 
-      //7. res 응답
-      res.status(201).json(retweetDetail);
+    //6. 리트윗 상세조회
+    const retweetDetail = await Post.findOne({
+      where: { id: retweet.id },
+      include: [
+        {
+          model: Post, as: 'Retweet', include: [
+            { model: User, attributes: ['id', 'nickname'] },
+            { model: Image },
+          ]
+        },
+        { model: User, attributes: ['id', 'nickname'] },
+        { model: Image },
+        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] },] },]
+    });
+
+    //7. res 응답
+    res.status(201).json(retweetDetail);
 
   } catch (error) {
     console.error(error)
@@ -337,46 +393,46 @@ router.post('/:postId/retweet' , isLoggedIn , async(req, res, next) => {
 });
 
 router.get('/:postId', async (req, res, next) => { // GET /post/1
-    try {
-        const post = await Post.findOne({
-            where: { id: req.params.postId },
-        });
-        if (!post) {
-            return res.status(404).send('존재하지 않는 게시글입니다.');
-        }
-        const fullPost = await Post.findOne({
-            where: { id: post.id },
-            include: [{
-                model: Post,
-                as: 'Retweet',
-                include: [{
-                    model: User,
-                    attributes: ['id', 'nickname'],
-                }, {
-                    model: Image,
-                }]
-            }, {
-                model: User,
-                attributes: ['id', 'nickname'],
-            }, {
-                model: User,
-                as: 'Likers',
-                attributes: ['id', 'nickname'],
-            }, {
-                model: Image,
-            }, {
-                model: Comment,
-                include: [{
-                    model: User,
-                    attributes: ['id', 'nickname'],
-                }],
-            }],
-        })
-        res.status(200).json(fullPost);
-    } catch (error) {
-        console.error(error);
-        next(error);
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+    });
+    if (!post) {
+      return res.status(404).send('존재하지 않는 게시글입니다.');
     }
+    const fullPost = await Post.findOne({
+      where: { id: post.id },
+      include: [{
+        model: Post,
+        as: 'Retweet',
+        include: [{
+          model: User,
+          attributes: ['id', 'nickname'],
+        }, {
+          model: Image,
+        }]
+      }, {
+        model: User,
+        attributes: ['id', 'nickname'],
+      }, {
+        model: User,
+        as: 'Likers',
+        attributes: ['id', 'nickname'],
+      }, {
+        model: Image,
+      }, {
+        model: Comment,
+        include: [{
+          model: User,
+          attributes: ['id', 'nickname'],
+        }],
+      }],
+    })
+    res.status(200).json(fullPost);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 module.exports = router;

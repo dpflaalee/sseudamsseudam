@@ -75,21 +75,6 @@ const Index = () => {
             <Col>
               <Button onClick={() => setActiveSection("challenge")}>챌린지 현황</Button>
             </Col>
-            <Col>
-              <Dropdown
-                overlay={
-                  <Menu>
-                    <Menu.Item key="report" onClick={() => router.push("/report")}>
-                      신고하기     { /* 수정필요!! 신고하기 폼으로 가게 */}
-                    </Menu.Item>
-                  </Menu>
-                }
-                placement="bottomRight"
-                trigger={["click"]}
-              >
-                <EllipsisOutlined style={{ fontSize: 20, cursor: "pointer" }} />
-              </Dropdown>
-            </Col>
           </Row>
         </Col>
       </Card>
@@ -100,5 +85,22 @@ const Index = () => {
     </AppLayout>
   );
 };
+////////////////////////////////////////////////////////
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  //1. cookie 설정
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
 
+  if (context.req && cookie) { axios.defaults.headers.Cookie = cookie; }
+
+  //2. redux 액션
+  context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
+  context.store.dispatch({ type: LOAD_POSTS_REQUEST });
+  context.store.dispatch({ type: LOAD_COMPLAIN_REQUEST });
+  context.store.dispatch(END);
+
+  await context.store.sagaTask.toPromise();
+
+});
+////////////////////////////////////////////////////////
 export default Index;

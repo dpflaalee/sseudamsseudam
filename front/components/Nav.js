@@ -14,7 +14,7 @@ const Nav = () => {
   const dispatch = useDispatch();
   const { logOutLoading, user } = useSelector(state => state.user);
 
-  const onLogout = useCallback(()=>{dispatch({type:LOG_OUT_REQUEST})},[])
+  const onLogout = useCallback(() => { dispatch({ type: LOG_OUT_REQUEST }) }, [])
 
   useEffect(() => {
     const handleResize = () => { setIsMobile(window.innerWidth <= 768); };
@@ -24,7 +24,7 @@ const Nav = () => {
   }, []);
 
   const handleClick = ({ key }) => {
-    if (key === 'notice') router.push('/');
+    if (key === 'notice') router.push('/adminNoti');
     if (key === 'home') router.push('/main');
     if (key === 'groupHome') router.push('/groups');
     if (key === 'notification') router.push('/notification');
@@ -49,7 +49,7 @@ const Nav = () => {
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{ display: "flex", flexDirection: isMobile ? "row" : "column", justifyContent: "flex-start", gap: "10px", }} >
         <Dropdown overlay={profileMenu} trigger={["click"]}>
-          <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop: "20px",  padding: "15px", }} >
+          <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop: "20px", padding: "15px", }} >
             <Avatar size="large" icon={<UserOutlined />} />
             {!isMobile && user && (
               <div style={{ marginLeft: "10px" }}>
@@ -75,7 +75,7 @@ const Nav = () => {
           <Menu.Item key="notice" icon={<NotificationOutlined />}>{!isMobile && "공지"}</Menu.Item>
           <Menu.Item key="home" icon={<HomeOutlined />}> {!isMobile && "홈"} </Menu.Item>
           <SubMenu key="group" icon={<TeamOutlined />} title={!isMobile && "그룹"}>
-            <Menu.Item key="groupHome" style={{fontWeight:'bold'}}>그룹 홈</Menu.Item>
+            <Menu.Item key="groupHome" style={{ fontWeight: 'bold' }}>그룹 홈</Menu.Item>
             <Menu.Item key="group2">Group2</Menu.Item>
           </SubMenu>
           <Menu.Item key="notification" icon={<BellOutlined />}>{!isMobile && "알림"}</Menu.Item>

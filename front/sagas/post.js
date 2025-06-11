@@ -51,13 +51,13 @@ import {
   RETWEET_FAILURE
 } from '../reducers/post';
 
-function loadPostAPI(data) {
-  return axios.get(`/post/${data}`);
+function loadPostAPI(data,userId,number) {
+  return axios.get(`/post/${data}/${userId}`);
 }
 
 function* loadPost(action) {
   try {
-    const result = yield call(loadPostAPI, action.data);
+    const result = yield call(loadPostAPI, action.data,action.userId,action.number);
     yield put({
       type: LOAD_POST_SUCCESS,
       data: result.data,
@@ -71,13 +71,24 @@ function* loadPost(action) {
   }
 }
 
-function loadPostsAPI(lastId) {
-  return axios.get(`/posts?lastId=${lastId || 0}`);
+function loadPostsAPI(lastId,userId,number) {
+  console.log('number='+number);
+  userId = userId === 'undefined'? -1 : userId;
+  return axios.get(`/posts?lastId=${lastId || 0}&number=${number}&userId=${userId}`);
+  // if(number){
+  //   console.log('본인 게시물 클릭');
+  //   return axios.get(`/posts?lastId=${lastId || 0}&number=${number}`);
+  // }else{
+  //   console.log('다른 게시물 클릭');
+  //   return axios.get(`/posts?lastId=${lastId || 0}&userId=${userId}`);
+  // }
 }
 
 function* loadPosts(action) {
+  console.log('action.userId-=',action.userId);
+  console.log('action.number-=',action.number);
   try {
-    const result = yield call(loadPostsAPI, action.lastId);
+    const result = yield call(loadPostsAPI, action.lastId,action.userId,action.number);
     yield put({
       type: LOAD_POSTS_SUCCESS,
       data: result.data,
@@ -102,6 +113,18 @@ function* addPost(action) {
       type: ADD_POST_SUCCESS,
       data: result.data,
     });
+    // 알림 보내기
+    if (Boolean(action.isAdmin)) {
+      yield put({
+        type: ADD_NOTIFICATION_REQUEST,
+        data: {
+          notiType: NOTIFICATION_TYPE.ADMIN_NOTI,
+          SenderId: action.data.userId,
+          ReceiverId: action.data.userId,
+          targetId: result.data.id,
+        }
+      });
+    }
   } catch (err) {
     console.error(err);
     yield put({
@@ -165,8 +188,6 @@ function* addComment(action) {
 
     // 알림 보내기
     if (Boolean(action.isReComment)) {
-      console.log('😵 action.isReComment : ', action.isReComment);
-      console.log('😵 action.data : ', action.data);
       yield put({
         type: ADD_NOTIFICATION_REQUEST,
         data: {
@@ -176,9 +197,8 @@ function* addComment(action) {
           targetId: result.data.id,
         }
       });
-    } else if (Boolean(action.isReComment)) {
-      console.log('😵🤷‍♀️ action.isReComment : ', action.isReComment);
-      console.log('😵🤷‍♀️ action.data : ', action.data);
+    }
+    if (action.isReComment === false) {
       yield put({
         type: ADD_NOTIFICATION_REQUEST,
         data: {
@@ -189,8 +209,6 @@ function* addComment(action) {
         },
       });
     }
-
-
   } catch (err) {
     console.error(err);
     yield put({
@@ -346,6 +364,18 @@ function* retweet(action) {
       type: RETWEET_SUCCESS,
       data: result.data,
     });
+
+    // 알림
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.RETWEET,
+        SenderId: action.notiData.SenderId,
+        ReceiverId: action.notiData.ReceiverId,
+        targetId: result.data.id,
+      }
+    });
+    // E 알림
   } catch (err) {
     console.error(err);
     yield put({
@@ -359,11 +389,9 @@ function* retweet(action) {
 function* watchLoadPost() {
   yield takeLatest(LOAD_POST_REQUEST, loadPost);
 }
-
 function* watchLoadPosts() {
   yield throttle(5000, LOAD_POSTS_REQUEST, loadPosts);
 }
-
 function* watchAddPost() {
   yield takeLatest(ADD_POST_REQUEST, addPost);
 }

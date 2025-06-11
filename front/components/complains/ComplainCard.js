@@ -1,53 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, Button, Avatar } from 'antd';
-import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
+import { UserOutlined, DeleteOutlined, QqOutlined } from '@ant-design/icons';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
+import { useDispatch } from 'react-redux';
 
 import DummyComment from './DummyComment';
-import DummyPost from './DummyPost';
-import DummyUser from './DummyUser';
-
-import PostCard from '../post/PostCard';
+import ComplainPost from './ComplainPost';
 import Comment from '../comment/Comment';
+import Profile from '../user/Profile';
+import ComplainProfile from './ComplainProfile';
+import { IS_BLIND_REQUEST } from '@/reducers/complain';
 
 const ComplainCard = ({ report }) => {
     console.log('🐕‍🦺 ComplainCard : ', report);
-
-    const handleDelete = () => {
-        alert('신고 내역을 삭제합니다');
+    const dispatch = useDispatch();
+    const isBlind = () => {
+        //alert('신고 내역을 삭제합니다');
+        console.log('🐙 isBlind : ', report.targetId);
+        dispatch({
+            type: IS_BLIND_REQUEST,
+            data: {
+                targetId: report.targetId
+            }
+        });
     };
+
     const reporter = report.Reporter;
     console.log('💤 reporter ', reporter);
-    const [targetObject, setTargetObject] = useState(null);
-
-    useEffect(() => {
-        const fetchTargetData = async () => {
-            let url = '';
-            switch (report.targetType) {
-                case TARGET_TYPE.POST:
-                    url = `/complain/post/${report.targetId}`;
-                    break;
-                case TARGET_TYPE.COMMENT:
-                    url = `/complain/comment/${report.targetId}`;
-                    break;
-                case TARGET_TYPE.USER:
-                    url = `/complain/user/${report.targetId}`;
-                    break;
-            }
-
-            try {
-                const response = await axios.get(url);
-                console.log('📦 받아온 데이터:', response.data);
-                setTargetObject(response.data);
-            } catch (error) {
-                console.error(`🚨 대상 불러오기 실패 (${report.targetType}):`, error);
-            }
-        };
-        fetchTargetData();
-    }, [report]);
-
+    const targetObject = report.targetObject;
+    console.log('💤 targetObject :', targetObject);
+    const isBlinded = report.isBlind;
+    console.log('💤 isBlinded :', isBlinded);
 
     const renderByType = () => {
         if (!targetObject) {
@@ -62,7 +47,7 @@ const ComplainCard = ({ report }) => {
                         </div>
                         {targetObject ? (
                             <div style={{ padding: '8px', backgroundColor: '#f9f9f9', marginTop: 8 }}>
-                                <PostCard post={targetObject} />
+                                <ComplainPost post={targetObject} />
                             </div>
                         ) : (
                             <div>게시글 정보를 불러오는 중입니다...</div>
@@ -82,7 +67,7 @@ const ComplainCard = ({ report }) => {
                 return (
                     <>
                         <div style={{ fontWeight: 'bold' }}>{reporter ? reporter.nickname : '알수 없음'}님이 유저 {report.targetId}를 신고했습니다.</div>
-                        <div style={{ padding: '8px', backgroundColor: '#fff7e6', marginTop: 8 }}>{targetObject && <DummyUser post={targetObject} />}</div>
+                        <div style={{ padding: '8px', backgroundColor: '#fff7e6', marginTop: 8 }}>{targetObject && <ComplainProfile postUserId={targetObject.id} />}</div>
                     </>
                 );
 
@@ -95,15 +80,17 @@ const ComplainCard = ({ report }) => {
         <Card
             style={{ marginBottom: 24 }}
             title={<span style={{ color: '#888' }}>{report.createdAt}</span>}
-            extra={
-                <Button danger icon={<DeleteOutlined />} onClick={handleDelete}>
-                    내용 삭제하기
-                </Button>
+            extra=
+            {isBlinded ?
+                <Button icon={<QqOutlined />} > 처리 완료됨 </Button>
+                :
+                <Button danger icon={<DeleteOutlined />} onClick={isBlind}> 내용 삭제하기 </Button>
             }
+
         >
             {renderByType()}
-            <div style={{ marginTop: 10 }}>{report.reason}</div>
-        </Card>
+            < div style={{ marginTop: 10 }}> {report.reason}</div >
+        </Card >
     );
 };
 

@@ -7,9 +7,10 @@ import router from 'next/router';
 
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-import { REMOVE_COMMENT_REQUEST,UPDATE_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST } from '../../reducers/post';
+import { REMOVE_COMMENT_REQUEST, UPDATE_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST } from '../../reducers/post';
 import ReCommentForm from './ReCommentForm';
 import ReComment from './ReComment';
+import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 
 const Wrapper = styled.div`
   margin-top: 24px;
@@ -19,30 +20,43 @@ const CommentItem = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 0;
+  padding: 16px 20px;
   border-bottom: 1px solid #eee;
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
 `;
 
 const Left = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex: 1;
+`;
+
+const AvatarStyled = styled(Avatar)`
+  background-color: #87d068;
+  font-weight: 700;
+  font-size: 18px;
+  user-select: none;
 `;
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
 `;
 
 const NicknameDateWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  margin-bottom: 4px;
 `;
 
 const Nickname = styled.div`
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #222;
 `;
 
 const CommentDate = styled.div`
@@ -51,9 +65,68 @@ const CommentDate = styled.div`
 `;
 
 const Text = styled.div`
-  color: #555;
+  color: #444;
   white-space: pre-wrap;
-  line-height: 1.4;
+  line-height: 1.5;
+  font-size: 15px;
+`;
+
+const EditTextarea = styled.textarea`
+  width: 100%;
+  resize: none;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  margin-bottom: 8px;
+
+  &:focus {
+    outline: none;
+    border-color: #40a9ff;
+    box-shadow: 0 0 5px #40a9ff;
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const MessageIconStyled = styled(MessageOutlined)`
+  margin-top: 14px;
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #40a9ff;
+  }
+`;
+
+const ReplyWrapper = styled.div`
+  margin-left: 48px;
+  margin-top: 8px;
+`;
+
+const RecommentNicknameDate = styled(NicknameDateWrapper)`
+  gap: 6px;
+  margin-bottom: 3px;
+`;
+
+const RecommentNickname = styled(Nickname)`
+  font-weight: 600;
+  font-size: 14px;
+`;
+
+const RecommentDate = styled(CommentDate)`
+  font-size: 11px;
+`;
+
+const RecommentText = styled(Text)`
+  font-size: 14px;
+  color: #555;
 `;
 
 const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
@@ -62,6 +135,8 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
   const [openReport, setOpenReport] = useState(false);
   const parentComments = comments.filter(comment => !comment.RecommentId);
   const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingRecommentId, setEditingRecommentId] = useState(null);
+  const [editRecommentContent, setEditRecommentContent] = useState('');
   const [editContent, setEditContent] = useState('');
   const { updateCommentLoading, updateCommentDone, removeCommentLoading, removeCommentDone } = useSelector((state) => state.post);
 
@@ -88,7 +163,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
     }
   }, [editingCommentId]);
 
-    const onChangeEditContent = useCallback((e) => {
+  const onChangeEditContent = useCallback((e) => {
     setEditContent(e.target.value);
   }, []);
 
@@ -124,16 +199,78 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
       },
     });
   }, [postId, dispatch, onRefreshPost]);
+
+  //대댓글 수정
+  const onClickEditRecomment = useCallback((recomment) => {
+    if (editingRecommentId === recomment.id) {
+      setEditingRecommentId(null);
+      setEditRecommentContent('');
+    } else {
+      setEditingRecommentId(recomment.id);
+      setEditRecommentContent(recomment.content);
+    }
+  }, [editingRecommentId]);  
+
+  const onChangeEditRecommentContent = useCallback((e) => {
+    setEditRecommentContent(e.target.value);
+  }, []);  
+
+  const onSaveEditRecomment = useCallback(() => {
+    if (!editRecommentContent.trim()) {
+      return alert('댓글 내용을 입력하세요.');
+    }
+    dispatch({
+      type: UPDATE_COMMENT_REQUEST,
+      data: {
+        postId,
+        commentId: editingRecommentId,
+        content: editRecommentContent,
+        isRecomment: true,
+      },
+      callback: () => {
+        onRefreshPost?.();
+      },
+    });
+    setEditingRecommentId(null);
+    setEditRecommentContent('');
+  }, [dispatch, editRecommentContent, editingRecommentId, postId, onRefreshPost]);
+
+  // 신고 댓글 블라인드 처리
+  const mainComplainCard = useSelector(state => state.complain.mainComplainCard);
+  const processedParentComments = comments
+    .filter(comment => !comment.RecommentId)
+    .map(comment => {
+      const isBlind = mainComplainCard?.some(report => report.targetType === TARGET_TYPE.COMMENT && Number(report.targetId) === Number(comment.id) && report.isBlind);
+      console.log('isBlind', isBlind)
+      return {
+        ...comment,
+        content: isBlind ? '신고된 댓글입니다.' : comment.content,
+      };
+    });
+
+  // 신고 당한 유저 닉네임 처리
+  useEffect(() => {
+    dispatch({
+      type: LOAD_COMPLAIN_REQUEST,
+    });
+  }, [dispatch]);
+
+
   return (
     <Wrapper>
       <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
         댓글 {parentComments.length}개
       </div>
       {parentComments.length === 0 && <div>댓글이 없습니다.</div>}
-      {parentComments.map((comment) => {
+      {processedParentComments.map((comment) => {
         const createdAt = comment.createdAt
           ? new Date(comment.createdAt).toLocaleString()
           : '';
+
+        const isBlindedUser = mainComplainCard.some((report) => {
+          console.log(report);
+          return Number(report.targetId) === Number(comment.User?.id) && report.isBlind && report.targetType === TARGET_TYPE.USER;
+        });
 
         const menu = (
           <Menu>
@@ -158,37 +295,33 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
           <div key={comment.id}>
             <CommentItem>
               <Left>
-                <Avatar>{comment.User?.nickname?.[0] || 'U'}</Avatar>
-            <Content>
-              <NicknameDateWrapper>
-                <Nickname>{comment.User?.nickname || '알 수 없음'}</Nickname>
-                {createdAt && <CommentDate>{createdAt}</CommentDate>}
-              </NicknameDateWrapper>
-              
-              {editingCommentId === comment.id ? (
-                <>
-                  <textarea
-                    value={editContent}
-                    onChange={onChangeEditContent}
-                    rows={3}
-                    style={{ width: '100%', resize: 'none' }}
-                  />
-                  <div>
-                    <Button type="primary" onClick={onSaveEdit} style={{ marginRight: 8 }}>
-                      저장
-                    </Button>
-                    <Button onClick={() => setEditingCommentId(null)}>취소</Button>
-                  </div>
-                </>
-              ) : (
-                <Text>{comment.content}</Text>
-              )}
+                <AvatarStyled>{isBlindedUser ? 'X' : comment.User?.nickname?.[0] || 'U'}</AvatarStyled>
+                <Content>
+                  <NicknameDateWrapper>
+                    <Nickname>{isBlindedUser ? '신고된 유저입니다' : comment.User?.nickname || '알 수 없음'}</Nickname>
+                    {createdAt && <CommentDate>{createdAt}</CommentDate>}
+                  </NicknameDateWrapper>
 
-              <MessageOutlined
-                style={{ marginTop: '12px', cursor: 'pointer' }}
-                onClick={() => onClickReply(comment.id)}
-              />
-            </Content>
+                  {editingCommentId === comment.id ? (
+                    <>
+                      <EditTextarea
+                        value={editContent}
+                        onChange={onChangeEditContent}
+                        rows={3}
+                      />
+                      <ButtonGroup>
+                        <Button type="primary" onClick={onSaveEdit}>
+                          저장
+                        </Button>
+                        <Button onClick={() => setEditingCommentId(null)}>취소</Button>
+                      </ButtonGroup>
+                    </>
+                  ) : (
+                    <Text>{comment.content}</Text>
+                  )}
+
+                  <MessageIconStyled onClick={() => onClickReply(comment.id)} />
+                </Content>
               </Left>
               <Dropdown overlay={menu} trigger={['click']}>
                 <Button type="text" icon={<MoreOutlined />} />
@@ -209,24 +342,66 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
 
             {/* 대댓글 리스트 */}
             {replyTargetId === comment.id && comment.Recomments && comment.Recomments.length > 0 && (
-              <div style={{ marginLeft: 40 }}>
-                {comment.Recomments.map((recomment) => (
-                  <CommentItem key={recomment.id}>
+              <ReplyWrapper>
+                <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
+                  대댓글 {comment.Recomments.length}개
+                </div>
+                {comment.Recomments.length === 0 && <div>대댓글이 없습니다.</div>}
+                {comment.Recomments.map((recomment) => {
+                const reCreatedAt = recomment.createdAt ? new Date(recomment.createdAt).toLocaleString() : '';
+
+                // 대댓글 메뉴 정의
+                const recommentMenu = (
+                  <Menu>
+                    <Menu.Item onClick={() => onClickEditRecomment(recomment)}>
+                      {editingRecommentId === recomment.id ? '수정 취소' : '수정'}
+                    </Menu.Item>
+                    <Menu.Item danger onClick={() => onRemoveComment(recomment.id)}>삭제</Menu.Item>
+                    <Menu.Item danger onClick={() => handleReport(recomment.id)}>신고하기</Menu.Item>
+                    <ComplainForm
+                      open={openReport && targetId === recomment.id}
+                      onClose={() => setOpenReport(false)}
+                      TARGET_TYPE={TARGET_TYPE.COMMENT}
+                      targetId={targetId}
+                      targetUserNickname={recomment.User?.nickname}
+                    />
+                  </Menu>
+                );
+
+                return (
+                  <CommentItem key={recomment.id} style={{ padding: '10px 16px', marginBottom: '8px', background: '#f9f9f9', borderRadius: '6px' }}>
                     <Left>
-                      <Avatar>{recomment.User?.nickname?.[0] || 'U'}</Avatar>
+                      <AvatarStyled>{isBlindedUser ? 'X' : recomment.User?.nickname?.[0] || 'U'}</AvatarStyled>
                       <Content>
-                        <NicknameDateWrapper>
-                          <Nickname>{recomment.User?.nickname || '알 수 없음'}</Nickname>
-                          {recomment.createdAt && (
-                            <CommentDate>{new Date(recomment.createdAt).toLocaleString()}</CommentDate>
-                          )}
-                        </NicknameDateWrapper>
-                        <Text>{recomment.content}</Text>
+                        <RecommentNicknameDate>
+                          <RecommentNickname>{isBlindedUser ? '신고된 유저입니다' : recomment.User?.nickname || '알 수 없음'}</RecommentNickname>
+                          <RecommentDate>{reCreatedAt}</RecommentDate>
+                        </RecommentNicknameDate>
+
+                        {editingRecommentId === recomment.id ? (
+                          <>
+                            <EditTextarea
+                              value={editRecommentContent}
+                              onChange={onChangeEditRecommentContent}
+                              rows={3}
+                            />
+                            <ButtonGroup>
+                              <Button type="primary" onClick={onSaveEditRecomment}>저장</Button>
+                              <Button onClick={() => setEditingRecommentId(null)}>취소</Button>
+                            </ButtonGroup>
+                          </>
+                        ) : (
+                          <RecommentText>{recomment.content}</RecommentText>
+                        )}
                       </Content>
                     </Left>
+                    <Dropdown overlay={recommentMenu} trigger={['click']}>
+                      <Button type="text" icon={<MoreOutlined />} />
+                    </Dropdown>
                   </CommentItem>
-                ))}
-              </div>
+                );
+              })}
+              </ReplyWrapper>
             )}
           </div>
         );

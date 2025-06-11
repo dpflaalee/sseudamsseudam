@@ -5,12 +5,15 @@ import { MoreOutlined } from '@ant-design/icons';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import useSelection from 'antd/lib/table/hooks/useSelection';
+import FollowButton from './FollowButton';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
-import {LOAD_POSTS_REQUEST} from '@/reducers/post'
+import { LOAD_POSTS_REQUEST } from '@/reducers/post'
 import Router from 'next/router';
 import PostCard from '../post/PostCard';
-
+import axios from 'axios';
+import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -75,28 +78,95 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
-const Profile = ({ profile }) => {
+
+const Profile = (props) => {
   const dispatch = useDispatch();
-  const { logOutDone,user } = useSelector(state => state.user);
-  const {logOutLoding,mainPosts,hasMorePosts,loadPostsLoading} = useSelector(state => state.post);
+  const { logOutDone, user } = useSelector(state => state.user);
+  const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
+
+  let postUserId = props.postUserId;
+  const [postUser, setPostUser] = useState('');
+
+  // 신고 당한 유저 블라인드 처리
+  const { mainComplainCard } = useSelector((state) => state.complain);
+
   useEffect(() => {
-      if (hasMorePosts && !loadPostsLoading) {
-        const lastId = mainPosts[mainPosts.length - 1]?.id;
+    dispatch({
+      type: LOAD_COMPLAIN_REQUEST,
+    });
+  }, [dispatch]);
+
+  const isBlinded = mainComplainCard.some((report) => {
+    return Number(report.targetId) === Number(postUserId) && report.isBlind && report.targetType === TARGET_TYPE.USER;
+  });
+
+
+  console.log('🔥 isBlinded:', isBlinded);
+
+
+
+  useEffect(() => {
+    console.log('postUser실행');
+    const postUserData = async () => {
+      try {
+        const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
+          { withCredentials: true }
+        )
+        setPostUser(postUserSelect.data);
+
+      } catch (error) {
+        console.error('유저 정보 불러오기 실패:', error);
+      }
+    };
+    postUserData();
+  }, [postUserId]);
+
+  useEffect(() => {
+    const lastId = mainPosts[mainPosts.length - 1]?.id;
+    console.log('입장1');
+    console.log('mainPosts', mainPosts[mainPosts.length - 1]?.id);
+    const number = [1, 2, 3];
+    // number = 1,
+    // number = 2 
+    //다른 유저를 클릭했을 때는 되고
+    //본인을 클릭했을 때 안됨
+    //로그인 유저
+    if (hasMorePosts && !loadPostsLoading) {
+      if (postUserId) {
+        //postuser
+        if (user.id == props.postUserId) {
+          console.log('입장2');
+          dispatch({
+            type: LOAD_POSTS_REQUEST,
+            lastId,
+            number: number[0],
+            //userId: props.postUserId,
+          })
+        } else {
+          //본인페이지 클릭
+          console.log('postUserId = -1');
+          dispatch({
+            type: LOAD_POSTS_REQUEST,
+            lastId,
+            userId: postUserId,
+            number: number[1],
+          })
+        }
+      } else {//비로그인
+        console.log('비로그인 입장');
         dispatch({
           type: LOAD_POSTS_REQUEST,
           lastId,
         })
       }
-    }, [mainPosts, hasMorePosts, loadPostsLoading]);
-  
+    }
+  }, [postUserId]);
+  //}, [mainPosts, hasMorePosts, loadPostsLoading, postUserId]);
   useEffect(() => {
     if (logOutDone) {
-      console.log('클릭');
       Router.replace('/');
     }
   }, [logOutDone])
-
-  console.log('user.userId=', user?.id);
 
   const [open, setOpen] = useState(false);
   const onLogout = useCallback(() => {
@@ -104,16 +174,16 @@ const Profile = ({ profile }) => {
   });
   const [] = useState(false);
   const onUserDelete = useCallback(() => {
-    console.log('클릭');
     dispatch({
       type: USER_DELETE_REQUEST,
     })
   });
 
-  //const isMyProfile = user && user.User?.id === profile.User?.id;
+  const isMyProfile = user && (user.id == postUserId);
 
   const menu = (
     <Menu>
+      {isMyProfile ? (
         <>
           <Menu.Item key="edit">프로필 수정</Menu.Item>
           <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
@@ -124,7 +194,6 @@ const Profile = ({ profile }) => {
             탈퇴하기
           </Menu.Item>
         </>
-     {/* {isMyProfile ? (
       ) : (
         <>
           <Menu.Item key="report" onClick={() => setOpen(true)} danger>
@@ -134,10 +203,12 @@ const Profile = ({ profile }) => {
             open={open}
             onClose={() => setOpen(false)}
             TARGET_TYPE={TARGET_TYPE.USER}
-            targetId={profile?.User?.id}
+            targetId={postUserId}
+            targetUserNickname={postUser?.nickname}
+            targetUser={postUser}
           />
         </>
-      )} */}
+      )}
     </Menu>
   );
 
@@ -146,9 +217,10 @@ const Profile = ({ profile }) => {
       <Banner />
       <Container>
         <AvatarBox>
-          <Avatar size={80} >
-            {user?.nickname}
+          <Avatar size={80}>
+            {isBlinded ? 'X' : (postUser?.nickname || '닉네임 없음')}
           </Avatar>
+
         </AvatarBox>
 
         <DropdownBox>
@@ -159,24 +231,33 @@ const Profile = ({ profile }) => {
 
         <TopRow>
           <InfoBox>
-            <Nickname>{user?.nickname}</Nickname>
+            <Nickname>{isBlinded ? '신고 당한 유저입니다.' : (postUser?.nickname || '닉네임 없음')}</Nickname>
             <Stats>
-              {user?.followerCount} 팔로잉 &nbsp;&nbsp;
-              {user?.postCount} 팔로워 &nbsp;&nbsp;
-              {user?.followingCount} 게시물
+              {postUser?postUser?.Followings.length:0} 팔로잉  &nbsp;&nbsp;
+              {postUser?postUser?.Followers.length:0} 팔로워 &nbsp;&nbsp;
+              {mainPosts?.length} 게시물
             </Stats>
           </InfoBox>
         </TopRow>
-
+    {isMyProfile ? (
         <ButtonRow>
           <Button type="primary">내 쿠폰함</Button>
           <Button>내 장소</Button>
           <Button>챌린지 현황</Button>
           <Button>프로필 수정</Button>
         </ButtonRow>
+    ):(
+      <ButtonRow>
+          {/* <FollowButton post={props.postUserId} /> */}
+          <FollowButton postUser={postUser}
+                        setPostUser={setPostUser}
+                        currentUserId={user?.id} />
+          <Button>장소</Button>
+        </ButtonRow>
+    )}
       </Container>
-      {mainPosts.map((c) => {
-      return (
+      {!isBlinded && mainPosts.map((c) => {
+        return (
           <PostCard post={c} key={c.id} />
         );
       })}

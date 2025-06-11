@@ -81,12 +81,39 @@ router.post('/login', isNotLoggedIn, async (req, res, next) => {
 router.get('/', async  (req, res, next) => { 
   // res.send('사용자정보조회');
   console.log('사용자정보조회',req.user.id);
+  console.log('프로필확인',req.user.userId);
   try { 
     //1) 로그인사용자확인
     //2) 로그인한유저 정보반환
     if (req.user) {
       const fullUser = await User.findOne({
         where : { id: req.user.id } , // 조건 :  id로 검색
+        attributes : { exclude : ['password'] } ,// 비밀번호 빼고 결과가져오기
+        include: [
+            { model: Post , attributes : ['id']  }
+          , { model: User , as :'Followings' , attributes : ['id'] }
+          , { model: User , as :'Followers'  , attributes : ['id'] }
+        ]// Post, Followers , Followings
+      });
+      res.status(200).json(fullUser);  
+    } else { 
+      res.status(200).json(null);   //로그인안되면 null 반환
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+router.get('/postUser', async  (req, res, next) => { 
+  // res.send('사용자정보조회');
+  console.log('사용자정보조회',req.user.id);
+  console.log('postUser프로필확인',req.query.userId);
+  try { 
+    //1) 로그인사용자확인
+    //2) 로그인한유저 정보반환
+    if (req.user) {
+      const fullUser = await User.findOne({
+        where : { id: req.query.userId } , // 조건 :  id로 검색
         attributes : { exclude : ['password'] } ,// 비밀번호 빼고 결과가져오기
         include: [
             { model: Post , attributes : ['id']  }
@@ -181,7 +208,10 @@ router.post('userDelete',isLoggedIn, async (req,res,next) =>{
 //2. 넘겨받은 아이디로 유저인지 select 구문확인 /   User.findOne
 //3. 유저에 추가  user.addFollowers
 //4. 상태표시
-router.patch('/:userId/follow', isLoggedIn, async ( req, res, next) => { 
+router.patch('/:userId/follow', isLoggedIn, async ( req, res, next) => {
+  console.log('유저아이디=',req.params.userId); 
+  console.log('내 아이디=',req.user.id);
+  console.log('팔로우 등록');
   try {
     const user = await User.findOne({ where: { id: req.params.userId } }); 
     if (!user) { res.status(403).send('유저를 확인해주세요'); }  //403 금지된.없는유저
@@ -240,6 +270,9 @@ router.get('/followers', isLoggedIn, async (req, res, next) => {
 //3. 팔로우삭제 - removeFollowers
 //4. 상태표시
 router.delete('/:userId/follow', isLoggedIn, async ( req, res, next ) => { 
+  console.log('유저아이디=',req.params.userId); 
+  console.log('내 아이디=',req.user.id);
+  console.log('팔로우 삭제');
   try {
     const user = await User.findOne( {where : {id : req.params.userId}});
     if (!user) { res.status(403).send('유저를 확인해주세요'); }  //403 금지된.없는유저

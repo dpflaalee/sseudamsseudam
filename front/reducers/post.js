@@ -81,6 +81,10 @@ export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST';
 export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS';
 export const LOAD_POSTS_FAILURE = 'LOAD_POSTS_FAILURE';
 
+export const LOAD_USER_POSTS_REQUEST = 'LOAD_USER_POSTS_REQUEST';
+export const LOAD_USER_POSTS_SUCCESS = 'LOAD_USER_POSTS_SUCCESS';
+export const LOAD_USER_POSTS_FAILURE = 'LOAD_USER_POSTS_FAILURE';
+
 export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
 export const ADD_POST_FAILURE = 'ADD_POST_FAILURE';
@@ -139,8 +143,11 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case LOAD_POSTS_SUCCESS:
       draft.loadPostsLoading = false;
       draft.loadPostsDone = true;
-      draft.mainPosts = action.data.concat(draft.mainPosts);
-      draft.hasMorePosts = draft.mainPosts.length < 50;
+      const filteredNewPosts = action.data.filter(
+        (newPost) => !draft.mainPosts.some((post) => post.id === newPost.id)
+      );
+      draft.mainPosts = draft.mainPosts.concat(filteredNewPosts);
+      draft.hasMorePosts = action.data.length === 10;
       break;
     case LOAD_HASHTAG_POSTS_FAILURE:  
     case LOAD_POSTS_FAILURE:
@@ -212,7 +219,12 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
     case ADD_COMMENT_SUCCESS: {
       const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
-      post.Comments.unshift(action.data);
+      if (post) {
+        if (!post.Comments) post.Comments = [];
+        post.Comments.unshift(action.data);
+      } else {
+        console.warn('ADD_COMMENT_SUCCESS: 게시글을 찾을 수 없습니다.', action.data.PostId);
+      }
       draft.addCommentLoading = false;
       draft.addCommentDone = true;
       break;

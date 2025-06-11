@@ -15,7 +15,7 @@ const AnimalList = ({ animals }) => {
   };
 
   return (
-    <div style={{ display: 'flex', gap: 20, marginBottom: 10, backgroundColor: '#fefedc' }}>
+    <div style={{ display: 'flex', overflowX: 'auto', whiteSpace: 'nowrap', gab: 20, backgroundColor: '#fefedc' }}>
       {animals?.map((ani) => (
         <div
           key={ani.id}

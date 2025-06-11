@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     dueAt: {
       type: DataTypes.DATE,
       allowNull: false  // Prize의 dueAt을 복사해서 초기화
-    }
+    },
   }, {
     charset: 'utf8',
     collate: 'utf8_general_ci',
@@ -24,10 +24,10 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // //관계 설정
-  // MyPrize.associate = (db) => {
-  //   db.MyPrize.belongsTo(db.User, { foreignKey: 'UserId', as: 'user' });
-  //   db.MyPrize.belongsTo(db.Prize, { foreignKey: 'PrizeId', as: 'prize' });
-  // };
+  MyPrize.associate = (db) => {
+    db.MyPrize.belongsTo(db.User, { foreignKey: 'UserId', as: 'user' });
+    db.MyPrize.belongsTo(db.Prize, { foreignKey: 'PrizeId', as: 'prize' });
+  };
 
   return MyPrize;
 };

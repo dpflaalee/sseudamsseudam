@@ -6,9 +6,10 @@ import 'antd/dist/antd.css';
 import { Tabs, Button } from 'antd';
 import groupBy from 'lodash/groupBy';
 import { useRouter } from 'next/router';
+import { Modal } from 'antd';
 
-import NotificationButton from "@/components/notifications/NotificationButton";
 import Notification from "@/components/notifications/Notification";
+import NotificationSetting from "@/components/notifications/NotificationSetting";
 
 import {
     LOAD_NOTIFICATION_REQUEST,
@@ -41,6 +42,11 @@ const NotificationPage = () => {
     const userId = useSelector((state) => state.user.user?.id);
     const grouped = groupBy(mainNotification, 'type');
 
+    // 알림 설정 모달 열고 닫기
+    const [isSettingModalOpen, setIsSettingModalOpen] = useState(false);
+    const openSettingModal = () => setIsSettingModalOpen(true);
+    const closeSettingModal = () => setIsSettingModalOpen(false);
+
     useEffect(() => {
         if (userId) {
             dispatch({
@@ -56,7 +62,6 @@ const NotificationPage = () => {
             axios.patch('/notification/readAll', {
                 userId: userId,
             }).then(() => {
-                console.log('✅ 전체 읽음 처리 요청 완료');
             }).catch((err) => {
                 console.error('🚨 전체 읽음 처리 실패:', err);
             });
@@ -70,26 +75,22 @@ const NotificationPage = () => {
         });
     };
 
-    const goToSettingPage = () => {
-        router.push('/mypage/notificationSetting');
-    };
+
 
     return (
         <AppLayout>
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 16
-            }}>
-                <h2 style={{ margin: 0 }}>📬 알림함</h2>
-                <Button onClick={goToSettingPage} type="default" size="middle">
-                    ⚙ 알림 설정
-                </Button>
-            </div>
-
-            <NotificationButton />
-
+            <Button onClick={openSettingModal} type="default" size="middle">
+                ⚙ 알림 설정
+            </Button>
+            <Modal
+                title="🔔 알림 설정"
+                open={isSettingModalOpen}
+                onCancel={closeSettingModal}
+                footer={null}
+                width={500}
+            >
+                <NotificationSetting />
+            </Modal>
             <Tabs defaultActiveKey="all">
                 <TabPane tab="📬 전체" key="all">
                     {mainNotification.map((noti) => (
