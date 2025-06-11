@@ -42,7 +42,6 @@ const reducer = (state = initialState, action) =>
 
             // 카테고리 목록 로드 성공
             case LOAD_CATEGORIES_SUCCESS:
-                console.log('🦊 카테고리 목록 데이터 : ', action.data);
                 draft.categories = action.data;
                 draft.loadCategoriesLoading = false;
                 draft.loadCategoriesDone = true;
