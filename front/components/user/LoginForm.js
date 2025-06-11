@@ -12,20 +12,23 @@ import { LOAD_MY_INFO_REQUEST, SIGN_UP_REQUEST } from '../../reducers/user';
 import axios from 'axios';
 import { END } from 'redux-saga';
 import wrapper from '../../store/configureStore';
+import { useCookies } from "react-cookie";
 
 const CusLink = styled(Link)`color: #aaa`;
 
 const LoginForm = () => {
   const { logInLoading, logInDone, logInError } = useSelector(state => state.user);
-
+  const [cookies, setCookie, removeCookie] = useCookies(['userEmail']);
   ///////////////////////////////////////////// code
-  const [email, onChangeEmail] = userInput('');
-  const [password, onChangePassword] = userInput('');
+  const [email, onChangeEmail] = userInput(cookies.userEmail || '');
+  const [password, setChangePassword] = userInput('');
+  const [userEmail, setUserEmail] = useState(!!cookies.userEmail);
 
   const dispatch = useDispatch();  //#4.   redux
 
   const [errLoginFlag, setErrLoginFlag] = useState(false);
   const [errLoginMsg, setErrLoginMsg] = useState('');
+  console.log('쿠키확인',cookies.userEmail);
   useEffect(() => {
     if (logInError) {
       console.log('logInError');
@@ -35,7 +38,36 @@ const LoginForm = () => {
         logInError;
       } 
   }, [logInError]);
+  // const onChangeEmail = useCallback((e)=>{
+  //   setChangeEmail(e.target.value);
+  // },[email])
+  // const onChangePassword = useCallback((e)=>{
+  //   setChangePassword(e.target.value);
+  // },[password])
 
+    const onSaveEmail = useCallback((e) => {
+      if(!userEmail){
+        console.log(e.target.checked);
+        setUserEmail(true);
+        setCookie('userEmail',email,{path:'/', maxAge:60 * 5})
+      }else{
+        console.log(e.target.checked);
+        setUserEmail(false);
+        removeCookie('userEmail',{path:'/'})
+      }
+    },[userEmail,email])
+    // 이메일 입력이 바뀔 때 쿠키도 갱신 (체크한 경우만)
+  const onChangeEmailWithCookie = useCallback((e) => {
+    onChangeEmail(e);
+    if (userEmail) {
+      setCookie('userEmail', e.target.value, {
+        path: '/',
+        maxAge: 60 * 5,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+    }
+  }, [userEmail]);
   useEffect(() => {
     if(logInDone){
       console.log('logInDone');
@@ -51,7 +83,6 @@ const LoginForm = () => {
       type: LOG_IN_REQUEST,
       data: { email, password }
     });
-    
   }, [email, password]);
 
   return (
@@ -102,7 +133,7 @@ const LoginForm = () => {
         >
 
           <Input placeholder="user@gmail.com 형식으로 입력"
-            value={email} onChange={onChangeEmail} required />
+            value={email} onChange={onChangeEmailWithCookie} required />
         </Form.Item>
 
         <Form.Item
@@ -119,7 +150,7 @@ const LoginForm = () => {
           ]}
         >
           <Input.Password placeholder="비밀번호 입력"
-            value={password} onChange={onChangePassword} required />
+            value={password} onChange={setChangePassword} required />
         </Form.Item>
 
         <Form.Item
@@ -130,7 +161,7 @@ const LoginForm = () => {
             span: 16,
           }}
         >
-          <Checkbox>이메일 기억하기</Checkbox>
+          <Checkbox checked={userEmail} onChange={onSaveEmail}>이메일 기억하기</Checkbox>
         </Form.Item>
 
         <Form.Item
