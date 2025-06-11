@@ -106,7 +106,7 @@ const formatRange = (start, end) => {
           gap: '8px',
           width: '100%',
           backgroundColor: '#ffffff',
-          padding: '20px 200px 25px 200px',
+          padding: '20px 100px 25px 100px',
         }}
       >
         <div style={{ display: 'flex' }}>

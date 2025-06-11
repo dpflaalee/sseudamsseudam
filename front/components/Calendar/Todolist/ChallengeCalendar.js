@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
+import axios from 'axios';
+import dayjs from 'dayjs';
 
-function EnglishCalendar() {
-  const [date, setDate] = useState(new Date());
+//const HIGHLIGHT_COLOR = '#A1EEBD';
 
 const CalendarUI = styled.div`
   background-color: #fff;
@@ -80,6 +81,7 @@ const CalendarUI = styled.div`
   .react-calendar__tile:enabled:focus {
     background-color: transparent !important;
   }
+
   .react-calendar__tile:enabled:hover::after,
   .react-calendar__tile:enabled:focus::after {
     content: "";
@@ -99,7 +101,18 @@ const CalendarUI = styled.div`
     pointer-events: none;
   }
 
-  /* 반응형 */
+  .react-calendar__tile--highlight::before {
+    content: "";
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    // background-color: ${HIGHLIGHT_COLOR};
+    border-radius: 50%;
+    z-index: 1;
+    top: 15%;
+    left: 15%;
+  }
+
   @media (max-width: 480px) {
     padding: 5px;
 
@@ -114,6 +127,37 @@ const CalendarUI = styled.div`
   }
 `;
 
+const ChallengeCalendar = () => {
+  const [date, setDate] = useState(new Date());
+  const [highlightDates, setHighlightDates] = useState([]);
+
+  const getDateRange = (start, end) => {
+    const range = [];
+    let current = dayjs(start);
+    const last = dayjs(end);
+    while (current.isSameOrBefore(last, 'day')) {
+      range.push(current.format('YYYY-MM-DD'));
+      current = current.add(1, 'day');
+    }
+    return range;
+  };
+
+  useEffect(() => {
+    const fetchChallengeDates = async () => {
+      try {
+        const res = await axios.get('http://localhost:3065/calendar');
+        const filtered = res.data.filter(item => item.title.includes('챌린지'));
+        const allDates = filtered.flatMap(item =>
+          getDateRange(item.startDate, item.endDate)
+        );
+        setHighlightDates(allDates);
+      } catch (err) {
+        console.error('Failed to fetch challenge dates:', err);
+      }
+    };
+
+    fetchChallengeDates();
+  }, []);
 
   return (
     <CalendarUI>
@@ -121,9 +165,13 @@ const CalendarUI = styled.div`
         onChange={setDate}
         value={date}
         locale="en-US"
+        tileClassName={({ date }) => {
+          const formatted = dayjs(date).format('YYYY-MM-DD');
+          return highlightDates.includes(formatted) ? 'react-calendar__tile--highlight' : null;
+        }}
       />
     </CalendarUI>
   );
-}
+};
 
-export default EnglishCalendar;
+export default ChallengeCalendar;
