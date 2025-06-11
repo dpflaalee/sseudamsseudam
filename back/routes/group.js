@@ -16,7 +16,10 @@ router.get('/', isLoggedIn, async(req, res, next)=>{
       order: [[ 'createdAt', 'DESC' ]]
     });
     res.status(200).json(groups);
-  }catch(error){console.error(error); next(error);}
+  }catch(error){  
+    console.error('Error details:', error);  
+    console.error('Error message:', error.message);  
+    console.error('Error stack:', error.stack); next(error);}
 });
 
 //2. 그룹생성
