@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Calendar } = require('../models');  // models/index.js에서 불러오기
 
-// ✅ 일정 전체 제목만 조회 (id, title만 반환)
+//일정 전체 제목만 조회 (id, title만 반환)
 router.get('/calendars', async (req, res) => {
   console.log('[API] GET /calendars 호출됨');
 
@@ -21,7 +21,6 @@ router.get('/calendars', async (req, res) => {
   }
 });
 
-// ✅ 전체 일정 조회 (전체 데이터)
 router.get('/', async (req, res, next) => {
   try {
     const calendars = await Calendar.findAll();
@@ -32,7 +31,6 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// ✅ 일정 생성
 router.post('/', async (req, res, next) => {
   console.log('................. /calendar');
   console.log(req.body);
@@ -53,7 +51,6 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// ✅ 일정 상세 조회 (id)
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -68,7 +65,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ 일정 수정
 router.put('/:id', async (req, res, next) => {
   try {
     const { title, content, startDate, endDate } = req.body;
@@ -84,7 +80,6 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-// ✅ 일정 삭제
 router.delete('/:id', async (req, res, next) => {
   try {
     const calendar = await Calendar.findByPk(req.params.id);
@@ -114,7 +109,7 @@ router.post(':id', async (req, res) => {
 
     calendar.currentdays += 1;
     await calendar.save();
-    return res.status(200).json({ message: '오늘의 챌린지 달성됨', currentdays: calendar.currentdays });
+    return res.status(200).json({ message: '금일 챌린지 참여 완료', currentdays: calendar.currentdays });
 
   } catch (err) {
     console.error(err);

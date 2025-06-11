@@ -60,6 +60,7 @@ const CalendarUI = styled.div`
   .react-calendar__decade-view__years__year--neighboringDecade,
   .react-calendar__century-view__decades__decade--neighboringCentury {
     color: #ffffff !important;
+    pointer-events: none;
   }
 
   .react-calendar__tile--now {

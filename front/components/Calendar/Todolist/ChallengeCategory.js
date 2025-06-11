@@ -14,7 +14,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 const { Title } = Typography;
 
-// '챌린지' 판별 함수
+// '챌린지' 판별
 const isChallengeTitle = (title) => {
   return typeof title === 'string' && title.includes('챌린지');
 };

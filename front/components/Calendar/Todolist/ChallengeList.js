@@ -126,7 +126,7 @@ const ChallengeList = () => {
               }}>
               <div style={{ display: 'inline' }}>
                 <h3 style={{ display: 'inline', marginBottom: '-2%' }}>{schedule.title}</h3>
-                <span style={dateStyle}>&nbsp;{formatRange(schedule.startDate, schedule.endDate)}</span>
+                <span style={dateStyle}>{formatRange(schedule.startDate, schedule.endDate)}</span>
               </div>
               <div
               style={{
@@ -178,8 +178,7 @@ const ChallengeList = () => {
                     flexDirection: 'row',
                   }}>
                   <Button type="primary" disabled onClick={() => {
-                    setIsCompleted(true);
-                    showModal(schedule.id);
+                    setIsCompleted(false);
                     }}>
                     보상 받기
                   </Button>
