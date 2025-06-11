@@ -73,7 +73,6 @@ function* removeFollower(action) {
 }
 
 function loadFollowersAPI(data) {
-
   console.log('loadFollowersAPI');
   console.log(data);
   return axios.get('/user/followers', data);

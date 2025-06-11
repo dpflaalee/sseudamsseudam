@@ -14,6 +14,7 @@ import FollowList from "@/components/user/FollowList";
 const MyFollow = () => {
     const router = useRouter();
     const {myFollow} = router.query;
+    const {followerList} = useSelector(state => state.user);
     console.log('myPage222',myFollow );
     //const {myPage} = router.query;
     useEffect(() => {
@@ -26,7 +27,6 @@ const MyFollow = () => {
       <Profile postUserId={myFollow} />
       {/* followList에 1 = 팔로우, 2 = 팔로잉을 보낸다 */}
       <FollowTabMenu />
-      {/* <FollowList /> */}
     </AppLayout>
   );
 }

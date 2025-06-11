@@ -1,51 +1,39 @@
-import { Avatar, List, message } from 'antd';
+import { Avatar, List,Card, message } from 'antd';
 import VirtualList from 'rc-virtual-list';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-const FollowList = () => {
-  // const fakeDataUrl =
-  //   'https://randomuser.me/api/?results=20&inc=name,gender,email,nat,picture&noinfo';
-
-  const {followerList} = useSelector(state => state.user);
-  const ContainerHeight = 400;
+const FollowList = ({follower}) => {
+  console.log('FollowList',follower);
+  const fakeDataUrl =
+  'https://randomuser.me/api/?results=20&inc=name,gender,email,nat,picture&noinfo';
+const ContainerHeight = 400;
   const [data, setData] = useState([]);
-  // const appendData = () => {
-  //   fetch(fakeDataUrl)
-  //     .then((res) => res.json())
-  //     .then((body) => {
-  //       setData(data.concat(body.results));
-  //       message.success(`${body.results.length} more items loaded!`);
-  //     });
-  // };
-  useEffect(() => {
-    //appendData();
-  }, []);
+  const appendData = () => {
+    fetch(fakeDataUrl)
+      .then((res) => res.json())
+      .then((body) => {
+        setData(data.concat(body.results));
+        message.success(`${body.results.length} more items loaded!`);
+      });
+  };
+  //const {followerList} = useSelector(state => state.user);
+  
+   useEffect(() => {
+     appendData();
+   }, []);
   const onScroll = (e) => {
     if (e.currentTarget.scrollHeight - e.currentTarget.scrollTop === ContainerHeight) {
       appendData();
     }
   };
   return (
-    <List>
-      <VirtualList
-        data={data}
-        height={ContainerHeight}
-        itemHeight={47}
-        itemKey="email"
-        onScroll={onScroll}
-      >
-        {(item) => (
-          <List.Item key={item.email}>
-            <List.Item.Meta
-              avatar={<Avatar src={item.picture.large} />}
-              title={<a href="https://ant.design">{item.name.last}</a>}
-              description={item.email}
-            />
-            <div>Content</div>
-          </List.Item>
-        )}
-      </VirtualList>
-    </List>
+            <Card>
+              <Card.Meta 
+                avatar={<Avatar>{follower.username}</Avatar>}
+                title={<a href="https://ant.design"></a>}
+                description={''}
+              />
+            </Card>
   );
 };
 export default FollowList;
