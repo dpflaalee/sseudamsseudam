@@ -1,10 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
   const Place = sequelize.define('Place', {
     lat: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.FLOAT,
     },
     lng: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.FLOAT,
     }
   }, {
     charset: 'utf8',
