@@ -172,7 +172,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         actions={[
           <RetweetOutlined key="retweet" onClick={onRetweet} />,
           like
-            ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px'}} onClick={onClickunLike} /> {post.Likers.length}</span>
+            ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
             : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
           <span key="comment">
             <Link href={`/post/${post.id}`} passHref>
@@ -221,11 +221,11 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         ) : (
           <Card.Meta
             avatar={
-              <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
-                <Avatar>{post.User.nickname[0]}</Avatar>
+              <Link href={`/user/myPage/${post?.User?.id}`} prefetch={false}>
+                <Avatar>{post.User?.nickname[0]}</Avatar>
               </Link>
             }
-            title={post.User.nickname}
+            title={post.User?.nickname}
             description={
               <PostCardContent
                 editMode={editMode}
