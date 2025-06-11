@@ -81,12 +81,39 @@ router.post('/login', isNotLoggedIn, async (req, res, next) => {
 router.get('/', async  (req, res, next) => { 
   // res.send('사용자정보조회');
   console.log('사용자정보조회',req.user.id);
+  console.log('프로필확인',req.user.userId);
   try { 
     //1) 로그인사용자확인
     //2) 로그인한유저 정보반환
     if (req.user) {
       const fullUser = await User.findOne({
         where : { id: req.user.id } , // 조건 :  id로 검색
+        attributes : { exclude : ['password'] } ,// 비밀번호 빼고 결과가져오기
+        include: [
+            { model: Post , attributes : ['id']  }
+          , { model: User , as :'Followings' , attributes : ['id'] }
+          , { model: User , as :'Followers'  , attributes : ['id'] }
+        ]// Post, Followers , Followings
+      });
+      res.status(200).json(fullUser);  
+    } else { 
+      res.status(200).json(null);   //로그인안되면 null 반환
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+router.get('/postUser', async  (req, res, next) => { 
+  // res.send('사용자정보조회');
+  console.log('사용자정보조회',req.user.id);
+  console.log('postUser프로필확인',req.query.userId);
+  try { 
+    //1) 로그인사용자확인
+    //2) 로그인한유저 정보반환
+    if (req.user) {
+      const fullUser = await User.findOne({
+        where : { id: req.query.userId } , // 조건 :  id로 검색
         attributes : { exclude : ['password'] } ,// 비밀번호 빼고 결과가져오기
         include: [
             { model: Post , attributes : ['id']  }
