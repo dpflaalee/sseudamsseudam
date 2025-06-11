@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect, useState} from 'react';
 import { useSelector } from 'react-redux';
 import { Tabs } from 'antd';
 import { useDispatch } from 'react-redux';
@@ -8,14 +8,25 @@ import FollowList from './FollowList';
 const FollowTabMenu = ({ followListComponent }) => {
   const dispatch = useDispatch();
   const {user,followerList} = useSelector(state => state.user);
+  const [toggleKey, setToggleKey] = useState('');
   const onChange = (key) => {
     console.log(key);
+    setToggleKey(key);
   };
-
-  dispatch({
+  
+  console.log('followerList확인',followerList);
+  //dispatch({
     //type:LOAD_FOLLOWERS_REQUEST,
-    data:user?.id,
-  });
+  //  data:user?.id,
+  //});
+  useEffect(() => {
+    if(user?.id){
+      dispatch({
+        type:LOAD_FOLLOWERS_REQUEST,
+        data:user?.id,
+      })
+    }
+  },[user?.id])
   return (
     <>
     <Tabs
@@ -38,7 +49,7 @@ const FollowTabMenu = ({ followListComponent }) => {
       />
       {followerList.map((c) => {
         return (
-          <FollowList key={1}/>
+          <FollowList follower={c} key={1}/>
         )
 })}
     </>

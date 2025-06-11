@@ -69,7 +69,6 @@ function* removeFollower(action) {
 }
 
 function loadFollowersAPI(data) {
-  
   console.log('loadFollowersAPI');
   console.log(data);
   return axios.get('/user/followers', data);
@@ -219,7 +218,7 @@ function followAPI(data) {
 }
 
 function* follow(action) {
-  console.log('followData1111',typeof action.data);
+  console.log('followData1111',action);
   try {
     const result = yield call(followAPI, action.data);
     console.log('followData2222',result.data);
