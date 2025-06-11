@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Post, User, Group, Notification, Animal, Comment, Prize, NotificationSetting } = require('../models');
+const { Post, User, Group, Notification, Animal, Comment, Prize, NotificationSetting, MyPrize } = require('../models');
 const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
 const { Op } = require('sequelize');
 
@@ -136,18 +136,28 @@ router.get('/', async (req, res, next) => {
                         break;
                     case NOTIFICATION_TYPE.ANIMAL_FRIENDS:
                         target = await Animal.findByPk(noti.targetId, {
-                            include: [{ model: Animal, as: 'Followings', attributes: ['id', 'aniName'] }],
+                            include: [{ model: Animal, attributes: ['id', 'aniName'] }],
                         })
 
                     case NOTIFICATION_TYPE.RANDOMBOX:
-                        target = await RandomBox.findByPk(noti.targetId, {
-                            include: [{ model: RandomBox, as: 'MyPrize', attributes: ['id', 'content', 'isRead'] }],
+                        target = await MyPrize.findByPk(Number(noti.targetId), {
+                            include: [{
+                                model: Prize,
+                                as: 'prize',
+                                attributes: ['id', 'content']
+                            }, {
+                                model: User,
+                                as: 'user',
+                                attributes: ['id', 'nickname']
+                            }]
                         });
+                        break;
                 }
                 if (!target) {
                     console.warn(`⚠️ target을 찾을 수 없습니다. notiId=${noti.id}, targetId=${noti.targetId}`);
                 }
 
+                console.log('🐾🐾 target', target);
                 return {
                     ...noti.toJSON(),
                     targetObject: target,
