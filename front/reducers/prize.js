@@ -2,6 +2,7 @@ import produce from 'immer';
 
 export const initialState = {
   prizes: [],
+  categoryBoxes: [],
 
   addPrizeLoading: false,
   addPrizeDone: false,
@@ -26,6 +27,10 @@ export const initialState = {
   loadRandomBoxListLoading: false,
   loadRandomBoxListDone: false,
   loadRandomBoxListError: null,
+
+  loadCategoryRandomBoxesLoading: false,
+  loadCategoryRandomBoxesDone: false,
+  loadCategoryRandomBoxesError: null,
 };
 
 export const ADD_PRIZE_REQUEST = 'ADD_PRIZE_REQUEST';
@@ -51,6 +56,11 @@ export const OPEN_RANDOM_BOX_FAILURE = 'OPEN_RANDOM_BOX_FAILURE';
 export const LOAD_RANDOM_BOX_LIST_REQUEST = 'LOAD_RANDOM_BOX_LIST_REQUEST';
 export const LOAD_RANDOM_BOX_LIST_SUCCESS = 'LOAD_RANDOM_BOX_LIST_SUCCESS';
 export const LOAD_RANDOM_BOX_LIST_FAILURE = 'LOAD_RANDOM_BOX_LIST_FAILURE';
+
+export const LOAD_CATEGORY_RANDOM_BOXES_REQUEST = 'LOAD_CATEGORY_RANDOM_BOXES_REQUEST';
+export const LOAD_CATEGORY_RANDOM_BOXES_SUCCESS = 'LOAD_CATEGORY_RANDOM_BOXES_SUCCESS';
+export const LOAD_CATEGORY_RANDOM_BOXES_FAILURE = 'LOAD_CATEGORY_RANDOM_BOXES_FAILURE';
+
 
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch(action.type){
@@ -146,6 +156,22 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loadRandomBoxListError = action.error;
       break;
 
+    case LOAD_CATEGORY_RANDOM_BOXES_REQUEST:
+      draft.loadCategoryRandomBoxesLoading = true;
+      draft.loadCategoryRandomBoxesDone = false;
+      draft.loadCategoryRandomBoxesError = null;
+      break;
+    case LOAD_CATEGORY_RANDOM_BOXES_SUCCESS:
+      draft.loadCategoryRandomBoxesLoading = false;
+      draft.loadCategoryRandomBoxesDone = true;
+      draft.categoryBoxes = action.data; // 카테고리별 박스 목록 저장
+      break;
+    case LOAD_CATEGORY_RANDOM_BOXES_FAILURE:
+      draft.loadCategoryRandomBoxesLoading = false;
+      draft.loadCategoryRandomBoxesError = action.error;
+      break;
+  
+
     default:
       break;
   }
@@ -181,5 +207,9 @@ export const openRandomBox = (category) => ({
 
 export const loadRandomBoxList = () => ({
   type: LOAD_RANDOM_BOX_LIST_REQUEST,
+});
+
+export const loadCategoryRandomBoxes = () => ({
+  type: LOAD_CATEGORY_RANDOM_BOXES_REQUEST,
 });
 
