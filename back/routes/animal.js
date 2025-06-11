@@ -233,7 +233,11 @@ async function removeFollowerRelation(animalId, targetAnimalId) {
 router.get('/:animalId/followers', async (req, res, next) => {
   try {
     const animal = await Animal.findByPk(req.params.animalId);
-    const followers = await animal.getFollowers();
+    const followers = await animal.getFollowers({
+      include: [
+        {model: Category, attributes: ['content','id'],}
+      ]
+    });
     res.status(200).json(followers);
   } catch (error) {
     console.error(error);
@@ -245,18 +249,23 @@ router.get('/:animalId/followers', async (req, res, next) => {
 router.get('/:animalId/followings', async (req, res, next) => {
   try {
     const animal = await Animal.findByPk(req.params.animalId);
-    const followings = await animal.getFollowings();
+    const followings = await animal.getFollowings({
+      include: [
+        {model: Category, attributes: ['content','id'],}
+      ]
+    });
     res.status(200).json(followings);
   } catch (error) {
     console.error(error);
     next(error);
   }
 });
+
 // 9. 추천 친구 리스트
 router.get('/:animalId/recommendations', async (req, res, next) => {
   try {
     const currentAnimal = await Animal.findByPk(req.params.animalId, {
-      include: [{ model: Animal, as: 'Followings' }],
+      include: [{ model: Animal, as: 'Followings' },],
     });
 
     if (!currentAnimal) {
@@ -273,7 +282,10 @@ router.get('/:animalId/recommendations', async (req, res, next) => {
       },
       limit: 5,
       order: [ [Sequelize.literal('RAND()')] ], // 랜덤 추천
-      attributes: ['id', 'aniName', 'aniProfile']
+      attributes: ['id', 'aniName', 'aniProfile'],
+      include: [
+        { model: Category, attributes: ['content','id'] }
+      ], 
     });
 
     res.status(200).json(recommendedAnimals);
@@ -283,6 +295,25 @@ router.get('/:animalId/recommendations', async (req, res, next) => {
   }
 });
 
+router.get('/search', async (req, res, next) => {
+  const { name = '', categoryId } = req.query;
+  const where = {
+    ...(name && { aniName: { [Op.like]: `%${name}%` } }),
+    ...(categoryId && { CategoryId: Number(categoryId) }),
+  };
+  try {
+    const animals = await Animal.findAll({
+      where,
+      include: [{ model: Category, attributes: ['id', 'content'] }],
+      order: [['createdAt', 'DESC']],
+    });
+    res.status(200).json(animals);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '검색 실패', error });
+    next(error);
+  }
+});
 // //9. 동물 프로필 상세 보기
 // router.get('/:animalId', async (req, res, next) => {
 //   try {

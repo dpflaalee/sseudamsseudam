@@ -16,7 +16,11 @@ router.get('/', isLoggedIn, async (req, res, next) => {
       order: [['createdAt', 'DESC']]
     });
     res.status(200).json(groups);
-  } catch (error) { console.error(error); next(error); }
+  } catch (error) {
+    console.error('Error details:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack); next(error);
+  }
 });
 
 //2. 그룹생성
@@ -207,7 +211,7 @@ router.post('/:groupId/apply', isLoggedIn, async (req, res, next) => {
 })
 
 // -- 
-// 1.가입현황
+// 1.가입신청현황
 router.get('/:groupId/requests', async (req, res, next) => {
   try {
     const requests = await GroupRequest.findAll({
@@ -218,28 +222,64 @@ router.get('/:groupId/requests', async (req, res, next) => {
     res.status(200).json(formatted);
   } catch (err) { console.error(err); next(err); }
 })
-// 2.승인
+
+// 2. 승인
 router.post('/requests/:requestId/approve', isLoggedIn, async (req, res, next) => {
+  const { requestId } = req.params;
+  const { userId } = req.query;  // 쿼리 스트링에서 userId를 받는다.
+  console.log("....................Router 요청아이디", requestId);
+  console.log("....................Router 유저아이디", userId);
+
   try {
-    const request = await GroupRequest.findByPk(req.params.requestId);
-    if (!request) return res.status(404).send('요청 없음');
-    request.status = 'approved';
+    const request = await GroupRequest.findOne({
+      where: {
+        id: requestId,     // 요청 ID
+        UserId: userId,    // userId와 비교
+        status: 'pending', // 승인 대기 중인 상태
+      },
+    });
+
+    if (!request) {
+      return res.status(404).json({ message: '요청을 찾을 수 없습니다.' });
+    }
+
+    request.status = 'approved';  // 승인 처리
     await request.save();
 
     await GroupMember.create({ GroupId: request.GroupId, UserId: request.UserId });
-    res.status(200).json(request.id);
-  } catch (err) { console.error(err); next(err); }
+    res.status(200).json({ message: '승인되었습니다.' });
+  } catch (error) {
+    res.status(500).json({ message: '서버 오류', error });
+  }
 });
 
-// 3.거절
+// 3. 거절
 router.post('/requests/:requestId/reject', isLoggedIn, async (req, res, next) => {
+  const { requestId } = req.params;
+  const { userId } = req.query;  // 쿼리 스트링에서 userId를 받는다.
+  console.log("....................Router 요청아이디", requestId);
+  console.log("....................Router 유저아이디", userId);
+
   try {
-    const request = await GroupRequest.findByPk(req.params.requestId);
-    if (!request) return res.status(404).send('요청 없음');
-    request.status = 'rejected';
+    const request = await GroupRequest.findOne({
+      where: {
+        id: requestId,     // 요청 ID
+        UserId: userId,    // userId와 비교
+        status: 'pending', // 거절 대기 중인 상태
+      },
+    });
+
+    if (!request) {
+      return res.status(404).json({ message: '요청을 찾을 수 없습니다.' });
+    }
+
+    request.status = 'rejected';  // 거절 처리
     await request.save();
-    res.status(200).json(request.id);
-  } catch (err) { console.error(err); next(err); }
+
+    res.status(200).json({ message: '거절되었습니다.' });
+  } catch (error) {
+    res.status(500).json({ message: '서버 오류', error });
+  }
 });
 
 module.exports = router;

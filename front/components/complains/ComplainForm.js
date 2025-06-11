@@ -57,13 +57,6 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId, targetUserNickname
   const user = useSelector(state => state.user);
   const dispatch = useDispatch();
   const onComplainSubmit = useCallback(() => {
-    console.log('💥유저 정보:', user);
-    console.log('💥ID:', user?.user?.id);
-
-    console.log('💥TARGET_TYPE ', TARGET_TYPE);
-    console.log('💥Reason : ', content);
-    console.log('💥Reporter : ', user.user.id);
-    console.log('💥targetId : ', targetId);
     if (!content || !content.trim()) { return alert('게시글을 작성하세요.'); }
     dispatch({
       type: ADD_COMPLAIN_REQUEST,
@@ -74,7 +67,6 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId, targetUserNickname
         reporterId: user.user.id,
       }
     });
-    console.log('🚀 Dispatched ADD_COMPLAIN_REQUEST');
     onClose();
     alert('신고가 완료되었습니다.');
   }, [content, dispatch, user, onClose, TARGET_TYPE]);
@@ -92,7 +84,7 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId, targetUserNickname
       </Header>
 
       <UserInfo>
-        <Avatar size={48} src="https://xsgames.co/randomusers/avatar.php?g=female" />
+        <Avatar size={48}>{targetUserNickname[0]}</Avatar>
         <div>
           <div>{targetUserNickname}</div>
         </div>

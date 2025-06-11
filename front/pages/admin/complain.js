@@ -17,8 +17,6 @@ const complain = () => {
         });
     }, [dispatch]);
 
-    console.log('🔥 mainComplainCard:', mainComplainCard);
-
     return (
         <AppLayout>
             <>
