@@ -264,28 +264,38 @@ router.delete('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) 
 router.patch('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) => {
   try {
     const { postId, commentId } = req.params;
-    const { content } = req.body;
+    const { content, isRecomment } = req.body;
 
-    // 댓글 존재 확인 및 권한 체크
-    const comment = await Comment.findOne({
-      where: {
-        id: commentId,
-        PostId: postId,
-        UserId: req.user.id,  // 로그인한 사용자만 수정 가능
-      }
-    });
+    let comment;
+
+    if (isRecomment) {
+      // 대댓글인 경우, postId 조건 제거하고, UserId 조건만 사용
+      comment = await Comment.findOne({
+        where: {
+          id: commentId,
+          UserId: req.user.id,
+        }
+      });
+    } else {
+      // 일반 댓글인 경우 기존 조건 유지
+      comment = await Comment.findOne({
+        where: {
+          id: commentId,
+          PostId: postId,
+          UserId: req.user.id,
+        }
+      });
+    }
 
     if (!comment) {
       return res.status(404).send('댓글이 없거나 권한이 없습니다.');
     }
 
-    // 댓글 내용 업데이트
     await Comment.update(
       { content },
       { where: { id: commentId } }
     );
 
-    // 수정된 댓글 조회 (작성자 정보 포함)
     const updatedComment = await Comment.findOne({
       where: { id: commentId },
       include: [{ model: User, attributes: ['id', 'nickname'] }]
