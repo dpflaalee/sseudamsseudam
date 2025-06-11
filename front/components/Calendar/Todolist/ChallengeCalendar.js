@@ -106,7 +106,6 @@ const CalendarUI = styled.div`
     position: absolute;
     width: 70%;
     height: 70%;
-    // background-color: ${HIGHLIGHT_COLOR};
     border-radius: 50%;
     z-index: 1;
     top: 15%;

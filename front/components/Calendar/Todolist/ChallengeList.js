@@ -14,12 +14,18 @@ dayjs.extend(weekday);
 const dateView = { color: '#807E7E' };
 const dateStyle = { color: '#807E7E', fontSize: '13px', marginBottom: '3%', display: 'block', verticalAlign: 'middle' };
 
+// '챌린지' 판별
+const isChallengeTitle = (title) => {
+  return typeof title === 'string' && title.includes('챌린지');
+};
+
 const ChallengeList = () => {
   const router = useRouter();
   const [schedules, setSchedules] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(5); // 처음에 보여줄 챌린지 개수
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -38,7 +44,9 @@ const ChallengeList = () => {
     const fetchSchedules = async () => {
       try {
         const res = await axios.get('http://localhost:3065/calendar');
-        const sortedSchedules = res.data.sort((a, b) =>
+        // '챌린지' 키워드가 title에 포함된 스케줄만 필터링
+        const filteredSchedules = res.data.filter(schedule => isChallengeTitle(schedule.title));
+        const sortedSchedules = filteredSchedules.sort((a, b) =>
           dayjs(a.startDate).isBefore(dayjs(b.startDate)) ? -1 : 1
         );
         setSchedules(sortedSchedules);
@@ -54,7 +62,10 @@ const ChallengeList = () => {
   const handleChangeEvent = (id) => router.push(`/challenge/editchallenge?id=${id}`);
   const seeMore = () => router.push('/challenge/morechallenge');
 
-  //챌린지 보상 modal option
+  const handleSeeMore = () => {
+    setVisibleCount(prev => prev + 5);
+  };
+
   const showModal = () => { setIsModalOpen(true); };
   const handleOk = () => { setIsModalOpen(false); };
   const handleCancel = () => { setIsModalOpen(false); };
@@ -93,7 +104,6 @@ const ChallengeList = () => {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
           width: '100%',
           backgroundColor: '#ffffff',
           padding: '20px 100px 25px 100px',
@@ -116,7 +126,7 @@ const ChallengeList = () => {
         </div>
         <Divider />
 
-        {schedules.map((schedule) => (
+        {schedules.slice(0, visibleCount).map((schedule) => (
           <div key={schedule.id}>
             <div
               style={{
@@ -129,73 +139,80 @@ const ChallengeList = () => {
                 <span style={dateStyle}>{formatRange(schedule.startDate, schedule.endDate)}</span>
               </div>
               <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: '10px',
-              }}>
-              {isAdmin && (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginLeft: 'auto',
-                    flexDirection: 'row',
-                    gap: '10px',
-                  }}>
-                  <Button type="primary" onClick={() => handleChangeEvent(schedule.id)}>챌린지 수정</Button>
-                  <Button onClick={() => handleDeleteEvent(schedule.id)}>챌린지 삭제</Button>
-                </div>
-              )}
-              {isAdmin || isCompleted ? 
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginLeft: 'auto',
-                    flexDirection: 'row',
-                  }}>
-                  <Button type="primary" onClick={() => {
-                    setIsCompleted(true);
-                    showModal(schedule.id);
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: '10px',
+                }}>
+                {isAdmin && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginLeft: 'auto',
+                      flexDirection: 'row',
+                      gap: '10px',
                     }}>
-                    보상 받기
-                  </Button>
-                  <Modal
-                    title="챌린지 완료!"
-                    closable={{ 'aria-label': 'Custom Close Button' }}
-                    open={isModalOpen}
-                    onOk={handleOk}
-                    onCancel={handleCancel}
-                  >
-                    <p>달성 보상이 지급되었습니다.</p>
-                  </Modal>
-                </div>
-                :
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginLeft: 'auto',
-                    flexDirection: 'row',
-                  }}>
-                  <Button type="primary" disabled onClick={() => {
-                    setIsCompleted(false);
+                    <Button type="primary" onClick={() => handleChangeEvent(schedule.id)}>챌린지 수정</Button>
+                    <Button onClick={() => handleDeleteEvent(schedule.id)}>챌린지 삭제</Button>
+                  </div>
+                )}
+                {/* 
+                {isAdmin || isCompleted ? 
+                  <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginLeft: 'auto',
+                      flexDirection: 'row',
                     }}>
-                    보상 받기
-                  </Button>
-                </div>
-              }
+                    <Button type="primary" onClick={() => {
+                      setIsCompleted(true);
+                      showModal(schedule.id);
+                      }}>
+                      보상 받기
+                    </Button>
+                    <Modal
+                      title="챌린지 완료!"
+                      closable={{ 'aria-label': 'Custom Close Button' }}
+                      open={isModalOpen}
+                      onOk={handleOk}
+                      onCancel={handleCancel}
+                    >
+                      <p>달성 보상이 지급되었습니다.</p>
+                    </Modal>
+                  </div>
+                  :
+                  <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginLeft: 'auto',
+                      flexDirection: 'row',
+                    }}>
+                    <Button type="primary" disabled onClick={() => {
+                      setIsCompleted(false);
+                      }}>
+                      보상 받기
+                    </Button>
+                  </div>
+                } 
+                */}
               </div>
             </div>
             {isAdmin && <span style={dateView}>{schedule.content}</span>}
             <div style={{ width: '100%', marginTop: '10px', marginBottom: '10px' }}>
-              <ChallengeCalendar />
+              {/* <ChallengeCalendar /> */}
             </div>
             <Divider />
-
           </div>
         ))}
-        <Button type="primary" htmlType="submit" block onClick={seeMore}>더보기</Button>
-        <ChallengeCategory />
+
+        {/* "더보기" 버튼은 보여진 챌린지 수가 전체보다 작을 때만 노출 */}
+        {visibleCount < schedules.length && (
+          <Button type="primary" htmlType="button" block onClick={handleSeeMore}>더보기</Button>
+        )}
+
+        {/* 글쓰기 카테고리에서 챌린지 선택하기 기능 테스트용 */}
+        {/* <ChallengeCategory /> */}
       </div>
     </>
   );
