@@ -93,12 +93,9 @@ const Profile = (props) => {
       type: LOAD_COMPLAIN_REQUEST,
     });
   }, [dispatch]);
-  console.log('🐶 mainComplainCard : ', mainComplainCard);
-  console.log('postUserId:', postUserId);
-  console.log('mainComplainCard:', mainComplainCard);
 
   const isBlinded = mainComplainCard.some((report) => {
-    return Number(report.targetId) === Number(postUserId) && report.isBlind;
+    return Number(report.targetId) === Number(postUserId) && report.isBlind && report.targetType === TARGET_TYPE.USER;
   });
 
 
