@@ -5,14 +5,8 @@ import { Input, Select, Button, message } from 'antd';
 import axios from 'axios';
 import { MODIFY_ANIPROFILE_REQUEST, RESET_MODIFY_ANIPROFILE_STATE } from '@/reducers/animal';
 import { CameraOutlined } from '@ant-design/icons';
+import { LOAD_CATEGORIES_REQUEST } from '@/reducers/category';
 const { Option } = Select;
-
-const categoryOptions = [
-  { id: 1, name: '강아지' },
-  { id: 2, name: '고양이' },
-  { id: 3, name: '햄스터' },
-  { id: 4, name: '파충류' },
-];
 
 const AnimalEdit = () => {
   const dispatch = useDispatch();
@@ -22,6 +16,12 @@ const AnimalEdit = () => {
   useEffect(() => {
     dispatch({ type: RESET_MODIFY_ANIPROFILE_STATE });
   }, [dispatch]);
+
+  // 카테고리
+  useEffect(() => {
+    dispatch({ type: LOAD_CATEGORIES_REQUEST });
+  }, []);
+  const { categories } = useSelector(state => state.category);
 
   const imageInput = useRef(null);
   const { modifyAniprofileDone, modifyAniprofileError } = useSelector((state) => state.animal);
@@ -33,7 +33,7 @@ const AnimalEdit = () => {
     previewUrl: '',
     categoryId: null,
   });
-  
+
   useEffect(() => {
     if (id) {
       axios.get(`/animal/${id}`).then((res) => {
@@ -46,9 +46,9 @@ const AnimalEdit = () => {
           categoryId: CategoryId,
         });
       })
-      .catch((err) => {
-        console.error('수정용 동물 정보 요청 실패:', err);
-      });
+        .catch((err) => {
+          console.error('수정용 동물 정보 요청 실패:', err);
+        });
     }
   }, [id]);
 
@@ -118,12 +118,19 @@ const AnimalEdit = () => {
 
         <Input name="aniName" value={form.aniName} onChange={onChange} placeholder="이름" style={{ marginBottom: 10 }} />
         <Input name="aniAge" type="number" value={form.aniAge} onChange={onChange} placeholder="나이" min="0" style={{ marginBottom: 10 }} />
-        <Select placeholder="동물 종" value={form.categoryId} onChange={handleCategoryChange} style={{ width: '100%', marginBottom: 10 }}>
-          {categoryOptions.map((option) => (
-            <Option key={option.id} value={option.id}>
-              {option.name}
-            </Option>
-          ))}
+        <Select
+          placeholder="동물 종"
+          value={form.categoryId !== null ? form.categoryId : undefined}
+          onChange={handleCategoryChange}
+          style={{ width: '100%', marginBottom: 10 }}
+        >
+          {categories
+            .filter((v) => v.isAnimal)
+            .map((v) => (
+              <Option key={v.id} value={v.id}>
+                {v.content}
+              </Option>
+            ))}
         </Select>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Button onClick={() => imageInput.current?.click()}>사진</Button>
