@@ -10,7 +10,7 @@ import { LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'
 import Router from 'next/router';
 import PostCard from '../post/PostCard';
-
+import axios from 'axios';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -81,16 +81,35 @@ const Profile = (props) => {
   const {logOutLoding,mainPosts,hasMorePosts,loadPostsLoading} = useSelector(state => state.post);
   console.log('profile.postUserId=',props.postUserId);
   console.log('mainPosts',mainPosts.id);
-  console.log('user',user);
-  const postUserId = props.postUserId;
+  let postUserId = props.postUserId;
+  const [postUser, setPostUser] = useState('');
+  useEffect(() => {
+    console.log('postUser실행');
+    const postUserData = async () =>{
+    try{
+        const postUserSelect =   await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
+          {withCredentials:true}
+        )
+        console.log('postUser데이터',postUserSelect.data);
+        setPostUser(postUserSelect.data);
+    }catch(error){
+      console.error('유저 정보 불러오기 실패:',error);
+    }
+  };
+    postUserData();
+  },[postUserId]);
   useEffect(() => {
     const lastId = mainPosts[mainPosts.length - 1]?.id;
     console.log('입장1');
-    console.log(typeof props.postUserId);
-    const number = [1,2,3];
+    console.log('mainPosts',mainPosts[mainPosts.length - 1]?.id);
+    const number = [1,2,3]; 
+    // number = 1,
+    // number = 2 
     //다른 유저를 클릭했을 때는 되고
     //본인을 클릭했을 때 안됨
     //로그인 유저
+    if (hasMorePosts && !loadPostsLoading) {
+
     if(postUserId){
       //postuser
       if(user.id == props.postUserId){
@@ -102,10 +121,12 @@ const Profile = (props) => {
           //userId: props.postUserId,
         })
       }else{
+        //본인페이지 클릭
+        console.log('postUserId = -1');
         dispatch({
         type: LOAD_POSTS_REQUEST,
         lastId,
-        userId: props.postUserId,
+        userId: postUserId,
         number : number[1],
       })
       }
@@ -116,10 +137,8 @@ const Profile = (props) => {
         lastId,
       })
     }
-    if (hasMorePosts && !loadPostsLoading) {
-    }
+  }
   }, [mainPosts, hasMorePosts, loadPostsLoading]);
-
   useEffect(() => {
     if (logOutDone) {
       Router.replace('/');
@@ -137,7 +156,7 @@ const Profile = (props) => {
     })
   });
 
-  const isMyProfile = user && user.id == postUserId;
+  const isMyProfile = user && (user.id == postUserId);
 
   const menu = (
     <Menu>
@@ -174,7 +193,7 @@ const Profile = (props) => {
       <Container>
         <AvatarBox>
           <Avatar size={80} >
-            {user?.nickname}
+            {postUser?.nickname}
           </Avatar>
         </AvatarBox>
 
@@ -186,21 +205,27 @@ const Profile = (props) => {
 
         <TopRow>
           <InfoBox>
-            <Nickname>{user?.nickname}</Nickname>
+            <Nickname>{postUser?.nickname}</Nickname>
             <Stats>
-              {user?.followerCount} 팔로잉  &nbsp;&nbsp;
-              {user?.followingCount} 팔로워 &nbsp;&nbsp;
+              {postUser?.followerCount} 팔로잉  &nbsp;&nbsp;
+              {postUser?.followingCount} 팔로워 &nbsp;&nbsp;
               {mainPosts?.length} 게시물
             </Stats>
           </InfoBox>
         </TopRow>
-
+    {isMyProfile ? (
         <ButtonRow>
           <Button type="primary">내 쿠폰함</Button>
           <Button>내 장소</Button>
           <Button>챌린지 현황</Button>
           <Button>프로필 수정</Button>
         </ButtonRow>
+    ):(
+      <ButtonRow>
+          <Button type="primary">팔로우</Button>
+          <Button>장소</Button>
+        </ButtonRow>
+    )}
       </Container>
       {mainPosts.map((c) => {
         return (

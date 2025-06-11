@@ -143,8 +143,11 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case LOAD_POSTS_SUCCESS:
       draft.loadPostsLoading = false;
       draft.loadPostsDone = true;
-      draft.mainPosts = action.data.concat(draft.mainPosts);
-      draft.hasMorePosts = draft.mainPosts.length < 50;
+      const filteredNewPosts = action.data.filter(
+        (newPost) => !draft.mainPosts.some((post) => post.id === newPost.id)
+      );
+      draft.mainPosts = draft.mainPosts.concat(filteredNewPosts);
+      draft.hasMorePosts = action.data.length === 10;
       break;
     case LOAD_HASHTAG_POSTS_FAILURE:  
     case LOAD_POSTS_FAILURE:
