@@ -119,6 +119,37 @@ function* applyGroup(action){
   }catch(err){yield put({ type: APPLY_GROUP_FAILURE, error: err.response.data || err.message })}
 }
 function* watchApplyGroup(){yield takeLatest(APPLY_GROUP_REQUEST, applyGroup)}
+// --
+// 3.가입 요청 불러오기
+function loadJoinRequestsAPI(groupId) { return axios.get(`/api/groups/${groupId}/requests`); }
+function* loadJoinRequests(action) {
+  try {
+    const result = yield call(loadJoinRequestsAPI, action.data);
+    yield put({ type: LOAD_JOIN_REQUESTS_SUCCESS, data: result.data });
+  } catch (err) {   yield put({ type: LOAD_JOIN_REQUESTS_FAILURE, error: err.response.data });  }
+}
+function* watchLoadJoinRequests() { yield takeLatest(LOAD_JOIN_REQUESTS_REQUEST, loadJoinRequests);}
+
+// 4. 승인
+function approveJoinAPI(requestId) { return axios.post(`/api/groups/requests/${requestId}/approve`);}
+function* approveJoin(action) {
+  try {
+    yield call(approveJoinAPI, action.data);
+    yield put({ type: APPROVE_JOIN_REQUEST_SUCCESS, data: action.data });
+  } catch (err) { yield put({ type: APPROVE_JOIN_REQUEST_FAILURE, error: err.response.data });  }
+}
+function* watchApproveJoin() {  yield takeLatest(APPROVE_JOIN_REQUEST, approveJoin); }
+
+// 5. 거절
+function rejectJoinAPI(requestId) {  return axios.post(`/api/groups/requests/${requestId}/reject`); }
+function* rejectJoin(action) {
+  try {
+    yield call(rejectJoinAPI, action.data);
+    yield put({ type: REJECT_JOIN_REQUEST_SUCCESS, data: action.data });
+  } catch (err) {  yield put({ type: REJECT_JOIN_REQUEST_FAILURE, error: err.response.data });  }
+}
+function* watchRejectJoin() {  yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin);}
+
 
 // root saga
 export default function* groupSaga() {
@@ -133,5 +164,8 @@ export default function* groupSaga() {
     fork(watchTransferOwnership),
     fork(watchJoinGroup),
     fork(watchApplyGroup),
+    fork(watchLoadJoinRequests),
+    fork(watchApproveJoin),
+    fork(watchRejectJoin),
   ]);
 }

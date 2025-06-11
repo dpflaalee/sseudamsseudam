@@ -99,7 +99,7 @@ router.get('/:groupId/members', async(req, res, next)=>{
   }catch(error){console.error(error); next(error);}
 });
 
-//1-1 특정 유저 정보 가져오기
+/*//1-1 특정 유저 정보 가져오기
 router.get('/:groupId/members/:userId', async(req,res,next)=>{
   try{
     const member = await User.findOne({
@@ -114,7 +114,7 @@ router.get('/:groupId/members/:userId', async(req,res,next)=>{
     const formatted = { id:member.id, nickname: member.nickname, email: member.email, isLeader: member.groupmembers[0].GroupMember.isLeader};
     res.status(200).json(formatted);
   }catch(error){console.error(error); next(error);}
-});
+});*/
 
 //2. 강퇴
 router.delete('/:groupId/members/:userId', async(req,res,next)=>{
@@ -202,5 +202,41 @@ router.post('/:groupId/apply', isLoggedIn, async(req, res, next)=>{
     res.status(200).send('가입 신청이 전송되었습니다.');
   }catch(err){console.error(err); next(err);}
 })
+
+// -- 
+// 1.가입현황
+router.get('/:groupId/requests', async(req,res,next)=>{
+  try{
+    const requests = await GroupRequest.findAll({
+      where: { GroupId: req.params.groupId, status:'pending'},
+      include: [{ model: User, attributes: ['id', 'nickname'] }]
+    });
+    const formatted = requests.map((r) => ({  id: r.id,  nickname: r.User.nickname,  status: r.status, }));
+    res.status(200).json(formatted);
+  }catch(err){console.error(err); next(err);}
+})
+// 2.승인
+router.post('/requests/:requestId/approve', isLoggedIn, async (req, res, next) => {
+  try {
+    const request = await GroupRequest.findByPk(req.params.requestId);
+    if (!request) return res.status(404).send('요청 없음');
+    request.status = 'approved';
+    await request.save();
+
+    await GroupMember.create({ GroupId: request.GroupId, UserId: request.UserId });
+    res.status(200).json(request.id);
+  } catch (err) {    console.error(err);    next(err);  }
+});
+
+// 3.거절
+router.post('/requests/:requestId/reject', isLoggedIn, async (req, res, next) => {
+  try {
+    const request = await GroupRequest.findByPk(req.params.requestId);
+    if (!request) return res.status(404).send('요청 없음');
+    request.status = 'rejected';
+    await request.save();
+    res.status(200).json(request.id);
+  } catch (err) {    console.error(err);    next(err);  }
+});
 
 module.exports = router;
