@@ -91,6 +91,7 @@ const Profile = (props) => {
     //다른 유저를 클릭했을 때는 되고
     //본인을 클릭했을 때 안됨
     //로그인 유저
+    if (hasMorePosts && !loadPostsLoading) {
     if(postUserId){
       //postuser
       if(user.id == props.postUserId){
@@ -116,8 +117,7 @@ const Profile = (props) => {
         lastId,
       })
     }
-    if (hasMorePosts && !loadPostsLoading) {
-    }
+  }
   }, [mainPosts, hasMorePosts, loadPostsLoading]);
 
   useEffect(() => {
