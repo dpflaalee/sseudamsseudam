@@ -3,6 +3,9 @@ module.exports = (sequelize, DataTypes) => {
     content: {
       type: DataTypes.STRING(100),
       allowNull: false
+    },
+    isAnimal: {
+      type: DataTypes.BOOLEAN
     }
   }, {
     charset: 'utf8mb4',
@@ -10,10 +13,10 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Category.associate = (db) => {
-    db.Category.belongsToMany(db.Group, { through: 'GroupCategory'});
+    db.Category.belongsToMany(db.Group, { through: 'GroupCategory' });
     db.Category.hasMany(db.Prize, { as: 'prizes' });
     db.Category.hasMany(db.Animal);
-    db.Category.belongsToMany(db.Post, { through: 'PostCategory'});
+    db.Category.belongsToMany(db.Post, { through: 'PostCategory' });
   }
   return Category;
 }

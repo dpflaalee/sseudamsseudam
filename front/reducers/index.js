@@ -9,6 +9,8 @@ import notification from './notification';
 import group from './group';
 import prize from './prize';
 import myPrize from './myPrize';
+import notificationSetting from './notificationSetting';
+import category from './category';
 
 // (이전상태, 액션) => 다음상태
 const rootReducer = (state, action) => {
@@ -26,6 +28,8 @@ const rootReducer = (state, action) => {
         prize,
         myPrize,
         group,
+        notificationSetting,
+        category
       });
       return combinedReducer(state, action);
     }
