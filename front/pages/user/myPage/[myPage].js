@@ -1,6 +1,7 @@
 import React from 'react';
 import AppLayout from '@/components/AppLayout';
 import Profile from '@/components/user/Profile';
+import PostCard from '@/components/post/PostCard';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { END } from 'redux-saga';
@@ -11,12 +12,18 @@ import { LOAD_USER_POSTS_REQUEST } from '../../../reducers/post';
 import { LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../../../reducers/user';
 const MyPage = () => {
     const user = useSelector(state => state.user)
+    const {mainPosts} = useSelector(state => state.post)
     const router = useRouter();
     const {myPage} = router.query;
     console.log('myPage',myPage);
     return (
         <AppLayout>
             <Profile postUserId={myPage} />
+             {mainPosts.map((c) => {
+                    return (
+                      <PostCard post={c} key={c.id} />
+                    );
+                  })}
         </AppLayout>
     );
 }
