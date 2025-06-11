@@ -6,36 +6,42 @@ import { Space, Form, Input, Select, Checkbox, Button, Typography, message, } fr
 
 const { TextArea } = Input; const { Option } = Select;
 
-const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => { 
+const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => {
   const [form] = Form.useForm(); const router = useRouter(); const { groupId } = router.query;
-  const {createGroupLoading, updateGroupLoading, } = useSelector((state)=>state.group);
-  const [categoryOptions, setCategoryOptions]= useState([]);
+  const { createGroupLoading, updateGroupLoading, } = useSelector((state) => state.group);
+  const [animalCategories, setCategoryOptions] = useState([]);
+
+  // 카테고리
+  //const { categories } = useSelector(state => state.category);
+  //const animalCategories = categories.filter(category => category.isAnimal);
 
   const handleFinish = (values) => {
     const categoryIds = values.categories;
-    const openScopeId = values.isPrivate? 2 : 1;
+    const openScopeId = values.isPrivate ? 2 : 1;
 
-    const playload = {title:values.title, content: values.content, categoryIds, openScopeId};
-    onFinish(mode==='edit'?{...playload, groupId} : playload);
+    const playload = { title: values.title, content: values.content, categoryIds, openScopeId };
+    onFinish(mode === 'edit' ? { ...playload, groupId } : playload);
+    console.log('🐟 그룹 생성 데이터 :', playload);
+  }
 
-  } 
-
-  useEffect(()=>{
-    const fetchCategories = async()=>{
-      try{
-        const res = await axios.get('/categories');
-        setCategoryOptions(res.data);
-      }catch(err){console.error('카테고리 로드 실패:', err); message.error('카테고리를 불러오지 못했습니다.');}
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get('/category');
+        const animalCategories = res.data.filter(category => category.isAnimal);
+        console.log('🦎animalCategories : ', animalCategories);
+        setCategoryOptions(animalCategories);
+      } catch (err) { console.error('카테고리 로드 실패:', err); message.error('카테고리를 불러오지 못했습니다.'); }
     };
     fetchCategories();
   }, []);
-/////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
   return (
     <Form
       form={form}
       layout="vertical"
       onFinish={handleFinish}
-      initialValues={{ title: '', categories: [], content: '', isPrivate: false,  ...initialValues, }}
+      initialValues={{ title: '', categories: [], content: '', isPrivate: false, ...initialValues, }}
     >
       <Form.Item
         label="그룹명"
@@ -51,7 +57,7 @@ const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => {
         rules={[{ required: true, message: '카테고리를 하나 이상 선택해주세요.' }]}
       >
         <Select mode="multiple" placeholder="카테고리를 선택하세요">
-          {categoryOptions.map((cat)=>(
+          {animalCategories.map((cat) => (
             <Option key={cat.id} value={cat.id}> {cat.content} </Option>
           ))}
         </Select>

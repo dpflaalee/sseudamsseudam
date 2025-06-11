@@ -11,9 +11,11 @@ import Profile from '@/components/user/Profile';
 import NotificationButton from "@/components/notifications/NotificationButton";
 import { LOAD_POSTS_REQUEST } from '@/reducers/post';
 import { LOAD_MY_INFO_REQUEST } from '../../reducers/user';
+import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import wrapper from '../../store/configureStore';
-import {END} from 'redux-saga';
+import { END } from 'redux-saga';
 import AnimalList from '@/components/animal/AnimalList';
+
 //// import 수정
 const Home = () => {
   const dispatch = useDispatch();
@@ -22,7 +24,7 @@ const Home = () => {
   const { mainComplainCard } = useSelector((state) => state.complain);
   const id = user?.id;
 
-  const { userAnimals, selectedAnimal } = useSelector((state) => state.animal);
+  const { myAnimals, selectedAnimal } = useSelector((state) => state.animal);
 
   useEffect(() => {
     if (mainPosts.length === 0) {
@@ -56,15 +58,42 @@ const Home = () => {
     };
   }, [mainPosts, hasMorePosts, loadPostsLoading]);
 
+  useEffect(() => {
+    if (user) {
+      dispatch({ type: 'LOAD_ANIMAL_LIST_REQUEST' });
+    }
+  }, [user, dispatch]);
+
+  // 신고 당한 유저 글 보이지 않게 처리
+  useEffect(() => {
+    dispatch({
+      type: LOAD_COMPLAIN_REQUEST,
+    });
+  }, [dispatch]);
+
+  console.log('🐶 mainComplainCard : ', mainComplainCard);
+  console.log('mainComplainCard:', mainComplainCard);
+
+  const isBlindedUser = mainComplainCard.some((report) => {
+    return Number(report.targetId) === Number(mainPosts.User?.id) && report.isBlind;
+  });
+
   return (
+
     <AppLayout>
-      <AnimalList animals={userAnimals} />
+      <AnimalList animals={myAnimals} />
       {user && <PostForm />}
       {mainPosts
         .filter((post) => {
           const openScope = post.OpenScope?.content;
           const myId = user?.id;
           const postOwnerId = post.UserId;
+
+          const isPostUserBlinded = mainComplainCard.some(
+            (report) => report.targetId === post.User?.id && report.isBlind
+          );
+          // 신고된 유저의 글을 제외
+          if (isPostUserBlinded) return false;
 
           if (myId === postOwnerId) return true;
 
@@ -85,7 +114,7 @@ const Home = () => {
         })
         .map((post) => (
           <PostCard post={post} key={post.id} />
-      ))}
+        ))}
     </AppLayout>
   );
 }
@@ -93,15 +122,15 @@ const Home = () => {
 ////////////////////////////////////////////////////////
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
   //1. cookie 설정
-  const cookie = context.req? context.req.headers.cookie : '';
+  const cookie = context.req ? context.req.headers.cookie : '';
   axios.defaults.headers.Cookie = '';
 
   if (context.req && cookie) { axios.defaults.headers.Cookie = cookie; }
 
   //2. redux 액션
-  context.store.dispatch({ type:LOAD_MY_INFO_REQUEST });
-  context.store.dispatch({ type:LOAD_POSTS_REQUEST });
-  context.store.dispatch(END);  
+  context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
+  context.store.dispatch({ type: LOAD_POSTS_REQUEST });
+  context.store.dispatch(END);
 
   await context.store.sagaTask.toPromise();
 

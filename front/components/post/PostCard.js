@@ -74,12 +74,18 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
       type: UPDATE_POST_REQUEST,
       data: { PostId: post.id, content: editText }
     });
-  }, [post]);
+  }, [post.id, dispatch]);
 
   const [newContent, setNewContent] = useState(post.content);
+  const [newScope, setNewScope] = useState(post.scope || 'public');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const { removePostLoading, removePostDone } = useSelector(state => state.post);
   const { mainComplainCard } = useSelector(state => state.complain);
+
+  useEffect(() => {
+    setNewContent(post.content);
+    setNewScope(post.scope || 'public');
+  }, [post]);
 
   // 좋아요
   const onClickLike = useCallback(() => {
@@ -117,15 +123,19 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     setEditModalVisible(false);
   }, []);
   const handleEditSubmit = useCallback(() => {
-    if (newContent.trim() === post.content.trim()) {
+    if (newContent.trim() === post.content.trim() && newScope === (post.scope || 'public')) {
       return closeEditModal();
     }
     dispatch({
       type: UPDATE_POST_REQUEST,
-      data: { PostId: post.id, content: newContent }
+      data: { 
+        PostId: post.id, 
+        content: newContent,
+        openScope: newScope,
+      }
     });
     setEditModalVisible(false);
-  }, [newContent, post, dispatch]);
+  }, [newContent, newScope, post, dispatch]);
 
   //삭제
   const openDeleteModal = () => {
@@ -160,99 +170,132 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
 
   return (
     <div style={{ margin: '3%' }}>
+      {post.RetweetId && post.Retweet ? (
       <Card
-        title={isGroup ? `[그룹]${post.User?.nickname}` : post.User?.nickname} // 그룹용 추가코드
-        cover={
-          post.Images && post.Images.length > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <PostImages images={post.Images} />
-            </div>
-          )
-        }
-        actions={[
-          <RetweetOutlined key="retweet" onClick={onRetweet} />,
-          like
-            ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px'}} onClick={onClickunLike} /> {post.Likers.length}</span>
-            : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
-          <span key="comment">
-            <Link href={`/post/${post.id}`} passHref>
-              <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+            <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
+              <Avatar style={{ marginRight: 8 }}>{post.User.nickname[0]}</Avatar>
             </Link>
-          </span>,
+            <span>{post.User.nickname}님이 리트윗했습니다.</span>
+          </div>
+        }
+        style={{ marginBottom: 16 }}
+      >
+        {/* 내부에 리트윗된 게시물 카드 */}
+        <Card
+          size="small"
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+              <Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
+                <Avatar style={{ marginRight: 8 }}>{post.Retweet.User.nickname[0]}</Avatar>
+              </Link>
+              <span>{post.Retweet.User.nickname}</span>
+            </div>
+          }
+          actions={[
+            <RetweetOutlined key="retweet" onClick={onRetweet} />,
+            like
+              ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
+              : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
+            <span key="comment">
+              <Link href={`/post/${post.id}`} passHref>
+                <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
+              </Link>
+            </span>,
           <Popover content={(
             <Button.Group>
-              <>
-                <Button onClick={openEditModal}>수정</Button>
-                <Button type="danger" onClick={openDeleteModal}>삭제</Button>
-              </>
-              <>
-                <Button onClick={() => setOpen(true)}>신고하기</Button>
-              </>
+              {id === post.User.id && (
+                <>
+                  <Button onClick={openEditModal}>수정</Button>
+                  <Button type="danger" onClick={openDeleteModal}>삭제</Button>
+                </>
+              )}
+              <Button onClick={() => setOpen(true)}>신고하기</Button>
             </Button.Group>
           )}>
-            < EllipsisOutlined />
+            <EllipsisOutlined />
           </Popover>
-        ]}
-      // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}
-      >
-        {post.RetweetId && post.Retweet ? (
-          <Card
-            cover={
-              post.Retweet.Images && post.Retweet.Images.length > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <PostImages images={post.Retweet.Images} />
-                </div>
-              )
-            }
-          >
-            <Card.Meta
-              avatar={<Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
-                <Avatar>{post.Retweet.User.nickname[0]}</Avatar></Link>}
-              title={post.Retweet.User.nickname}
-              description={
-                <PostCardContent
-                  editMode={editMode}
-                  onEditPost={onEditPost}
-                  onCancelUpdate={onCancelUpdate}
-                  postData={post.Retweet.content}
-                />}
-            />
-          </Card>
-        ) : (
-          <Card.Meta
-            avatar={
-              <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
-                <Avatar>{post.User.nickname[0]}</Avatar>
-              </Link>
-            }
-            title={post.User.nickname}
-            description={
-              <PostCardContent
-                editMode={editMode}
-                onEditPost={onEditPost}
-                onCancelUpdate={onCancelUpdate}
-                postData={content}
-              />
-            }
+          ]}
+        >
+          <PostCardContent
+            editMode={false} // 리트윗 원본은 수정 불가
+            postData={post.Retweet.content}
+            onEditPost={() => {}}
+            onCancelUpdate={() => {}}
           />
 
-        )
-        }
-        {/* 신고 모달 */}
-        {
-          open && (
-            <ComplainForm
-              open={open}
-              targetId={post.Retweet ? post.Retweet.id : post.id}
-              TARGET_TYPE={TARGET_TYPE.POST}
-              targetUserNickname={post.User?.nickname}
-              onClose={() => setOpen(false)}
-            />
-          )
-        }
-        {/* E 신고 모달 */}
+          {post.Retweet.Images && post.Retweet.Images.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+              <PostImages images={post.Retweet.Images} />
+            </div>
+          )}
+        </Card>
+      </Card>
+    ) : (
+        // 일반 게시글
+        <Card
+              title={
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                  <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
+                    <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
+                  </Link>
+                  <span>{post.User?.nickname}</span>
+                </div>
+              } 
+              actions={[
+                <RetweetOutlined key="retweet" onClick={onRetweet} />,
+                like
+                  ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
+                  : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
+                <span key="comment">
+                  <Link href={`/post/${post.id}`} passHref>
+                    <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
+                  </Link>
+                </span>,
+              <Popover content={(
+                <Button.Group>
+                  {id === post.User.id && (
+                    <>
+                      <Button onClick={openEditModal}>수정</Button>
+                      <Button type="danger" onClick={openDeleteModal}>삭제</Button>
+                    </>
+                  )}
+                  <Button onClick={() => setOpen(true)}>신고하기</Button>
+                </Button.Group>
+              )}>
+                <EllipsisOutlined />
+              </Popover>
+              ]}
+            // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}  
+        >
 
-      </Card >
+          <PostCardContent
+            editMode={editMode}
+            onEditPost={onEditPost}
+            onCancelUpdate={onCancelUpdate}
+            postData={content}
+          />
+
+          {post.Images && post.Images.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+              <PostImages images={post.Images} />
+            </div>
+          )}   
+
+            {/* 신고 모달 */}
+        {open && (
+          <ComplainForm
+            open={open}
+            targetId={post.Retweet ? post.Retweet.id : post.id}
+            TARGET_TYPE={TARGET_TYPE.POST}
+            targetUserNickname={post.User?.nickname}
+            onClose={() => setOpen(false)}
+          />
+        )}
+        {/* E 신고 모달 */} 
+  </Card>
+)}
 
       <Modal
         visible={editModalVisible}
@@ -264,10 +307,14 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         <div style={{ display: 'flex', marginBottom: 16 }}>
           <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px' }}>게시물 수정</span>
           <Space>
-            <Select defaultValue="public" style={{ width: 120 }}>
-              <Option value="public">전체공개</Option>
-              <Option value="friends">친구공개</Option>
-              <Option value="private">비공개</Option>
+            <Select 
+              value={newScope} 
+              style={{ width: 120 }}
+              onChange={(value) => setNewScope(value)}
+            >
+              <Option value="public">전체 공개</Option>
+              <Option value="private">나만 보기</Option>
+              <Option value="follower">팔로워 공개</Option>
             </Select>
           </Space>
         </div>

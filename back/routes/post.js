@@ -6,7 +6,7 @@ const multer = require('multer');  // 파일업로드
 const path = require('path');  // 경로
 const fs = require('fs');  // file system
 
-const { Post, User, Image, Comment, Hashtag, OpenScope } = require('../models');
+const { Post, User, Image, Comment, Hashtag, OpenScope, Category } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 
 //이미지 폴더 생성
@@ -77,6 +77,21 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
         await post.addImages(image);
       }
     }
+    // 카테고리 처리
+    if (req.body.categoryIds) {
+      const categoryIds = Array.isArray(req.body.categoryIds)
+        ? req.body.categoryIds
+        : [req.body.categoryIds];
+
+      // 기존 카테고리 연결 제거
+      await post.setCategorys([]);
+
+      // 새로 연결
+      const categories = await Category.findAll({
+        where: { id: categoryIds },
+      });
+      await post.addCategorys(categories);
+    }
 
     // 게시글 상세정보조회
     const fullPost = await Post.findOne({
@@ -86,7 +101,8 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
         { model: Image },
         { model: User, as: 'Likers', attributes: ['id'] },
         { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
-        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] }
+        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
+        { model: Category, as: 'Categorys', through: { attributes: [] } }
       ]
     });
 
@@ -174,7 +190,7 @@ router.patch('/:postId', isLoggedIn, async (req, res, next) => {
       ));
       await post.setHashtags(result.map((v) => v[0]));
     }
-    res.status(200).json({ PostId: parseInt(req.params.postId, 10), content: req.body.content });
+    res.status(200).json({ PostId: parseInt(req.params.postId, 10), content: req.body.content, openScope: req.body.openScope, });
   } catch (error) {
     console.error(error);
     next(error);
@@ -215,7 +231,10 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => {
       where: { id: comment.id },
       include: [{ model: User, attributes: ['id', 'nickname'] }]
     });
-    res.status(200).json(fullComment);
+    res.status(200).json({
+      ...fullComment.toJSON(),
+      PostId: post.id,
+    });
   } catch (error) {
     console.error(error);
     next(error);
@@ -245,28 +264,38 @@ router.delete('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) 
 router.patch('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) => {
   try {
     const { postId, commentId } = req.params;
-    const { content } = req.body;
+    const { content, isRecomment } = req.body;
 
-    // 댓글 존재 확인 및 권한 체크
-    const comment = await Comment.findOne({
-      where: {
-        id: commentId,
-        PostId: postId,
-        UserId: req.user.id,  // 로그인한 사용자만 수정 가능
-      }
-    });
+    let comment;
+
+    if (isRecomment) {
+      // 대댓글인 경우, postId 조건 제거하고, UserId 조건만 사용
+      comment = await Comment.findOne({
+        where: {
+          id: commentId,
+          UserId: req.user.id,
+        }
+      });
+    } else {
+      // 일반 댓글인 경우 기존 조건 유지
+      comment = await Comment.findOne({
+        where: {
+          id: commentId,
+          PostId: postId,
+          UserId: req.user.id,
+        }
+      });
+    }
 
     if (!comment) {
       return res.status(404).send('댓글이 없거나 권한이 없습니다.');
     }
 
-    // 댓글 내용 업데이트
     await Comment.update(
       { content },
       { where: { id: commentId } }
     );
 
-    // 수정된 댓글 조회 (작성자 정보 포함)
     const updatedComment = await Comment.findOne({
       where: { id: commentId },
       include: [{ model: User, attributes: ['id', 'nickname'] }]
@@ -313,9 +342,41 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
     //1. 기존 게시글 확인 - findOne
     const post = await Post.findOne({
       where: { id: req.params.postId },
-      include: [{ model: Post, as: 'Retweet' }]
+      include: [
+        {
+          model: Post,
+          as: 'Retweet',
+          include: [
+            { model: OpenScope },
+            { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
+          ]
+        },
+        { model: OpenScope },
+        { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
+      ]
     });
-    if (!post) { return res.status(403).send('게시글을 확인해주세요'); }
+
+    if (!post) {
+      return res.status(403).send('게시글을 확인해주세요');
+    }
+
+    // 리트윗 대상 추출
+    const retweetTarget = post.Retweet || post;
+
+    // 비공개 범위 체크
+    if (
+      retweetTarget.OpenScope?.content === 'private' && retweetTarget.UserId !== req.user.id
+    ) {
+      return res.status(403).send('비공개 게시물은 리트윗할 수 없습니다.');
+    }
+
+    if (
+      retweetTarget.OpenScope?.content === 'follower' &&
+      retweetTarget.UserId !== req.user.id &&
+      !retweetTarget.User.Followers.some(f => f.id === req.user.id)
+    ) {
+      return res.status(403).send('팔로워 공개 게시물은 팔로워만 리트윗할 수 있습니다.');
+    }
 
     //2. 리트윗-조건확인 : 본인글인지 확인 || 리트윗 한적있는지 확인
     if (req.user.id === post.UserId
@@ -345,14 +406,23 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
       include: [
         {
           model: Post, as: 'Retweet', include: [
-            { model: User, attributes: ['id', 'nickname'] },
+            { model: User, attributes: ['id', 'nickname'], include: [{ model: User, as: 'Followers', attributes: ['id'] }] },
             { model: Image },
+            { model: OpenScope }
           ]
         },
         { model: User, attributes: ['id', 'nickname'] },
         { model: Image },
-        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] },] },]
+        { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] },] },
+        { model: OpenScope },]
     });
+
+    if (retweetDetail?.OpenScope?.content) {
+      retweetDetail.dataValues.scope = retweetDetail.OpenScope.content;
+    }
+    if (retweetDetail?.Retweet?.OpenScope?.content) {
+      retweetDetail.Retweet.dataValues.scope = retweetDetail.Retweet.OpenScope.content;
+    }
 
     //7. res 응답
     res.status(201).json(retweetDetail);
@@ -397,7 +467,7 @@ router.get('/:postId', async (req, res, next) => { // GET /post/1
           model: User,
           attributes: ['id', 'nickname'],
         }],
-      }],
+      },{ model: OpenScope }],
     })
     res.status(200).json(fullPost);
   } catch (error) {

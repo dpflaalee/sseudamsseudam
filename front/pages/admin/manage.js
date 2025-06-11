@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { Card, Row, Col, Button, Typography } from 'antd';
-import AppLayout from "../../components/AppLayout";
+import AppLayout from "@/components/AppLayout";
 import PrizeManage from '@/components/prize/PrizeManage';
 import 'antd/dist/antd.css';
 
 import { useSelector } from "react-redux";
 
 import ComplainCard from "@/components/complains/ComplainCard";
-import PostCard from "../../components/post/PostCard";
+import PostCard from "@/components/post/PostCard";
+import CategoryManage from "@/components/category/CategoryManage"
 
 const { Title, Text } = Typography;
 
 const manage = () => {
     const [activeSection, setActiveSection] = useState(null);
-    const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
     return (
         <AppLayout>
             {/* 상단 프로필 카드 */}
@@ -56,12 +56,8 @@ const manage = () => {
 
             {/* 조건부로 보여줄 컴포넌트들 */}
             {activeSection === 'prize' && <PrizeManage />}
+            {activeSection === 'category' && <CategoryManage />}
             {/* 다른 섹션도 여기에 조건부로 추가 가능 */}
-            {mainPosts.map((c) => {
-                return (
-                    <PostCard post={c} key={c.id} />
-                );
-            })}
         </AppLayout>);
 }
 

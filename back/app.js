@@ -19,7 +19,7 @@ const admin = require('./routes/admin');
 const search = require('./routes/search');
 const notification = require('./routes/notification');
 const groups = require('./routes/group');
-const categories = require('./routes/categories');
+const category = require('./routes/category');
 const prize = require('./routes/prize');
 const randomBox = require('./routes/randomBox');
 const animal = require('./routes/animal');
@@ -80,8 +80,8 @@ app.use(passport.initialize()); // 인증처리 라이브러리 초기화
 app.use(passport.session()); //사용자 인증상태 저장
 
 //TEST
-app.get('/', (req, res) => { res.send('Express Test'); });
-//app.use('/api', (req, res) => { res.send('Link Test') });
+app.get('/', (req, res)=>{res.send('Express Test');});
+//app.use('/api', (req,res)=>{res.send('Link Test')});
 
 app.use('/post', post);
 app.use('/posts', posts);
@@ -92,8 +92,9 @@ app.use('/admin', admin);
 app.use('/search', search);
 app.use('/notification', notification);
 app.use('/groups', groups);
+;app.use('/api/groups', groups);
 app.use('/api/groups', groups);
-app.use('/categories', categories);
+app.use('/category', category);
 
 app.use('/admin/prizes', prize);
 app.use('/api/random-box', randomBox);

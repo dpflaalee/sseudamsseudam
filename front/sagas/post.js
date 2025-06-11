@@ -73,13 +73,15 @@ function* loadPost(action) {
 
 function loadPostsAPI(lastId,userId,number) {
   console.log('number='+number);
-  if(number){
-    console.log('본인 게시물 클릭');
-    return axios.get(`/posts?lastId=${lastId || 0}&number=${number}`);
-  }else{
-    console.log('다른 게시물 클릭');
-    return axios.get(`/posts?lastId=${lastId || 0}&userId=${userId}`);
-  }
+  userId = userId === 'undefined'? -1 : userId;
+  return axios.get(`/posts?lastId=${lastId || 0}&number=${number}&userId=${userId}`);
+  // if(number){
+  //   console.log('본인 게시물 클릭');
+  //   return axios.get(`/posts?lastId=${lastId || 0}&number=${number}`);
+  // }else{
+  //   console.log('다른 게시물 클릭');
+  //   return axios.get(`/posts?lastId=${lastId || 0}&userId=${userId}`);
+  // }
 }
 
 function* loadPosts(action) {
