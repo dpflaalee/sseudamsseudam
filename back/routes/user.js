@@ -208,7 +208,10 @@ router.post('userDelete',isLoggedIn, async (req,res,next) =>{
 //2. 넘겨받은 아이디로 유저인지 select 구문확인 /   User.findOne
 //3. 유저에 추가  user.addFollowers
 //4. 상태표시
-router.patch('/:userId/follow', isLoggedIn, async ( req, res, next) => { 
+router.patch('/:userId/follow', isLoggedIn, async ( req, res, next) => {
+  console.log('유저아이디=',req.params.userId); 
+  console.log('내 아이디=',req.user.id);
+  console.log('팔로우 등록');
   try {
     const user = await User.findOne({ where: { id: req.params.userId } }); 
     if (!user) { res.status(403).send('유저를 확인해주세요'); }  //403 금지된.없는유저
@@ -267,6 +270,9 @@ router.get('/followers', isLoggedIn, async (req, res, next) => {
 //3. 팔로우삭제 - removeFollowers
 //4. 상태표시
 router.delete('/:userId/follow', isLoggedIn, async ( req, res, next ) => { 
+  console.log('유저아이디=',req.params.userId); 
+  console.log('내 아이디=',req.user.id);
+  console.log('팔로우 삭제');
   try {
     const user = await User.findOne( {where : {id : req.params.userId}});
     if (!user) { res.status(403).send('유저를 확인해주세요'); }  //403 금지된.없는유저

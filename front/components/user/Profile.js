@@ -5,6 +5,8 @@ import { MoreOutlined } from '@ant-design/icons';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import useSelection from 'antd/lib/table/hooks/useSelection';
+import FollowButton from './FollowButton';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'
@@ -158,7 +160,8 @@ const Profile = (props) => {
         })
       }
     }
-  }, [mainPosts, hasMorePosts, loadPostsLoading]);
+  }, [postUserId]);
+  //}, [mainPosts, hasMorePosts, loadPostsLoading, postUserId]);
   useEffect(() => {
     if (logOutDone) {
       Router.replace('/');
@@ -230,25 +233,28 @@ const Profile = (props) => {
           <InfoBox>
             <Nickname>{isBlinded ? '신고 당한 유저입니다.' : (postUser?.nickname || '닉네임 없음')}</Nickname>
             <Stats>
-              {postUser?.followerCount} 팔로잉  &nbsp;&nbsp;
-              {postUser?.followingCount} 팔로워 &nbsp;&nbsp;
+              {postUser?postUser?.Followings.length:0} 팔로잉  &nbsp;&nbsp;
+              {postUser?postUser?.Followers.length:0} 팔로워 &nbsp;&nbsp;
               {mainPosts?.length} 게시물
             </Stats>
           </InfoBox>
         </TopRow>
-        {isMyProfile ? (
-          <ButtonRow>
-            <Button type="primary">내 쿠폰함</Button>
-            <Button>내 장소</Button>
-            <Button>챌린지 현황</Button>
-            <Button>프로필 수정</Button>
-          </ButtonRow>
-        ) : (
-          <ButtonRow>
-            <Button type="primary">팔로우</Button>
-            <Button>장소</Button>
-          </ButtonRow>
-        )}
+    {isMyProfile ? (
+        <ButtonRow>
+          <Button type="primary">내 쿠폰함</Button>
+          <Button>내 장소</Button>
+          <Button>챌린지 현황</Button>
+          <Button>프로필 수정</Button>
+        </ButtonRow>
+    ):(
+      <ButtonRow>
+          {/* <FollowButton post={props.postUserId} /> */}
+          <FollowButton postUser={postUser}
+                        setPostUser={setPostUser}
+                        currentUserId={user?.id} />
+          <Button>장소</Button>
+        </ButtonRow>
+    )}
       </Container>
       {!isBlinded && mainPosts.map((c) => {
         return (
