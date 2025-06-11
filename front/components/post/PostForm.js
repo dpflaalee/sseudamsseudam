@@ -160,6 +160,16 @@ const PostForm = ({ groupId, isGroup = false }) => {
           </Row>
         </Form.Item>
 
+        <Form.Item>
+          <input
+            ref={imageInput}
+            type="file"
+            multiple
+            style={{ display: 'none' }}
+            onChange={onChangeImage}
+          />
+        </Form.Item>
+
         {Array.isArray(imagePaths) && imagePaths.length > 0 && (
           <>
             <Divider>업로드된 이미지</Divider>
