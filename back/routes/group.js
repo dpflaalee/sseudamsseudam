@@ -147,29 +147,6 @@ router.patch('/:groupId/members/:userId/transfer', async (req, res, next) => {
 })
 
 //가입관리----------------------------------------------------------------
-// 로그인한 사용자 정보 (passport.js 등을 통해 세션에 저장된 정보)
-/*router.get('/:groupId/members/me', isLoggedIn, async (req, res, next) => {
-  try {
-    const me = req.user;  
-    const member = await User.findOne({
-      where: { id: me.id },
-      include: [{
-        model: Group,
-        as: 'groupmembers',
-        where: { id: req.params.groupId },
-        through: { attributes: ['isLeader'], model: GroupMember }
-      }],
-      attributes: ['id', 'nickname', 'email']
-    });
-
-    if (!member) { return res.status(404).json({ message: 'You are not a member of this group' }); }
-
-    const formatted = { id: member.id, nickname: member.nickname, email: member.email, isLeader: member.groupmembers[0].GroupMember.isLeader };
-
-    res.status(200).json(formatted);
-  } catch (error) {console.error(error); next(error);}
-});*/
-
 //1. 즉시가입
 router.post('/:groupId/join', isLoggedIn, async (req, res, next) => {
   console.log("그룹 라우터 데이터 잘 받아오고 있나요---------:", req.params.groupId);
