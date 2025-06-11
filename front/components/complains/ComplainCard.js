@@ -14,11 +14,9 @@ import ComplainProfile from './ComplainProfile';
 import { IS_BLIND_REQUEST } from '@/reducers/complain';
 
 const ComplainCard = ({ report }) => {
-    console.log('🐕‍🦺 ComplainCard : ', report);
     const dispatch = useDispatch();
     const isBlind = () => {
         //alert('신고 내역을 삭제합니다');
-        console.log('🐙 isBlind : ', report.targetId);
         dispatch({
             type: IS_BLIND_REQUEST,
             data: {
@@ -28,11 +26,8 @@ const ComplainCard = ({ report }) => {
     };
 
     const reporter = report.Reporter;
-    console.log('💤 reporter ', reporter);
     const targetObject = report.targetObject;
-    console.log('💤 targetObject :', targetObject);
     const isBlinded = report.isBlind;
-    console.log('💤 isBlinded :', isBlinded);
 
     const renderByType = () => {
         if (!targetObject) {

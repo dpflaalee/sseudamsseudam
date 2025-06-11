@@ -9,7 +9,6 @@ const { Op } = require('sequelize');
 // 알림 저장
 router.post('/', async (req, res, next) => {
     try {
-        console.log('🦠 notificationRouter POST 진입');
         console.log('📦 req.body:', req.body);
 
         if (req.body.notiType === NOTIFICATION_TYPE.ADMIN_NOTI) {

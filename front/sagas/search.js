@@ -33,7 +33,6 @@ function* watchSearch() {
 /////////////////////
 export default function* searchSaga() {
     yield all([  //  all - 동시에 배열로 받은 fork들을 동시에 실행 
-        console.log('🤫 searchSaga'),
         fork(watchSearch),
     ]);
 }
