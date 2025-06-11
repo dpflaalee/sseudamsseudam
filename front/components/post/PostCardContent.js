@@ -13,6 +13,10 @@ const PostCardContent = ({ postData, editMode, onEditPost, onCancelUpdate, image
   const [locationLink, setLocationLink] = useState(null);
   const onChangeText = useCallback((e) => { setEditText(e.target.value); });  // 수정
 
+  useEffect(() => {
+    setEditText(postData);
+  }, [postData]);
+
   useEffect(() => { if(updatePostDone) { onCancelUpdate(); } },[updatePostDone])
   const onClickCancel = useCallback(() => { setEditText(postData); onCancelUpdate(); });  // 수정취소
 
