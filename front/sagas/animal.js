@@ -34,6 +34,9 @@ import {
   MODIFY_ANIPROFILE_REQUEST,
   MODIFY_ANIPROFILE_SUCCESS,
   MODIFY_ANIPROFILE_FAILURE,
+  SEARCH_PROFILES_REQUEST,
+  SEARCH_PROFILES_SUCCESS,
+  SEARCH_PROFILES_FAILURE,
 } from '../reducers/animal';
 
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification';
@@ -266,6 +269,28 @@ function* modifyAniprofile(action) {
   }
 }
 
+function searchProfilesAPI(data){
+  const {name, categoryId} = data
+  return axios.get(`/animal/search`, {
+    params: {name, categoryId},
+  });
+}
+function* searchProfiles(action){
+  try {
+    const result = yield call(searchProfilesAPI, action.data);
+    yield put({
+      type: SEARCH_PROFILES_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error('❌ SEARCH_PROFILES_FAILURE', err.response || err.message);
+    yield put({
+      type: SEARCH_PROFILES_FAILURE,
+      error: err.response?.data || err.message,
+    });
+  }
+}
+
 function* watchAddAniProfile() {
   yield takeLatest(ADD_ANIPROFILE_REQUEST, addAniProfile);
 }
@@ -299,6 +324,9 @@ function* watchModifyAniprofile() {
 function* watchRemoveAniFollow() {
   yield takeLatest(REMOVE_ANIFOLLOW_REQUEST, removeAniFollow);
 }
+function* watchSearchProfiles() {
+  yield takeLatest(SEARCH_PROFILES_REQUEST, searchProfiles);
+}
 export default function* animalSaga() {
   yield all([
     fork(watchAddAniProfile),
@@ -312,5 +340,6 @@ export default function* animalSaga() {
     fork(watchLoadMyAnimals),
     fork(watchModifyAniprofile),
     fork(watchRemoveAniFollow),
+    fork(watchSearchProfiles),
   ]);
 }
