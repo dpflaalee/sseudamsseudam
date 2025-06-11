@@ -86,6 +86,7 @@ const Profile = (props) => {
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
 
   let postUserId = props.postUserId;
+  console.log('postUserIdpostUserId=',postUserId);
   const [postUser, setPostUser] = useState('');
 
   // 신고 당한 유저 블라인드 처리
@@ -107,7 +108,7 @@ const Profile = (props) => {
 
 
   useEffect(() => {
-    console.log('postUser실행');
+    console.log('postUser실행',postUserId);
     const postUserData = async () => {
       try {
         const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
@@ -135,6 +136,7 @@ const Profile = (props) => {
     if (hasMorePosts && !loadPostsLoading) {
       if (postUserId) {
         //postuser
+        //본인페이지 클릭
         if (user.id == props.postUserId) {
           console.log('입장2');
           dispatch({
@@ -144,7 +146,6 @@ const Profile = (props) => {
             //userId: props.postUserId,
           })
         } else {
-          //본인페이지 클릭
           console.log('postUserId = -1');
           dispatch({
             type: LOAD_POSTS_REQUEST,
@@ -212,7 +213,7 @@ const Profile = (props) => {
       )}
     </Menu>
   );
-
+  console.log('postUser체크',postUser);
   return (
     <Wrapper>
       <Banner />
@@ -257,6 +258,12 @@ const Profile = (props) => {
           </ButtonRow>
         )}
       </Container>
+      {/* {!isBlinded && mainPosts.map((c) => {
+        return (
+          <PostCard post={c} key={c.id} />
+        );
+      })} */}
+
     </Wrapper>
   );
 };
