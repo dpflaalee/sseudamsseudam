@@ -231,7 +231,10 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => {
       where: { id: comment.id },
       include: [{ model: User, attributes: ['id', 'nickname'] }]
     });
-    res.status(200).json(fullComment);
+    res.status(200).json({
+      ...fullComment.toJSON(),
+      PostId: post.id,
+    });
   } catch (error) {
     console.error(error);
     next(error);
