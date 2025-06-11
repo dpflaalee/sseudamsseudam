@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Button, Tabs, Avatar, List, Spin } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import React, { useState, useEffect, useMemo } from "react";
+import { Button, Tabs, Avatar, List, Spin, Popover, Space } from "antd";
+import { UserOutlined, MoreOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,6 +10,7 @@ import {
   LOAD_RECOMMENDED_ANIMALS_REQUEST,
   ANIFOLLOW_REQUEST,
   ANIUNFOLLOW_REQUEST,
+  REMOVE_ANIFOLLOW_REQUEST
 } from "@/reducers/animal";
 
 // 알림
@@ -57,7 +58,19 @@ const AniFollow = () => {
       });
     }
   };
-
+  const handleRemoveFollower = (targetAnimalId) => {
+    if (!id) {
+      console.warn("❌ animalId가 undefined입니다.");
+      return;
+    }
+    dispatch({
+      type: REMOVE_ANIFOLLOW_REQUEST,
+      data: {
+        animalId: Number(id), // 내 동물 ID
+        targetAnimalId: Number(targetAnimalId), // 팔로워 동물 ID
+      },
+    });
+  };
   useEffect(() => {
     if (id) {
       dispatch({ type: LOAD_ANIFOLLOWINGS_REQUEST, data: id });
@@ -67,8 +80,8 @@ const AniFollow = () => {
   }, [id]);
   useEffect(() => {
   }, [recommendedAnimals]);
-
-  const renderList = (data, isLoading, emptyMessage) => {
+  
+  const renderList = (data, isLoading, emptyMessage, showActions = true) => {
     if (isLoading) return <Spin />;
     if (!data || data.length === 0) {
       return (
@@ -76,8 +89,8 @@ const AniFollow = () => {
           {emptyMessage}
         </div>
       );
-    }
-
+  }
+  
     return (
       <List
         itemLayout="horizontal"
@@ -87,9 +100,27 @@ const AniFollow = () => {
             actions={[
               <Button key="friend" type={item.isFollowing ? "default" : "primary"}
                 danger={item.isFollowing}
-                onClick={() => handleFollowToggle(item.id, item.isFollowing)}>
-                {item.isFollowing ? "친구" : "친구 맺기"}
+                onClick={() => handleFollowToggle( item.id, item.isFollowing)}>
+                  {item.isFollowing ? "친구" : "친구 맺기"}
               </Button>,
+              showActions && (
+                <Popover
+                  content={
+                    <div>
+                      <Button type="text" onClick={() => {
+                        console.log("🔥 REMOVE BUTTON CLICK:", { id, target: item.id });handleRemoveFollower(Number(item.id));}}>
+                        친구끊기
+                      </Button>
+                      <br />
+                      <Button type="text" danger onClick={(e) => console.log('차단하기', item.id)}>
+                        차단하기
+                      </Button>
+                    </div>
+                  }
+                  trigger="click"
+                >
+                  <MoreOutlined style={{ fontSize: 18, cursor: "pointer" }} />
+                </Popover>),
             ]}
           >
             <List.Item.Meta
@@ -101,8 +132,8 @@ const AniFollow = () => {
                 )
               }
               title={item.aniName || '이름 없음'}
-            />
-          </List.Item>
+              />
+            </List.Item>
         )}
       />
     );
@@ -112,15 +143,15 @@ const AniFollow = () => {
     <div style={{ backgroundColor: "#fff", padding: 24, borderRadius: 8 }}>
       <Tabs defaultActiveKey="followers" centered>
         <TabPane tab="팔로잉" key="followings">
-          {renderList(followings, loadAnifollowingsLoading, "팔로잉한 동물이 없습니다.")}
+          {renderList(followings, loadAnifollowingsLoading, "팔로잉한 동물이 없습니다.", false)}
         </TabPane>
         <TabPane tab="팔로워" key="followers">
-          {renderList(followers, loadAnifollowersLoading, "나를 팔로우한 동물이 없습니다.")}
+          {renderList(followers, loadAnifollowersLoading, "나를 팔로우한 동물이 없습니다.", true)}
         </TabPane>
       </Tabs>
       <div style={{ marginTop: 24 }}>
         <h3>친구 추천</h3>
-        {renderList(recommendedAnimals, loadRecommendedAnimalsLoading, "추천할 친구가 없습니다.")}
+        {renderList(recommendedAnimals, loadRecommendedAnimalsLoading, "추천할 친구가 없습니다.", false)}
       </div>
     </div>
   );

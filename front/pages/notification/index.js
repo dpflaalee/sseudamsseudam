@@ -8,7 +8,6 @@ import groupBy from 'lodash/groupBy';
 import { useRouter } from 'next/router';
 import { Modal } from 'antd';
 
-import NotificationButton from "@/components/notifications/NotificationButton";
 import Notification from "@/components/notifications/Notification";
 import NotificationSetting from "@/components/notifications/NotificationSetting";
 

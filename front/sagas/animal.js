@@ -1,4 +1,4 @@
-import { all, put, takeLatest, call, fork } from 'redux-saga/effects';
+import {all, put, takeLatest, call, fork} from 'redux-saga/effects';
 import axios from 'axios';
 import {
   ADD_ANIPROFILE_REQUEST,
@@ -31,23 +31,18 @@ import {
   ANIUNFOLLOW_REQUEST,
   ANIUNFOLLOW_SUCCESS,
   ANIUNFOLLOW_FAILURE,
+  MODIFY_ANIPROFILE_REQUEST,
+  MODIFY_ANIPROFILE_SUCCESS,
+  MODIFY_ANIPROFILE_FAILURE,
 } from '../reducers/animal';
 
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification';
 import NOTIFICATION_TYPE from '../../shared/constants/NOTIFICATION_TYPE';
 
-// function addAniProfileAPI(data) {
-//   return axios.post('/animal/animalform', data); //백엔드 연동시 필요
-// }
-
 function addAniProfileAPI(formData) {
   return axios.post('/animal/animalform', formData);
-  // return axios.post('/animal/animalform', data, {
-  //   withCredentials: true,
-  // });
-
 }
-function* addAniProfile(action) {
+function * addAniProfile(action) {
   try {
     const result = yield call(addAniProfileAPI, action.data);
     yield put({
@@ -74,15 +69,27 @@ function* loadAnimalProfile(action) {
     yield put({ type: LOAD_ANIMAL_PROFILE_FAILURE, error: err.response?.data || err.message });
   }
 }
-function loadAnimalListAPI() {
-  return axios.get('/animal/list');
+// function loadAnimalListAPI() {
+//   return axios.get('/animal/list');
+// }
+// function* loadAnimalList() {
+//   try {
+//     const result = yield call(loadAnimalListAPI);
+//     yield put({ type: LOAD_ANIMAL_LIST_SUCCESS, data: result.data });
+//   } catch (err) {
+//     yield put({ type: LOAD_ANIMAL_LIST_FAILURE, error: err.response?.data || err.message });
+//   }
+// }
+
+function loadMyAnimalsAPI() {
+  return axios.get('/animal/my', { withCredentials: true });
 }
-function* loadAnimalList() {
+function* loadMyAnimals() {
   try {
-    const result = yield call(loadAnimalListAPI);
-    yield put({ type: LOAD_ANIMAL_LIST_SUCCESS, data: result.data });
+    const result = yield call(loadMyAnimalsAPI);
+    yield put({type: LOAD_ANIMAL_LIST_SUCCESS, data: result.data});
   } catch (err) {
-    yield put({ type: LOAD_ANIMAL_LIST_FAILURE, error: err.response?.data || err.message });
+    yield put({type: LOAD_ANIMAL_LIST_FAILURE, error: err.response.data});
   }
 }
 
@@ -96,7 +103,7 @@ function* removeAniProfile(action) {
     const result = yield call(removeAniProfileAPI, action.data);
     yield put({
       type: REMOVE_ANIPROFILE_SUCCESS,
-      data: result.data.animalId,
+      data: result.data.animalId, 
     });
   } catch (err) {
     yield put({
@@ -153,7 +160,7 @@ function* aniFollow(action) {
       type: ANIFOLLOW_SUCCESS,
       data: response.data,
     });
-
+    
     // 🐕‍🦺 동물 ID → 유저 ID 변환
     const [senderRes, receiverRes] = yield all([
       call(axios.get, `/animal/${action.data.myAnimalId}`),
@@ -207,20 +214,24 @@ function* aniUnFollow(action) {
   }
 }
 
-function removeAnifollowerAPI(id) {
-  return axios.delete(`/api/animal/${id}`);
+function removeAniFollowAPI(data) {
+  // 바디로 targetAnimalId 전달
+  return axios.delete(`/animal/${data.animalId}/follower`, {
+    data: { targetAnimalId: data.targetAnimalId },
+    // validateStatus: (status) => status >= 200 && status < 300, // 2xx 모두 허용
+    // withCredentials: true,
+  });
 }
 function* removeAniFollow(action) {
   try {
-    // const result = yield call(removeAniProfileAPI, action.data); // 실제 API
-    yield put({
-      type: REMOVE_ANIFOLLOW_SUCCESS,
-      data: action.data, // result.data.id 또는 action.data (가짜용)
-    });
+    const result = yield call(removeAniFollowAPI, action.data);
+    console.log("✅ DELETE 응답 status:", result.status);
+    console.log("✅ DELETE 응답 data:", result.data);
+    yield put({ type: REMOVE_ANIFOLLOW_SUCCESS, data: result.data });
   } catch (err) {
-    yield put({
-      type: REMOVE_ANIFOLLOW_FAILURE,
-      error: err.response?.data || err.message,
+    console.error("❌ removeAniFollow error", err.response?.status, err.response?.data);
+    yield put({ 
+      type: REMOVE_ANIFOLLOW_FAILURE, error: err.response?.data || err.message 
     });
   }
 }
@@ -237,14 +248,32 @@ function* loadRecommendedAnimals(action) {
   }
 }
 
+function modifyAniprofileAPI({ id, formData }) {
+  return axios.patch(`/animal/${id}`, formData);
+}
+function* modifyAniprofile(action) {
+  try {
+    const result = yield call(modifyAniprofileAPI, action.data);
+    yield put({
+      type: MODIFY_ANIPROFILE_SUCCESS,
+      data: result.data.animal,
+    });
+  } catch (err) {
+    yield put({
+      type: MODIFY_ANIPROFILE_FAILURE,
+      error: err.response?.data || err.message,
+    });
+  }
+}
+
 function* watchAddAniProfile() {
   yield takeLatest(ADD_ANIPROFILE_REQUEST, addAniProfile);
 }
+function* watchLoadMyAnimals(){
+  yield takeLatest(LOAD_ANIMAL_LIST_REQUEST, loadMyAnimals);
+}
 function* watchLoadAnimalProfile() {
   yield takeLatest(LOAD_ANIMAL_PROFILE_REQUEST, loadAnimalProfile);
-}
-function* watchLoadAnimalList() {
-  yield takeLatest(LOAD_ANIMAL_LIST_REQUEST, loadAnimalList);
 }
 function* watchLoadAniFollowers() {
   yield takeLatest(LOAD_ANIFOLLOWERS_REQUEST, loadAniFollowers);
@@ -258,22 +287,30 @@ function* watchRemoveAniProfile() {
 function* watchLoadRecommendedAnimals() {
   yield takeLatest(LOAD_RECOMMENDED_ANIMALS_REQUEST, loadRecommendedAnimals);
 }
-function* watchAniFollow() {
+function* watchAniFollow(){
   yield takeLatest(ANIFOLLOW_REQUEST, aniFollow);
 }
-function* watchAniUnFollow() {
+function* watchAniUnFollow(){
   yield takeLatest(ANIUNFOLLOW_REQUEST, aniUnFollow);
+}
+function* watchModifyAniprofile() {
+  yield takeLatest(MODIFY_ANIPROFILE_REQUEST, modifyAniprofile);
+}
+function* watchRemoveAniFollow() {
+  yield takeLatest(REMOVE_ANIFOLLOW_REQUEST, removeAniFollow);
 }
 export default function* animalSaga() {
   yield all([
     fork(watchAddAniProfile),
     fork(watchLoadAnimalProfile),
-    fork(watchLoadAnimalList),
     fork(watchRemoveAniProfile),
     fork(watchLoadAniFollowers),
     fork(watchLoadAniFollowings),
     fork(watchLoadRecommendedAnimals),
     fork(watchAniFollow),
     fork(watchAniUnFollow),
+    fork(watchLoadMyAnimals),
+    fork(watchModifyAniprofile),
+    fork(watchRemoveAniFollow),
   ]);
 }
