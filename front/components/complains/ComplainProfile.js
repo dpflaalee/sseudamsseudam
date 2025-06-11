@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Avatar, Button, Dropdown, Menu } from 'antd';
 import styled from 'styled-components';
 import { MoreOutlined } from '@ant-design/icons';
-import ComplainForm from '../complains/ComplainForm';
+import ComplainForm from './ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import useSelection from 'antd/lib/table/hooks/useSelection';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,7 +11,6 @@ import { LOAD_POSTS_REQUEST } from '@/reducers/post'
 import Router from 'next/router';
 import PostCard from '../post/PostCard';
 import axios from 'axios';
-import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -76,7 +75,6 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
-
 const Profile = (props) => {
   const dispatch = useDispatch();
   const { logOutDone, user } = useSelector(state => state.user);
@@ -84,28 +82,6 @@ const Profile = (props) => {
 
   let postUserId = props.postUserId;
   const [postUser, setPostUser] = useState('');
-
-  // 신고 당한 유저 블라인드 처리
-  const { mainComplainCard } = useSelector((state) => state.complain);
-
-  useEffect(() => {
-    dispatch({
-      type: LOAD_COMPLAIN_REQUEST,
-    });
-  }, [dispatch]);
-  console.log('🐶 mainComplainCard : ', mainComplainCard);
-  console.log('postUserId:', postUserId);
-  console.log('mainComplainCard:', mainComplainCard);
-
-  const isBlinded = mainComplainCard.some((report) => {
-    return Number(report.targetId) === Number(postUserId) && report.isBlind;
-  });
-
-
-  console.log('🔥 isBlinded:', isBlinded);
-
-
-
   useEffect(() => {
     console.log('postUser실행');
     const postUserData = async () => {
@@ -217,10 +193,9 @@ const Profile = (props) => {
       <Banner />
       <Container>
         <AvatarBox>
-          <Avatar size={80}>
-            {isBlinded ? 'X' : (postUser?.nickname || '닉네임 없음')}
+          <Avatar size={80} >
+            {postUser?.nickname}
           </Avatar>
-
         </AvatarBox>
 
         <DropdownBox>
@@ -231,7 +206,7 @@ const Profile = (props) => {
 
         <TopRow>
           <InfoBox>
-            <Nickname>{isBlinded ? '신고 당한 유저입니다.' : (postUser?.nickname || '닉네임 없음')}</Nickname>
+            <Nickname>{postUser?.nickname}</Nickname>
             <Stats>
               {postUser?.followerCount} 팔로잉  &nbsp;&nbsp;
               {postUser?.followingCount} 팔로워 &nbsp;&nbsp;
@@ -253,11 +228,7 @@ const Profile = (props) => {
           </ButtonRow>
         )}
       </Container>
-      {!isBlinded && mainPosts.map((c) => {
-        return (
-          <PostCard post={c} key={c.id} />
-        );
-      })}
+
     </Wrapper>
   );
 };
