@@ -136,9 +136,9 @@ router.get('/', async (req, res, next) => {
                         break;
                     case NOTIFICATION_TYPE.ANIMAL_FRIENDS:
                         target = await Animal.findByPk(noti.targetId, {
-                            include: [{ model: Animal, attributes: ['id', 'aniName'] }],
+                            include: [{ model: Animal, as: 'Followers', attributes: ['id', 'aniName'] }],
                         })
-
+                        break;
                     case NOTIFICATION_TYPE.RANDOMBOX:
                         target = await MyPrize.findByPk(Number(noti.targetId), {
                             include: [{

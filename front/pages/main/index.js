@@ -15,6 +15,7 @@ import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import wrapper from '../../store/configureStore';
 import { END } from 'redux-saga';
 import AnimalList from '@/components/animal/AnimalList';
+import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
 //// import 수정
 const Home = () => {
@@ -71,13 +72,6 @@ const Home = () => {
     });
   }, [dispatch]);
 
-  console.log('🐶 mainComplainCard : ', mainComplainCard);
-  console.log('mainComplainCard:', mainComplainCard);
-
-  const isBlindedUser = mainComplainCard.some((report) => {
-    return Number(report.targetId) === Number(mainPosts.User?.id) && report.isBlind;
-  });
-
   return (
 
     <AppLayout>
@@ -89,11 +83,11 @@ const Home = () => {
           const myId = user?.id;
           const postOwnerId = post.UserId;
 
-          const isPostUserBlinded = mainComplainCard.some(
-            (report) => report.targetId === post.User?.id && report.isBlind
+          const isUserBlinded = mainComplainCard.some(
+            (report) => report.targetId === post.User?.id && report.isBlind && report.targetType === TARGET_TYPE.USER
           );
           // 신고된 유저의 글을 제외
-          if (isPostUserBlinded) return false;
+          if (isUserBlinded) return false;
 
           if (myId === postOwnerId) return true;
 
@@ -130,6 +124,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   //2. redux 액션
   context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
   context.store.dispatch({ type: LOAD_POSTS_REQUEST });
+  context.store.dispatch({ type: LOAD_COMPLAIN_REQUEST });
   context.store.dispatch(END);
 
   await context.store.sagaTask.toPromise();

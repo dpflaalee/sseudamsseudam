@@ -2,13 +2,13 @@ import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Avatar, Button, List, Popover, Modal, Input, Space, Select } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
-import PostImages from './PostImages';
+import PostImages from '../post/PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
 import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST, RETWEET_REQUEST } from '@/reducers/post';
-import ComplainForm from '../complains/ComplainForm';
+import ComplainForm from './ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-import PostCardContent from './PostCardContent';
+import PostCardContent from '../post/PostCardContent';
 
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
@@ -154,9 +154,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     });
   });
 
-  // 신고 된 글 블라인드 처리
-  const isBlinded = mainComplainCard.some((report) => report.targetId === post.id && report.isBlind && report.targetType === TARGET_TYPE.POST);
-  const content = isBlinded ? '신고된 게시글입니다.' : post.content;
 
   return (
     <div style={{ margin: '3%' }}>
@@ -231,7 +228,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
                 editMode={editMode}
                 onEditPost={onEditPost}
                 onCancelUpdate={onCancelUpdate}
-                postData={content}
+                postData={post.content}
               />
             }
           />
