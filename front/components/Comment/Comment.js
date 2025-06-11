@@ -10,6 +10,7 @@ import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import { REMOVE_COMMENT_REQUEST, UPDATE_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST } from '../../reducers/post';
 import ReCommentForm from './ReCommentForm';
 import ReComment from './ReComment';
+import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 
 const Wrapper = styled.div`
   margin-top: 24px;
@@ -130,12 +131,21 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
   const processedParentComments = comments
     .filter(comment => !comment.RecommentId)
     .map(comment => {
-      const isBlind = mainComplainCard?.some(report => report.targetId === comment.id && report.isBlind);
+      const isBlind = mainComplainCard?.some(report => report.targetType === TARGET_TYPE.COMMENT && Number(report.targetId) === Number(comment.id) && report.isBlind);
+      console.log('isBlind', isBlind)
       return {
         ...comment,
         content: isBlind ? '신고된 댓글입니다.' : comment.content,
       };
     });
+
+  // 신고 당한 유저 닉네임 처리
+  useEffect(() => {
+    dispatch({
+      type: LOAD_COMPLAIN_REQUEST,
+    });
+  }, [dispatch]);
+
 
   return (
     <Wrapper>
@@ -147,6 +157,11 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
         const createdAt = comment.createdAt
           ? new Date(comment.createdAt).toLocaleString()
           : '';
+
+        const isBlindedUser = mainComplainCard.some((report) => {
+          console.log(report);
+          return Number(report.targetId) === Number(comment.User?.id) && report.isBlind && report.targetType === TARGET_TYPE.USER;
+        });
 
         const menu = (
           <Menu>
@@ -171,10 +186,10 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
           <div key={comment.id}>
             <CommentItem>
               <Left>
-                <Avatar>{comment.User?.nickname?.[0] || 'U'}</Avatar>
+                <Avatar>{isBlindedUser ? 'X' : comment.User?.nickname?.[0] || 'U'}</Avatar>
                 <Content>
                   <NicknameDateWrapper>
-                    <Nickname>{comment.User?.nickname || '알 수 없음'}</Nickname>
+                    <Nickname>{isBlindedUser ? '신고된 유저입니다' : comment.User?.nickname || '알 수 없음'}</Nickname>
                     {createdAt && <CommentDate>{createdAt}</CommentDate>}
                   </NicknameDateWrapper>
 
@@ -226,10 +241,10 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                 {comment.Recomments.map((recomment) => (
                   <CommentItem key={recomment.id}>
                     <Left>
-                      <Avatar>{recomment.User?.nickname?.[0] || 'U'}</Avatar>
+                      <Avatar>{isBlindedUser ? 'X' : recomment.User?.nickname?.[0] || 'U'}</Avatar>
                       <Content>
                         <NicknameDateWrapper>
-                          <Nickname>{recomment.User?.nickname || '알 수 없음'}</Nickname>
+                          <Nickname>{isBlindedUser ? '신고된 유저입니다' : recomment.User?.nickname || '알 수 없음'}</Nickname>
                           {recomment.createdAt && (
                             <CommentDate>{new Date(recomment.createdAt).toLocaleString()}</CommentDate>
                           )}

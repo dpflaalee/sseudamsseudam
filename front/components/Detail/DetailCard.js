@@ -13,7 +13,7 @@ import PostCardContent from '../post/PostCardContent';
 
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
-
+import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 const PawIcon = ({ filled = false, style = {}, onClick }) => (
   <svg
     onClick={onClick}
@@ -183,9 +183,9 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const isBlinded = mainComplainCard?.some((report) => report.targetId === post.id && report.isBlind);
   const content = isBlinded ? '신고된 게시글입니다.' : post.content;
   const processedComments = post.Comments.map(comment => {
-    const isCommentBlind = mainComplainCard?.some((report) => report.targetId === comment.id && report.isBlind);
+    const isCommentBlind = mainComplainCard?.some((report) => report.targetId === comment.id && report.isBlind && report.targetType === TARGET_TYPE.COMMENT);
     const processedRecomments = comment.Recomments?.map(recomment => {
-      const isRecommentBlind = mainComplainCard?.some((report) => report.targetId === recomment.id && report.isBlind);
+      const isRecommentBlind = mainComplainCard?.some((report) => report.targetId === recomment.id && report.isBlind && report.targetType === TARGET_TYPE.COMMENT);
       return {
         ...recomment,
         content: isRecommentBlind ? '신고된 댓글입니다.' : recomment.content,
@@ -212,8 +212,8 @@ const DetailCard = ({ post, onRefreshPost }) => {
         actions={[
           <RetweetOutlined key="retweet" />,
           liked
-            ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px'}} onClick={onClickunLike} /> {post.Likers.length}</span>
-            : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px'}} onClick={onClickLike} /> {post?.Likers?.length}</span>,
+            ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
+            : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
           <span key="comment">
             <MessageOutlined /> {post.Comments?.length || 0}
           </span>,
