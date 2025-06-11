@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, Button, Avatar } from 'antd';
-import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
+import { UserOutlined, DeleteOutlined, QqOutlined } from '@ant-design/icons';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 
 import { useDispatch } from 'react-redux';
 
 import DummyComment from './DummyComment';
-import PostCard from '../post/PostCard';
+import ComplainPost from './ComplainPost';
 import Comment from '../comment/Comment';
 import Profile from '../user/Profile';
+import ComplainProfile from './ComplainProfile';
 import { IS_BLIND_REQUEST } from '@/reducers/complain';
 
 const ComplainCard = ({ report }) => {
-    console.log('🐕‍🦺 ComplainCard : ', report);
     const dispatch = useDispatch();
     const isBlind = () => {
         //alert('신고 내역을 삭제합니다');
-        console.log('🐙 isBlind : ', report.targetId);
         dispatch({
             type: IS_BLIND_REQUEST,
             data: {
@@ -27,9 +26,8 @@ const ComplainCard = ({ report }) => {
     };
 
     const reporter = report.Reporter;
-    console.log('💤 reporter ', reporter);
     const targetObject = report.targetObject;
-    console.log('💤 targetObject :', targetObject);
+    const isBlinded = report.isBlind;
 
     const renderByType = () => {
         if (!targetObject) {
@@ -44,7 +42,7 @@ const ComplainCard = ({ report }) => {
                         </div>
                         {targetObject ? (
                             <div style={{ padding: '8px', backgroundColor: '#f9f9f9', marginTop: 8 }}>
-                                <PostCard post={targetObject} />
+                                <ComplainPost post={targetObject} />
                             </div>
                         ) : (
                             <div>게시글 정보를 불러오는 중입니다...</div>
@@ -64,7 +62,7 @@ const ComplainCard = ({ report }) => {
                 return (
                     <>
                         <div style={{ fontWeight: 'bold' }}>{reporter ? reporter.nickname : '알수 없음'}님이 유저 {report.targetId}를 신고했습니다.</div>
-                        <div style={{ padding: '8px', backgroundColor: '#fff7e6', marginTop: 8 }}>{targetObject && <Profile postUserId={targetObject.id} />}</div>
+                        <div style={{ padding: '8px', backgroundColor: '#fff7e6', marginTop: 8 }}>{targetObject && <ComplainProfile postUserId={targetObject.id} />}</div>
                     </>
                 );
 
@@ -77,15 +75,17 @@ const ComplainCard = ({ report }) => {
         <Card
             style={{ marginBottom: 24 }}
             title={<span style={{ color: '#888' }}>{report.createdAt}</span>}
-            extra={
-                <Button danger icon={<DeleteOutlined />} onClick={isBlind}>
-                    내용 삭제하기
-                </Button>
+            extra=
+            {isBlinded ?
+                <Button icon={<QqOutlined />} > 처리 완료됨 </Button>
+                :
+                <Button danger icon={<DeleteOutlined />} onClick={isBlind}> 내용 삭제하기 </Button>
             }
+
         >
             {renderByType()}
-            <div style={{ marginTop: 10 }}>{report.reason}</div>
-        </Card>
+            < div style={{ marginTop: 10 }}> {report.reason}</div >
+        </Card >
     );
 };
 

@@ -56,13 +56,11 @@ function* addCategory(action) {
 
 // 카테고리 수정 API (PATCH 요청)
 function editCategoryAPI(data) {
-    console.log('👻 editCategoryAPI : ', data);
     return axios.patch(`/category/${data.id}`, data);
 }
 
 // 카테고리 수정 작업 (saga)
 function* editCategory(action) {
-    console.log('👻 editCategory : ', action.data);
     try {
         const result = yield call(editCategoryAPI, action.data);
         yield put({

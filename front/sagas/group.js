@@ -12,8 +12,8 @@ import {
   JOIN_GROUP_REQUEST, JOIN_GROUP_SUCCESS, JOIN_GROUP_FAILURE, //즉시가입
   APPLY_GROUP_REQUEST, APPLY_GROUP_SUCCESS, APPLY_GROUP_FAILURE, // 가입신청
   LOAD_JOIN_REQUESTS_REQUEST, LOAD_JOIN_REQUESTS_SUCCESS, LOAD_JOIN_REQUESTS_FAILURE, // 신청현황
-  APPROVE_JOIN_REQUEST, APPROVE_JOIN_REQUEST_SUCCESS, APPROVE_JOIN_REQUEST_FAILURE, // 가입승인
-  REJECT_JOIN_REQUEST, REJECT_JOIN_REQUEST_SUCCESS, REJECT_JOIN_REQUEST_FAILURE, // 가입거절
+  APPROVE_JOIN_REQUEST, APPROVE_JOIN_SUCCESS, APPROVE_JOIN_FAILURE, // 가입승인
+  REJECT_JOIN_REQUEST, REJECT_JOIN_SUCCESS, REJECT_JOIN_FAILURE, // 가입거절
 } from '@/reducers/group';
 
 // 알림
@@ -26,16 +26,20 @@ function* loadGroups() {
   try {
     const result = yield call(loadGroupsAPI);
     yield put({ type: LOAD_GROUPS_SUCCESS, data: result.data });
-  } catch (err) { yield put({ type: LOAD_GROUPS_FAILURE, error: err.response.data }); }
+  } catch (err) { yield put({ type: LOAD_GROUPS_FAILURE, error: err.response ? err.response.data : err.message }); }
 }
 function* watchLoadGroups() { yield takeLatest(LOAD_GROUPS_REQUEST, loadGroups); }
 
 // 2. 그룹 생성
-function createGroupAPI(data) { return axios.post('/groups', data); }
+function createGroupAPI(data) {
+  return axios.post('/groups', data, {
+    withCredentials: true,
+  });
+}
 function* createGroup(action) {
   try {
     const result = yield call(createGroupAPI, action.data);
-    yield put({ type: CREATE_GROUP_SUCCESS, data: result.data });
+    yield put({ type: CREATE_GROUP_SUCCESS, data: result?.data, });
   } catch (err) { yield put({ type: CREATE_GROUP_FAILURE, error: err.response.data }); }
 }
 function* watchCreateGroup() { yield takeLatest(CREATE_GROUP_REQUEST, createGroup); }
@@ -77,7 +81,7 @@ function* loadMembers(action) {
   try {
     console.log('멤버 로드 요청:', action);
     const result = yield call(loadMembersAPI, action.data);
-    console.log('API 응답 데이터:', result.data);
+    //console.log('API 응답 데이터:', result.data);
     yield put({ type: LOAD_MEMBERS_SUCCESS, data: result.data });
   } catch (err) { yield put({ type: LOAD_MEMBERS_FAILURE, error: err.response.data }); }
 }
@@ -105,34 +109,113 @@ function* watchTransferOwnership() { yield takeLatest(TRANSFER_OWNERSHIP_REQUEST
 
 //가입-----------------------------------------------------------------------------------
 //1. 공개그룹 즉시가입
-function joinGroupAPI(data) { return axios.post(`/groups/${data.groupId}/join`) }
+function joinGroupAPI(data) { console.log('joinGroupAPI 데이터----------------:', data); return axios.post(`/api/groups/${data.groupId}/join`); }
 function* joinGroup(action) {
   try {
     yield call(joinGroupAPI, action.data);
-    yield put({ type: JOIN_GROUP_SUCCESS })
+    yield put({ type: JOIN_GROUP_SUCCESS });
+    // 알림
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.GROUPAPPLY,
+        SenderId: action.notiData.SenderId,
+        ReceiverId: action.notiData.ReceiverId,
+        targetId: action.notiData.targetId,
+      }
+    });
+    // E 알림
   } catch (err) { yield put({ type: JOIN_GROUP_FAILURE, error: err.response.data || err.message }); }
 }
 function* watchJoinGroup() { yield takeLatest(JOIN_GROUP_REQUEST, joinGroup) }
 
 //2. 비공개그룹 가입처리
-function applyGroupAPI(data) { return axios.post(`/group/${data.groupId}/apply`); }
+function applyGroupAPI(data) { console.log('joinGroupAPI 데이터----------------:', data); return axios.post(`/api/groups/${data.groupId}/apply`); }
 function* applyGroup(action) {
   try {
     yield call(applyGroupAPI, action.data);
-    yield put({ type: APPLY_GROUP_SUCCESS });
-    // 그룹 가입 요청 알림
+    yield put({ type: APPLY_GROUP_SUCCESS, message: "가입 신청이 완료되었습니다!" });
+    // 알림
     yield put({
       type: ADD_NOTIFICATION_REQUEST,
       data: {
         notiType: NOTIFICATION_TYPE.GROUPAPPLY,
-        //SenderId:,
-        //RecieverId: ,
-        targetId: action.data.groupId,
-      },
+        SenderId: action.notiData.SenderId,
+        ReceiverId: action.notiData.ReceiverId,
+        targetId: action.notiData.targetId,
+      }
     });
+    // E 알림
   } catch (err) { yield put({ type: APPLY_GROUP_FAILURE, error: err.response.data || err.message }) }
 }
 function* watchApplyGroup() { yield takeLatest(APPLY_GROUP_REQUEST, applyGroup) }
+// --
+// 3.가입 요청 불러오기
+function loadJoinRequestsAPI(groupId) { return axios.get(`/api/groups/${groupId}/requests`); }
+function* loadJoinRequests(action) {
+  try {
+    const result = yield call(loadJoinRequestsAPI, action.data);
+    yield put({ type: LOAD_JOIN_REQUESTS_SUCCESS, data: result.data });
+  } catch (err) { yield put({ type: LOAD_JOIN_REQUESTS_FAILURE, error: err.response.data }); }
+}
+function* watchLoadJoinRequests() { yield takeLatest(LOAD_JOIN_REQUESTS_REQUEST, loadJoinRequests); }
+
+// 4. 승인
+function approveJoinAPI(requestId, userId) {
+  console.log("SAGA4. 승인한 요청 ID.................", requestId, userId);
+  return axios.post(`/api/groups/${groupId}/requests/${requestId}/approve?userId=${userId}`);
+}
+
+function* approveJoin(action) {
+  console.log("SAGA1. 승인 action데이터...............", action.data);
+  try {
+    const { groupId, userId } = action.data;
+    const response = yield call(axios.get, `/api/groups/${groupId}/requests?userId=${userId}`);
+    const request = response.data;
+    console.log("SAGA2. 조회된 요청............", request);
+
+    if (!request) {
+      throw new Error('해당 요청을 찾을 수 없습니다.');
+    }
+
+    yield call(approveJoinAPI, request.id, userId);  // requestId와 userId를 전달
+    yield put({ type: APPROVE_JOIN_SUCCESS, data: request.id });
+  } catch (err) {
+    const error = err.response ? err.response.data : err.message;
+    yield put({ type: APPROVE_JOIN_FAILURE, error });
+  }
+}
+
+function* watchApproveJoin() { yield takeLatest(APPROVE_JOIN_REQUEST, approveJoin); }
+
+// 5. 거절
+function rejectJoinAPI(requestId, userId) {
+  console.log("SAGA4. 거절한 요청 ID.................", requestId, userId);
+  return axios.post(`/api/groups/requests/${requestId}/reject?userId=${userId}`);  // 쿼리스트링 방식으로 전달
+}
+
+function* rejectJoin(action) {
+  console.log("거절 action데이터...............", action.data);
+  try {
+    const { groupId, userId } = action.data;
+    const response = yield call(axios.get, `/api/groups/${groupId}/requests?userId=${userId}`);
+    const request = response.data;
+    console.log("SAGA5. 거절 조회된 요청...............", request);
+
+    if (!request) {
+      throw new Error('해당 요청을 찾을 수 없습니다.');
+    }
+
+    yield call(rejectJoinAPI, request.id, userId);  // requestId와 userId를 전달
+    yield put({ type: REJECT_JOIN_SUCCESS, data: request.id });
+  } catch (err) {
+    const error = err.response ? err.response.data : err.message;
+    yield put({ type: REJECT_JOIN_FAILURE, error });
+  }
+}
+
+function* watchRejectJoin() { yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin); }
+
 
 // root saga
 export default function* groupSaga() {
@@ -147,5 +230,8 @@ export default function* groupSaga() {
     fork(watchTransferOwnership),
     fork(watchJoinGroup),
     fork(watchApplyGroup),
+    fork(watchLoadJoinRequests),
+    fork(watchApproveJoin),
+    fork(watchRejectJoin),
   ]);
 }

@@ -28,6 +28,13 @@ const CalendarUI = styled.div`
     font-size: 16px;
     text-align: center;
   }
+  
+  .react-calendar__tile > abbr {
+    position: relative;
+    z-index: 2;
+    line-height: 1;
+    user-select: none;
+  }
 
   .react-calendar__tile--active {
     background: none !important;
@@ -42,6 +49,7 @@ const CalendarUI = styled.div`
 
   .react-calendar__tile:disabled {
     color: #ffffff !important;
+    pointer-events: none;
   }
 
   .react-calendar__month-view__days__day--neighboringMonth:disabled,
@@ -60,6 +68,7 @@ const CalendarUI = styled.div`
   .react-calendar__decade-view__years__year--neighboringDecade,
   .react-calendar__century-view__decades__decade--neighboringCentury {
     color: #ffffff !important;
+    pointer-events: none;
   }
 
   .react-calendar__tile--now {

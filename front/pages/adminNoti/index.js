@@ -51,7 +51,7 @@ const Home = () => {
                 <Button type="primary" onClick={() => router.push('/admin/complain')}>
                     신고 관리 페이지로 이동
                 </Button>
-                <Button type="primary" onClick={() => router.push('/mypage')}>
+                <Button type="primary" onClick={() => router.push(`/user/myPage/${user?.id}`)}>
                     마이페이지로 이동
                 </Button>
             </div>

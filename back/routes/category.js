@@ -15,7 +15,6 @@ router.get('/', async (req, res, next) => {
 
 // 카테고리 생성
 router.post('/', async (req, res, next) => {
-  console.log('🦄 categoryRouter ');
   const { content, isAnimal } = req.body;
 
   // 필수 값 체크
@@ -42,7 +41,6 @@ router.post('/', async (req, res, next) => {
 // 카테고리 일부 필드 수정 (PATCH)
 router.patch('/:id', async (req, res, next) => {
   const { id } = req.params;
-  console.log('😹 req.body', req.body);
   const { content, isAnimal } = req.body;
 
   try {

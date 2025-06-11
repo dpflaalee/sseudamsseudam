@@ -131,8 +131,15 @@ const AniFollow = () => {
                   <Avatar icon={<UserOutlined />} />
                 )
               }
-              title={item.aniName || '이름 없음'}
-              />
+              title={
+                <div>
+                  <div>{item.aniName || '이름 없음'}</div>
+                  {item.Category?.content && (
+                    <div style={{ fontSize: 12, color: '#666' }}>저는 {item.Category.content}입니다.</div>
+                  )}
+                </div>
+              }
+            />
             </List.Item>
         )}
       />
