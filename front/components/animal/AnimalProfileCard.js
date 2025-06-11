@@ -1,11 +1,13 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, Popover, message } from 'antd';
-import { EllipsisOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, LeftCircleOutlined, LeftOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
 import { REMOVE_ANIPROFILE_REQUEST } from '@/reducers/animal';
+import AnimalSearch from './AnimalSeach';
 
 const AnimalProfileCard = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
   const { selectedAnimal } = useSelector((state) => state.animal);
@@ -13,13 +15,16 @@ const AnimalProfileCard = () => {
 
   if (!selectedAnimal) return null;
 
-  const { id, aniName, aniAge, aniProfile, Followings, Followers, CategoryId} = selectedAnimal;
+  const { id, aniName, aniAge, aniProfile, Followings, Followers, Category} = selectedAnimal;
 
   const onClickModify = () => {
     router.push(`/animal/${id}/edit`);
   };
-  
-  const { category } = selectedAnimal;
+
+  const handleClick = () => {
+    router.push('/main');
+  }
+  // const { category } = selectedAnimal;
 
   const onClickDelete = () => {
     if (window.confirm(`${aniName} 프로필을 정말 삭제하시겠습니까?`)) {
@@ -31,21 +36,34 @@ const AnimalProfileCard = () => {
       router.push('/');
     }
   };
-
+  
   const popoverContent = (
     <div style={{ display: 'flex', flexDirection: 'column', padding: 6 }}>
-      <Button type="text" style={{ textAlign: 'left', padding: '4px 8px' }}>
+      <Button type="text" style={{ textAlign: 'left', padding: '4px 8px' }}
+        onClick={() => setIsModalOpen(true)}>
         친구찾기
       </Button>
     </div>
   );
 
   return (
-    <div style={{width: '100%', borderRadius: 8, overflow: 'hidden', backgroundColor: '#fff' }}>
+    <div style={{width: '100%', borderRadius: 8, overflow: 'hidden', backgroundColor: '#fff', position: 'relative' }}>
+      <LeftOutlined
+        onClick={handleClick}
+        style={{
+          fontSize: 20,
+          cursor: 'pointer',
+          position: 'absolute',
+          top: 12, // 상단 여백
+          left: 16,
+          zIndex: 2,
+          color: '#fff', // 흰색으로 변경
+        }}
+      />
       <div
         style={{
           backgroundColor: '#f8dada',
-          padding: '16px 20px',
+          padding: '16px 20px 16px 48px',
           display: 'flex',
           alignItems: 'center',
           position: 'relative',
@@ -73,9 +91,9 @@ const AnimalProfileCard = () => {
         </div>
         <div style={{ flexGrow: 1 }}>
           <div style={{ fontWeight: 'bold', fontSize: 16 }}>{aniName}</div>
-          {category?.content && (
+          {Category?.content && (
             <div style={{ fontSize: 13, marginTop: 4, color: '#666' }}>
-              {category.content}
+              {Category.content}
             </div>
           )}
           <div style={{ fontSize: 14, marginTop: 4 }}>
@@ -97,6 +115,7 @@ const AnimalProfileCard = () => {
         <Popover content={popoverContent} trigger="click">
           <EllipsisOutlined style={{ fontSize: 20, cursor: 'pointer', justifyContent: 'flex-end' }} />
         </Popover>
+        <AnimalSearch visible={isModalOpen} onClose={() => setIsModalOpen(false)} />
       </div>
     </div>
   );

@@ -9,7 +9,6 @@ const { Op } = require('sequelize');
 router.get('/', async (req, res, next) => {
     try {
         const admin = await User.findOne({ where: { isAdmin: true } });
-        console.log('🎅 admin', admin);
         const adminNoti = await Post.findAll({
             where: { userId: admin.id },
             limit: 10,

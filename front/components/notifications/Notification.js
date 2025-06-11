@@ -52,7 +52,7 @@ const Notification = ({ noti, onDelete }) => {
   const router = useRouter(); // 라우터 훅 사용
 
   const handleClick = () => {
-    const { type, targetId } = noti;
+    const { type, targetId, SenderId, ReceiverId } = noti;
 
     switch (type) {
       case NOTIFICATION_TYPE.LIKE:
@@ -83,7 +83,7 @@ const Notification = ({ noti, onDelete }) => {
         });
         break;
       case NOTIFICATION_TYPE.FOLLOW:
-        router.push(`/user/${targetId}`);
+        router.push(`/user/myPage/${SenderId}`);
         break;
       case NOTIFICATION_TYPE.GROUPAPPLY:
       case NOTIFICATION_TYPE.GROUPAPPLY_APPROVE:
@@ -164,18 +164,18 @@ const Notification = ({ noti, onDelete }) => {
         return `${sender.nickname}님! 랜덤박스가 도착했어요 확인해보세요!`;
       case NOTIFICATION_TYPE.GROUPAPPLY:
         return [
-          `${sender.nickname}님이 ${target?.title}에 함께 하고 싶어해요!`
+          `${sender.nickname}님이 [ ${target?.title} ] 에 함께 하려 합니다!`
         ];
       case NOTIFICATION_TYPE.GROUPAPPLY_APPROVE:
         return [
-          `${sender.nickname}님! ${target?.title} 그룹에 참여되었습니다.`
+          `${sender.nickname}님! [ ${target?.title} ] 그룹에 참여되었습니다.`
         ];
       case NOTIFICATION_TYPE.GROUPAPPLY_REJECT:
         return `${sender.nickname}님 그룹 신청이 거절되었습니다.`;
       case NOTIFICATION_TYPE.ADMIN_NOTI:
         return `관리자 알림: 새로운 공지가 등록되었습니다.`;
       case NOTIFICATION_TYPE.ANIMAL_FRIENDS:
-        return `누군가가 ${target?.aniName || '(이름 없음)'}과(와) 친구가 되고 싶어해요!`;
+        return `누군가가 ${target?.aniName || '(내 반려동물)'}과(와) 친구가 되고 싶어해요!`;
       default:
         return '알 수 없는 알림';
     }

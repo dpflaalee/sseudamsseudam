@@ -1,4 +1,4 @@
-import { all, put, delay, fork, takeLatest , call} from 'redux-saga/effects'  //#1
+import { all, put, delay, fork, takeLatest, call } from 'redux-saga/effects'  //#1
 import axios from 'axios';  //##
 
 import {
@@ -13,7 +13,7 @@ import {
   SIGN_UP_REQUEST,
   SIGN_UP_SUCCESS,
   SIGN_UP_FAILURE,
-  
+
   CHANGE_NICKNAME_REQUEST,
   CHANGE_NICKNAME_SUCCESS,
   CHANGE_NICKNAME_FAILURE,
@@ -31,22 +31,26 @@ import {
   UNFOLLOW_SUCCESS,
   UNFOLLOW_FAILURE,
 
-  LOAD_MY_INFO_REQUEST, 
+  LOAD_MY_INFO_REQUEST,
   LOAD_MY_INFO_SUCCESS,
   LOAD_MY_INFO_FAILURE,
 
-  LOAD_FOLLOWERS_REQUEST, 
-  LOAD_FOLLOWERS_SUCCESS, 
+  LOAD_FOLLOWERS_REQUEST,
+  LOAD_FOLLOWERS_SUCCESS,
   LOAD_FOLLOWERS_FAILURE,
-  
-  LOAD_FOLLOWINGS_REQUEST, 
-  LOAD_FOLLOWINGS_SUCCESS, 
+
+  LOAD_FOLLOWINGS_REQUEST,
+  LOAD_FOLLOWINGS_SUCCESS,
   LOAD_FOLLOWINGS_FAILURE,
-  
-  REMOVE_FOLLOWER_REQUEST, 
-  REMOVE_FOLLOWER_FAILURE, 
+
+  REMOVE_FOLLOWER_REQUEST,
+  REMOVE_FOLLOWER_FAILURE,
   REMOVE_FOLLOWER_SUCCESS,
 } from '../reducers/user';
+
+// 알림
+import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification';
+import NOTIFICATION_TYPE from '../../shared/constants/NOTIFICATION_TYPE';
 
 function removeFollowerAPI(data) {
   return axios.delete(`/user/follower/${data}`);
@@ -133,33 +137,33 @@ function* loadMyInfo() {
 
 
 ///// step3) 
-function  loginApi(data) {   //★   function* (X)
+function loginApi(data) {   //★   function* (X)
   return axios.post('/user/login', data); //##
 }
 function* login(action) {
-  
+
   try {
-    const result = yield call( loginApi, action.data ); // 처리함수, 처리파라미터
+    const result = yield call(loginApi, action.data); // 처리함수, 처리파라미터
     //yield delay(1000);
     yield put({
       type: LOG_IN_SUCCESS,
-      data: result.data ,// action.data  //## 
-    })  
+      data: result.data,// action.data  //## 
+    })
   } catch (error) {
     yield put({
       type: LOG_IN_FAILURE,
       error: error.response.data,
-    }) 
+    })
   }
 }
 
 //--
-function  logoutApi() {   //★   function* (X)
+function logoutApi() {   //★   function* (X)
   return axios.post('/user/logout');
 }
 function* logout() {
   try {
-    const result = yield call( logoutApi); //처리함수, 처리파라미터
+    const result = yield call(logoutApi); //처리함수, 처리파라미터
     //yield delay(1000);
     yield put({
       type: LOG_OUT_SUCCESS,
@@ -171,7 +175,7 @@ function* logout() {
     })
   }
 }
-function  userDeleteApi() {   //★   function* (X)
+function userDeleteApi() {   //★   function* (X)
   return axios.post('/user/userDelete');
 }
 function* userDelete() {
@@ -192,25 +196,25 @@ function* userDelete() {
 
 //-- 
 function signUpAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
-  console.log('data=',data);
-    return axios.post('/user', data);   //         /user 경로 , post, 회원가입정보(data)
+  console.log('data=', data);
+  return axios.post('/user', data);   //         /user 경로 , post, 회원가입정보(data)
 }
 
 function* signUp(action) {
-  console.log('login=',action.data);
-    try {
-        const result = yield call(signUpAPI, action.data);  // 사용자가 화면에서 넘겨준값
-        console.log('result=',result.data);
-        yield put({
-            type: SIGN_UP_SUCCESS,
-        });
-    } catch (err) {
-        console.error(err);
-        yield put({
-            type: SIGN_UP_FAILURE,
-            error: err.response.data,
-        });
-    }
+  console.log('login=', action.data);
+  try {
+    const result = yield call(signUpAPI, action.data);  // 사용자가 화면에서 넘겨준값
+    console.log('result=', result.data);
+    yield put({
+      type: SIGN_UP_SUCCESS,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: SIGN_UP_FAILURE,
+      error: err.response.data,
+    });
+  }
 }
 
 function followAPI(data) {
@@ -218,14 +222,29 @@ function followAPI(data) {
 }
 
 function* follow(action) {
-  console.log('followData1111',action);
+  console.log('followData1111', typeof action.data);
+
+  // 알림
+  console.log('👻👻 follow action.notiData ', action.notiData);
+  console.log('👻👻 follow action.data ', action.data);
   try {
     const result = yield call(followAPI, action.data);
-    console.log('followData2222',result.data);
+    console.log('followData2222', result.data);
     yield put({
       type: FOLLOW_SUCCESS,
       data: result.data,
     });
+
+    // 알림
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.FOLLOW,
+        SenderId: action.notiData.SenderId,
+        ReceiverId: action.notiData.ReceiverId,
+      }
+    });
+    // E 알림
   } catch (err) {
     console.error(err);
     yield put({
@@ -257,15 +276,15 @@ function* unfollow(action) {
 
 // changeNickname 
 //--
-function  changeNicknameApi( data ) {   //★   function* (X)
-  return axios.post('/user/nickname'  , {nickname : data});
+function changeNicknameApi(data) {   //★   function* (X)
+  return axios.post('/user/nickname', { nickname: data });
 }
 function* changeNickname(action) {
   //const result = yield call( logoutApi); 처리함수, 처리파라미터
   try {
     yield delay(1000);
     yield put({
-      type: CHANGE_NICKNAME_SUCCESS, 
+      type: CHANGE_NICKNAME_SUCCESS,
       data: action.data
     })
   } catch (error) {
@@ -277,10 +296,10 @@ function* changeNickname(action) {
 }
 ///// step2) ACTION 기능추가
 function* watchLoadMyInfo() {
-  yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo );  //LOG_IN 액션이 실행될때까지 기다리기
+  yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo);  //LOG_IN 액션이 실행될때까지 기다리기
 }
 function* watchLogin() {
-  yield takeLatest(LOG_IN_REQUEST, login );  //LOG_IN 액션이 실행될때까지 기다리기
+  yield takeLatest(LOG_IN_REQUEST, login);  //LOG_IN 액션이 실행될때까지 기다리기
 }
 function* watchLogout() {
   yield takeLatest(LOG_OUT_REQUEST, logout);
@@ -317,16 +336,16 @@ function* watchLoadFollowings() {
 ///// step1) all()
 export default function* userSaga() {
   yield all([
-      fork(watchLogin),
-      fork(watchLogout),
-      fork(watchSignup), 
-      fork(watchLoadMyInfo), 
-      fork(watchUserDelete), 
-      fork(watchFollow),
-      fork(watchUnfollow),
-      fork(watchChangeNickname),
-      fork(watchRemoveFollower),
-      fork(watchLoadFollowers),
-      fork(watchLoadFollowings),
+    fork(watchLogin),
+    fork(watchLogout),
+    fork(watchSignup),
+    fork(watchLoadMyInfo),
+    fork(watchUserDelete),
+    fork(watchFollow),
+    fork(watchUnfollow),
+    fork(watchChangeNickname),
+    fork(watchRemoveFollower),
+    fork(watchLoadFollowers),
+    fork(watchLoadFollowings),
   ]);
 }

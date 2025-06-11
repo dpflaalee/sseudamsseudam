@@ -11,11 +11,9 @@ const SearchForm = () => {
     const [searchResult, setSearchResult] = useState({ post: [], group: [], member: [] });
 
     const onSearch = useCallback(async () => {
-        console.log('🦾 onSearch : ', searchInput);
         try {
             const res = await axios.get(`http://localhost:3065/search/${searchInput}`);
             setSearchResult(res.data);
-            console.log('🎯 검색 결과: ', res.data);
         } catch (err) {
             console.error('검색 실패:', err);
         }

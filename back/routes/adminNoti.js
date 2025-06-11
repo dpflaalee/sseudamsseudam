@@ -9,7 +9,6 @@ router.get('/', async (req, res, next) => {
         const admins = await User.findAll({ where: { isAdmin: true } });
         const adminIds = admins.map(admin => admin.id);
 
-        console.log('🎅 admin', admins);
         const adminNoti = await Post.findAll({
             where: {
                 UserId: { [Op.in]: adminIds }

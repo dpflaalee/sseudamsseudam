@@ -119,7 +119,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             break;
 
         case REMOVE_NOTIFICATION_SUCCESS:
-            console.log('🐢 REMOVE_NOTIFICATION_SUCCESS : ', action.data);
             draft.mainNotification = draft.mainNotification.filter((n) => n.id !== action.data);
             draft.removeNotificationLoading = false;
             draft.removeNotificationDone = true;
