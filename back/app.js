@@ -22,6 +22,7 @@ const groups = require('./routes/group');
 const category = require('./routes/category');
 const prize = require('./routes/prize');
 const randomBox = require('./routes/randomBox');
+const coupon = require('./routes/coupon');
 const animal = require('./routes/animal');
 const calendar = require('./routes/calendar');
 const adminNoti = require('./routes/adminNoti');
@@ -97,7 +98,8 @@ app.use('/api/groups', groups);
 app.use('/category', category);
 
 app.use('/admin/prizes', prize);
-app.use('/api/random-box', randomBox);
+app.use('/random-boxes', randomBox);
+app.use('/api/random-box', coupon);
 app.use('/animal', animal);
 app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
 app.use('/calendar', calendar);
