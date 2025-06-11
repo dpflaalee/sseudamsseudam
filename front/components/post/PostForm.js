@@ -35,7 +35,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
       setText('');
     }
   }, [addPostDone]);
-  const user = useSelector(state => state.user);
 
   useEffect(() => {
     const storedLink = localStorage.getItem('kakaoMapLink');
