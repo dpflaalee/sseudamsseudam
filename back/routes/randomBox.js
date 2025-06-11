@@ -1,180 +1,191 @@
 const express = require('express');
 const router = express.Router();
-const { Prize, MyPrize, Sequelize, sequelize, Category } = require('../models');
+const { Prize, MyPrize, Sequelize, sequelize, Category, Animal } = require('../models');
 const { Op } = Sequelize;
 const { isLoggedIn } = require('./middlewares');
 
-// 1) 카테고리별 랜덤박스 열기 - 확률 기반 추첨, 수량 차감 없이 MyPrize 발급
-router.post('/open/:category', isLoggedIn, async (req, res) => {
-  const { category } = req.params;
-  const userId = req.user.id;
-
+// --- 1) 랜덤박스 리스트 조회 ---
+router.get('/', isLoggedIn, async (req, res) => { 
   try {
-    // 카테고리 유효성 검사
-    const categoryExists = await Category.findByPk(category);
-    if (!categoryExists) {
-      return res.status(400).json({ success: false, message: '존재하지 않는 카테고리입니다.' });
+    // 유저가 소유한 동물과 해당 카테고리의 랜덤박스 상품 조회
+    const animals = await Animal.findAll({
+      where: { UserId: req.user.id },
+      attributes: ['CategoryId']
+    });
+
+    if (!animals.length) {
+      return res.status(200).json({ success: false, message: '동물이 없습니다.' });
     }
 
-    // 조건에 맞는 상품 조회
-    const prizes = await Prize.findAll({
+    // 동물 카테고리 ID 목록 생성
+    const categoryIds = animals.map(animal => animal.CategoryId);
+
+    // 해당 카테고리에 속한 랜덤박스 상품 조회
+    const prizeItems = await Prize.findAll({
       where: {
-        CategoryId: category,
+        CategoryId: { [Op.in]: categoryIds },
+        type: 'randombox',
         quantity: { [Op.gt]: 0 },
-        dueAt: { [Op.gt]: new Date() },
-        probability: { [Op.gt]: 0 },
+        dueAt: { [Op.gt]: new Date() }, // 유효 기간이 지나지 않은 상품만
+      },
+    });
+
+    if (!prizeItems.length) {
+      return res.status(200).json({ success: false, message: '랜덤박스 상품이 없습니다.' });
+    }
+
+    // 아직 사용되지 않은 랜덤박스 리스트 반환
+    return res.status(200).json({
+      success: true,
+      data: prizeItems.map(prize => ({
+        id: prize.id,
+        content: prize.content,
+        categoryId: prize.CategoryId,
+        dueAt: prize.dueAt,
+      }))
+    });
+  } catch (err) {
+    console.error('랜덤박스 조회 오류:', err.message, err);
+    return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
+// --- 2) 랜덤박스 사용 처리 ---
+router.post('/use/:prizeId', isLoggedIn, async (req, res) => {  
+  const userId = req.user.id;
+  const prizeId = req.params.prizeId;
+
+  try {
+    // 랜덤박스 상품 조회
+    const randomboxPrize = await Prize.findOne({
+      where: { id: prizeId, type: 'randombox' }
+    });
+
+    if (!randomboxPrize) {
+      return res.status(400).json({ success: false, message: '존재하지 않는 랜덤박스 상품입니다.' });
+    }
+
+    // MyPrize에 랜덤박스를 저장
+    const myPrize = await MyPrize.create({
+      UserId: userId,
+      PrizeId: randomboxPrize.id,
+      issuedReason: 'used_random_box',
+      dueAt: randomboxPrize.dueAt,
+      usedAt: new Date(),
+      isRead: true,
+    });
+
+    // 실제 당첨 상품(타입 'real') 리스트 조회
+    const realPrizes = await Prize.findAll({
+      where: {
+        CategoryId: randomboxPrize.CategoryId,
+        type: 'real',
+        quantity: { [Op.gt]: 0 }
       }
     });
 
-    if (!prizes.length) {
+    if (!realPrizes.length) {
       return res.status(200).json({ success: false, message: '당첨 가능한 상품이 없습니다.' });
     }
 
-    // 확률 기반 랜덤 추첨
-    const totalProbability = prizes.reduce((sum, p) => sum + p.probability, 0);
-    const random = Math.random() * totalProbability;
+    // 당첨 확률 누적 계산
+    const totalProb = realPrizes.reduce((sum, p) => sum + p.probability, 0);
+    const rand = Math.random() * totalProb;
 
-    let cumulative = 0;
-    let selectedPrize = null;
-    for (const prize of prizes) {
-      cumulative += prize.probability;
-      if (random <= cumulative) {
-        selectedPrize = prize;
+    let sum = 0;
+    let selectedRealPrize = null;
+    for (const p of realPrizes) {
+      sum += p.probability;
+      if (rand <= sum) {
+        selectedRealPrize = p;
         break;
       }
     }
 
-    if (!selectedPrize) {
-      return res.status(200).json({ success: false, message: '아쉽지만 당첨되지 않았습니다.' });
-    }
+    // 랜덤박스 사용 후 쿠폰 발급
+    let coupon = null;
+    if (selectedRealPrize) {
+      // 실제 상품 수량 차감
+      selectedRealPrize.quantity -= 1;
+      await selectedRealPrize.save();
 
-    // MyPrize 발급 (수량 차감은 쿠폰 사용 시 처리)
-    await sequelize.transaction(async (t) => {
-      await MyPrize.create({
-        UserId: userId,
-        PrizeId: selectedPrize.id,
-        issuedReason: '주간 좋아요 순위 5위 내 선정 보상',
-        dueAt: selectedPrize.dueAt,
-      }, { transaction: t });
-    });
+      coupon = {
+        content: selectedRealPrize.content,
+        barcode: selectedRealPrize.barcode,
+        issuedAt: myPrize.createdAt,
+        usedAt: myPrize.usedAt,
+      };
+    }
 
     return res.status(200).json({
       success: true,
-      itemName: selectedPrize.content,
+      message: selectedRealPrize ? '🎉 축하합니다! 쿠폰이 발급되었습니다.' : '😢 아쉽게도 당첨되지 않았습니다.',
+      coupon,
     });
-  } catch (err) {
-    console.error('랜덤박스 오류:', err.message, err);
-    return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
-  }
-});
-
-// 2) 유저가 받은 랜덤박스(쿠폰) 리스트 조회 (마이페이지)
-router.get('/', isLoggedIn, async (req, res) => {
-
-  console.log("📦 현재 로그인 사용자:", req.user);
-
-  try {
-    const myPrizes = await MyPrize.findAll({
-      where: { UserId: req.user.id },
-      include: [
-        {
-          model: Prize,
-          as: 'prize',
-          include: [{ model: Category, as: 'category' }],
-        }
-      ],
-      order: [['createdAt', 'DESC']]
-    });
-
-    return res.json({
-      success: true,
-      data: myPrizes.map(mp => ({
-        id: mp.id,
-        content: mp.prize?.content || '상품 정보 없음',
-        category: mp.prize?.category
-          ? {
-              id: mp.prize.category.id,
-              content: mp.prize.category.content,
-            }
-          : null,
-        barcode: mp.prize?.barcode || '',
-        issuedAt: mp.createdAt,
-        dueAt: mp.prize?.dueAt || null,
-        isRead: mp.isRead,
-        usedAt: mp.usedAt,
-      }))
-    });
-  } catch (err) {
-    console.error('쿠폰 목록 조회 오류:', err.message, err);
-    return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
-  }
-});
-
-// 3) 쿠폰 사용 처리 - 쿠폰 사용 시 Prize 수량 차감
-router.post('/use/:id', isLoggedIn, async (req, res) => {
-  const userId = req.user.id;
-  const myPrizeId = req.params.id;
-
-  try {
-    const myPrize = await MyPrize.findOne({
-      where: { id: myPrizeId, UserId: userId, usedAt: null },
-      include: [{ model: Prize, as: 'prize' }]
-    });
-
-    if (!myPrize) {
-      return res.status(400).json({ success: false, message: '잘못된 또는 이미 사용한 랜덤박스입니다.' });
-    }
-
-    const prize = myPrize.prize;
-
-    let isHit = true; // 기본은 무조건 당첨 상품
-    let resultPrize = prize;
-
-    // 확률이 존재한다면 (= 랜덤박스라면), 당첨 여부 계산
-    if (prize.probability > 0 && prize.quantity > 0) {
-      const chance = Math.random() * 100;
-      isHit = chance <= prize.probability;
-      if (!isHit) resultPrize = null;
-    }
-
-    // 트랜잭션 처리
-    await sequelize.transaction(async (t) => {
-      // 사용 처리
-      myPrize.isRead = true;
-      myPrize.usedAt = new Date();
-      await myPrize.save({ transaction: t });
-
-      if (isHit && resultPrize) {
-        // 수량 차감
-        const prizeToUpdate = await Prize.findByPk(resultPrize.id, { transaction: t });
-        if (prizeToUpdate.quantity > 0) {
-          prizeToUpdate.quantity -= 1;
-          await prizeToUpdate.save({ transaction: t });
-        }
-      }
-    });
-
-    // 응답
-    if (isHit && resultPrize) {
-      return res.status(200).json({
-        success: true,
-        message: '🎉 축하합니다! 쿠폰이 발급되었습니다.',
-        coupon: {
-          name: resultPrize.content,
-          barcode: resultPrize.barcode,
-          usedAt: new Date(),
-        }
-      });
-    } else {
-      return res.status(200).json({
-        success: false,
-        message: '😢 아쉽게도 이번에는 당첨되지 않았습니다.',
-      });
-    }
-
   } catch (err) {
     console.error('랜덤박스 사용 오류:', err.message, err);
     return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
+// --- 3) 유저의 동물 카테고리별 랜덤박스 상품 그룹 조회 ---
+router.get('/by-user-categories', isLoggedIn, async (req, res) => {
+  try {
+    const userId = req.user.id;  // req.user.id에서 바로 가져오기  
+
+    console.log("Received userId:", userId);  // userId 값 확인용 로그
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId가 필요합니다.' });
+    }
+
+    // 유저 정보 조회
+    const user = await user.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: '유저를 찾을 수 없습니다.' });
+    }
+
+    // 유저의 동물 정보 조회
+    const animals = await Animal.findAll({
+      where: { UserId: user.id },
+      attributes: ['id', 'CategoryId']
+    });
+
+    console.log("유저의 동물 정보:", animals);  // animals 값 확인
+
+    if (animals.length === 0) {
+      return res.status(404).json({ error: '유저가 소유한 동물이 없습니다.' });
+    }
+
+    // 랜덤으로 동물 선택
+    const selectedAnimal = animals[Math.floor(Math.random() * animals.length)];
+    const categoryId = selectedAnimal.CategoryId;
+
+    console.log("선택된 동물의 CategoryId:", categoryId);  // categoryId 값 확인
+
+    // 카테고리 정보를 조회
+    const category = await Category.findByPk(categoryId);
+    console.log("선택된 카테고리:", category);  // 카테고리 정보 확인
+    if (!category) {
+      return res.status(404).json({ error: '카테고리가 존재하지 않습니다.' });
+    }
+
+    // 랜덤박스 발급 처리
+    // 상품을 조회하지 않고, 카테고리 기준으로 발급 처리
+    const prizeMessage = `${category.content} 랜덤박스`;
+
+    // 실제 상품 발급 처리 로직은 생략하고 메시지 출력만
+    console.log(`유저 ${user.username} (ID: ${userId}) 에게 카테고리 ${category.content} 랜덤박스를 발급.`);
+
+    // 랜덤박스 발급 완료 메시지
+    return res.json({
+      message: `유저 ${user.username} (ID: ${userId})에게 카테고리 ${category.content} 랜덤박스를 발급 완료.`,
+      prize: prizeMessage
+    });
+
+  } catch (error) {
+    console.error('❌ API 오류 발생:', error);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
 });
 

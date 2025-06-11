@@ -16,10 +16,11 @@ router.get('/', isLoggedIn, async (req, res, next) => {
       order: [['createdAt', 'DESC']]
     });
     res.status(200).json(groups);
-  }catch(error){  
-    console.error('Error details:', error);  
-    console.error('Error message:', error.message);  
-    console.error('Error stack:', error.stack); next(error);}
+  } catch (error) {
+    console.error('Error details:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack); next(error);
+  }
 });
 
 //2. 그룹생성
@@ -188,8 +189,8 @@ router.post('/:groupId/apply', isLoggedIn, async (req, res, next) => {
 
 // -- 
 // 1.가입신청현황
-router.get('/:groupId/requests', async(req,res,next)=>{
-  try{
+router.get('/:groupId/requests', async (req, res, next) => {
+  try {
     const requests = await GroupRequest.findAll({
       where: { GroupId: req.params.groupId, status: 'pending' },
       include: [{ model: User, attributes: ['id', 'nickname'] }]

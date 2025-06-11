@@ -8,6 +8,7 @@ import {
   REMOVE_PRIZE_REQUEST, REMOVE_PRIZE_SUCCESS, REMOVE_PRIZE_FAILURE,
   OPEN_RANDOM_BOX_REQUEST, OPEN_RANDOM_BOX_SUCCESS, OPEN_RANDOM_BOX_FAILURE,
   LOAD_RANDOM_BOX_LIST_REQUEST, LOAD_RANDOM_BOX_LIST_SUCCESS, LOAD_RANDOM_BOX_LIST_FAILURE,
+  LOAD_CATEGORY_RANDOM_BOXES_REQUEST,LOAD_CATEGORY_RANDOM_BOXES_SUCCESS,LOAD_CATEGORY_RANDOM_BOXES_FAILURE,
 } from '../reducers/prize';
 
 function addPrizeAPI(data) {
@@ -84,11 +85,56 @@ function loadRandomBoxListAPI() {
 function* loadRandomBoxList() {
   try {
     const result = yield call(loadRandomBoxListAPI);
-    yield put({ type: LOAD_RANDOM_BOX_LIST_SUCCESS, data: result.data });
+    console.log("🎯 랜덤박스 리스트 응답 데이터:", result.data);
+
+    yield put({
+      type: LOAD_RANDOM_BOX_LIST_SUCCESS,
+      data: result.data.data || [],  // 방어적 처리
+    });
   } catch (err) {
-    yield put({ type: LOAD_RANDOM_BOX_LIST_FAILURE, error: err.response?.data || err.message });
+    yield put({
+      type: LOAD_RANDOM_BOX_LIST_FAILURE,
+      error: err.response?.data?.message || '서버 오류가 발생했습니다.',
+    });
   }
 }
+
+function loadCategoryRandomBoxesAPI(userId) {
+  return axios.get(`/random-boxes/by-user-categories?userId=${userId}`);
+}
+
+function* loadCategoryRandomBoxes() {
+  const userId = yield select((state) => {
+  console.log(state.user); // 여기서 상태를 출력
+  return state.user.User?.id; // 또는 state.user.id
+});
+  
+  // 로그인되지 않은 경우, API 호출을 막고 에러 메시지를 디스패치합니다.
+  if (!userId) {
+    yield put({
+      type: LOAD_CATEGORY_RANDOM_BOXES_FAILURE,
+      error: '사용자가 로그인되지 않았습니다.',
+    });
+    return;
+  }
+
+  try {
+    const result = yield call(loadCategoryRandomBoxesAPI, userId);
+    yield put({
+      type: LOAD_CATEGORY_RANDOM_BOXES_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    const errorMessage = err.response?.data?.message || err.message || '알 수 없는 오류가 발생했습니다.';
+    yield put({
+      type: LOAD_CATEGORY_RANDOM_BOXES_FAILURE,
+      error: errorMessage,
+    });
+  }
+}
+
+
+
 
 function* watchAddPrize() {
   yield takeLatest(ADD_PRIZE_REQUEST, addPrize);
@@ -114,6 +160,10 @@ function* watchLoadRandomBoxList() {
   yield takeLatest(LOAD_RANDOM_BOX_LIST_REQUEST, loadRandomBoxList);
 }
 
+function* watchLoadCategoryRandomBoxes() {
+  yield takeLatest(LOAD_CATEGORY_RANDOM_BOXES_REQUEST, loadCategoryRandomBoxes);
+}
+
 export default function* prizeSaga() {
   yield all([
     fork(watchAddPrize),
@@ -122,5 +172,6 @@ export default function* prizeSaga() {
     fork(watchRemovePrize),
     fork(watchOpenRandomBox),
     fork(watchLoadRandomBoxList),
+    fork(watchLoadCategoryRandomBoxes),
   ]);
 }

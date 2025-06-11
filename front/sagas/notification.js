@@ -57,7 +57,6 @@ function addNotificationAPI(data) {
 function* addNotification(action) {
     try {
         const result = yield call(addNotificationAPI, action.data);
-        console.log('🦞 notificationSaga:  addNotification : ', action.data);
         yield put({
             type: ADD_NOTIFICATION_SUCCESS,
             data: result.data,

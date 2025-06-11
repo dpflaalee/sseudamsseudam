@@ -56,7 +56,7 @@ const EventScheduleForm = () => {
       if (response.status === 200 || response.status === 201) {
         message.success('일정 등록 완료');
         form.resetFields();
-        router.push('/calendar');
+        router.push('/schedule');
       } else {
         message.error('일정 등록 실패 (서버 응답 오류)');
       }

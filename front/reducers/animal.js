@@ -12,7 +12,7 @@ export const initialState = {
 
   recommendedAnimals: [],
 
-  
+  searchResults: [],
 
   addaniprofileLoading: false,  //동물프로필 추가 시도중
   addaniprofileDone: false,
@@ -57,6 +57,10 @@ export const initialState = {
   loadRecommendedAnimalsLoading: false, //추천친구 불러오기
   loadRecommendedAnimalsDone: false,
   loadRecommendedAnimalsError: null,
+
+  searchProfilesLoading: false,
+  searchProfilesDone: false,
+  searchProfilesError: null,
 
   animal: null,
 }
@@ -107,8 +111,26 @@ export const LOAD_RECOMMENDED_ANIMALS_REQUEST = 'LOAD_RECOMMENDED_ANIMALS_REQUES
 export const LOAD_RECOMMENDED_ANIMALS_SUCCESS = 'LOAD_RECOMMENDED_ANIMALS_SUCCESS';
 export const LOAD_RECOMMENDED_ANIMALS_FAILURE = 'LOAD_RECOMMENDED_ANIMALS_FAILURE';
 
+export const SEARCH_PROFILES_REQUEST = 'SEARCH_PROFILES_REQUEST';
+export const SEARCH_PROFILES_SUCCESS = 'SEARCH_PROFILES_SUCCESS';
+export const SEARCH_PROFILES_FAILURE = 'SEARCH_PROFILES_FAILURE';
+
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch(action.type){
+    case SEARCH_PROFILES_REQUEST:
+      draft.searchProfilesLoading = true;
+      draft.searchProfilesDone = false;
+      draft.searchProfilesError = null;
+      break;
+    case SEARCH_PROFILES_SUCCESS:
+      draft.addaniprofileLoading = false;
+      draft.addaniprofileDone = true;
+      draft.searchResults = action.data;
+      break;
+    case SEARCH_PROFILES_FAILURE:
+      draft.addaniprofileLoading = false;
+      draft.addAniprofileError = action.error;
+      break;
     case ADD_ANIPROFILE_REQUEST:
       draft.addaniprofileLoading = true;
       draft.addaniprofileDone = false;
