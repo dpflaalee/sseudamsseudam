@@ -57,6 +57,12 @@ const Home = () => {
     };
   }, [mainPosts, hasMorePosts, loadPostsLoading]);
 
+  useEffect(() => {
+    if (user) {
+      dispatch({ type: 'LOAD_ANIMAL_LIST_REQUEST' });
+    }
+  }, [user, dispatch]);
+  
   return (
     <AppLayout>
       <AnimalList animals={myAnimals} />
