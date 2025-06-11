@@ -10,13 +10,13 @@ const GroupListPage = ()=>{
   ////////////////////////////////////////////code
   const dispatch = useDispatch();
   const { groups, loadGroupsLoading } = useSelector((state)=>state.group);
-
+  //console.log("4. 그룹리스트 페이지", groups)
   useEffect(()=>{dispatch({type: LOAD_GROUPS_REQUEST}); }, [] );
   ////////////////////////////////////////////view
   return(<AppLayout>
     <div style={{padding:'24px'}}>
       {loadGroupsLoading? (<Spin size="large"/>) : (
-        groups &&  groups.map((group) => <GroupList key={group.id} group={group} /> ) 
+        groups &&  groups.map((g) => <GroupList key={g.id} g={g} /> ) 
       ) }
     </div>
   </AppLayout>); //E.Return

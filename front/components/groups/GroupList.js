@@ -4,75 +4,83 @@ import { useSelector, useDispatch } from "react-redux";
 import { Row, Col, Typography, Button, Card, Space, Spin } from "antd";
 import GroupDropDown from "./GroupDropdown";
 import axios from "axios";
-import { LOAD_MEMBERS_REQUEST } from "@/reducers/group";
-import { ADD_NOTIFICATION_REQUEST } from './../../reducers/notification';
+import { LOAD_MEMBERS_REQUEST, APPLY_GROUP_REQUEST, JOIN_GROUP_REQUEST, JOIN_GROUP_RESET, APPLY_GROUP_RESET } from "@/reducers/group";
+import { ADD_NOTIFICATION_REQUEST } from '../../reducers/notification';
 import NOTIFICATION_TYPE from "../../../shared/constants/NOTIFICATION_TYPE";
 
 const { Title, Text } = Typography;
 
-export default function GroupList({ group }) {
-  const router = useRouter(); const dispatch = useDispatch();
+export default function GroupList({ g }) {
+  const router = useRouter();            const dispatch = useDispatch();
   const {members, loadMembersLoading, loadMembersError} = useSelector((state)=>state.group)
   const [isMember, setIsMember] = useState(false);
-  //console.log("멤버배열정상이니............", members);
-
+  const {user} = useSelector(state=>state.user); //console.log("로그인한유저정보", user.id);  // 1
+  const [group, setGroup] = useState(g);
   const [open, setOpen] = useState(false);
-  const [user, setUser] = useState(state => state?.user || null);
+  const {joinGroupDone, joinGroupError, applyGroupDone, applyGroupError} = useSelector(state=>state.group); 
+    
+  const formattedCategory = group.Categories?.map((c)=>c.content).join(", ") || "없음"; // 카테고리 공백 추가  
+  const memberCount = group.groupmembers ? new Set(group.groupmembers.map(m => m.id)).size : 0;//멤버 수 계산
+  
+  //그룹 멤버 로드 요청 및 가입상태 확인
+  useEffect(()=>{
+    if(group && group.id){ dispatch({ type: LOAD_MEMBERS_REQUEST, data: group.id }); }
+  },[group.id, dispatch]);  
+  
+  //멤버상태변경
+  useEffect(()=>{
+    //console.log(">>>>>>>>>>멤버상태변경의 members", members);
+    if( members && members.length > 0 ){
+      const memberFound = group.groupmembers.some((groupMember)=>groupMember.id === user.id );
+      setIsMember(memberFound);
+      //console.log("----------------멤버상태 변경됐냐",memberFound);
+    }
+  },[members, user, group.groupmembers]);  
 
-  const handleGroupClick = () => { setOpen((prev) => !prev); };
-
-  const handleJoin = async (e) => {
-    e.stopPropagation();
-    console.log(`가입 요청: ${group.title}`);
-    try{
-      //공개그룹 가입
-      if(group.OpenScopeId===1){
-        const response = await axios.post(`/api/groups/${group.id}/join`);
-        if(response.status===200){alert('그룹에 가입되었습니다.'); router.push(`/groups/${group.id}`);}
-      }else{
-        //비공개그룹 가입
-        const response = await axios.post(`/api/groups/${group.id}/request`);
-        if(response.status === 200){ alert('가입 신청이 전송되었습니다.'); }
+  useEffect(() => {
+    if (joinGroupDone !== undefined) {
+      //console.log('joinGroupDone 상태 확인:', joinGroupDone);
+      if (joinGroupDone) {
+        alert("가입이 완료되었습니다.");
+        dispatch({ type: JOIN_GROUP_RESET }); // 상태 리셋
+        router.push(`/groups/${group.id}`);
       }
-    }catch(error){console.error("가입 요청 중 오류 발생", error); alert("가입 요청 중 오류가 발생했습니다.");}
+      if(joinGroupError){
+        alert(joinGroupError);
+        dispatch({type: JOIN_GROUP_RESET});
+      }
+    }
+  }, [joinGroupDone, joinGroupError, group.id, dispatch]);
 
-    //// 알림
-    // dispatch({
-    //   type: ADD_NOTIFICATION_REQUEST,
-    //   data: {
-    //     notiType: NOTIFICATION_TYPE.GROUPAPPLY,
-    //     SenderId: user.user.id,
-    //     ReceiverId: group.User.id,
-    //     targetId: group.id,
-    //   }
-    // });
-    /// E 알림
-  };
+  useEffect(() => {
+    if (applyGroupDone !== undefined) {
+      console.log('applyGroupDone 상태 확인:', applyGroupDone);
+      if (applyGroupDone) {
+        alert("가입 신청이 완료되었습니다!");
+        dispatch({ type: APPLY_GROUP_RESET }); // 상태 리셋
+      }
+      if(applyGroupError){
+        alert(applyGroupError);
+        dispatch({type: APPLY_GROUP_RESET});
+      }
+    }
+  }, [applyGroupDone, applyGroupError, dispatch]);
+  
+  const handleGroupClick = () => { setOpen((prev) => !prev); };
 
   const handleEnterGroup = (e) => { e.stopPropagation(); router.push(`/groups/${group.id}`); } // 가입한 그룹일 시 해당 그룹으로 이동
 
-  //현재 유저가 이 그룹에 가입했는지 확인
-  const checkMembership = async ()=>{
-    try{
-      const response = await axios.get(`/api/groups/${group.id}/members/me`);
-      if(response.status ===200 ){ setIsMember(true); }
-    }catch(error){ console.error(error); setIsMember(false); }
-  }
+  const handleJoin = async (e) => {
+    e.stopPropagation();
+    if(isMember){alert('이미 가입된 그룹입니다. 그룹으로 이동합니다.'); return router.push(`/gorups/${group.id}`)};
 
-  //그룹 멤버 로드 요청
-  useEffect( ( )=>{ 
-    console.log("그룹 있니.............", group);
-    console.log("멤버 있니.............", group.groupmembers);
-    if(group.id){dispatch({type: LOAD_MEMBERS_REQUEST, data:group.id});}
-    checkMembership(); 
-  }, [group.id, dispatch] );
-  if(loadMembersLoading){ return <Spin size="large"/> }
-  if(loadMembersError){return <div>Error:{loadMembersError}</div>}
+    try{if(group.OpenScopeId===1){
+      dispatch({type:JOIN_GROUP_REQUEST, data:{groupId:group.id}});
+    }else{ 
+      dispatch({type:APPLY_GROUP_REQUEST, data:{groupId: group.id}}); }
 
-  // 카테고리 공백 추가
-  const formattedCategory = group.Categories?.map((c)=>c.content).join(", ") || "없음"; 
-  //멤버 수 계산
-  const memberCount = group.groupmembers ? new Set(group.groupmembers.map(m => m.id)).size : 0;
+    }catch(error){alert("가입 중 오류발생");}
+  };  
 
 //////////////////////////////////////////////////////////////////////////////////////
   return (
@@ -81,6 +89,7 @@ export default function GroupList({ group }) {
       style={{ width: "100%", marginBottom: 8 }}
       bodyStyle={{ padding: 16 }}
     >
+      {loadMembersLoading?(<Spin size="large" />): loadMembersError? (<div>Error:{loadMembersError}</div>):(  
       <Row justify="space-between" align="middle">
         <Col>
           <Space direction="vertical" size={4}>
@@ -104,11 +113,9 @@ export default function GroupList({ group }) {
           ) : (
             <Button type="primary" onClick={handleJoin}> 가입하기 </Button>
           )}
-
-
         </Col>
       </Row>
-
+      )}  {/*삼황연산자 끝 */}
       {/* 드롭다운 정보 */}
       {open && (<div style={{ marginTop: 12 }}> <GroupDropDown group={group} /> </div>)}
     </Card>

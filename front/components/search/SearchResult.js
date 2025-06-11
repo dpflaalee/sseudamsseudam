@@ -5,7 +5,6 @@ import Link from 'next/Link';
 import PostCard from '../post/PostCard';
 import Profile from '../user/Profile';
 import GroupDropDown from '../groups/GroupDropdown';
-import GroupList from '../groups/GroupList';
 
 const Container = styled.div`
   padding: 20px;
