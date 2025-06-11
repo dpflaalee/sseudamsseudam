@@ -5,6 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../../reducers/post';
 import userInput from '../../hooks/userInput';
+//import { v } from '@faker-js/faker/dist/airline-BUL6NtOJ';
+// 카테고리
+import { LOAD_CATEGORIES_REQUEST } from '@/reducers/category';
+import { Tabs } from 'antd';
+const { TabPane } = Tabs;
+
 
 const PostForm = ({ groupId, isGroup = false }) => {
   const { TextArea } = Input;
@@ -26,11 +32,11 @@ const PostForm = ({ groupId, isGroup = false }) => {
       setText('');
     }
   }, [addPostDone]);
+  const user = useSelector(state => state.user);
 
   const onSubmitForm = useCallback(() => {
     if (!text || !text.trim()) return alert('게시글을 작성하세요.');
-    
-    const user = useSelector(state => state.user);
+
     const isAdmin = user.user.isAdmin;
 
     const formData = new FormData();
@@ -38,6 +44,13 @@ const PostForm = ({ groupId, isGroup = false }) => {
     formData.append('content', text);
     formData.append('openScope', openScope);
     if (isGroup && groupId) { formData.append('groupId', groupId); }
+    selectedCategories.forEach((catId) => {
+      formData.append('categoryIds', catId); // key 이름은 서버에서 받는 이름에 맞춰서
+    });
+    // 🐛 콘솔 확인
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
 
     dispatch({
       type: ADD_POST_REQUEST,
@@ -51,7 +64,7 @@ const PostForm = ({ groupId, isGroup = false }) => {
     imageInput.current.click();
   }, []);
   const onChangeImage = useCallback((e) => {
-  const imageFormData = new FormData();
+    const imageFormData = new FormData();
     [].forEach.call(e.target.files, (f) => {
       imageFormData.append('image', f);
     });
@@ -63,6 +76,13 @@ const PostForm = ({ groupId, isGroup = false }) => {
   const goToMap = () => {
     router.push('/map/kakao');
   };
+
+  // 카테고리
+  useEffect(() => {
+    dispatch({ type: LOAD_CATEGORIES_REQUEST });
+  }, []);
+  const { categories } = useSelector(state => state.category);
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   return (
     <Card style={{ margin: '3%', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
@@ -135,6 +155,8 @@ const PostForm = ({ groupId, isGroup = false }) => {
           </>
         )}
       </Form>
+
+      {/* 카테고리 */}
       <Modal
         title="카테고리 선택"
         open={isModalOpen}
@@ -143,14 +165,42 @@ const PostForm = ({ groupId, isGroup = false }) => {
         okText="확인"
         cancelText="취소"
       >
-        <Checkbox.Group style={{ width: '100%' }}>
-          <Row gutter={[0, 8]}>
-            <Col span={12}><Checkbox value="dog">강아지</Checkbox></Col>
-            <Col span={12}><Checkbox value="cat">고양이</Checkbox></Col>
-            <Col span={12}><Checkbox value="other">기타</Checkbox></Col>
-          </Row>
-        </Checkbox.Group>
+        <Tabs defaultActiveKey="animal">
+          <TabPane tab="카테고리" key="animal">
+            <Checkbox.Group style={{ width: '100%' }}
+              value={selectedCategories}
+              onChange={setSelectedCategories}>
+              {categories
+                .filter((v) => v.isAnimal)
+                .map((v) => (
+                  <Row key={v.id}>
+                    <Col span={12}>
+                      <Checkbox value={v.id}>{v.content}</Checkbox>
+                    </Col>
+                  </Row>
+                ))}
+            </Checkbox.Group>
+          </TabPane>
+
+          <TabPane tab="챌린지" key="general">
+            <Checkbox.Group style={{ width: '100%' }}
+              value={selectedCategories}
+              onChange={setSelectedCategories}>
+              {categories
+                .filter((v) => !v.isAnimal)
+                .map((v) => (
+                  <Row key={v.id}>
+                    <Col span={12}>
+                      <Checkbox value={v.id}>{v.content}</Checkbox>
+                    </Col>
+                  </Row>
+                ))}
+            </Checkbox.Group>
+          </TabPane>
+        </Tabs>
       </Modal>
+      {/* E 카테고리 */}
+
     </Card>
   );
 };
