@@ -14,8 +14,8 @@ const MyPage = () => {
     const user = useSelector(state => state.user)
     const {mainPosts} = useSelector(state => state.post)
     const router = useRouter();
-    const {myPage} = router.query;
-    console.log('myPage',myPage);
+    const { myPage } = router.query;
+    console.log('myPage', myPage);
     return (
         <AppLayout>
             <Profile postUserId={myPage} />
@@ -27,39 +27,41 @@ const MyPage = () => {
         </AppLayout>
     );
 }
-export const getServerSideProps = wrapper.getServerSideProps(async (context) => { 
-    console.log('context.params?.id=',context.params);
-    const {myPage} = context.params;
-    console.log('mypage=,',myPage);
-  //1. cookie 설정
-  const cookie = context.req ? context.req.headers.cookie : '';
-  axios.defaults.headers.Cookie = '';
-  
-  if (context.req  && cookie ) { axios.defaults.headers.Cookie = cookie;   }
-  //2. redux 액션
-  context.store.dispatch({ type:LOAD_MY_INFO_REQUEST });
- //context.store.dispatch({ type: LOAD_USER_POSTS_REQUEST  , data: context.params.myPage,});
- //context.store.dispatch({ type: LOAD_USER_REQUEST,   data: context.params.myPage, });
-  context.store.dispatch(END);
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+    console.log('context.params?.id=', context.params);
+    const { myPage } = context.params;
+    console.log('mypage=,', myPage);
+    //1. cookie 설정
+    const cookie = context.req ? context.req.headers.cookie : '';
+    axios.defaults.headers.Cookie = '';
 
-//   try{
-//     const res = await axios.get(`http://localhost:3065/user/myPage/${userId}`);
-//     const userData = res.data;
-//     await  context.store.sagaTask.toPromise();
-//     const state = context.store.getState();
-//     return {
-//       props: {
-//           userData,
-//       }
-//     }
-//   }catch(error){
-//     console.log('유저 조회 실패:',error);
-//     return {
-//         notFound: true,
-//     }
-//   }
-await  context.store.sagaTask.toPromise();
+    if (context.req && cookie) { axios.defaults.headers.Cookie = cookie; }
+    //2. redux 액션
+    context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
+    //context.store.dispatch({ type: LOAD_USER_POSTS_REQUEST  , data: context.params.myPage,});
+    //context.store.dispatch({ type: LOAD_USER_REQUEST,   data: context.params.myPage, });
+    context.store.dispatch(END);
+
+    //   try{
+    //     const res = await axios.get(`http://localhost:3065/user/myPage/${userId}`);
+    //     const userData = res.data;
+    //     await  context.store.sagaTask.toPromise();
+    //     const state = context.store.getState();
+    //     return {
+    //       props: {
+    //           userData,
+    //       }
+    //     }
+    //   }catch(error){
+    //     console.log('유저 조회 실패:',error);
+    //     return {
+    //         notFound: true,
+    //     }
+    //   }
+    await context.store.sagaTask.toPromise();
     const state = context.store.getState();
 
-}); 
+});
+
+
 export default MyPage;
