@@ -26,7 +26,7 @@ function* loadGroups() {
   try {
     const result = yield call(loadGroupsAPI);
     yield put({ type: LOAD_GROUPS_SUCCESS, data: result.data });
-  } catch (err) { yield put({ type: LOAD_GROUPS_FAILURE, error: err.response.data }); }
+  } catch (err) { yield put({ type: LOAD_GROUPS_FAILURE, error: err.response ? err.response.data : err.message });}
 }
 function* watchLoadGroups() { yield takeLatest(LOAD_GROUPS_REQUEST, loadGroups); }
 
@@ -77,7 +77,7 @@ function* loadMembers(action) {
   try {
     console.log('멤버 로드 요청:', action);
     const result = yield call(loadMembersAPI, action.data);
-    console.log('API 응답 데이터:', result.data);
+    //console.log('API 응답 데이터:', result.data);
     yield put({ type: LOAD_MEMBERS_SUCCESS, data: result.data });
   } catch (err) { yield put({ type: LOAD_MEMBERS_FAILURE, error: err.response.data }); }
 }
@@ -105,9 +105,9 @@ function* watchTransferOwnership() { yield takeLatest(TRANSFER_OWNERSHIP_REQUEST
 
 //가입-----------------------------------------------------------------------------------
 //1. 공개그룹 즉시가입
-function joinGroupAPI(data) { return axios.post(`/groups/${data.groupId}/join`) }
-function* joinGroup(action) {
-  try {
+function joinGroupAPI(data){ console.log('joinGroupAPI 데이터----------------:', data); return axios.post(`/api/groups/${data.groupId}/join`); }
+function* joinGroup(action){
+  try{
     yield call(joinGroupAPI, action.data);
     yield put({ type: JOIN_GROUP_SUCCESS })
   } catch (err) { yield put({ type: JOIN_GROUP_FAILURE, error: err.response.data || err.message }); }
@@ -115,24 +115,45 @@ function* joinGroup(action) {
 function* watchJoinGroup() { yield takeLatest(JOIN_GROUP_REQUEST, joinGroup) }
 
 //2. 비공개그룹 가입처리
-function applyGroupAPI(data) { return axios.post(`/group/${data.groupId}/apply`); }
-function* applyGroup(action) {
-  try {
+function applyGroupAPI(data){ console.log('joinGroupAPI 데이터----------------:', data);  return axios.post(`/api/groups/${data.groupId}/apply`); }
+function* applyGroup(action){
+  try{
     yield call(applyGroupAPI, action.data);
-    yield put({ type: APPLY_GROUP_SUCCESS });
-    // 그룹 가입 요청 알림
-    yield put({
-      type: ADD_NOTIFICATION_REQUEST,
-      data: {
-        notiType: NOTIFICATION_TYPE.GROUPAPPLY,
-        //SenderId:,
-        //RecieverId: ,
-        targetId: action.data.groupId,
-      },
-    });
-  } catch (err) { yield put({ type: APPLY_GROUP_FAILURE, error: err.response.data || err.message }) }
+    yield put({ type: APPLY_GROUP_SUCCESS, message: "가입 신청이 완료되었습니다!" })
+  }catch(err){yield put({ type: APPLY_GROUP_FAILURE, error: err.response.data || err.message })}
 }
-function* watchApplyGroup() { yield takeLatest(APPLY_GROUP_REQUEST, applyGroup) }
+function* watchApplyGroup(){yield takeLatest(APPLY_GROUP_REQUEST, applyGroup)}
+// --
+// 3.가입 요청 불러오기
+function loadJoinRequestsAPI(groupId) { return axios.get(`/api/groups/${groupId}/requests`); }
+function* loadJoinRequests(action) {
+  try {
+    const result = yield call(loadJoinRequestsAPI, action.data);
+    yield put({ type: LOAD_JOIN_REQUESTS_SUCCESS, data: result.data });
+  } catch (err) {   yield put({ type: LOAD_JOIN_REQUESTS_FAILURE, error: err.response.data });  }
+}
+function* watchLoadJoinRequests() { yield takeLatest(LOAD_JOIN_REQUESTS_REQUEST, loadJoinRequests);}
+
+// 4. 승인
+function approveJoinAPI(requestId) { return axios.post(`/api/groups/requests/${requestId}/approve`);}
+function* approveJoin(action) {
+  try {
+    yield call(approveJoinAPI, action.data);
+    yield put({ type: APPROVE_JOIN_REQUEST_SUCCESS, data: action.data });
+  } catch (err) { yield put({ type: APPROVE_JOIN_REQUEST_FAILURE, error: err.response.data });  }
+}
+function* watchApproveJoin() {  yield takeLatest(APPROVE_JOIN_REQUEST, approveJoin); }
+
+// 5. 거절
+function rejectJoinAPI(requestId) {  return axios.post(`/api/groups/requests/${requestId}/reject`); }
+function* rejectJoin(action) {
+  try {
+    yield call(rejectJoinAPI, action.data);
+    yield put({ type: REJECT_JOIN_REQUEST_SUCCESS, data: action.data });
+  } catch (err) {  yield put({ type: REJECT_JOIN_REQUEST_FAILURE, error: err.response.data });  }
+}
+function* watchRejectJoin() {  yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin);}
+
 
 // root saga
 export default function* groupSaga() {
@@ -147,5 +168,8 @@ export default function* groupSaga() {
     fork(watchTransferOwnership),
     fork(watchJoinGroup),
     fork(watchApplyGroup),
+    fork(watchLoadJoinRequests),
+    fork(watchApproveJoin),
+    fork(watchRejectJoin),
   ]);
 }
