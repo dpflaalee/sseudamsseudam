@@ -239,19 +239,16 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         )
         }
         {/* 신고 모달 */}
-        {
-          open && (
-            <ComplainForm
-              open={open}
-              targetId={post.Retweet ? post.Retweet.id : post.id}
-              TARGET_TYPE={TARGET_TYPE.POST}
-              targetUserNickname={post.User?.nickname}
-              onClose={() => setOpen(false)}
-            />
-          )
-        }
+        {open && (
+          <ComplainForm
+            open={open}
+            targetId={post.Retweet ? post.Retweet.id : post.id}
+            TARGET_TYPE={TARGET_TYPE.POST}
+            targetUserNickname={post.User?.nickname}
+            onClose={() => setOpen(false)}
+          />
+        )}
         {/* E 신고 모달 */}
-
       </Card >
 
       <Modal
