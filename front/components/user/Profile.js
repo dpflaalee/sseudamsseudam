@@ -82,19 +82,25 @@ const Profile = (props) => {
   console.log('profile.postUserId=',props.postUserId);
   console.log('mainPosts',mainPosts.id);
   console.log('user',user);
-  const postUserId = props.postUserId;
+  let postUserId = props.postUserId;
   useEffect(() => {
     const lastId = mainPosts[mainPosts.length - 1]?.id;
     console.log('입장1');
     console.log(typeof props.postUserId);
-    const number = [1,2,3];
+    const number = [1,2,3]; 
+    
+    // number = 1,
+    // number = 2 
     //다른 유저를 클릭했을 때는 되고
     //본인을 클릭했을 때 안됨
     //로그인 유저
+    if (hasMorePosts && !loadPostsLoading) {
+
     if(postUserId){
       //postuser
       if(user.id == props.postUserId){
         console.log('입장2');
+        postUserId = -1
         dispatch({
           type: LOAD_POSTS_REQUEST,
           lastId,
@@ -102,10 +108,12 @@ const Profile = (props) => {
           //userId: props.postUserId,
         })
       }else{
+        //본인페이지 클릭
+        console.log('postUserId = -1');
         dispatch({
         type: LOAD_POSTS_REQUEST,
         lastId,
-        userId: props.postUserId,
+        userId: postUserId,
         number : number[1],
       })
       }
@@ -116,8 +124,7 @@ const Profile = (props) => {
         lastId,
       })
     }
-    if (hasMorePosts && !loadPostsLoading) {
-    }
+  }
   }, [mainPosts, hasMorePosts, loadPostsLoading]);
 
   useEffect(() => {
