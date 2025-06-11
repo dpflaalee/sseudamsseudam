@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Avatar, Dropdown, Menu, Button, List } from 'antd';
 import { MoreOutlined, MessageOutlined } from '@ant-design/icons';
@@ -90,7 +90,16 @@ const ReComment = ({ comments = [], postId, post = {} }) => {
   }, [postId, dispatch]);
 
   ////////////////////////////////
-
+  // 신고된 대댓글 블라인드 처리
+  const mainComplainCard = useSelector(state => state.complain.mainComplainCard);
+  const processRecomments = (recomments = []) =>
+    recomments.map(recomment => {
+      const isBlind = mainComplainCard?.some(report => report.targetId === recomment.id && report.isBlind);
+      return {
+        ...recomment,
+        content: isBlind ? '신고된 댓글입니다.' : recomment.content,
+      };
+    });
 
 
   ///////////////////////////////
@@ -101,7 +110,7 @@ const ReComment = ({ comments = [], postId, post = {} }) => {
       </div>
       {childComments.length === 0 && <div>대댓글이 없습니다.</div>}
 
-      {childComments.map((comment) => {
+      {processRecomments.map((comment) => {
         const createdAt = comment.createdAt ? new Date(comment.createdAt).toLocaleString() : '';
 
         const menu = (

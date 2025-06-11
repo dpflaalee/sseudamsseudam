@@ -72,7 +72,6 @@ const ReCommentForm = ({ post, parentCommentId, onAddLocalComment, parentComment
     if (!comment.trim()) {
       return alert('댓글을 입력하세요.');
     }
-    console.log('👤 parentCommentUserId', parentCommentUserId);
     dispatch({
       type: ADD_COMMENT_REQUEST,
       data: { content: comment, userId: id, postId: post.id, RecommentId: parentCommentId, CommentUserId: parentCommentUserId },

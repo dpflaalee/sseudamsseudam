@@ -1,21 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const TARGET_TYPE = require('./../../shared/constants/TARGET_TYPE');
-const { Post, User, Image, Comment, Hashtag, Complain, Randombox } = require('../models');
+const { Post, User, Image, Comment, Hashtag, Complain, MyPrize, Prize } = require('../models');
 const { Op } = require('sequelize');
 
 // 0. PostCard.js : 관리자가 쓴 글(공지사항) 보기
 // admin/
 router.get('/', async (req, res, next) => {
     try {
-        const where = { userId: req.user.id }; // 로그인한 사용자의 게시물만 조회
-        if (parseInt(req.query.lastId, 10)) {
-            where.id = {
-                [Op.lt]: parseInt(req.query.lastId, 10)
-            }
-        }
-        const posts = await Post.findAll({
-            where,
+        const admin = await User.findOne({ where: { isAdmin: true } });
+        console.log('🎅 admin', admin);
+        const adminNoti = await Post.findAll({
+            where: { userId: admin.id },
             limit: 10,
             order: [
                 ['createdAt', 'DESC'],
@@ -49,7 +45,10 @@ router.get('/', async (req, res, next) => {
                 }
             ]
         });
-        res.status(200).json(posts);
+        if (!admin) {
+            return res.status(404).json({ message: '관리자 계정을 찾을 수 없습니다.' });
+        }
+        res.status(200).json(adminNoti);
     } catch (err) {
         console.error(err);
         next(err);
@@ -61,61 +60,65 @@ router.get('/', async (req, res, next) => {
 // routes/complain.js
 router.get('/complain', async (req, res, next) => {
     try {
-        const complains = await Complain.findAll({
+        const complainList = await Complain.findAll({
             include: [
                 { model: User, as: 'Reporter', attributes: ['id', 'nickname'] },
             ],
-            order: [['createdAt', 'DESC']],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
         });
 
-        const complainsWithTarget = await Promise.all(complains.map(async (report) => {
-            let target = null;
+        const enriched = await Promise.all(
+            complainList.map(async (complain) => {
+                let target = null;
 
-            if (report.targetType === TARGET_TYPE.POST) {
-                target = await Post.findOne({
-                    where: { id: report.targetId },
-                    include: [{ model: User, attributes: ['id', 'nickname'] }]
-                });
-            } else if (report.targetType === TARGET_TYPE.COMMENT) {
-                target = await Comment.findOne({
-                    where: { id: report.targetId },
-                    include: [{ model: User, attributes: ['id', 'nickname'] }]
-                });
-            } else if (report.targetType === TARGET_TYPE.USER) {
-                target = await User.findOne({
-                    where: { id: report.targetId },
-                    attributes: ['id', 'nickname', 'email']
-                });
-            } else if (report.targetType === TARGET_TYPE.RANDOMBOX) {
-                target = await Randombox.findOne({
-                    where: { id: report.targetId },
-                    attributes: ['id', 'nickname', 'email']
-                });
-            }
+                switch (complain.targetType) {
+                    case TARGET_TYPE.POST:
+                        target = await Post.findByPk(Number(complain.targetId), {
+                            include: [{ model: User, attributes: ['id', 'nickname'] }],
+                        });
+                        break;
+                    case TARGET_TYPE.COMMENT:
+                        target = await Comment.findByPk(Number(complain.targetId), {
+                            include: [{ model: User, attributes: ['id', 'nickname'] }],
+                        });
+                        break;
+                    case TARGET_TYPE.USER:
+                        target = await User.findByPk(Number(complain.targetId), {
+                            attributes: ['id', 'nickname', 'email'],
+                        });
+                        break;
+                    case TARGET_TYPE.RANDOMBOX:
+                        target = await MyPrize.findByPk(Number(complain.targetId), {
+                            include: [{
+                                model: Prize,
+                                as: 'prize',
+                                attributes: ['id', 'content']
+                            }, {
+                                model: User,
+                                as: 'user',
+                                attributes: ['id', 'nickname']
+                            }]
+                        });
+                        break;
+                }
 
-            return {
-                ...report.toJSON(),
-                targetObject: target,
-            };
-        }));
+                if (!target) {
+                    console.warn(`⚠️ target을 찾을 수 없습니다. complainId=${complain.id}, targetId=${complain.targetId}`);
+                }
+                return {
+                    ...complain.toJSON(),
+                    targetObject: target ?? null
+                };
+            })
+        );
 
-        res.status(200).json(complainsWithTarget);
+        res.status(200).json(enriched);
     } catch (err) {
-        console.error('🚨 신고 목록 조회 실패: ', err);
-        res.status(500).send('신고 조회 실패');
+        console.error('🚨 알림 조회 중 에러:', err);
+        res.status(500).send('알림 조회 실패');
     }
 });
-
-// 2. CategoryManage.js : 카테고리 관리
-// /admin/categorymanage
-
-// 3. ChallengeManage.js : 챌린지 관리
-// /admin/callengemanage
-
-// 4. ScheduleManage.js : 일정 관리
-// /admin/schedulemanage
-
-// 5. PrizeManage.js : 상품 관리
-// admin/prizemanage
 
 module.exports = router;

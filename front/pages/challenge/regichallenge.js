@@ -5,7 +5,7 @@ import ChallengeForm from '../../components/Calendar/Todolist/ChallengeForm';
 const RegiChallengePage = () => {
   return (
     <AppLayout>
-      <ChallengeForm />;
+      <ChallengeForm />
     </AppLayout>
   );
 };
