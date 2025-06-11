@@ -20,6 +20,7 @@ const PostForm = ({ groupId, isGroup = false }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [text, onChangeText, setText] = userInput('');
+  const user = useSelector(state => state.user);
 
   useEffect(() => {
     if (addPostDone) {
@@ -30,7 +31,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
   const onSubmitForm = useCallback(() => {
     if (!text || !text.trim()) return alert('게시글을 작성하세요.');
     
-    const user = useSelector(state => state.user);
     const isAdmin = user.user.isAdmin;
 
     const formData = new FormData();
