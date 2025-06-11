@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
+import {CloseOutlined} from '@ant-design/icons';
+import { useRouter } from 'next/router';
 
 const KakaoMap = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const placesRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     const mapContainer = document.getElementById('map');
@@ -54,9 +57,6 @@ const KakaoMap = () => {
         alert('마커를 클릭했습니다!');
       });
 
-      // 기타 마커 이벤트 생략 (필요하면 추가)
-
-      // 장소 검색 서비스 생성
       const ps = new window.kakao.maps.services.Places();
       placesRef.current = ps;
     }
@@ -101,13 +101,27 @@ const KakaoMap = () => {
         />
         <button onClick={handleSearch} style={{ marginLeft: 5, padding: '5px 10px' }}>검색</button>
       </div>
+
+      <CloseOutlined
+        onClick={() => router.push('/main')}
+        style={{
+          position: 'absolute',
+          top: 60,
+          right: 40,
+          fontSize: 22,
+          color: '#555',
+          cursor: 'pointer',
+          zIndex: 10,
+        }}
+      />
+
       <div
         id="map"
         style={{
           width: '90%',
           maxWidth: '1000px',
           height: '650px',
-        }}
+        }}       
       />
     </div>
   );

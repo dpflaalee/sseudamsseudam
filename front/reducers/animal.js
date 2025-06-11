@@ -12,6 +12,8 @@ export const initialState = {
 
   recommendedAnimals: [],
 
+  
+
   addaniprofileLoading: false,  //동물프로필 추가 시도중
   addaniprofileDone: false,
   addAniprofileError: null,
@@ -30,7 +32,7 @@ export const initialState = {
 
   modifyAniprofileLoading: false, //프로필 수정 시도중
   modifyAniprofileDone: false,
-  modifyAniporileError: null,
+  modifyAniprofileError: null,
   
   anifollowLoading: false,  //팔로우 시도중
   anifollowDone: false,
@@ -55,6 +57,8 @@ export const initialState = {
   loadRecommendedAnimalsLoading: false, //추천친구 불러오기
   loadRecommendedAnimalsDone: false,
   loadRecommendedAnimalsError: null,
+
+  animal: null,
 }
 
 export const ADD_ANIPROFILE_REQUEST = 'ADD_ANIPROFILE_REQUEST';
@@ -84,6 +88,8 @@ export const ANIUNFOLLOW_FAILURE = 'ANIUNFOLLOW_FAILURE';
 export const MODIFY_ANIPROFILE_REQUEST = 'MODIFY_ANIPROFILE_REQUEST';
 export const MODIFY_ANIPROFILE_SUCCESS = 'MODIFY_ANIPROFILE_SUCCESS';
 export const MODIFY_ANIPROFILE_FAILURE = 'MODIFY_ANIPROFILE_FAILURE';
+export const RESET_MODIFY_ANIPROFILE_STATE = 'RESET_MODIFY_ANIPROFILE_STATE';
+
 
 export const REMOVE_ANIFOLLOW_REQUEST = 'REMOVE_ANIFOLLOW_REQUEST';
 export const REMOVE_ANIFOLLOW_SUCCESS = 'REMOVE_ANIFOLLOW_SUCCESS';
@@ -116,6 +122,20 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case ADD_ANIPROFILE_FAILURE:
       draft.addaniprofileLoading = false;
       draft.addAniprofileError = action.error;
+      break;
+    case LOAD_ANIMAL_LIST_REQUEST:
+      draft.loadAnimalListLoading = true;
+      draft.loadAnimalListError = null;
+      break;
+    case LOAD_ANIMAL_LIST_SUCCESS:
+      draft.loadAnimalListLoading = false;
+      draft.loadAnimalListDone = true;
+      draft.myAnimals = action.data;
+      draft.animals = action.data;
+      break;
+    case LOAD_ANIMAL_LIST_FAILURE:
+      draft.loadAnimalListLoading = false;
+      draft.loadAnimalListError = action.error;
       break;
     case LOAD_ANIMAL_PROFILE_REQUEST:
       draft.loadAnimalProfileLoading = true;
@@ -224,7 +244,49 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loadRecommendedAnimalsLoading = false;
       draft.loadRecommendedAnimalsError = action.error;
       break;
-      
+
+    case MODIFY_ANIPROFILE_REQUEST:
+      draft.modifyAniprofileLoading = true;
+      draft.modifyAniprofileDone = false;
+      draft.modifyAniprofileError = null;
+      break;
+    case MODIFY_ANIPROFILE_SUCCESS:
+      draft.modifyAniprofileLoading = false;
+      draft.modifyAniprofileDone = true;
+      // 수정된 동물을 redux에서 찾아 업데이트
+      draft.animals = draft.animals.map((animal) =>
+        animal.id === action.data.id ? { ...animal, ...action.data } : animal
+      );
+      draft.myAnimals = draft.myAnimals.map((animal) =>
+        animal.id === action.data.id ? { ...animal, ...action.data } : animal
+      );
+      if (draft.selectedAnimal?.id === action.data.id) {
+        draft.selectedAnimal = { ...draft.selectedAnimal, ...action.data };
+      }
+      break;
+    case MODIFY_ANIPROFILE_FAILURE:
+      draft.modifyAniprofileLoading = false;
+      draft.modifyAniprofileError = action.error;
+      break;
+    case RESET_MODIFY_ANIPROFILE_STATE:
+      draft.modifyAniprofileDone = false;
+      draft.modifyAniprofileError = null;
+      break;
+
+    case REMOVE_ANIFOLLOW_REQUEST:
+      draft.removeAnifollowLoading = true;
+      draft.removeAnifollowDone = false;
+      draft.removeAnifollowError = null;
+      break;
+    case REMOVE_ANIFOLLOW_SUCCESS:
+      draft.removeAnifollowError = false;
+      draft.followers = draft.followers.filter((v) => v.id !== action.data.removedFollowerId);
+      draft.removeAnifollowDone = true;
+      break;
+    case REMOVE_ANIFOLLOW_FAILURE:
+      draft.removeAnifollowLoading = false;
+      draft.removeAnifollowError = action.error;
+      break;
     default:
       break;
   }
