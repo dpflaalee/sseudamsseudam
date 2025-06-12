@@ -18,74 +18,75 @@ const EventScheduleList = () => {
   const [schedules, setSchedules] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
-useEffect(() => {
-  const fetchUser = async () => {
+  // 1) 서버에서 현재 로그인한 유저 정보 받아오기
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get('http://localhost:3065/user');
+        setIsAdmin(Number(res.data.isAdmin) === 1);
+      } catch (error) {
+        console.error('유저 정보 불러오기 실패:', error);
+        setIsAdmin(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const handleAddEvent = () => router.push('/schedule/regischedule');
+  const handleChangeEvent = (id) => {
+    router.push(`/schedule/editschedule?id=${id}`);
+  };
+
+  const fetchSchedules = async () => {
     try {
-      const res = await axios.get('http://localhost:3065/user');
-      setIsAdmin(Number(res.data.isAdmin) === 1);
+      const res = await axios.get('http://localhost:3065/calendar');
+      const filtered = res.data.filter(item => {
+        const itemMonth = dayjs(item.startDate).month();
+        const itemYear = dayjs(item.startDate).year();
+        return (
+          itemMonth === currentMonth.month() &&
+          itemYear === currentMonth.year()
+        );
+      });
+      filtered.sort((a, b) => a.id - b.id);
+      setSchedules(filtered);
     } catch (error) {
-      console.error('유저 정보 불러오기 실패:', error);
-      setIsAdmin(false);
+      console.error('일정 불러오기 실패:', error);
+      message.error('일정 데이터를 불러오지 못했습니다.');
     }
   };
-  fetchUser();
-}, []);
 
-const handleAddEvent = () => router.push('/schedule/regischedule');
-const handleChangeEvent = (id) => {
-  router.push(`/schedule/editschedule?id=${id}`);
-};
+  const handleDeleteEvent = async (id) => {
+    const isConfirmed = window.confirm('이벤트를 삭제하시겠습니까?');
+    if (isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:3065/calendar/${id}`);
+        message.success('이벤트가 삭제되었습니다.');
 
-const fetchSchedules = async () => {
-  try {
-    const res = await axios.get('http://localhost:3065/calendar');
-    const filtered = res.data.filter(item => {
-      const itemMonth = dayjs(item.startDate).month();
-      const itemYear = dayjs(item.startDate).year();
-      return (
-        itemMonth === currentMonth.month() &&
-        itemYear === currentMonth.year()
-      );
-    });
-    filtered.sort((a, b) => a.id - b.id);
-    setSchedules(filtered);
-  } catch (error) {
-    console.error('일정 불러오기 실패:', error);
-    message.error('일정 데이터를 불러오지 못했습니다.');
-  }
-};
-
-const handleDeleteEvent = async (id) => {
-  const isConfirmed = window.confirm('이벤트를 삭제하시겠습니까?');
-  if (isConfirmed) {
-    try {
-      await axios.delete(`http://localhost:3065/calendar/${id}`);
-      message.success('이벤트가 삭제되었습니다.');
-
-      setSchedules(prevSchedules => prevSchedules.filter(schedule => schedule.id !== id));
-    } catch (error) {
-      console.error('이벤트 삭제 실패:', error);
-      message.error('이벤트 삭제에 실패했습니다.');
+        setSchedules(prevSchedules => prevSchedules.filter(schedule => schedule.id !== id));
+      } catch (error) {
+        console.error('이벤트 삭제 실패:', error);
+        message.error('이벤트 삭제에 실패했습니다.');
+      }
     }
-  }
-};
+  };
 
-useEffect(() => {
-  fetchSchedules();
-}, [currentMonth]);
+  useEffect(() => {
+    fetchSchedules();
+  }, [currentMonth]);
 
-const handlePrevMonth = () => {
-  setCurrentMonth(prev => prev.subtract(1, 'month'));
-};
+  const handlePrevMonth = () => {
+    setCurrentMonth(prev => prev.subtract(1, 'month'));
+  };
 
-const handleNextMonth = () => {
-  setCurrentMonth(prev => prev.add(1, 'month'));
-};
+  const handleNextMonth = () => {
+    setCurrentMonth(prev => prev.add(1, 'month'));
+  };
 
-const formatRange = (start, end) => {
-  const format = 'YY.MM.DD(dd)';
-  return `${dayjs(start).format(format)} ~ ${dayjs(end).format(format)}`;
-};
+  const formatRange = (start, end) => {
+    const format = 'YY.MM.DD(dd)';
+    return `${dayjs(start).format(format)} ~ ${dayjs(end).format(format)}`;
+  };
 
   return (
     <>
@@ -110,22 +111,21 @@ const formatRange = (start, end) => {
         <div style={{ display: 'flex' }}>
           <h3 style={{ marginBottom: '0px' }}>{currentMonth.format('M월 일정')}</h3>
           <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginLeft: 'auto',
+            gap: '10px',
+          }}>
+            {isAdmin && (
+              <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 marginLeft: 'auto',
                 gap: '10px',
               }}>
-          {isAdmin && (
-            <div
-                style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginLeft: 'auto',
-                gap: '10px',
-              }}>
-            <Button key="generate" type="primary" onClick={handleAddEvent}>이벤트 생성</Button>
-          </div>
-          )}
+                <Button key="generate" type="primary" onClick={handleAddEvent}>이벤트 생성</Button>
+              </div>
+            )}
             <LeftOutlined onClick={handlePrevMonth} />
             <RightOutlined onClick={handleNextMonth} />
           </div>
@@ -146,18 +146,17 @@ const formatRange = (start, end) => {
                 <span style={dateStyle}>{formatRange(schedule.startDate, schedule.endDate)}</span>
               </div>
               {isAdmin && (
-              <div
-                  style={{
+                <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   marginLeft: 'auto',
                   flexDirection: 'row',
                   gap: '10px',
                 }}
-              >
-                <Button type="primary" onClick={() => handleChangeEvent(schedule.id)}>이벤트 수정</Button>
-                <Button onClick={() => handleDeleteEvent(schedule.id)}>이벤트 삭제</Button>
-              </div>
+                >
+                  <Button type="primary" onClick={() => handleChangeEvent(schedule.id)}>이벤트 수정</Button>
+                  <Button onClick={() => handleDeleteEvent(schedule.id)}>이벤트 삭제</Button>
+                </div>
               )}
             </div>
             <span style={dateView}>{schedule.content}</span>
