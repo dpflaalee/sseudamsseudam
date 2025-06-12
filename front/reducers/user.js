@@ -175,11 +175,13 @@ export const REMOVE_BLOCK_FAILURE = 'REMOVE_BLOCK_FAILURE';
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
     case LOG_IN_REQUEST:
+      console.log('내 정보 요청:', action.data);  // 이 부분에서 요청하는 데이터 확인
       draft.logInLoading = true;
       draft.logInError = null;
       draft.logInDone = false;
       break;
     case LOG_IN_SUCCESS:
+      console.log('로그인 성공 데이터:', action.data); // 추가된 로그로 data 확인
       draft.logInLoading = false;
       draft.user = action.data;   ////dummyUser(action.data);
       draft.logInDone = true;
@@ -341,6 +343,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loadMyInfoDone = false;
       break;
     case LOAD_MY_INFO_SUCCESS:
+      console.log('내 정보 로드 성공:', action.data); // 추가된 로그로 data 확인
       draft.loadMyInfoLoading = false;
       draft.user = action.data;
       draft.loadMyInfoDone = true;
