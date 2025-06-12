@@ -148,7 +148,14 @@ router.get('/:postId', async (req, res, next) => {
     }
 
     // 댓글 데이터 가공: 부모댓글과 대댓글 분리 후 대댓글을 부모댓글에 묶기
-    const comments = post.Comments.map(comment => comment.toJSON());
+    const comments = post.Comments.map(comment => {
+    const c = comment.toJSON();
+      if (c.isDeleted) {
+        c.content = '삭제된 댓글입니다.';
+        c.User = null;
+      }
+    return c;
+    });
     const parentComments = comments.filter(c => !c.RecommentId);
     const childComments = comments.filter(c => c.RecommentId);
 
@@ -257,15 +264,22 @@ router.delete('/:postId/comment/:commentId', isLoggedIn, async (req, res, next) 
   try {
     const { postId, commentId } = req.params;
 
-    await Comment.destroy({
+    const comment = await Comment.findOne({
       where: {
         id: commentId,
-        PostId: req.params.postId,
-        UserId: req.user.id
-      }
+        PostId: postId,
+        UserId: req.user.id,
+      },
     });
-    res.status(200).json({ PostId: parseInt(postId, 10), CommentId: parseInt(commentId, 10) });
 
+    if (!comment) {
+      return res.status(404).json({ message: '댓글이 존재하지 않거나 권한이 없습니다.' });
+    }
+
+    comment.isDeleted = true;
+    await comment.save();
+
+    res.status(200).json({ PostId: parseInt(postId, 10), CommentId: parseInt(commentId, 10) });
   } catch (error) {
     console.error(error);
     next(error);
