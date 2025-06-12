@@ -1,23 +1,24 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Input, Button, Select } from 'antd';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addAniProfile } from '@/reducers/animal';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-
+import { LOAD_CATEGORIES_REQUEST } from '@/reducers/category';
 const { Option } = Select;
 
-const categoryOptions = [
-  { id: 1, name: '강아지' },
-  { id: 2, name: '고양이' },
-  { id: 3, name: '햄스터' },
-  { id: 4, name: '파충류' },
-];
+
 
 const AniProfileForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const imageInput = useRef();
+
+  // 카테고리
+  useEffect(() => {
+    dispatch({ type: LOAD_CATEGORIES_REQUEST });
+  }, []);
+  const { categories } = useSelector(state => state.category);
 
   const [form, setForm] = useState({
     aniName: '',
@@ -40,7 +41,7 @@ const AniProfileForm = () => {
       setForm((prev) => ({
         ...prev,
         aniProfile: file,
-        previewUrl: URL.createObjectURL(file),                     
+        previewUrl: URL.createObjectURL(file),
       }));
     };
     reader.readAsDataURL(file);
@@ -55,14 +56,15 @@ const AniProfileForm = () => {
   };
 
   const handleCategoryChange = (value) => {
+    console.log('form.categoryId: ', form.categoryId);
     setForm((prev) => ({
       ...prev,
-      categoryId: value,
+      categoryId: Number(value),
     }));
   };
 
-  const handleSubmit = async() => {
-    
+  const handleSubmit = async () => {
+
     const formData = new FormData();
     formData.append('aniName', form.aniName);
     formData.append('aniAge', form.aniAge);
@@ -133,15 +135,17 @@ const AniProfileForm = () => {
       />
       <Select
         placeholder="동물 종"
-        value={form.categoryId}
+        value={form.categoryId !== null ? form.categoryId : undefined}
         onChange={handleCategoryChange}
         style={{ width: '100%', marginBottom: 10 }}
       >
-        {categoryOptions.map((option) => (
-          <Option key={option.id} value={option.id}>
-            {option.name}
-          </Option>
-        ))}
+        {categories
+          .filter((v) => v.isAnimal)
+          .map((v) => (
+            <Option key={v.id} value={v.id}>
+              {v.content}
+            </Option>
+          ))}
       </Select>
 
       <input

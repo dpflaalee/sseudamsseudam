@@ -191,7 +191,11 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case UPDATE_POST_SUCCESS:
       draft.updatePostLoading = false;
       draft.updatePostDone = true;
-      draft.mainPosts.find((v) => v.id === action.data.PostId).content = action.data.content;
+      draft.mainPosts = draft.mainPosts.map(post =>
+        post.id === action.data.PostId
+          ? { ...post, content: action.data.content, scope: action.data.openScope || post.scope }
+          : post
+      );
       break;
     case UPDATE_POST_FAILURE:
       draft.updatePostLoading = false;
@@ -297,7 +301,9 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
     case LIKE_POST_SUCCESS: {
       const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
-      post.Likers.push({ id: action.data.UserId });
+      if (post) {
+        post.Likers.push({ id: action.data.UserId });
+      }
       draft.likePostLoading = false;
       draft.likePostDone = true;
       break;
@@ -313,7 +319,9 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
     case UNLIKE_POST_SUCCESS: {
       const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
-      post.Likers = post.Likers.filter((v) => v.id !== action.data.UserId);
+      if (post) {
+        post.Likers = post.Likers.filter((v) => v.id !== action.data.UserId);
+      }
       draft.unlikePostLoading = false;
       draft.unlikePostDone = true;
       break;

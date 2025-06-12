@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Input, Select, List, Avatar, Button, Spin, Empty } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { SEARCH_PROFILES_REQUEST } from '@/reducers/animal';
+import { LOAD_CATEGORIES_REQUEST } from '@/reducers/category';
 
 const { Option } = Select;
+
 
 const AnimalSearch = ({ visible, onClose }) => {
   const dispatch = useDispatch();
   const { searchResults, searchProfilesLoading } = useSelector((state) => state.animal);
 
-  const categoryOptions = [
-    { id: 1, name: '강아지' },
-    { id: 2, name: '고양이' },
-    { id: 3, name: '햄스터' },
-    { id: 4, name: '파충류' },
-  ];
+  // 카테고리
+  useEffect(() => {
+    dispatch({ type: LOAD_CATEGORIES_REQUEST });
+  }, []);
+  const { categories } = useSelector(state => state.category);
 
   const [form, setForm] = useState({
     aniName: '',
@@ -52,11 +53,13 @@ const AnimalSearch = ({ visible, onClose }) => {
           onChange={onChangeCategory}
           value={form.categoryId || undefined}
         >
-          {categoryOptions.map((option) => (
-            <Option key={option.id} value={option.id}>
-              {option.name}
-            </Option>
-          ))}
+          {categories
+            .filter((v) => v.isAnimal)
+            .map((v) => (
+              <Option key={v.id} value={v.id}>
+                {v.content}
+              </Option>
+            ))}
         </Select>
 
         <Input

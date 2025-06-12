@@ -15,28 +15,35 @@ export default function GroupList({ g }) {
   const router = useRouter(); const dispatch = useDispatch();
   const { members, loadMembersLoading, loadMembersError } = useSelector((state) => state.group)
   const [isMember, setIsMember] = useState(false);
+  const [groupLeader, setGroupLeader] = useState(false);
   const { user } = useSelector(state => state.user); //console.log("로그인한유저정보", user.id);  // 1
   const [group, setGroup] = useState(g);
   const [open, setOpen] = useState(false);
   const { joinGroupDone, joinGroupError, applyGroupDone, applyGroupError } = useSelector(state => state.group);
 
-  const formattedCategory = group.Categories?.map((c) => c.content).join(", ") || "없음"; // 카테고리 공백 추가  
-  const memberCount = group.groupmembers ? new Set(group.groupmembers.map(m => m.id)).size : 0;//멤버 수 계산
+  const formattedCategory = group?.Categories?.map((c) => c.content).join(", ") || "없음"; // 카테고리 공백 추가  
+  const memberCount = group?.groupmembers ? new Set(group.groupmembers.map(m => m.id)).size : 0;//멤버 수 계산
 
   //그룹 멤버 로드 요청 및 가입상태 확인
   useEffect(() => {
-    if (group && group.id) { dispatch({ type: LOAD_MEMBERS_REQUEST, data: group.id }); }
-  }, [group.id, dispatch]);
+    if (group && group?.id) { dispatch({ type: LOAD_MEMBERS_REQUEST, data: group?.id }); }
+  }, [group?.id, dispatch]);
 
   //멤버상태변경
   useEffect(() => {
     //console.log(">>>>>>>>>>멤버상태변경의 members", members);
     if (members && members.length > 0) {
-      const memberFound = group.groupmembers.some((groupMember) => groupMember.id === user.id);
+      const memberFound = group?.groupmembers?.some((groupMember) => groupMember.id === user.id);
       setIsMember(memberFound);
       //console.log("----------------멤버상태 변경됐냐",memberFound);
+
     }
-  }, [members, user, group.groupmembers]);
+    /// 알림 그룹 리더 찾기
+    if (group?.groupmembers && group?.groupmembers.length > 0) {
+      const groupLeader = members.find((members) => members.isLeader === true); // GroupMember의 isLeader 확인
+      setGroupLeader(groupLeader);
+    }
+  }, [members, user, group?.groupmembers]);
 
 const hasAlerted = useRef(false);
 
@@ -95,29 +102,25 @@ useEffect(() => {
     e.stopPropagation();
     if (isMember) { alert('이미 가입된 그룹입니다. 그룹으로 이동합니다.'); return router.push(`/gorups/${group.id}`) };
 
-    /// 알림 그룹 리더 찾기
-    if (group.groupmembers && group.groupmembers.length > 0) {
-      const groupLeader = members.find((members) => members.isLeader === true); // GroupMember의 isLeader 확인
-      console.log('🤭🤭 groupLeader:', groupLeader);
-    }
+
 
 
     try {
       if (group.OpenScopeId === 1) {
         dispatch({
           type: JOIN_GROUP_REQUEST, data: { groupId: group.id },
-          notyData: {
+          notiData: {
             targetId: group.id,
-            SenderId: user.User?.id,
+            SenderId: user?.id,
             ReceiverId: groupLeader.id,
           }
         });
       } else {
         dispatch({
           type: APPLY_GROUP_REQUEST, data: { groupId: group.id },
-          notyData: {
+          notiData: {
             targetId: group.id,
-            SenderId: user.User?.id,
+            SenderId: user?.id,
             ReceiverId: groupLeader.id,
           }
         });
@@ -141,7 +144,7 @@ useEffect(() => {
               <Row align="middle" gutter={8}>
                 <Col>
                   <Title level={5} style={{ margin: 0 }}>
-                    {group.title}
+                    {group?.title}
                   </Title>
                 </Col>
                 <Col>

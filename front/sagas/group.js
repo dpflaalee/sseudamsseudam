@@ -114,7 +114,6 @@ function* joinGroup(action) {
   try {
     yield call(joinGroupAPI, action.data);
     yield put({ type: JOIN_GROUP_SUCCESS });
-    // 알림
     yield put({
       type: ADD_NOTIFICATION_REQUEST,
       data: {
