@@ -183,6 +183,19 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.signUpLoading = false;
       draft.signUpError = action.error;
       break;
+    case USER_DELETE_REQUEST:
+      draft.userOutLoading = true;
+      draft.userOutError = null;
+      draft.userOutDone = false;
+      break;
+    case USER_DELETE_SUCCESS:
+      draft.userOutLoading = false;
+      draft.userOutDone = true;
+      break;
+    case USER_DELETE_FAILURE:
+      draft.userOutLoading = false;
+      draft.userOutError = action.error;
+      break;
     case CHANGE_NICKNAME_REQUEST:
       draft.changeNicknameLoading = true;
       draft.changeNicknameError = null;

@@ -22,7 +22,6 @@ import {
   USER_DELETE_SUCCESS,
   USER_DELETE_FAILURE,
 
-
   FOLLOW_REQUEST,
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE,
@@ -46,6 +45,8 @@ import {
   REMOVE_FOLLOWER_REQUEST,
   REMOVE_FOLLOWER_FAILURE,
   REMOVE_FOLLOWER_SUCCESS,
+
+
 } from '../reducers/user';
 
 // 알림
@@ -176,7 +177,7 @@ function* logout() {
   }
 }
 function userDeleteApi() {   //★   function* (X)
-  return axios.post('/user/userDelete');
+  return axios.delete('/user/userDelete');
 }
 function* userDelete() {
 

@@ -6,6 +6,7 @@ import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import useSelection from 'antd/lib/table/hooks/useSelection';
 import FollowButton from './FollowButton';
+import MyPrize from '@/components/prize/MyPrize';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
@@ -14,7 +15,6 @@ import Router from 'next/router';
 import PostCard from '../post/PostCard';
 import axios from 'axios';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
-import MyPrize from '@/components/prize/MyPrize';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -83,7 +83,7 @@ const ButtonRow = styled.div`
 
 const Profile = (props) => {
   const dispatch = useDispatch();
-  const { logOutDone, user } = useSelector(state => state.user);
+  const { userOutDone,logOutDone, user } = useSelector(state => state.user);
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
 
   let postUserId = props.postUserId;
@@ -172,7 +172,11 @@ const Profile = (props) => {
       Router.replace('/');
     }
   }, [logOutDone])
-
+  useEffect(() => {
+    if(userOutDone){
+      Router.replace('/');
+    }
+  })
   const [open, setOpen] = useState(false);
   const onLogout = useCallback(() => {
     dispatch({ type: LOG_OUT_REQUEST })

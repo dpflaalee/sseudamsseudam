@@ -26,11 +26,12 @@ const LoginForm = () => {
   //const [email, onChangeEmail] = useState(cookies.userEmail || '');
   //const [password, onChangePassword] = useState('');
 
-  const [checkEmail, setCheckEmail] = useState(!!cookies.userEmail);
+  const [checkEmail, setCheckEmail] = useState(false);
 
   const [errLoginFlag, setErrLoginFlag] = useState(false);
   const [errLoginMsg, setErrLoginMsg] = useState('');
 
+  console.log('체크확인',checkEmail);
   useEffect(() => {
     if(logInDone){
       console.log('logInDone');
@@ -121,7 +122,7 @@ const LoginForm = () => {
         }}
         initialValues={{
           email: cookies.userEmail || '', // <-- 여기를 수정!
-          remember: !!cookies.userEmail, // <-- remember 체크박스도 쿠키 여부에 따라 초기화
+          remember: checkEmail, // <-- remember 체크박스도 쿠키 여부에 따라 초기화
         }}
         onFinish={onSubmitForm}
         // onFinishFailed={onFinishFailed}
