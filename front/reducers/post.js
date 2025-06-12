@@ -301,7 +301,9 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
     case LIKE_POST_SUCCESS: {
       const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
-      post.Likers.push({ id: action.data.UserId });
+      if (post) {
+        post.Likers.push({ id: action.data.UserId });
+      }
       draft.likePostLoading = false;
       draft.likePostDone = true;
       break;
@@ -317,7 +319,9 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
     case UNLIKE_POST_SUCCESS: {
       const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
-      post.Likers = post.Likers.filter((v) => v.id !== action.data.UserId);
+      if (post) {
+        post.Likers = post.Likers.filter((v) => v.id !== action.data.UserId);
+      }
       draft.unlikePostLoading = false;
       draft.unlikePostDone = true;
       break;
