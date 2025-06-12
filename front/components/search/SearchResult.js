@@ -4,6 +4,7 @@ import { Input, Button, Avatar } from 'antd';
 import Link from 'next/Link';
 import PostCard from '../post/PostCard';
 import Profile from '../user/Profile';
+import GroupList from '../groups/GroupList';
 import GroupDropDown from '../groups/GroupDropdown';
 
 const Container = styled.div`
@@ -59,8 +60,8 @@ const SearchResult = ({ results }) => {
         currentList.map((item) => (
           <div key={item.id}>
             {activeTab === 'post' && <PostCard post={item} />}
-            {activeTab === 'group' && <GroupList group={item} />}
-            {activeTab === 'member' && <Profile user={item} />}
+            {activeTab === 'group' && <GroupList g={item} />}
+            {activeTab === 'member' && <Profile postUserId={item} />}
           </div>
         ))
       )}
