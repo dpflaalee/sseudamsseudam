@@ -3,11 +3,12 @@ import AppLayout from "../../components/AppLayout";
 import 'antd/dist/antd.css';
 import { useSelector, useDispatch } from "react-redux";
 import { LOAD_COMPLAIN_REQUEST } from "@/reducers/complain";
+import ComplainCard from "@/components/complains/ComplainCard";
 
-import ComplainCard from "../../components/complains/ComplainCard";
 import AdminProfile from "@/components/AdminProfile";
+import _ from 'lodash';
 
-const complain = () => {
+const ComplainPage = () => {
     const dispatch = useDispatch();
     const { mainComplainCard } = useSelector((state) => state.complain);
 
@@ -17,18 +18,18 @@ const complain = () => {
         });
     }, [dispatch]);
 
+    // 신고 목록을 type + targetId 기준으로 묶기
+    const grouped = _.groupBy(mainComplainCard, (r) => `${r.type}_${r.targetId}`);
+    const groupedCards = Object.entries(grouped); // [ [groupKey, reports[]], ... ]
+
     return (
         <AppLayout>
-            <>
-                <AdminProfile />
-                {mainComplainCard.map((c) => {
-                    return (
-                        <ComplainCard report={c} key={c.id} />
-                    );
-                })}
-            </>
+            <AdminProfile />
+            {groupedCards.map(([groupKey, reports]) => (
+                <ComplainCard key={groupKey} reports={reports} />
+            ))}
+        </AppLayout>
+    );
+};
 
-        </AppLayout>);
-}
-
-export default complain;
+export default ComplainPage;

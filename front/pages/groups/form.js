@@ -5,6 +5,10 @@ import AppLayout from '@/components/AppLayout';
 import GroupForm from '@/components/groups/GroupForm';
 import { Typography, Card, message, Spin } from 'antd';
 import { CREATE_GROUP_REQUEST, UPDATE_GROUP_REQUEST, LOAD_SINGLE_GROUP_REQUEST } from '@/reducers/group';
+import wrapper from '@/store/configureStore';
+import { LOAD_MY_INFO_REQUEST } from '@/reducers/user';
+import { END } from 'redux-saga';
+import axios from 'axios';
 
 const GroupFormPage = () => {
   const router = useRouter(); const dispatch = useDispatch();
@@ -47,5 +51,19 @@ const GroupFormPage = () => {
     </AppLayout>
   );
 };
+
+///////////////////////////////////////////////////////////////////
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  if (context.req && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
+  context.store.dispatch({ type: LOAD_MY_INFO_REQUEST,  });
+  
+  context.store.dispatch(END);
+  await context.store.sagaTask.toPromise();
+});
+///////////////////////////////////////////////////////////////////
 
 export default GroupFormPage;

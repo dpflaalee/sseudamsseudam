@@ -1,20 +1,21 @@
-module.exports = (  sequelize , DataTypes   ) => { 
-  /// const User
-  const BlackList = sequelize.define('BlackList', {//users테이블  - 자동으로 s 붙어서 생성
-    //id 기본값으로 자동설정
-    blackId: {
-      type: DataTypes.INTEGER, // STRING, TEXT, BOOLEAN, INTEGER, FLOAT, DATETIME
-      allowNull: false, // 필수
-      unique : true ,  // 고유값
-    }
+module.exports = (sequelize, DataTypes) => {
+  const Blacklist = sequelize.define('Blacklist', {
+    // 필요 시 필드 추가 가능 (예: 차단 시각 등)
   }, {
-    charset : 'utf8', 
-    collate: 'utf8_general_ci',  // 한글저장   
-  });  
-  /// 관계설정
-  BlackList.associate = (db) => { 
+    charset: 'utf8',
+    collate: 'utf8_general_ci',
+  });
 
-    db.BlackList.belongsTo(db.User);
-  }; 
-  return BlackList;
+  Blacklist.associate = (db) => {
+    Blacklist.belongsTo(db.User, {
+      as: 'Blocked', // 차단 당한 사람
+      foreignKey: 'BlockedId',
+    });
+
+    Blacklist.belongsTo(db.User, {
+      as: 'Blocking', // 차단한 사람
+      foreignKey: 'BlockingId',
+    });
+  };
+  return Blacklist;
 };

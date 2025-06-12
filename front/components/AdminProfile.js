@@ -60,6 +60,7 @@ const Stats = styled.div`
 const ButtonRow = styled.div`
   margin-top: 16px;
   display: flex;
+  justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
   gap: 8px;
 `;
 
@@ -70,59 +71,59 @@ const DropdownBox = styled.div`
 `;
 
 const AdminProfile = () => {
-    const admin = {
-        nickname: '관리자',
-        profileImage: null,
-        followerCount: 0,
-        postCount: 0,
-        followingCount: 0,
-    }
+  const admin = {
+    nickname: '관리자',
+    profileImage: null,
+    followerCount: 0,
+    postCount: 0,
+    followingCount: 0,
+  }
 
-    const [open, setOpen] = useState(false);
-    //const userId = useSelector(state => state.user.user?.id);
-    const userId = 1;
-    const menu = (
-        <Menu>
-            <Menu.Item key="logout">로그아웃</Menu.Item>
-            <Menu.Item key="complain"><Link href={'/admin/complain'}>신고 페이지로 가기</Link></Menu.Item>
-            <Menu.Item key="manage"><Link href={'/admin/manage'}>관리 페이지로 가기</Link></Menu.Item>
-        </Menu>
-    );
+  const [open, setOpen] = useState(false);
+  //const userId = useSelector(state => state.user.user?.id);
+  const userId = 1;
+  const menu = (
+    <Menu>
+      <Menu.Item key="logout">로그아웃</Menu.Item>
+      <Menu.Item key="complain"><Link href={'/admin/complain'}>신고 페이지로 가기</Link></Menu.Item>
+      <Menu.Item key="manage"><Link href={'/admin/manage'}>관리 페이지로 가기</Link></Menu.Item>
+    </Menu>
+  );
 
-    return (
-        <Wrapper>
-            <Banner />
-            <Container>
-                <AvatarBox>
-                    <Avatar size={80} src={admin.profileImage}>
-                        {admin.nickname[0]}
-                    </Avatar>
-                </AvatarBox>
+  return (
+    <Wrapper>
+      <Banner />
+      <Container>
+        <AvatarBox>
+          <Avatar size={80} src={admin.profileImage}>
+            {admin.nickname[0]}
+          </Avatar>
+        </AvatarBox>
 
-                <DropdownBox>
-                    <Dropdown overlay={menu} trigger={['click']}>
-                        <Button icon={<MoreOutlined />} />
-                    </Dropdown>
-                </DropdownBox>
+        <DropdownBox>
+          <Dropdown overlay={menu} trigger={['click']}>
+            <Button icon={<MoreOutlined />} />
+          </Dropdown>
+        </DropdownBox>
 
-                <TopRow>
-                    <InfoBox>
-                        <Nickname>{admin.nickname}</Nickname>
-                        <Stats>
-                            {admin.followerCount} 팔로잉 &nbsp;&nbsp;
-                            {admin.postCount} 팔로워 &nbsp;&nbsp;
-                            {admin.followingCount} 게시물
-                        </Stats>
-                    </InfoBox>
-                </TopRow>
+        <TopRow>
+          <InfoBox>
+            <Nickname>{admin.nickname}</Nickname>
+            <Stats>
+              {admin.followerCount} 팔로잉 &nbsp;&nbsp;
+              {admin.postCount} 팔로워 &nbsp;&nbsp;
+              {admin.followingCount} 게시물
+            </Stats>
+          </InfoBox>
+        </TopRow>
 
-                <ButtonRow>
-                    <Button>프로필 수정</Button>
-                    <Button type="primary">공지 작성하기</Button>
-                </ButtonRow>
-            </Container>
-        </Wrapper>
-    );
+        <ButtonRow>
+          <Button>프로필 수정</Button>
+          <Button type="primary"><Link href={'/main'}>공지 작성하기</Link></Button>
+        </ButtonRow>
+      </Container>
+    </Wrapper>
+  );
 };
 
 export default AdminProfile;

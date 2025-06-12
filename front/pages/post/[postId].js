@@ -8,6 +8,7 @@ import wrapper from '../../store/configureStore';
 import { LOAD_MY_INFO_REQUEST } from '../../reducers/user';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import { END } from 'redux-saga';
+import AppLayout from '@/components/AppLayout';
 
 const PostDetailPage = () => {
   const router = useRouter();
@@ -30,7 +31,11 @@ const PostDetailPage = () => {
 
   if (!post) return <div>게시물을 찾을 수 없습니다.</div>;
 
-  return <DetailCard post={post} onRefreshPost={fetchPost} />;
+  return (
+    <AppLayout>
+    <DetailCard post={post} onRefreshPost={fetchPost} />
+    </AppLayout>
+  );
 };
 
 //////////////////////////////////
