@@ -116,7 +116,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
                   <Option value="public">전체 공개</Option>
                   <Option value="private">나만 보기</Option>
                   <Option value="follower">팔로워 공개</Option>
-                  <Option value="group">그룹 공개</Option>
                 </Select>
                 <Button onClick={() => setIsModalOpen(true)}>카테고리</Button>
               </Space>
