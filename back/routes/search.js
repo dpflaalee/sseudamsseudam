@@ -29,7 +29,9 @@ router.get('/:searchInput', async (req, res, next) => {
                 title: { [Op.like]: `%${keyword}%` },
             },
             include: [
-                { model: Category, attributes: ['id', 'content', 'isAnimal'] },
+                { model: Category, through: { attributes: [] } }
+                , { model: OpenScope, attributes: ['id', 'content'] }
+                , { model: User, as: 'groupmembers', attributes: ['id'], through: { attributes: [] } }
             ]
         });
 
@@ -38,11 +40,6 @@ router.get('/:searchInput', async (req, res, next) => {
                 nickname: { [Op.like]: `%${keyword}%` },
             },
         });
-
-        console.log('📑postResults', postResults);
-        console.log('📑groupResults', groupResults);
-        console.log('📑memberResults', memberResults);
-
         res.json({
             post: postResults,
             group: groupResults,
