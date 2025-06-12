@@ -15,7 +15,10 @@ const Nav = () => {
   const dispatch = useDispatch();
   const { logOutLoading, user } = useSelector(state => state.user);
 
-  const onLogout = useCallback(() => { dispatch({ type: LOG_OUT_REQUEST }) }, [])
+  const onLogout = useCallback(() => {
+     dispatch({ type: LOG_OUT_REQUEST }) 
+     router.replace('/');
+    }, [])
 
   useEffect(() => {
     const handleResize = () => { setIsMobile(window.innerWidth <= 768); };
