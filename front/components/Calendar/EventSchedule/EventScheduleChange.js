@@ -27,6 +27,10 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf('day');
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -115,7 +119,7 @@ if (!isAdmin) return null;
           <Form.Item
             name="range"
             rules={[{ required: true, message: '시작일과 종료일을 선택하세요.' }]} >
-            <RangePicker showTime style={{ width: '100%' }} />
+            <RangePicker showTime disabledDate={disabledDate} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
