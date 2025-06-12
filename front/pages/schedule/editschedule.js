@@ -27,7 +27,7 @@ const EditSchedulePage = () => {
     try {
       await axios.put(`http://localhost:3065/calendar/${id}`, updatedData);
       message.success('일정이 성공적으로 수정되었습니다.');
-      router.push('/schedule');
+      router.push('/admin/manage');
     } catch (error) {
       message.error('일정 수정에 실패했습니다.');
     }
