@@ -14,9 +14,8 @@ import {
   APPLY_GROUP_REQUEST, APPLY_GROUP_SUCCESS, APPLY_GROUP_FAILURE, // 가입신청
   LOAD_JOIN_REQUESTS_REQUEST, LOAD_JOIN_REQUESTS_SUCCESS, LOAD_JOIN_REQUESTS_FAILURE, // 신청현황
   APPROVE_JOIN_REQUEST, APPROVE_JOIN_SUCCESS, APPROVE_JOIN_FAILURE, // 가입승인
-  REJECT_JOIN_REQUEST, REJECT_JOIN_SUCCESS, REJECT_JOIN_FAILURE,
-  LOAD_USER_GROUPS_FAILURE,
-  LOAD_USER_GROUPS_REQUEST, // 가입거절
+  REJECT_JOIN_REQUEST, REJECT_JOIN_SUCCESS, REJECT_JOIN_FAILURE,//가입거절
+  LOAD_USER_GROUPS_FAILURE, LOAD_USER_GROUPS_SUCCESS, LOAD_USER_GROUPS_REQUEST, 
 } from '@/reducers/group';
 
 // 알림
@@ -197,7 +196,7 @@ function* approveJoin(action) {
     });
     // E 알림
   } catch (err) {
-    const error = err.response ? err.response.data : err.message;
+    const error = (err.response ? err.response.data : err.message);
     yield put({ type: APPROVE_JOIN_FAILURE, error });
   }
 }
@@ -239,21 +238,22 @@ function* rejectJoin(action) {
     });
     // E 알림
   } catch (err) {
-    console.error("거절 처리 중 에러 발생", err);
-    const error = err.response ? err.response.data : err.message;
+    const error = (err.response ? err.response.data : err.message);
     yield put({ type: REJECT_JOIN_FAILURE, error });
   }
 }
 function* watchRejectJoin() { yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin); }
 
 //6. 로그인한 유저가 가입된 그룹 리스트 불러오기
-function loadUserGroupsAPI(){return axios.get('/user/groups',{withCredentials:true});}
+function loadUserGroupsAPI(){return axios.get('/group/mygroups',{withCredentials:true});}
 function* loadUserGroups(){
   try{
     const response = yield call(loadUserGroupsAPI);
-    yield put({ type: LOAD_USER_GROUPS_REQUEST, data: response.data });
+    console.log("SAGA............유저 그룹정보", response.data)
+    
+    yield put({ type: LOAD_USER_GROUPS_SUCCESS , data: response.data });
     console.log("SAGA1. 로그인유저그룹테스트..........", response.data)
-  }catch(err){console.error = err.response ? err.response.data : err.message;
+  }catch(err){
     yield put({type: LOAD_USER_GROUPS_FAILURE});  }
 }
 function* watchLoadUserGroups(){ yield takeLatest(LOAD_USER_GROUPS_REQUEST, loadUserGroups); }

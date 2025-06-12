@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from "react-redux";
 import { LOG_OUT_REQUEST } from "@/reducers/user";
 import { LOAD_NOTIFICATION_REQUEST } from "@/reducers/notification";
+import { LOAD_USER_GROUPS_REQUEST } from "@/reducers/group";
 
 const { SubMenu } = Menu;
 
@@ -14,6 +15,11 @@ const Nav = () => {
   const [openKeys, setOpenKeys] = useState([]);
   const dispatch = useDispatch();
   const { logOutLoading, user } = useSelector(state => state.user);
+  const{userGroups} = useSelector((state)=>state.group);
+
+  useEffect(()=>{
+    if(user?.id){ dispatch({type: LOAD_USER_GROUPS_REQUEST});}
+  }, [user?.id, dispatch]);
 
   const onLogout = useCallback(() => {
      dispatch({ type: LOG_OUT_REQUEST }) 
@@ -85,7 +91,12 @@ const Nav = () => {
           <Menu.Item key="home" icon={<HomeOutlined />}> {!isMobile && "홈"} </Menu.Item>
           <SubMenu key="group" icon={<TeamOutlined />} title={!isMobile && "그룹"}>
             <Menu.Item key="groupHome" style={{ fontWeight: 'bold' }}>그룹 홈</Menu.Item>
-            <Menu.Item key="group2">Group2</Menu.Item>
+
+            {userGroups && userGroups.map((group) => (
+              <Menu.Item key={`group-${group.id}`} onClick={() => router.push(`/groups/${group.id}`)} >
+                {group.title}
+              </Menu.Item>
+            ))}
           </SubMenu>
           <Menu.Item
             key="notification"

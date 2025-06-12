@@ -155,7 +155,7 @@ export const initialState = {
   members: [],       // 현재 그룹의 멤버들
   joinRequests: [],  // 가입 요청 목록
   singleGroup: null,
-  useGroups: [], //로그인한 유저가 가입한 그룹 목록
+  userGroups: [], //로그인한 유저가 가입한 그룹 목록
 };
 
 //-------------- next---------------//
@@ -301,8 +301,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         draft.joinGroupError = null;
         break;
       case JOIN_GROUP_SUCCESS:
-        console.log("✅ JOIN_GROUP_SUCCESS 실행");
-        if (draft.joinGroupDone) break; // 🚀 중복 실행 방지
+        if (draft.joinGroupDone) break; 
         draft.joinGroupLoading = false;
         draft.joinGroupDone = true;
         break;
@@ -313,7 +312,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         break;        
       // 공개 그룹 가입 상태 리셋
       case JOIN_GROUP_RESET:
-        console.log("🔄 JOIN_GROUP_RESET 실행");
         draft.joinGroupDone = false;
         draft.joinGroupError = null;
         break;       
@@ -405,7 +403,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       case LOAD_USER_GROUPS_SUCCESS:
         draft.userGroupLoading = false;
         draft.userGroupDone = true;
-        draft.useGroups = action.data;
+        draft.userGroups = action.data;
         break;
       case LOAD_USER_GROUPS_FAILURE:
         draft.userGroupLoading = false;
