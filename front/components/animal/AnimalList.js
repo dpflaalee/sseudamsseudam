@@ -8,7 +8,6 @@ import { PlusOutlined } from '@ant-design/icons';
 const AnimalList = ({ animals }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  // const { animals } = useSelector((state) => state.animal);
   const imageBaseUrl = 'http://localhost:3065/uploads/animalProfile';
 
   const handleClick = (id) => {
@@ -58,6 +57,7 @@ const AnimalList = ({ animals }) => {
           zIndex: 10,
         }}
       >
+        
         <Button
           type="default"
           onClick={handleRegisterAnimal}
@@ -84,6 +84,7 @@ const AnimalList = ({ animals }) => {
           </div>
         </Button>
       </div>
+      
     </div>
     
   );

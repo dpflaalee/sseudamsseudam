@@ -9,12 +9,13 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import wrapper from '@/store/configureStore';
 import { LOAD_USER_POSTS_REQUEST } from '../../../reducers/post';
-import { LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../../../reducers/user';
+import { LOAD_BLOCK_REQUEST, LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../../../reducers/user';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import TARGET_TYPE from '../../../../shared/constants/TARGET_TYPE';
 import { LOAD_POSTS_REQUEST } from '../../../reducers/post';
 import MyPrize from '@/components/prize/MyPrize';
 import AnimalList from '@/components/animal/AnimalList';
+import { LOAD_USER_ANIMAL_LIST_REQUEST } from '@/reducers/animal';
 
 const MyPage = () => {
     const dispatch = useDispatch();
@@ -23,6 +24,7 @@ const MyPage = () => {
     const router = useRouter();
     const { myPage } = router.query;
     const { myAnimals, selectedAnimal } = useSelector((state) => state.animal);
+
     console.log('myPage', myPage);
 
     // 신고 당한 유저 블라인드 처리
@@ -41,10 +43,10 @@ const MyPage = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        if (user) {
-            dispatch({ type: 'LOAD_ANIMAL_LIST_REQUEST' });
+        if (myPage) {
+            dispatch({ type: LOAD_USER_ANIMAL_LIST_REQUEST, data: Number(myPage) });
         }
-    }, [user, dispatch]);
+    }, [myPage]);
 
     const isBlinded = mainComplainCard.some((report) => {
         return Number(report.targetId) === Number(myPage) && report.isBlind && report.targetType === TARGET_TYPE.USER;
@@ -65,7 +67,7 @@ const MyPage = () => {
             onShowMyPrize={onShowMyPrize}
             isMyProfile={user?.id === myPage}
         />
-      
+        <AnimalList animals={userDetailAnimals} ownerId={Number(myPage)} />
         {/* "내 쿠폰함" 버튼을 클릭했을 때 MyPrize만 렌더링 */}
         {showMyPrize ? (
             <MyPrize />
@@ -75,15 +77,12 @@ const MyPage = () => {
             return <PostCard post={post} key={post.id} />;
             })
         )}
-        <AnimalList animals={myAnimals} />
         </AppLayout>
     );
 }
 
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
-    console.log('context.params?.id=', context.params);
     const { myPage } = context.params;
-    console.log('mypage=,', myPage);
     //1. cookie 설정
     const cookie = context.req ? context.req.headers.cookie : '';
     axios.defaults.headers.Cookie = '';
@@ -93,6 +92,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
     context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
     context.store.dispatch({ type: LOAD_COMPLAIN_REQUEST });
     context.store.dispatch({ type: LOAD_POSTS_REQUEST });
+    context.store.dispatch({ type: LOAD_BLOCK_REQUEST });
     //context.store.dispatch({ type: LOAD_USER_POSTS_REQUEST  , data: context.params.myPage,});
     //context.store.dispatch({ type: LOAD_USER_REQUEST,   data: context.params.myPage, });
     context.store.dispatch(END);

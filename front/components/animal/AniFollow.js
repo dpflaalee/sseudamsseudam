@@ -146,10 +146,10 @@ const AniFollow = () => {
     <div style={{ backgroundColor: "#fff", padding: 24, borderRadius: 8 }}>
       <Tabs defaultActiveKey="followers" centered>
         <TabPane tab="팔로잉" key="followings">
-          {renderList(followings, loadAnifollowingsLoading, "팔로잉한 동물이 없습니다.", false, 'followings')}
+          {renderList(followings, loadAnifollowingsLoading, "친구 맺은 동물이 없습니다.", false, 'followings')}
         </TabPane>
         <TabPane tab="팔로워" key="followers">
-          {renderList(followers, loadAnifollowersLoading, "나를 팔로우한 동물이 없습니다.", true, 'followers')}
+          {renderList(followers, loadAnifollowersLoading, "나를 친구 맺기한 동물이 없습니다.", true, 'followers')}
         </TabPane>
       </Tabs>
       <div style={{ marginTop: 24 }}>
