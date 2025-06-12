@@ -39,13 +39,13 @@ const Home = () => {
           report.isBlind
       );
       if (isBlinded) {
-        setModalVisible(true); // ✅ 모달 띄움
-        setAlreadyChecked(true); // ✅ 재실행 방지
+        setModalVisible(true);
+        setAlreadyChecked(true);
       }
     }
   }, [user, mainComplainCard, alreadyChecked]);
 
-  const handleModalOk = () => {
+  const handleModalOk = async () => {
     await Router.replace('/');
     setModalVisible(false);
   };
@@ -95,7 +95,6 @@ const Home = () => {
 
   return (
     <>
-
       <Modal
         title="로그인 제한"
         visible={modalVisible}
@@ -105,6 +104,7 @@ const Home = () => {
         <p>신고 누적으로 인해 로그인이 제한되었습니다.</p>
       </Modal>
       <AppLayout>
+
         {user && <PostForm />}
         {mainPosts
           .filter((post) => {
