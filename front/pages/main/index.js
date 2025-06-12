@@ -14,7 +14,6 @@ import { LOAD_MY_INFO_REQUEST } from '../../reducers/user';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import wrapper from '../../store/configureStore';
 import { END } from 'redux-saga';
-import AnimalList from '@/components/animal/AnimalList';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import { LOAD_NOTIFICATION_REQUEST } from '@/reducers/notification';
 
@@ -25,8 +24,6 @@ const Home = () => {
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
   const { mainComplainCard } = useSelector((state) => state.complain);
   const id = user?.id;
-
-  const { myAnimals, selectedAnimal } = useSelector((state) => state.animal);
 
   useEffect(() => {
     if (mainPosts.length === 0) {
@@ -60,12 +57,6 @@ const Home = () => {
     };
   }, [mainPosts, hasMorePosts, loadPostsLoading]);
 
-  useEffect(() => {
-    if (user) {
-      dispatch({ type: 'LOAD_ANIMAL_LIST_REQUEST' });
-    }
-  }, [user, dispatch]);
-
   // 신고 당한 유저 글 보이지 않게 처리
   useEffect(() => {
     dispatch({
@@ -76,7 +67,6 @@ const Home = () => {
   return (
 
     <AppLayout>
-      <AnimalList animals={myAnimals} />
       {user && <PostForm />}
       {mainPosts
         .filter((post) => {
