@@ -73,6 +73,8 @@ export const APPROVE_JOIN_FAILURE = 'APPROVE_JOIN_FAILURE';
 export const REJECT_JOIN_REQUEST = 'REJECT_JOIN_REQUEST';
 export const REJECT_JOIN_SUCCESS = 'REJECT_JOIN_SUCCESS';
 export const REJECT_JOIN_FAILURE = 'REJECT_JOIN_FAILURE';
+//가입요청 리셋
+export const RESET_JOIN_REQUESTS = 'RESET_JOIN_REQUESTS';
 //멤버관리-------------------------------------------------
 
 //-------------- 초기값---------------//
@@ -120,16 +122,11 @@ export const initialState = {
   joinGroupLoading: false,
   joinGroupDone: false,
   joinGroupError: null,
-  // 공개 그룹 가입 상태 리셋
-  joinGroupDone : false,
-  joinGroupError : null,  
   // 가입 요청 신청
   applyGroupLoading: false,
   applyGroupDone: false,
   applyGroupError: null,
   //비공개 그룹 가입 상태 리셋
-  applyGroupDone : false,
-  applyGroupError : null,
   applyGroupMessage : null,
   // 가입 요청 불러오기 (방장용)
   loadJoinRequestsLoading: false,
@@ -288,11 +285,15 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
   //------------------- 가입관리 -------------------//      
       // 공개 그룹 즉시 가입
       case JOIN_GROUP_REQUEST:
+        console.log("📌 JOIN_GROUP_REQUEST 실행");
         draft.joinGroupLoading = true;
         draft.joinGroupDone = false;
         draft.joinGroupError = null;
         break;
+
       case JOIN_GROUP_SUCCESS:
+        console.log("✅ JOIN_GROUP_SUCCESS 실행");
+        if (draft.joinGroupDone) break; // 🚀 중복 실행 방지
         draft.joinGroupLoading = false;
         draft.joinGroupDone = true;
         break;
@@ -303,9 +304,10 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         break;        
       // 공개 그룹 가입 상태 리셋
       case JOIN_GROUP_RESET:
+        console.log("🔄 JOIN_GROUP_RESET 실행");
         draft.joinGroupDone = false;
         draft.joinGroupError = null;
-        break;        
+        break;       
       //가입신청
       case APPLY_GROUP_REQUEST:
         draft.applyGroupLoading = true;
@@ -342,7 +344,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         draft.loadJoinRequestsLoading = false;
         draft.loadJoinRequestsError = action.error;
         break;
-
       //가입 승인
       case APPROVE_JOIN_REQUEST:
         draft.approveJoinRequestLoading =true;
@@ -351,7 +352,12 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         break;
       case APPROVE_JOIN_SUCCESS:
         draft.approveJoinRequestLoading =false;
-        draft.joinRequests = draft.joinRequests.filter((r) => r.id !== action.data);
+        //draft.joinRequests = draft.joinRequests.filter((r) => r.id !== action.data);
+        draft.joinRequests = draft.joinRequests.map(
+          (r)=>r.id===action.data.id
+          ?{ ...r, status: "approved"}
+          :r
+        );
         draft.approveJoinRequestDone = true;
         break;
       case APPROVE_JOIN_FAILURE:
@@ -366,12 +372,21 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         break;
       case REJECT_JOIN_SUCCESS:
         draft.rejectJoinRequestLoading =false;
-        draft.joinRequests = draft.joinRequests.filter((r) => r.id !== action.data);
+        //draft.joinRequests = draft.joinRequests.filter((r) => r.id !== action.data);
+        draft.joinRequests = draft.joinRequests.map((r) =>
+          r.id === action.data.id
+            ? { ...r, status: "rejected" }
+            : r
+        );
         draft.rejectJoinRequestDone =true;
         break;
       case REJECT_JOIN_FAILURE:
         draft.rejectJoinRequestLoading =false;
         draft.rejectJoinRequestError = action.error;
+        break;
+      //가입 신청 리셋
+      case RESET_JOIN_REQUESTS:
+        draft.joinRequests = [];
         break;
 //--------------------------------------------------------------------------------//
 

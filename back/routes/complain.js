@@ -23,8 +23,6 @@ router.post('/', async (req, res, next) => {
 
 // 신고 내용 블라인드 처리
 router.patch('/blind', async (req, res, next) => {
-    console.log('🦠 router.patch: blind : ', req.body);
-    console.log('🦠 router.patch: blind : ', req.body.targetId);
     try {
         await Complain.update({ isBlind: true }, { where: { targetId: req.body.targetId } });
         res.status(200).json({ message: '블라인드 처리 완료' });

@@ -1,23 +1,25 @@
 import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/router";
-import { Avatar, Typography, Button, Card, Row, Col, Empty } from "antd";
+import { Avatar, Typography, Button, Card, Row, Col, Empty, Modal, message } from "antd";
+import dayjs from "dayjs";
 import { loadMyPrizes, useMyPrize } from "../../reducers/myPrize";
-
-// 신고
-import ComplainForm from "../complains/ComplainForm";
-import TARGET_TYPE from "../../../shared/constants/TARGET_TYPE";
+import { openRandomBox, loadRandomBoxList } from "../../reducers/prize";
 
 const { Text } = Typography;
 
 const MyPrize = () => {
-  const router = useRouter();
   const dispatch = useDispatch();
 
-  // 신고자
-  const user = useSelector(state => state.user);
-  const userNickname = user.User?.nickname;
-
+  // Redux 상태
+  const { User: user } = useSelector((state) => state.user);
+  const {
+    prizes,
+    openRandomBoxLoading,
+    openRandomBoxDone,
+    latestCoupon,
+    loadRandomBoxListLoading,
+    loadRandomBoxListError,
+  } = useSelector((state) => state.prize);
   const {
     myPrizes,
     loadMyPrizesLoading,
@@ -26,49 +28,25 @@ const MyPrize = () => {
     useMyPrizeError,
   } = useSelector((state) => state.myPrize);
 
+  // 초기 데이터 로드
   useEffect(() => {
+    dispatch(loadRandomBoxList());
     dispatch(loadMyPrizes());
   }, [dispatch]);
 
-  // 랜덤박스 열기 함수 (기존 코드 유지)
-  const openRandomModal = async (category) => {
-    if (!category || !category.id) {
-      alert("랜덤박스 카테고리 정보가 없습니다.");
-      return;
-    }
+  // 랜덤박스 열기 (issuedId 사용)
+  const handleOpenRandomBox = useCallback(
+    (issuedId) => {
+      if (!issuedId) return alert("잘못된 랜덤박스입니다.");
+      dispatch(openRandomBox(issuedId));
+    },
+    [dispatch]
+  );
 
-    try {
-      const res = await fetch(`/api/random-box/open/${category.id}`, {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (!res.ok) throw new Error("서버 응답 실패");
-
-      const data = await res.json();
-      if (data.success) {
-        router.push(
-          `/mypage/RandomBoxResult?status=success&item=${encodeURIComponent(
-            data.itemName
-          )}`
-        );
-      } else {
-        router.push("/mypage/RandomBoxResult?status=fail");
-      }
-    } catch (error) {
-      console.error("에러 발생:", error);
-      router.push("/mypage/RandomBoxResult?status=fail");
-    }
-  };
-
-  // 쿠폰 사용 함수
+  // 쿠폰 사용
   const handleUsePrize = useCallback(
     (prizeId) => {
-      if (!prizeId) {
-        alert("잘못된 쿠폰입니다.");
-        return;
-      }
-
+      if (!prizeId) return alert("잘못된 쿠폰입니다.");
       if (window.confirm("쿠폰을 사용하시겠습니까?")) {
         dispatch(useMyPrize(prizeId));
       }
@@ -76,19 +54,32 @@ const MyPrize = () => {
     [dispatch]
   );
 
-  // 유효한 랜덤박스만 필터링
-  const validPrizes = myPrizes.filter(
-    (prize) => prize && prize.content && prize.issuedAt
-  );
+  // 랜덤박스 사용 결과 모달
+  useEffect(() => {
+    if (openRandomBoxDone && latestCoupon) {
+      message.success("쿠폰이 발급되었습니다!");
+      Modal.success({
+        title: "🎁 당첨 결과",
+        content: (
+          <div>
+            <p>{latestCoupon.content}</p>
+            <p>발급일: {dayjs(latestCoupon.issuedAt).format("YYYY-MM-DD")}</p>
+          </div>
+        ),
+      });
+    }
+  }, [openRandomBoxDone, latestCoupon]);
 
-  if (loadMyPrizesLoading) return <Text>로딩 중...</Text>;
-  if (loadMyPrizesError)
+  // 필터링
+  const validRandomBoxes = prizes.filter((prize) => prize && prize.issuedId && prize.dueAt);
+  const validCoupons = myPrizes.filter((coupon) => coupon && coupon.content && coupon.issuedAt);
+
+  // 에러/로딩 처리
+  if (loadMyPrizesLoading || loadRandomBoxListLoading) return <Text>로딩 중...</Text>;
+  if (loadMyPrizesError || loadRandomBoxListError)
     return (
       <Text type="danger">
-        에러 발생:{" "}
-        {typeof loadMyPrizesError === "object"
-          ? loadMyPrizesError.message || JSON.stringify(loadMyPrizesError)
-          : String(loadMyPrizesError)}
+        에러 발생: {String(loadMyPrizesError || loadRandomBoxListError)}
       </Text>
     );
 
@@ -97,18 +88,20 @@ const MyPrize = () => {
       {/* 🎁 내 박스 */}
       <Card title="내 박스" style={{ marginBottom: 24 }}>
         <Row gutter={[0, 16]}>
-          {validPrizes.length === 0 ? (
+          {validRandomBoxes.length === 0 ? (
             <Empty description="받은 랜덤박스가 없습니다." />
           ) : (
-            validPrizes.map((prize) => (
-              <Col span={24} key={prize.id}>
+            validRandomBoxes.map((prize) => (
+              <Col span={24} key={prize.issuedId}>
                 <Card
                   type="inner"
                   title={`${prize.category?.content || "알 수 없음"} 랜덤박스`}
                   extra={
                     <Button
+                      type="primary"
                       danger
-                      onClick={() => openRandomModal(prize.category)}
+                      loading={openRandomBoxLoading}
+                      onClick={() => handleOpenRandomBox(prize.issuedId)}
                     >
                       사용
                     </Button>
@@ -116,68 +109,38 @@ const MyPrize = () => {
                 >
                   유효기간: {new Date(prize.dueAt).toLocaleDateString()}
                 </Card>
-                
-                {/*
-                <Dropdown
-                  overlay={
-                    <Menu>
-                      <Menu.Item key="report" onClick={() => setOpen(true)}>
-                        신고하기
-                      </Menu.Item>
-                    </Menu>
-                  }
-                  placement="bottomRight"
-                  trigger={["click"]}
-                >
-                  <EllipsisOutlined style={{ fontSize: 20, cursor: "pointer" }} />
-                </Dropdown>
-                {/* 신고 모달 */} {/*}
-                {
-                  open && (
-                    <ComplainForm
-                      open={open}
-                      targetId={prize.id}
-                      TARGET_TYPE={TARGET_TYPE.RANDOMBOX}
-                      targetUserNickname={userNickname}
-                      onClose={() => setOpen(false)}
-                    />
-                  )
-                }
-                {/* E 신고 모달 */}
-
               </Col>
             ))
           )}
         </Row>
       </Card>
 
-
       {/* 🎟 내 쿠폰함 */}
       <Card title="내 쿠폰함">
         <Row gutter={[0, 16]}>
-          {validPrizes.length === 0 ? (
+          {validCoupons.length === 0 ? (
             <Empty description="받은 쿠폰이 없습니다." />
           ) : (
-            validPrizes.map((prize) => (
-              <Col span={24} key={prize.id}>
+            validCoupons.map((coupon) => (
+              <Col span={24} key={coupon.id}>
                 <Card
                   type="inner"
-                  title={prize.content}
+                  title={coupon.content}
                   extra={
-                    prize.isRead ? (
+                    coupon.isRead ? (
                       <Button disabled>사용 완료</Button>
                     ) : (
                       <Button
                         type="primary"
                         loading={useMyPrizeLoading}
-                        onClick={() => handleUsePrize(prize.id)} // prize.id를 제대로 전달
+                        onClick={() => handleUsePrize(coupon.id)}
                       >
                         사용
                       </Button>
                     )
                   }
                 >
-                  유효기간: {new Date(prize.dueAt).toLocaleDateString()}
+                  유효기간: {new Date(coupon.dueAt).toLocaleDateString()}
                 </Card>
               </Col>
             ))

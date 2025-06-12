@@ -5,8 +5,11 @@ import { MoreOutlined } from '@ant-design/icons';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import useSelection from 'antd/lib/table/hooks/useSelection';
+import FollowButton from './FollowButton';
+import MyPrize from '@/components/prize/MyPrize';
+
 import { useDispatch, useSelector } from 'react-redux';
-import { LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
+import { LOAD_BLOCK_REQUEST, ADD_BLOCK_REQUEST, REMOVE_BLOCK_REQUEST, LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'
 import Router from 'next/router';
 import PostCard from '../post/PostCard';
@@ -64,11 +67,6 @@ const Stats = styled.div`
   color: #555;
 `;
 
-const ButtonRow = styled.div`
-  margin-top: 16px;
-  display: flex;
-  gap: 8px;
-`;
 
 const DropdownBox = styled.div`
   position: absolute;
@@ -76,14 +74,25 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
+const ButtonRow = styled.div`
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
+`;
 
 const Profile = (props) => {
   const dispatch = useDispatch();
-  const { logOutDone, user } = useSelector(state => state.user);
+  const { userOutDone, logOutDone, user } = useSelector(state => state.user);
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
+  const { addBlockDone, removeBlockDone } = useSelector((state) => state.user);
+
 
   let postUserId = props.postUserId;
+  console.log('postUserIdpostUserId=', postUserId);
   const [postUser, setPostUser] = useState('');
+  const [showMyPrize, setShowMyPrize] = useState(false);
+  const { onShowMyPrize } = props
 
   // 신고 당한 유저 블라인드 처리
   const { mainComplainCard } = useSelector((state) => state.complain);
@@ -93,21 +102,25 @@ const Profile = (props) => {
       type: LOAD_COMPLAIN_REQUEST,
     });
   }, [dispatch]);
-  console.log('🐶 mainComplainCard : ', mainComplainCard);
-  console.log('postUserId:', postUserId);
-  console.log('mainComplainCard:', mainComplainCard);
 
   const isBlinded = mainComplainCard.some((report) => {
-    return Number(report.targetId) === Number(postUserId) && report.isBlind;
+    return Number(report.targetId) === Number(postUserId) && report.isBlind && report.targetType === TARGET_TYPE.USER;
   });
 
+  // 차단한 유저
+  useEffect(() => {
+    dispatch({ type: LOAD_BLOCK_REQUEST });
+  }, [postUserId]);
 
-  console.log('🔥 isBlinded:', isBlinded);
-
-
+  const { blockList } = useSelector((state) => state.user);
+  const isBlocked = blockList.some((blockedUser) => Number(blockedUser.id) === Number(postUserId));
+  useEffect(() => {
+    if (addBlockDone || removeBlockDone) {
+      dispatch({ type: LOAD_BLOCK_REQUEST });
+    }
+  }, [addBlockDone, removeBlockDone]);
 
   useEffect(() => {
-    console.log('postUser실행');
     const postUserData = async () => {
       try {
         const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
@@ -124,8 +137,6 @@ const Profile = (props) => {
 
   useEffect(() => {
     const lastId = mainPosts[mainPosts.length - 1]?.id;
-    console.log('입장1');
-    console.log('mainPosts', mainPosts[mainPosts.length - 1]?.id);
     const number = [1, 2, 3];
     // number = 1,
     // number = 2 
@@ -135,8 +146,8 @@ const Profile = (props) => {
     if (hasMorePosts && !loadPostsLoading) {
       if (postUserId) {
         //postuser
+        //본인페이지 클릭
         if (user.id == props.postUserId) {
-          console.log('입장2');
           dispatch({
             type: LOAD_POSTS_REQUEST,
             lastId,
@@ -144,8 +155,6 @@ const Profile = (props) => {
             //userId: props.postUserId,
           })
         } else {
-          //본인페이지 클릭
-          console.log('postUserId = -1');
           dispatch({
             type: LOAD_POSTS_REQUEST,
             lastId,
@@ -154,20 +163,24 @@ const Profile = (props) => {
           })
         }
       } else {//비로그인
-        console.log('비로그인 입장');
         dispatch({
           type: LOAD_POSTS_REQUEST,
           lastId,
         })
       }
     }
-  }, [mainPosts, hasMorePosts, loadPostsLoading]);
+  }, [postUserId]);
+  //}, [mainPosts, hasMorePosts, loadPostsLoading, postUserId]);
   useEffect(() => {
     if (logOutDone) {
       Router.replace('/');
     }
   }, [logOutDone])
-
+  useEffect(() => {
+    if (userOutDone) {
+      Router.replace('/');
+    }
+  })
   const [open, setOpen] = useState(false);
   const onLogout = useCallback(() => {
     dispatch({ type: LOG_OUT_REQUEST })
@@ -180,6 +193,7 @@ const Profile = (props) => {
   });
 
   const isMyProfile = user && (user.id == postUserId);
+
 
   const menu = (
     <Menu>
@@ -196,6 +210,15 @@ const Profile = (props) => {
         </>
       ) : (
         <>
+          {isBlocked ? (
+            <Menu.Item key="unblock" onClick={() => dispatch({ type: 'REMOVE_BLOCK_REQUEST', data: postUserId })}>
+              차단 해제
+            </Menu.Item>
+          ) : (
+            <Menu.Item key="block" onClick={() => dispatch({ type: 'ADD_BLOCK_REQUEST', data: postUserId })}>
+              차단하기
+            </Menu.Item>
+          )}
           <Menu.Item key="report" onClick={() => setOpen(true)} danger>
             신고하기
           </Menu.Item>
@@ -208,10 +231,10 @@ const Profile = (props) => {
             targetUser={postUser}
           />
         </>
-      )}
-    </Menu>
+      )
+      }
+    </Menu >
   );
-
   return (
     <Wrapper>
       <Banner />
@@ -233,31 +256,29 @@ const Profile = (props) => {
           <InfoBox>
             <Nickname>{isBlinded ? '신고 당한 유저입니다.' : (postUser?.nickname || '닉네임 없음')}</Nickname>
             <Stats>
-              {postUser?.followerCount} 팔로잉  &nbsp;&nbsp;
-              {postUser?.followingCount} 팔로워 &nbsp;&nbsp;
+              {postUser ? postUser?.Followings.length : 0} 팔로잉  &nbsp;&nbsp;
+              {postUser ? postUser?.Followers.length : 0} 팔로워 &nbsp;&nbsp;
               {mainPosts?.length} 게시물
             </Stats>
           </InfoBox>
         </TopRow>
         {isMyProfile ? (
           <ButtonRow>
-            <Button type="primary">내 쿠폰함</Button>
+            <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button>
             <Button>내 장소</Button>
             <Button>챌린지 현황</Button>
             <Button>프로필 수정</Button>
           </ButtonRow>
         ) : (
           <ButtonRow>
-            <Button type="primary">팔로우</Button>
+            {/* <FollowButton post={props.postUserId} /> */}
+            <FollowButton postUser={postUser}
+              setPostUser={setPostUser}
+              currentUserId={user?.id} />
             <Button>장소</Button>
           </ButtonRow>
         )}
       </Container>
-      {!isBlinded && mainPosts.map((c) => {
-        return (
-          <PostCard post={c} key={c.id} />
-        );
-      })}
     </Wrapper>
   );
 };

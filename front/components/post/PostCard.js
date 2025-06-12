@@ -165,7 +165,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   });
 
   // 신고 된 글 블라인드 처리
-  const isBlinded = mainComplainCard.some((report) => report.targetId === post.id && report.isBlind);
+  const isBlinded = mainComplainCard.some((report) => report.targetId === post.id && report.isBlind && report.targetType === TARGET_TYPE.POST);
   const content = isBlinded ? '신고된 게시글입니다.' : post.content;
 
   return (
@@ -186,11 +186,32 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         <Card
           size="small"
           title={
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
-                <Avatar style={{ marginRight: 8 }}>{post.Retweet.User.nickname[0]}</Avatar>
-              </Link>
-              <span>{post.Retweet.User.nickname}</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
+                  <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
+                </Link>
+                <span>{post.User?.nickname}</span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 4 }}>
+                {post.Categorys && post.Categorys.length > 0 ? (
+                  post.Categorys.map((category) => (
+                    <span
+                      key={category.id}
+                      style={{
+                        backgroundColor: !category.isAnimal ? '#ffcc00' : '#f0f0f0',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: 12,
+                        color: '#555',
+                      }}
+                    >
+                      {category.content}
+                    </span>
+                  ))
+                ) : null}
+              </div>
             </div>
           }
           actions={[
@@ -218,12 +239,16 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
           </Popover>
           ]}
         >
-          <PostCardContent
-            editMode={false} // 리트윗 원본은 수정 불가
-            postData={post.Retweet.content}
-            onEditPost={() => {}}
-            onCancelUpdate={() => {}}
-          />
+        <Link href={`/post/${post.id}`} legacyBehavior>
+          <a style={{ textDecoration: 'none', color: 'inherit' }}>
+            <PostCardContent
+              editMode={false}
+              postData={post.Retweet.content}
+              onEditPost={() => {}}
+              onCancelUpdate={() => {}}
+            />
+          </a>
+        </Link>
 
           {post.Retweet.Images && post.Retweet.Images.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
@@ -235,14 +260,35 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     ) : (
         // 일반 게시글
         <Card
-              title={
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                  <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                    <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
-                  </Link>
-                  <span>{post.User?.nickname}</span>
-                </div>
-              } 
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
+                  <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
+                </Link>
+                <span>{post.User?.nickname}</span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 4 }}>
+                {post.Categorys && post.Categorys.length > 0 ? (
+                  post.Categorys.map((category) => (
+                    <span
+                      key={category.id}
+                      style={{
+                        backgroundColor: !category.isAnimal ? '#ffcc00' : '#f0f0f0',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: 12,
+                        color: '#555',
+                      }}
+                    >
+                      {category.content}
+                    </span>
+                  ))
+                ) : null}
+              </div>
+            </div>
+          }
               actions={[
                 <RetweetOutlined key="retweet" onClick={onRetweet} />,
                 like
@@ -270,12 +316,16 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}  
         >
 
-          <PostCardContent
-            editMode={editMode}
-            onEditPost={onEditPost}
-            onCancelUpdate={onCancelUpdate}
-            postData={content}
-          />
+        <Link href={`/post/${post.id}`} legacyBehavior>
+          <a style={{ textDecoration: 'none', color: 'inherit' }}>
+            <PostCardContent
+              editMode={editMode}
+              onEditPost={onEditPost}
+              onCancelUpdate={onCancelUpdate}
+              postData={content}
+            />
+          </a>
+        </Link>
 
           {post.Images && post.Images.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>

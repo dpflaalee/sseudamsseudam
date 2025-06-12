@@ -57,13 +57,19 @@ const CommentForm = ({ post, onAddLocalComment }) => {
   const id = useSelector((state) => state.user.user?.id);
   const nickname = useSelector((state) => state.user.user?.nickname);
   const dispatch = useDispatch();
-  const [comment, onChangeComment] = userInput('');
+  const [comment, onChangeComment, setComment] = userInput('');
 
   useEffect(() => {
     if (addCommentDone && onAddLocalComment) {
       onAddLocalComment();
     }
   }, [addCommentDone, onAddLocalComment]);
+
+  useEffect(() => {
+    if (addCommentDone) {
+      setComment('');
+    }
+  }, [addCommentDone, setComment]);
 
   const onSubmitForm = useCallback(() => {
     if (!id) {
