@@ -102,7 +102,12 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
         { model: User, as: 'Likers', attributes: ['id'] },
         { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
         { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
-        { model: Category, as: 'Categorys', through: { attributes: [] } }
+        {
+          model: Category,
+          as: 'Categorys',
+          through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
+          attributes: ['id', 'content', 'isAnimal']
+        }
       ]
     });
 
@@ -129,7 +134,13 @@ router.get('/:postId', async (req, res, next) => {
         { model: User, as: 'Likers', attributes: ['id'] },
         { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
         { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
-        { model: Post, as: 'Retweet', include: [User, Image] }
+        { model: Post, as: 'Retweet', include: [User, Image] },
+        {
+          model: Category,
+          as: 'Categorys',
+          through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
+          attributes: ['id', 'content', 'isAnimal']
+        }
       ],
     });
     if (!post) {
@@ -414,7 +425,13 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
         { model: User, attributes: ['id', 'nickname'] },
         { model: Image },
         { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] },] },
-        { model: OpenScope },]
+        { model: OpenScope },
+        {
+          model: Category,
+          as: 'Categorys',
+          through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
+          attributes: ['id', 'content', 'isAnimal']
+        }]
     });
 
     if (retweetDetail?.OpenScope?.content) {
@@ -467,7 +484,13 @@ router.get('/:postId', async (req, res, next) => { // GET /post/1
           model: User,
           attributes: ['id', 'nickname'],
         }],
-      },{ model: OpenScope }],
+      },{ model: OpenScope },
+      {
+      model: Category,
+      as: 'Categorys',
+      through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
+      attributes: ['id', 'content', 'isAnimal']
+      }],
     })
     res.status(200).json(fullPost);
   } catch (error) {
