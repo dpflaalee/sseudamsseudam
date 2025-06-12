@@ -140,25 +140,31 @@ function* watchLoadJoinRequests() { yield takeLatest(LOAD_JOIN_REQUESTS_REQUEST,
 
 // 4. 승인
 function approveJoinAPI(requestId, userId) {
-  console.log("SAGA4. 승인한 요청 ID.................", requestId, userId);
+  console.log("SAGA4. 승인한 요청 ID.................", requestId, userId); // undifined 받아야 하는 값 : groupId5/userId8
   return axios.post(`/api/groups/${groupId}/requests/${requestId}/approve?userId=${userId}`);
 }
 
 function* approveJoin(action) {
-  console.log("SAGA1. 승인 action데이터...............", action.data);
+  console.log("SAGA1. 승인 action데이터...............", action.data); // groupId 5 requestId 10 정상
   try {
     const { groupId, userId } = action.data;
-    const response = yield call(axios.get, `/api/groups/${groupId}/requests?userId=${userId}`);
+    const response = yield call(axios.post, `/api/groups/${groupId}/requests?userId=${userId}`);
+    console.log("SAGA2-0. 응답 상태", response.status);
     const request = response.data;
-    console.log("SAGA2. 조회된 요청............", request);
+    console.log("SAGA2. 조회된 요청............", request); //요청 배열로 나옴 userId도 포함되는데 여기서 userId를 뽑아서 쓰고 싶음...
 
-    if (!request) {
-      throw new Error('해당 요청을 찾을 수 없습니다.');
-    }
+    //userId찾기
+    const requestItem = request.find(req => req.userId === userId);
+    if(!requestItem){throw new Error('해당 요청을 찾을 수 없습니다.');}
 
-    yield call(approveJoinAPI, request.id, userId);  // requestId와 userId를 전달
-    yield put({ type: APPROVE_JOIN_SUCCESS, data: request.id });
-  } catch (err) {
+    //requestItem에서 userId랑 id 추출하여 approveJoinApi 호출
+    const {id:requestId, userId: extractedUserId }=requestItem;
+    console.log("SAGA5. .........................requestItem", requestItem);
+    console.log("SAGA5.........................", requestId, extractedUserId)
+    
+    yield call(approveJoinAPI, requestId, extractedUserId);  // requestId와 userId를 전달
+    yield put({ type: APPROVE_JOIN_SUCCESS, data: requestId });
+  } catch (err) { console.error("에러 발생", err);
     const error = err.response ? err.response.data : err.message;
     yield put({ type: APPROVE_JOIN_FAILURE, error });
   }
@@ -168,7 +174,7 @@ function* watchApproveJoin() {  yield takeLatest(APPROVE_JOIN_REQUEST, approveJo
 
 // 5. 거절
 function rejectJoinAPI(requestId, userId) {
-  console.log("SAGA4. 거절한 요청 ID.................", requestId, userId);
+  console.log("SAGA4. 거절한 요청 ID.................", requestId, userId); 
   return axios.post(`/api/groups/requests/${requestId}/reject?userId=${userId}`);  // 쿼리스트링 방식으로 전달
 }
 

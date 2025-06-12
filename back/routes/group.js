@@ -194,7 +194,7 @@ router.get('/:groupId/requests', async(req,res,next)=>{
       where: { GroupId: req.params.groupId, status: 'pending' },
       include: [{ model: User, attributes: ['id', 'nickname'] }]
     });
-    const formatted = requests.map((r) => ({ id: r.id, nickname: r.User.nickname, status: r.status, }));
+    const formatted = requests.map((r) => ({ id: r.id, userId:r.User.id, nickname: r.User.nickname, status: r.status, }));
     res.status(200).json(formatted);
   } catch (err) { console.error(err); next(err); }
 })
