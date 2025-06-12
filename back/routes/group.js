@@ -104,23 +104,6 @@ router.get('/:groupId/members', async (req, res, next) => {
   } catch (error) { console.error(error); next(error); }
 });
 
-/*//1-1 특정 유저 정보 가져오기
-router.get('/:groupId/members/:userId', async(req,res,next)=>{
-  try{
-    const member = await User.findOne({
-      where: { id: req.params.userId },
-      include: [{
-        model: Group, as: 'groupmembers', where: {id: req.params.groupId}, through: { attributes: ['isLeader'], model: GroupMember }
-      }],
-      attributes: ['id', 'nickname', 'email']
-    });
-    if(!member){ return res.status(404).json({message: 'Member not Found'});}
-
-    const formatted = { id:member.id, nickname: member.nickname, email: member.email, isLeader: member.groupmembers[0].GroupMember.isLeader};
-    res.status(200).json(formatted);
-  }catch(error){console.error(error); next(error);}
-});*/
-
 //2. 강퇴
 router.delete('/:groupId/members/:userId', async (req, res, next) => {
   try {
