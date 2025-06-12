@@ -13,28 +13,18 @@ import axios from 'axios';
 import { END } from 'redux-saga';
 import wrapper from '../../store/configureStore';
 import { useCookies } from "react-cookie";
-<<<<<<< HEAD
-
-=======
->>>>>>> 9f271ebe282aac79807fd798a9627ca9fb9620fd
 const CusLink = styled(Link)`color: #aaa`;
 
 const LoginForm = () => {
   const dispatch = useDispatch();  //#4.   redux
   const [cookies ,setCookie, removeCookie] = useCookies(['userEmail']);
   const { logInLoading, logInDone, logInError } = useSelector(state => state.user);
-  const [cookies, setCookie, removeCookie] = useCookies(['userEmail']);
+
   ///////////////////////////////////////////// code
-<<<<<<< HEAD
-  const [email, onChangeEmail] = userInput(cookies.userEmail || '');
-  const [password, setChangePassword] = userInput('');
-  const [userEmail, setUserEmail] = useState(!!cookies.userEmail);
-=======
   const [email, onChangeEmail] = useState(cookies.userEmail||'');
   const [password, setChangePassword] = useState('');
   //const [email, onChangeEmail] = useState(cookies.userEmail || '');
   //const [password, onChangePassword] = useState('');
->>>>>>> 9f271ebe282aac79807fd798a9627ca9fb9620fd
 
   const [checkEmail, setCheckEmail] = useState(false);
 
@@ -177,7 +167,7 @@ const LoginForm = () => {
           ]}
         >
           <Input.Password placeholder="비밀번호 입력"
-            value={password} onChange={setChangePassword} required />
+            value={password} onChange={onChangePassword} required />
         </Form.Item>
 
         <Form.Item
