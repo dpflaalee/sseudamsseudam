@@ -113,7 +113,6 @@ const Profile = (props) => {
   }, [postUserId]);
 
   const { blockList } = useSelector((state) => state.user);
-  console.log('💥 blockList', blockList);
   const isBlocked = blockList.some((blockedUser) => Number(blockedUser.id) === Number(postUserId));
   useEffect(() => {
     if (addBlockDone || removeBlockDone) {
