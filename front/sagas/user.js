@@ -46,6 +46,9 @@ import {
   REMOVE_FOLLOWER_FAILURE,
   REMOVE_FOLLOWER_SUCCESS,
 
+  LOAD_BLOCK_REQUEST, LOAD_BLOCK_SUCCESS, LOAD_BLOCK_FAILURE,
+  ADD_BLOCK_REQUEST, ADD_BLOCK_SUCCESS, ADD_BLOCK_FAILURE,
+  REMOVE_BLOCK_REQUEST, REMOVE_BLOCK_SUCCESS, REMOVE_BLOCK_FAILURE,
 
 } from '../reducers/user';
 
@@ -226,8 +229,6 @@ function* follow(action) {
   console.log('followData1111', typeof action.data);
 
   // 알림
-  console.log('👻👻 follow action.notiData ', action.notiData);
-  console.log('👻👻 follow action.data ', action.data);
   try {
     const result = yield call(followAPI, action.data);
     console.log('followData2222', result.data);
@@ -295,6 +296,66 @@ function* changeNickname(action) {
     })
   }
 }
+
+// 차단 목록 불러오기
+function loadBlocksApi(data) {
+  return axios.get(`/user/block`);
+}
+function* loadBlocks(action) {
+  const result = yield call(loadBlocksApi);
+  try {
+    yield delay(1000);
+    yield put({
+      type: LOAD_BLOCK_SUCCESS,
+      data: result.data
+    })
+  } catch (error) {
+    yield put({
+      type: LOAD_BLOCK_FAILURE,
+      data: error.response.data
+    })
+  }
+}
+
+// 차단하기
+function addBlocksApi(data) {
+  return axios.post(`/user/${data}/block`, action.data);
+}
+function* addBlocks(action) {
+  const result = yield call(addBlocksApi);
+  console.log('🐬 addBlocks : ', action.data);
+  try {
+    yield delay(1000);
+    yield put({
+      type: LOAD_BLOCK_SUCCESS,
+      data: result.data
+    })
+  } catch (error) {
+    yield put({
+      type: LOAD_BLOCK_FAILURE,
+      data: error.response.data
+    })
+  }
+}
+// 차단 풀기
+function removeBlocksApi(data) {
+  return axios.delete(`/user/${data}/block`);
+}
+function* removeBlocks(action) {
+  const result = yield call(removeBlocksApi, action.data.BlockedId);
+  try {
+    yield delay(1000);
+    yield put({
+      type: LOAD_BLOCK_SUCCESS,
+      data: result.data
+    })
+  } catch (error) {
+    yield put({
+      type: LOAD_BLOCK_FAILURE,
+      data: error.response.data
+    })
+  }
+}
 ///// step2) ACTION 기능추가
 function* watchLoadMyInfo() {
   yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo);  //LOG_IN 액션이 실행될때까지 기다리기
@@ -334,6 +395,16 @@ function* watchLoadFollowers() {
 function* watchLoadFollowings() {
   yield takeLatest(LOAD_FOLLOWINGS_REQUEST, loadFollowings);
 }
+
+function* watchLoadBlock() {
+  yield takeLatest(LOAD_BLOCK_REQUEST, loadBlocks);
+}
+function* watchadddBlock() {
+  yield takeLatest(ADD_BLOCK_REQUEST, addBlocks);
+}
+function* watchRemoveBlock() {
+  yield takeLatest(REMOVE_BLOCK_REQUEST, removeBlocks);
+}
 ///// step1) all()
 export default function* userSaga() {
   yield all([
@@ -348,5 +419,8 @@ export default function* userSaga() {
     fork(watchRemoveFollower),
     fork(watchLoadFollowers),
     fork(watchLoadFollowings),
+    fork(watchLoadBlock),
+    fork(watchadddBlock),
+    fork(watchRemoveBlock),
   ]);
 }

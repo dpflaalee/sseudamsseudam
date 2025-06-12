@@ -30,7 +30,7 @@ export const initialState = {
   unfollowLoading: false, // 언팔로우 시도중
   unfollowDone: false,
   unfollowError: null,
- 
+
   loadFollowingsLoading: false,
   loadFollowingsDone: false,
   loadFollowingsError: null,
@@ -51,7 +51,21 @@ export const initialState = {
   user: null,
   userInfo: null,
   signUpData: {},
-  loginData: {}
+  loginData: {},
+
+  //// 차단
+  blockList: [],
+  loadBlockLoading: false,
+  loadBlockDone: false,
+  loadBlockError: null,
+
+  addBlockLoading: false,
+  addBlockDone: false,
+  addBlockError: null,
+
+  removeBlockLoading: false,
+  removeBlockDone: false,
+  removeBlockError: null
 };
 /*
 const dummyUser = (data) => ({
@@ -137,7 +151,17 @@ export const LOAD_USER_FAILURE = 'LOAD_USER_FAILURE';
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
 export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
 
+export const LOAD_BLOCK_REQUEST = 'LOAD_BLOCK_REQUEST';
+export const LOAD_BLOCK_SUCCESS = 'LOAD_BLOCK_SUCCESS';
+export const LOAD_BLOCK_FAILURE = 'LOAD_BLOCK_FAILURE';
 
+export const ADD_BLOCK_REQUEST = 'ADD_BLOCK_REQUEST';
+export const ADD_BLOCK_SUCCESS = 'ADD_BLOCK_SUCCESS';
+export const ADD_BLOCK_FAILURE = 'ADD_BLOCK_FAILURE';
+
+export const REMOVE_BLOCK_REQUEST = 'REMOVE_BLOCK_REQUEST';
+export const REMOVE_BLOCK_SUCCESS = 'REMOVE_BLOCK_SUCCESS';
+export const REMOVE_BLOCK_FAILURE = 'REMOVE_BLOCK_FAILURE';
 
 ////////////////////////////////////////////////////// next
 const reducer = (state = initialState, action) => produce(state, (draft) => {
@@ -211,8 +235,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.changeNicknameError = action.error;
       break;
 
-     //////////////////////////////
-     case FOLLOW_REQUEST:
+    //////////////////////////////
+    case FOLLOW_REQUEST:
       draft.followLoading = true;
       draft.followError = null;
       draft.followDone = false;
@@ -241,7 +265,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.unfollowLoading = false;
       draft.unfollowError = action.error;
       break;
-     //////////////////////////////
+    //////////////////////////////
     case REMOVE_FOLLOWER_REQUEST:
       draft.removeFollowerLoading = true;
       draft.removeFollowerError = null;
@@ -287,8 +311,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loadFollowersLoading = false;
       draft.loadFollowersError = action.error;
       break;
-    
-     //////////////////////////////
+
+    //////////////////////////////
     case LOAD_MY_INFO_REQUEST:
       draft.loadMyInfoLoading = true;
       draft.loadMyInfoError = null;
@@ -317,14 +341,67 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loadUserLoading = false;
       draft.loadUserError = action.error;
       break;
- 
-     //////////////////////////////
+
+    //////////////////////////////
     case ADD_POST_TO_ME:
       draft.user.Posts.unshift({ id: action.data });
       break;
     case REMOVE_POST_OF_ME:
       draft.user.Posts = draft.user.Posts.filter((v) => v.id !== action.data);
       break;
+
+    /////////////////////////// 차단
+    case LOAD_BLOCK_REQUEST:
+      draft.loadBlockLoading = true;
+      draft.loadBlockDone = false;
+      draft.loadBlockError = null;
+      break;
+    case LOAD_BLOCK_SUCCESS:
+      draft.loadBlockLoading = false;
+      draft.loadBlockDone = true;
+      draft.loadBlockError = null;
+      draft.blockList = action.data;
+      break;
+    case LOAD_BLOCK_FAILURE:
+      draft.loadBlockLoading = false;
+      draft.loadBlockDone = false;
+      draft.loadBlockError = action.error;
+      break;
+
+    case ADD_BLOCK_REQUEST:
+      draft.addBlockLoading = true;
+      draft.addBlockDone = false;
+      draft.addBlockError = null;
+      break;
+    case ADD_BLOCK_SUCCESS:
+      draft.addBlockLoading = false;
+      draft.addBlockDone = true;
+      draft.addBlockError = null;
+      draft.user.blockList.push({ id: action.data });
+      break;
+    case ADD_BLOCK_FAILURE:
+      draft.addBlockLoading = false;
+      draft.addBlockDone = false;
+      draft.addBlockError = action.error;
+      break;
+
+    case REMOVE_BLOCK_REQUEST:
+      draft.removeBlockLoading = true;
+      draft.removeBlockDone = false;
+      draft.addBlockError = null;
+      break;
+    case REMOVE_BLOCK_SUCCESS:
+      draft.removeBlockLoading = false;
+      draft.removeBlockDone = true;
+      draft.addBlockError = null;
+      draft.user.blockList = draft.user.blockList.filter((v) => v.id !== action.data);
+      break;
+    case REMOVE_BLOCK_FAILURE:
+      draft.removeBlockLoading = false;
+      draft.removeBlockDone = false;
+      draft.addBlockError = action.error;
+      break
+    ///////////////////////////
     default:
       break;
   }

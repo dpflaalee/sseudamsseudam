@@ -78,10 +78,6 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const [localComments, setLocalComments] = useState(post.Comments || []);
   const [open, setOpen] = useState(false);
 
-  const like = post?.Likers?.some((v) => v.id === id);
-  const [liked, setLiked] = useState(post?.Likers?.some((v) => v.id === id));
-  const [likeLoading, setLikeLoading] = useState(false);
-
   useEffect(() => {
     setNewContent(post.content);
     setNewScope(post.scope || 'public');
@@ -97,23 +93,13 @@ const DetailCard = ({ post, onRefreshPost }) => {
   useEffect(() => {
     setLocalComments(post.Comments || []);
   }, [post.Comments]);
-
-  useEffect(() => {
-    setLiked(post?.Likers?.some((v) => v.id === id));
-  }, [post?.Likers, id]);
-
+  
   const onClickLike = useCallback(() => {
-    if (!id) {
-      return alert('로그인을 하시면 좋아요 추가가 가능합니다.');
-    }
-    setLiked(true); // 낙관적 업데이트
-
+    if (!id) { return alert('로그인을 하시면 좋아요 추가가 가능합니다.'); }
     dispatch({
       type: LIKE_POST_REQUEST,
       data: post.id,
-      callback: () => {
-        onRefreshPost?.(); // 서버 최신화가 필요하면
-      },
+      callback: () => onRefreshPost(),
     });
 
     dispatch({
@@ -125,20 +111,19 @@ const DetailCard = ({ post, onRefreshPost }) => {
         targetId: post.id,
       }
     });
-  }, [id, post.id, post.User.id, likeLoading]);
+  }, [id, post.id, dispatch, onRefreshPost]);
 
   const onClickunLike = useCallback(() => {
     if (!id) return alert('로그인을 하시면 좋아요 취소가 가능합니다.');
-    setLiked(false); // 낙관적 업데이트
 
     dispatch({
       type: UNLIKE_POST_REQUEST,
       data: post.id,
-      callback: () => {
-        onRefreshPost?.();
-      },
+      callback: () => onRefreshPost(),
     });
-  }, [id]);
+  }, [id, post.id, dispatch, onRefreshPost]);
+
+  const like = post?.Likers?.some((liker) => liker.id === id);
 
   //수정
   const openEditModal = useCallback(() => {
@@ -228,7 +213,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
               <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
                 <Avatar style={{ marginRight: 8 }}>{post.User.nickname[0]}</Avatar>
               </Link>
-              <span>{post.User.nickname}님이 리트윗했습니다.</span>
+              <span>{post.User.nickname}님이 리트윗한 게시물입니다.</span>
             </div>
           }
           extra={
