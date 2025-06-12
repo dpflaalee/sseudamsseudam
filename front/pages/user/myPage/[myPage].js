@@ -14,6 +14,7 @@ import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import TARGET_TYPE from '../../../../shared/constants/TARGET_TYPE';
 import { LOAD_POSTS_REQUEST } from '../../../reducers/post';
 import MyPrize from '@/components/prize/MyPrize';
+import AnimalList from '@/components/animal/AnimalList';
 
 const MyPage = () => {
     const dispatch = useDispatch();
@@ -21,6 +22,7 @@ const MyPage = () => {
     const { mainPosts } = useSelector(state => state.post)
     const router = useRouter();
     const { myPage } = router.query;
+    const { myAnimals, selectedAnimal } = useSelector((state) => state.animal);
     console.log('myPage', myPage);
 
     // 신고 당한 유저 블라인드 처리
@@ -37,6 +39,12 @@ const MyPage = () => {
             type: LOAD_POSTS_REQUEST,
         });
     }, [dispatch]);
+
+    useEffect(() => {
+        if (user) {
+            dispatch({ type: 'LOAD_ANIMAL_LIST_REQUEST' });
+        }
+    }, [user, dispatch]);
 
     const isBlinded = mainComplainCard.some((report) => {
         return Number(report.targetId) === Number(myPage) && report.isBlind && report.targetType === TARGET_TYPE.USER;
@@ -67,6 +75,7 @@ const MyPage = () => {
             return <PostCard post={post} key={post.id} />;
             })
         )}
+        <AnimalList animals={myAnimals} />
         </AppLayout>
     );
 }
