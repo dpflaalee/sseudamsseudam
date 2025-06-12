@@ -15,7 +15,7 @@ const EditChallengePage = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || user.isAdmin !== 1) {
       alert('권한이 없습니다.');
-      router.replace('/main');  // 권한 없으면 메인으로 리다이렉트
+      router.replace('/challenge');  // 권한 없으면 메인으로 리다이렉트
     }
   }, [router]);
 
