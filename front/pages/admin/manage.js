@@ -12,6 +12,7 @@ import CategoryManage from "@/components/category/CategoryManage"
 import EventScheduleManage from '@/components/Calendar/EventSchedule/EventScheduleManage';
 import EventScheduleForm from '@/components/Calendar/EventSchedule/EventScheduleForm';
 import EventScheduleList from '@/components/Calendar/EventSchedule/EventScheduleList';
+import ChallengeList from '@/components/Calendar/Todolist/ChallengeList';
 
 const { Title, Text } = Typography;
 
@@ -61,6 +62,7 @@ const manage = () => {
             {activeSection === 'prize' && <PrizeManage />}
             {activeSection === 'category' && <CategoryManage />}
             {activeSection === 'schedule' && <EventScheduleList />}
+            {activeSection === 'challenge' && <ChallengeList />}
             {/* 다른 섹션도 여기에 조건부로 추가 가능 */}
         </AppLayout>);
 }
