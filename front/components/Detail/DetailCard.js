@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import CommentForm from '../comment/CommentForm';
 import Comment from '../comment/Comment';
 import PostCardContent from '../post/PostCardContent';
+import ComplainForm from '../complains/ComplainForm';
 
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
@@ -68,7 +69,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const router = useRouter();
   const { Option } = Select;
   const [newContent, setNewContent] = useState(post.content);
-  const [newScope, setNewScope] = useState(post.scope || 'public');  
+  const [newScope, setNewScope] = useState(post.scope || 'public');
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const { updatePostDone } = useSelector((state) => state.post);
@@ -152,15 +153,15 @@ const DetailCard = ({ post, onRefreshPost }) => {
     }
     dispatch({
       type: UPDATE_POST_REQUEST,
-      data: { 
-        PostId: post.id, 
+      data: {
+        PostId: post.id,
         content: newContent,
         openScope: newScope,
       },
-    callback: () => {
-      // 수정 완료 후 후속 작업 (API 응답을 받은 후 상태 갱신)
-      onRefreshPost();  // 새로운 데이터 반영
-    },  
+      callback: () => {
+        // 수정 완료 후 후속 작업 (API 응답을 받은 후 상태 갱신)
+        onRefreshPost();  // 새로운 데이터 반영
+      },
     });
   }, [newContent, newScope, post, dispatch]);
 
@@ -221,33 +222,87 @@ const DetailCard = ({ post, onRefreshPost }) => {
   return (
     <div style={{ margin: '3%' }}>
       {post.RetweetId && post.Retweet ? (
-      <Card
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-            <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
-              <Avatar style={{ marginRight: 8 }}>{post.User.nickname[0]}</Avatar>
-            </Link>
-            <span>{post.User.nickname}님이 리트윗했습니다.</span>
-          </div>  
-        }
-        extra={
-          <CloseOutlined
-            style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }}
-            onClick={() => router.push('/main')}
-          />
-        }           
-        style={{ marginBottom: 16 }}
-      >
-        {/* 내부에 리트윗된 게시물 카드 */}
         <Card
-          size="small"
           title={
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
-                <Avatar style={{ marginRight: 8 }}>{post.Retweet.User.nickname[0]}</Avatar>
+              <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
+                <Avatar style={{ marginRight: 8 }}>{post.User.nickname[0]}</Avatar>
               </Link>
-              <span>{post.Retweet.User.nickname}</span>
+              <span>{post.User.nickname}님이 리트윗했습니다.</span>
             </div>
+          }
+          extra={
+            <CloseOutlined
+              style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }}
+              onClick={() => router.push('/main')}
+            />
+          }
+          style={{ marginBottom: 16 }}
+        >
+          {/* 내부에 리트윗된 게시물 카드 */}
+          <Card
+            size="small"
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                <Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
+                  <Avatar style={{ marginRight: 8 }}>{post.Retweet.User.nickname[0]}</Avatar>
+                </Link>
+                <span>{post.Retweet.User.nickname}</span>
+              </div>
+            }
+            actions={[
+              <RetweetOutlined key="retweet" onClick={onRetweet} />,
+              like
+                ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
+                : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
+              <span key="comment">
+                <Link href={`/post/${post.id}`} passHref>
+                  <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
+                </Link>
+              </span>,
+              <Popover content={(
+                <Button.Group>
+                  {id === post.User.id && (
+                    <>
+                      <Button onClick={openEditModal}>수정</Button>
+                      <Button type="danger" onClick={openDeleteModal}>삭제</Button>
+                    </>
+                  )}
+                  <Button onClick={() => setOpen(true)}>신고하기</Button>
+                </Button.Group>
+              )}>
+                <EllipsisOutlined />
+              </Popover>
+            ]}
+          >
+            <PostCardContent
+              editMode={false} // 리트윗 원본은 수정 불가
+              postData={post.Retweet.content}
+            />
+
+            {post.Retweet.Images && post.Retweet.Images.length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+                <PostImages images={post.Retweet.Images} />
+              </div>
+            )}
+          </Card>
+        </Card>
+      ) : (
+        // 일반 게시글
+        <Card
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+              <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
+                <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
+              </Link>
+              <span>{post.User?.nickname}</span>
+            </div>
+          }
+          extra={
+            <CloseOutlined
+              style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }}
+              onClick={() => router.push('/main')}
+            />
           }
           actions={[
             <RetweetOutlined key="retweet" onClick={onRetweet} />,
@@ -269,65 +324,23 @@ const DetailCard = ({ post, onRefreshPost }) => {
                 )}
                 <Button onClick={() => setOpen(true)}>신고하기</Button>
               </Button.Group>
+
             )}>
               <EllipsisOutlined />
+              {/* 신고 모달 */}
+              {open && (
+                <ComplainForm
+                  open={open}
+                  targetId={post.Retweet ? post.Retweet.id : post.id}
+                  TARGET_TYPE={TARGET_TYPE.POST}
+                  targetUserNickname={post.User?.nickname}
+                  onClose={() => setOpen(false)}
+                />
+              )}
+              {/* E 신고 모달 */}
             </Popover>
           ]}
-        >
-          <PostCardContent
-            editMode={false} // 리트윗 원본은 수정 불가
-            postData={post.Retweet.content}
-          />
-
-          {post.Retweet.Images && post.Retweet.Images.length > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-              <PostImages images={post.Retweet.Images} />
-            </div>
-          )}
-        </Card>
-      </Card>
-    ) : (
-        // 일반 게시글
-        <Card
-              title={
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                  <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                    <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
-                  </Link>
-                  <span>{post.User?.nickname}</span>
-                </div>
-              } 
-              extra={
-                <CloseOutlined
-                  style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }}
-                  onClick={() => router.push('/main')}
-                />
-              }              
-              actions={[
-                <RetweetOutlined key="retweet" onClick={onRetweet} />,
-                like
-                  ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
-                  : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
-                <span key="comment">
-                  <Link href={`/post/${post.id}`} passHref>
-                    <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
-                  </Link>
-                </span>,
-                <Popover content={(
-                  <Button.Group>
-                    {id === post.User.id && (
-                      <>
-                        <Button onClick={openEditModal}>수정</Button>
-                        <Button type="danger" onClick={openDeleteModal}>삭제</Button>
-                      </>
-                    )}
-                    <Button onClick={() => setOpen(true)}>신고하기</Button>
-                  </Button.Group>
-                )}>
-                  <EllipsisOutlined />
-                </Popover>
-              ]}
-            // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}  
+        // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}  
         >
 
           <PostCardContent
@@ -341,7 +354,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
               <PostImages images={post.Images} />
             </div>
-          )}   
+          )}
         </Card>
       )}
 
@@ -358,8 +371,8 @@ const DetailCard = ({ post, onRefreshPost }) => {
         <div style={{ display: 'flex', marginBottom: 16 }}>
           <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px' }}>게시물 수정</span>
           <Space>
-            <Select 
-              value={newScope} 
+            <Select
+              value={newScope}
               style={{ width: 120 }}
               onChange={(value) => setNewScope(value)}
             >
