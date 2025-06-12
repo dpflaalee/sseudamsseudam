@@ -15,14 +15,14 @@ const GroupJoinRequests = ({ groupId }) => {
     }
   }, [groupId, dispatch]);
 
-  const handleApprove = (requestId) => {
+  const handleApprove = (requestId, userId) => {
     //쿼리 스트링으로 넘기기
-    dispatch({ type: APPROVE_JOIN_REQUEST, data: { groupId, requestId } });
+    dispatch({ type: APPROVE_JOIN_REQUEST, data: { groupId, requestId, userId } });
   };
 
-  const handleReject = (requestId) => {
+  const handleReject = (requestId, userId) => {
     //쿼리 스트링으로 넘기기
-    dispatch({ type: REJECT_JOIN_REQUEST, data: { groupId, requestId } });  };
+    dispatch({ type: REJECT_JOIN_REQUEST, data: { groupId, requestId, userId } });  };
 
   if (joinRequestsLoading) return <div>로딩 중...</div>;
   if (joinRequestsError) return <div>에러 발생!</div>;
@@ -40,14 +40,14 @@ const GroupJoinRequests = ({ groupId }) => {
                   <Button
                     key="approve"
                     type="primary"
-                    onClick={() => handleApprove(user.id)}
+                    onClick={() => handleApprove(user.id, user.userId)}
                   >
                     승인
                   </Button>,
                   <Button
                     key="reject"
                     danger
-                    onClick={() => handleReject(user.id)}
+                    onClick={() => handleReject(user.id, user.userId)}
                   >
                     거절
                   </Button>,

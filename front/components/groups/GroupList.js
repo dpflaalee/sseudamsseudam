@@ -5,6 +5,7 @@ import { Row, Col, Typography, Button, Card, Space, Spin } from "antd";
 import GroupDropDown from "./GroupDropdown";
 import axios from "axios";
 import { LOAD_MEMBERS_REQUEST, APPLY_GROUP_REQUEST, JOIN_GROUP_REQUEST, JOIN_GROUP_RESET, APPLY_GROUP_RESET } from "@/reducers/group";
+import { useRef } from "react";
 import { ADD_NOTIFICATION_REQUEST } from '../../reducers/notification';
 import NOTIFICATION_TYPE from "../../../shared/constants/NOTIFICATION_TYPE";
 
@@ -44,20 +45,22 @@ export default function GroupList({ g }) {
     }
   }, [members, user, group?.groupmembers]);
 
-  useEffect(() => {
-    if (joinGroupDone !== undefined) {
-      //console.log('joinGroupDone 상태 확인:', joinGroupDone);
-      if (joinGroupDone) {
-        alert("가입이 완료되었습니다.");
-        dispatch({ type: JOIN_GROUP_RESET }); // 상태 리셋
-        router.push(`/groups/${group?.id}`);
-      }
-      if (joinGroupError) {
-        alert(joinGroupError);
-        dispatch({ type: JOIN_GROUP_RESET });
-      }
-    }
-  }, [joinGroupDone, joinGroupError, group?.id, dispatch]);
+const hasAlerted = useRef(false);
+
+useEffect(() => {
+  console.log("🔄 useEffect 실행 - joinGroupDone:", joinGroupDone);
+
+  if (!hasAlerted.current && joinGroupDone) {
+    hasAlerted.current = true; // 🚀 먼저 실행
+    alert("가입이 완료되었습니다.");
+    dispatch({ type: JOIN_GROUP_RESET });
+    router.push(`/groups/${group.id}`);
+  } else if (!hasAlerted.current && joinGroupError) {
+    hasAlerted.current = true;
+    alert(joinGroupError);
+    dispatch({ type: JOIN_GROUP_RESET });
+  }
+}, [joinGroupDone]);
 
   useEffect(() => {
     if (applyGroupDone !== undefined) {
@@ -77,6 +80,24 @@ export default function GroupList({ g }) {
 
   const handleEnterGroup = (e) => { e.stopPropagation(); router.push(`/groups/${group.id}`); } // 가입한 그룹일 시 해당 그룹으로 이동
 
+// const handleJoin = async (e) => {
+//   e.stopPropagation();
+//   if (isMember) {
+//     alert('이미 가입된 그룹입니다. 그룹으로 이동합니다.');
+//     return router.push(`/groups/${group.id}`);
+//   }
+
+//   try {
+//     console.log("📌 JOIN_GROUP_REQUEST 실행됨");
+//     if (group.OpenScopeId === 1) {
+//       dispatch({ type: JOIN_GROUP_REQUEST, data: { groupId: group.id } });
+//     } else {
+//       dispatch({ type: APPLY_GROUP_REQUEST, data: { groupId: group.id } });
+//     }
+//   } catch (error) {
+//     alert("가입 중 오류발생");
+//   }
+// };
   const handleJoin = async (e) => {
     e.stopPropagation();
     if (isMember) { alert('이미 가입된 그룹입니다. 그룹으로 이동합니다.'); return router.push(`/gorups/${group.id}`) };
