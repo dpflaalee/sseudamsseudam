@@ -74,12 +74,18 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
       type: UPDATE_POST_REQUEST,
       data: { PostId: post.id, content: editText }
     });
-  }, [post]);
+  }, [post.id, dispatch]);
 
   const [newContent, setNewContent] = useState(post.content);
+  const [newScope, setNewScope] = useState(post.scope || 'public');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const { removePostLoading, removePostDone } = useSelector(state => state.post);
   const { mainComplainCard } = useSelector(state => state.complain);
+
+  useEffect(() => {
+    setNewContent(post.content);
+    setNewScope(post.scope || 'public');
+  }, [post]);
 
   // 좋아요
   const onClickLike = useCallback(() => {
@@ -117,15 +123,19 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     setEditModalVisible(false);
   }, []);
   const handleEditSubmit = useCallback(() => {
-    if (newContent.trim() === post.content.trim()) {
+    if (newContent.trim() === post.content.trim() && newScope === (post.scope || 'public')) {
       return closeEditModal();
     }
     dispatch({
       type: UPDATE_POST_REQUEST,
-      data: { PostId: post.id, content: newContent }
+      data: { 
+        PostId: post.id, 
+        content: newContent,
+        openScope: newScope,
+      }
     });
     setEditModalVisible(false);
-  }, [newContent, post, dispatch]);
+  }, [newContent, newScope, post, dispatch]);
 
   //삭제
   const openDeleteModal = () => {
@@ -193,24 +203,26 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
                 <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
               </Link>
             </span>,
-            <Popover content={(
-              <Button.Group>
+          <Popover content={(
+            <Button.Group>
+              {id === post.User.id && (
                 <>
                   <Button onClick={openEditModal}>수정</Button>
                   <Button type="danger" onClick={openDeleteModal}>삭제</Button>
                 </>
-                <>
-                  <Button onClick={() => setOpen(true)}>신고하기</Button>
-                </>
-              </Button.Group>
-            )}>
-              < EllipsisOutlined />
-            </Popover>
+              )}
+              <Button onClick={() => setOpen(true)}>신고하기</Button>
+            </Button.Group>
+          )}>
+            <EllipsisOutlined />
+          </Popover>
           ]}
         >
           <PostCardContent
             editMode={false} // 리트윗 원본은 수정 불가
             postData={post.Retweet.content}
+            onEditPost={() => {}}
+            onCancelUpdate={() => {}}
           />
 
           {post.Retweet.Images && post.Retweet.Images.length > 0 && (
@@ -241,19 +253,19 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
                     <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
                   </Link>
                 </span>,
-                <Popover content={(
-                  <Button.Group>
+              <Popover content={(
+                <Button.Group>
+                  {id === post.User.id && (
                     <>
                       <Button onClick={openEditModal}>수정</Button>
                       <Button type="danger" onClick={openDeleteModal}>삭제</Button>
                     </>
-                    <>
-                      <Button onClick={() => setOpen(true)}>신고하기</Button>
-                    </>
-                  </Button.Group>
-                )}>
-                  < EllipsisOutlined />
-                </Popover>
+                  )}
+                  <Button onClick={() => setOpen(true)}>신고하기</Button>
+                </Button.Group>
+              )}>
+                <EllipsisOutlined />
+              </Popover>
               ]}
             // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}  
         >
@@ -295,10 +307,14 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         <div style={{ display: 'flex', marginBottom: 16 }}>
           <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px' }}>게시물 수정</span>
           <Space>
-            <Select defaultValue="public" style={{ width: 120 }}>
-              <Option value="public">전체공개</Option>
-              <Option value="friends">친구공개</Option>
-              <Option value="private">비공개</Option>
+            <Select 
+              value={newScope} 
+              style={{ width: 120 }}
+              onChange={(value) => setNewScope(value)}
+            >
+              <Option value="public">전체 공개</Option>
+              <Option value="private">나만 보기</Option>
+              <Option value="follower">팔로워 공개</Option>
             </Select>
           </Space>
         </div>
