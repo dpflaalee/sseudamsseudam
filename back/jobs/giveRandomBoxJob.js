@@ -1,52 +1,23 @@
-const { User, Post, Prize, Animal, sequelize } = require('../models');
-const { Op } = require('sequelize');
+const { User, Animal, Prize, Category, IssuedRandomBox, sequelize } = require('../models');
 const cron = require('node-cron');
- 
-// 매주 월요일 9시에 실행
-cron.schedule('0 9 * * 1', async () => {
+
+// 매시간 정각마다 실행
+cron.schedule('0 * * * *', async () => {
   console.log('🎁 랜덤박스 자동 지급 시작:', new Date());
 
   try {
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    // 모든 유저 조회
+    const users = await User.findAll();
 
-    // 1. 지난 7일간 좋아요 수 기준 상위 5명 유저 조회
-    const topUsers = await User.findAll({
-      attributes: [
-        'id',
-        'nickname',
-        [sequelize.fn('COUNT', sequelize.col('Liked.Like.createdAt')), 'likeCount']
-      ],
-      include: [{
-        model: Post,
-        as: 'Liked',
-        attributes: [],
-        through: {
-          attributes: [],
-          where: {
-            createdAt: { [Op.gte]: oneWeekAgo }
-          }
-        }
-      }],
-      group: ['User.id'],
-      order: [[sequelize.literal('likeCount'), 'DESC']],
-      limit: 5,
-      subQuery: false,
-    });
-
-    if (topUsers.length === 0) {
-      console.log('상위 유저 없음. 지급 중단');
-      return;
-    }
-
-    // 2. 유저별로 랜덤한 동물 1마리 선택 → 그 동물의 카테고리 기준으로 랜덤박스 지급
-    for (const user of topUsers) {
+    for (const user of users) {
+      // 해당 유저의 동물들 가져오기
       const animals = await Animal.findAll({
         where: { UserId: user.id },
-        attributes: ['id', 'CategoryId']
+        attributes: ['id', 'CategoryId'],
       });
 
       if (!animals.length) {
-        console.log(`🚫 유저 ${user.id} (${user.nickname})는 동물 없음`);
+        console.log(`🚫 유저 ${user.id} (${user.username})는 동물이 없음`);
         continue;
       }
 
@@ -54,21 +25,32 @@ cron.schedule('0 9 * * 1', async () => {
       const selectedAnimal = animals[Math.floor(Math.random() * animals.length)];
       const categoryId = selectedAnimal.CategoryId;
 
-      // 해당 카테고리에 해당하는 랜덤박스 상품들 조회
-      const prizes = await Prize.findAll({
-        where: { CategoryId: categoryId }
+      // 해당 카테고리에 맞는 랜덤박스(상품) 선택
+      const prize = await Prize.findOne({
+        where: { CategoryId: categoryId },
+        order: sequelize.random(),
+        include: {
+          model: Category,
+          as: 'category',
+          attributes: ['content'],
+        }
       });
 
-      if (!prizes.length) {
-        console.log(`🎁 유저 ${user.id} (${user.nickname}) - 카테고리 ${categoryId} 상품 없음`);
+      if (!prize) {
+        console.log(`🚫 유저 ${user.id} (${user.username})에게 지급할 랜덤박스 없음`);
         continue;
       }
 
-      // 상품 중 랜덤 1개 선택 후 지급
-      const selectedPrize = prizes[Math.floor(Math.random() * prizes.length)];
-      await user.addPrize(selectedPrize);
+      // 지급 기록 저장
+      await IssuedRandomBox.create({
+        UserId: user.id,
+        CategoryId: categoryId,
+        issuedAt: new Date(),
+        usedAt: null // 아직 사용하지 않음
+      });
 
-      console.log(`유저 ${user.id} (${user.nickname})에게 [${selectedPrize.content}] 지급 (카테고리 ${categoryId})`);
+      const categoryContent = prize.category?.content || '알 수 없는 카테고리';
+      console.log(`✅ 유저 ${user.id} (${user.username})에게 [${categoryContent}] 랜덤박스 지급`);
     }
 
     console.log('🎉 랜덤박스 자동 지급 완료');
