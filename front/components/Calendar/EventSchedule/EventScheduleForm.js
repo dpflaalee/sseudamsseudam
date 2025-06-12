@@ -24,19 +24,20 @@ const EventScheduleForm = () => {
         if (res.data && Number(res.data.isAdmin) === 1) {
           setIsAdmin(true);
         } else {
+          if (isChecking) {
           alert('권한이 없습니다.');
-          router.replace('/main');
+          router.replace('/schedule');
+          }
         }
       } catch (error) {
         console.error('유저 정보 불러오기 실패:', error);
-        alert('권한이 없습니다.');
-        router.replace('/main');
+        router.replace('/schedule');
+        message.error('정보 불러오기에 실패했습니다.');
       } finally {
         setIsChecking(false);
       }
     };
-    fetchUser();
-  }, [router]);
+    if (isChecking) { fetchUser(); }}, [isChecking, router]);
 
   const onFinish = async (values) => {
     try {
@@ -56,7 +57,7 @@ const EventScheduleForm = () => {
       if (response.status === 200 || response.status === 201) {
         message.success('일정 등록 완료');
         form.resetFields();
-        router.push('/schedule');
+        router.push('/admin/manage');
       } else {
         message.error('일정 등록 실패 (서버 응답 오류)');
       }
@@ -66,12 +67,12 @@ const EventScheduleForm = () => {
     }
   };
 
-const handleCancel = () => {
-  router.push('/schedule');
-};
+  const handleCancel = () => {
+    router.push('/admin/manage');
+  };
 
-if (isChecking) return null;
-if (!isAdmin) return null;
+  if (isChecking) return null;
+  if (!isAdmin) return null;
 
   return (
     <>
