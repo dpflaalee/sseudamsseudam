@@ -11,6 +11,7 @@ import { REMOVE_COMMENT_REQUEST, UPDATE_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST }
 import ReCommentForm from './ReCommentForm';
 import ReComment from './ReComment';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
+import { LOAD_USER_REQUEST } from '@/reducers/user';
 
 const Wrapper = styled.div`
   margin-top: 24px;
@@ -139,8 +140,8 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
   const [editRecommentContent, setEditRecommentContent] = useState('');
   const [editContent, setEditContent] = useState('');
   const { updateCommentLoading, updateCommentDone, removeCommentLoading, removeCommentDone } = useSelector((state) => state.post);
-  const { me } = useSelector((state) => state.user);
-
+  const user = useSelector((state) => state.user.user);
+  const userId = user?.id;
 
   const handleReport = (commentId) => {
     setTargetId(commentId);
@@ -152,6 +153,14 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
   const onClickReply = useCallback((commentId) => {
     setReplyTargetId((prev) => (prev === commentId ? null : commentId));
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      dispatch({
+        type: LOAD_USER_REQUEST,
+      });
+    }
+  }, [dispatch, user]);
 
   //댓글 수정
   const onClickEdit = useCallback((comment) => {
@@ -267,6 +276,8 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
         const createdAt = comment.createdAt
           ? new Date(comment.createdAt).toLocaleString()
           : '';
+  
+        const isAuthor = user?.id && Number(user.id) === Number(comment.User?.id);  
 
         const isBlindedUser = mainComplainCard.some((report) => {
           console.log(report);
@@ -275,7 +286,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
 
         const menu = (
           <Menu>
-            {me?.id === comment.User?.id && (
+            {isAuthor && (
               <>
                 <Menu.Item onClick={() => onClickEdit(comment)} loading={updateCommentLoading}>
                   {editingCommentId === comment.id ? '수정 취소' : '수정'}
@@ -358,7 +369,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                 // 대댓글 메뉴 정의
                 const recommentMenu = (
                   <Menu>
-                    {me?.id === recomment.User?.id && (
+                    {isAuthor && (
                       <>
                         <Menu.Item onClick={() => onClickEditRecomment(recomment)}>
                           {editingRecommentId === recomment.id ? '수정 취소' : '수정'}
