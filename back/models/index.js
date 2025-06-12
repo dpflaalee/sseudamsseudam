@@ -34,6 +34,8 @@ db.ChattingMember = require('./chattingMember')(sequelize, Sequelize);  // 모�
 db.Blacklist = require('./blackList')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.MyPrize = require('./myPrize')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
 db.IssuedRandomBox = require('./issuedrandombox')(sequelize, Sequelize);
+db.UserProfileImage = require('./userProfileImage')(sequelize, Sequelize);  // 모듈연결   sequelize 실행
+
 
 
 
