@@ -27,7 +27,6 @@ const Home = () => {
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
   const { mainComplainCard } = useSelector((state) => state.complain);
   const [alreadyChecked, setAlreadyChecked] = useState(false);
-  const [isBlocked, setIsBlocked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
@@ -49,8 +48,6 @@ const Home = () => {
     await Router.replace('/');
     setModalVisible(false);
   };
-
-  const { myAnimals, selectedAnimal } = useSelector((state) => state.animal);
 
   useEffect(() => {
     if (mainPosts.length === 0) {
@@ -90,8 +87,6 @@ const Home = () => {
       type: LOAD_COMPLAIN_REQUEST,
     });
   }, [dispatch]);
-
-
 
   return (
     <>

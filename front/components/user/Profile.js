@@ -279,12 +279,6 @@ const Profile = (props) => {
           </ButtonRow>
         )}
       </Container>
-      {/* {!isBlinded && mainPosts.map((c) => {
-        return (
-          <PostCard post={c} key={c.id} />
-        );
-      })} */}
-
     </Wrapper>
   );
 };

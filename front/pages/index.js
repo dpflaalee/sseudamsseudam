@@ -11,7 +11,6 @@ import { LOAD_COMPLAIN_REQUEST } from "@/reducers/complain";
 import TARGET_TYPE from "../../shared/constants/TARGET_TYPE";
 
 const login = () => {
-
   return (
     <div
       style={{
@@ -53,15 +52,6 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   );
 
   if (me) {
-    if (isBlindedUser) {
-      return {
-        redirect: {
-          destination: '/blind', // 예: 블라인드 안내 페이지
-          permanent: false,
-        },
-      };
-    }
-
     return {
       redirect: {
         destination: '/main',
