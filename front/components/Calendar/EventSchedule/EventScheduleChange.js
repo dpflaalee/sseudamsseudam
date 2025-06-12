@@ -34,8 +34,10 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
         if (res.data && Number(res.data.isAdmin) === 1) {
           setIsAdmin(true);
         } else {
+          if (isChecking) {
           alert('권한이 없습니다.');
           router.replace('/schedule');
+          }
         }
       } catch (error) {
         console.error('유저 정보 불러오기 실패:', error);
@@ -45,8 +47,7 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
         setIsChecking(false);
       }
     };
-    fetchUser();
-  }, [router]);
+  if (isChecking) { fetchUser(); }}, [isChecking, router]);
 
   useEffect(() => {
     if (schedule && schedule.startDate && schedule.endDate) {

@@ -24,8 +24,10 @@ const EventScheduleForm = () => {
         if (res.data && Number(res.data.isAdmin) === 1) {
           setIsAdmin(true);
         } else {
+          if (isChecking) {
           alert('권한이 없습니다.');
           router.replace('/schedule');
+          }
         }
       } catch (error) {
         console.error('유저 정보 불러오기 실패:', error);
@@ -35,8 +37,7 @@ const EventScheduleForm = () => {
         setIsChecking(false);
       }
     };
-    fetchUser();
-  }, [router]);
+    if (isChecking) { fetchUser(); }}, [isChecking, router]);
 
   const onFinish = async (values) => {
     try {

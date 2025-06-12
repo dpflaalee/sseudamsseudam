@@ -17,25 +17,27 @@ const ChallengeChange = ({ challenge, onSubmit }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
-        if (res.data && Number(res.data.isAdmin) === 1) {
-          setIsAdmin(true);
-        } else {
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
+      if (res.data && Number(res.data.isAdmin) === 1) {
+        setIsAdmin(true);
+      } else {
+        if (isChecking) {
           alert('권한이 없습니다.');
+          router.replace('/challenge');
         }
-      } catch (error) {
-        console.error('유저 정보 불러오기 실패:', error);
-        message.error('정보 불러오기에 실패했습니다.');
-      } finally {
-        setIsChecking(false);
-        router.replace('/challenge');
       }
-    };
-    fetchUser();
-  }, [router]);
+    } catch (error) {
+      console.error('유저 정보 불러오기 실패:', error);
+      message.error('정보 불러오기에 실패했습니다.');
+      router.replace('/challenge');
+    } finally {
+      setIsChecking(false);
+    }
+  };
+  if (isChecking) { fetchUser(); }}, [isChecking, router]);
 
   useEffect(() => {
     if (challenge) {
