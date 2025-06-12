@@ -113,7 +113,18 @@ function joinGroupAPI(data) { console.log('joinGroupAPI 데이터---------------
 function* joinGroup(action) {
   try {
     yield call(joinGroupAPI, action.data);
-    yield put({ type: JOIN_GROUP_SUCCESS })
+    yield put({ type: JOIN_GROUP_SUCCESS });
+    // 알림
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.GROUPAPPLY,
+        SenderId: action.notiData.SenderId,
+        ReceiverId: action.notiData.ReceiverId,
+        targetId: action.notiData.targetId,
+      }
+    });
+    // E 알림
   } catch (err) { yield put({ type: JOIN_GROUP_FAILURE, error: err.response.data || err.message }); }
 }
 function* watchJoinGroup() { yield takeLatest(JOIN_GROUP_REQUEST, joinGroup) }
@@ -123,7 +134,18 @@ function applyGroupAPI(data) { console.log('joinGroupAPI 데이터--------------
 function* applyGroup(action) {
   try {
     yield call(applyGroupAPI, action.data);
-    yield put({ type: APPLY_GROUP_SUCCESS, message: "가입 신청이 완료되었습니다!" })
+    yield put({ type: APPLY_GROUP_SUCCESS, message: "가입 신청이 완료되었습니다!" });
+    // 알림
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.GROUPAPPLY,
+        SenderId: action.notiData.SenderId,
+        ReceiverId: action.notiData.ReceiverId,
+        targetId: action.notiData.targetId,
+      }
+    });
+    // E 알림
   } catch (err) { yield put({ type: APPLY_GROUP_FAILURE, error: err.response.data || err.message }) }
 }
 function* watchApplyGroup() { yield takeLatest(APPLY_GROUP_REQUEST, applyGroup) }
@@ -170,7 +192,7 @@ function* approveJoin(action) {
   }
 }
 
-function* watchApproveJoin() {  yield takeLatest(APPROVE_JOIN_REQUEST, approveJoin); }
+function* watchApproveJoin() { yield takeLatest(APPROVE_JOIN_REQUEST, approveJoin); }
 
 // 5. 거절
 function rejectJoinAPI(requestId, userId) {
@@ -198,7 +220,7 @@ function* rejectJoin(action) {
   }
 }
 
-function* watchRejectJoin() {  yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin);}
+function* watchRejectJoin() { yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin); }
 
 
 // root saga

@@ -8,6 +8,7 @@ import { CREATE_GROUP_REQUEST, UPDATE_GROUP_REQUEST, LOAD_SINGLE_GROUP_REQUEST }
 import wrapper from '@/store/configureStore';
 import { LOAD_MY_INFO_REQUEST } from '@/reducers/user';
 import { END } from 'redux-saga';
+import axios from 'axios';
 
 const GroupFormPage = () => {
   const router = useRouter(); const dispatch = useDispatch();
