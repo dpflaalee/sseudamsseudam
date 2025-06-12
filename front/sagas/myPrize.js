@@ -21,6 +21,7 @@ function* loadMyPrizes() {
       data: result.data.data || [],  // 방어적 처리
     });
   } catch (err) {
+    console.error('쿠폰 리스트 로딩 실패:', err);  // 에러 확인
     yield put({
       type: LOAD_MY_PRIZES_FAILURE,
       error: err.response?.data?.message || '서버 오류가 발생했습니다.',
@@ -35,7 +36,7 @@ function useMyPrizeAPI(id) {
 function* useMyPrize(action) {
   try {
     const result = yield call(useMyPrizeAPI, action.data);
-    // 응답 coupon 데이터가 result.data.coupon 안에 있음
+    console.log("🎯 Use My Prize API 응답:", result.data);  // 응답 데이터 출력
     const coupon = result.data.coupon || {};
     yield put({
       type: USE_MY_PRIZE_SUCCESS,
