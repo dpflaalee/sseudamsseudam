@@ -134,6 +134,7 @@ const Notification = ({ noti, onDelete }) => {
   const renderContent = (noti) => {
     console.log('🐱‍🏍 noti', noti);
     const sender = noti?.Sender || 'Dan';
+    const receiver = noti?.Receiver || 'Dan';
     const notiType = noti?.type;
     const target = noti?.targetObject;
 
@@ -161,17 +162,17 @@ const Notification = ({ noti, onDelete }) => {
           `: ${target?.content}`
         ];
       case NOTIFICATION_TYPE.RANDOMBOX:
-        return `${sender.nickname}님! 랜덤박스가 도착했어요 확인해보세요!`;
+        return `${receiver.nickname}님! 랜덤박스가 도착했어요 확인해보세요!`;
       case NOTIFICATION_TYPE.GROUPAPPLY:
         return [
           `${sender.nickname}님이 [ ${target?.title} ] 에 함께 하려 합니다!`
         ];
       case NOTIFICATION_TYPE.GROUPAPPLY_APPROVE:
         return [
-          `${sender.nickname}님! [ ${target?.title} ] 그룹에 참여되었습니다.`
+          `${receiver.nickname}님! [ ${target?.title} ] 그룹에 참여되었습니다.`
         ];
       case NOTIFICATION_TYPE.GROUPAPPLY_REJECT:
-        return `${sender.nickname}님 그룹 신청이 거절되었습니다.`;
+        return `${receiver.nickname}님 그룹 신청이 거절되었습니다.`;
       case NOTIFICATION_TYPE.ADMIN_NOTI:
         return `관리자 알림: 새로운 공지가 등록되었습니다.`;
       case NOTIFICATION_TYPE.ANIMAL_FRIENDS:
