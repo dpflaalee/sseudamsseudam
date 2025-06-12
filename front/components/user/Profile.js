@@ -14,6 +14,7 @@ import Router from 'next/router';
 import PostCard from '../post/PostCard';
 import axios from 'axios';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
+import MyPrize from '@/components/prize/MyPrize';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -88,6 +89,8 @@ const Profile = (props) => {
   let postUserId = props.postUserId;
   console.log('postUserIdpostUserId=',postUserId);
   const [postUser, setPostUser] = useState('');
+  const [showMyPrize, setShowMyPrize] = useState(false);
+  const  { onShowMyPrize }  = props
 
   // 신고 당한 유저 블라인드 처리
   const { mainComplainCard } = useSelector((state) => state.complain);
@@ -183,6 +186,7 @@ const Profile = (props) => {
 
   const isMyProfile = user && (user.id == postUserId);
 
+
   const menu = (
     <Menu>
       {isMyProfile ? (
@@ -243,7 +247,7 @@ const Profile = (props) => {
         </TopRow>
         {isMyProfile ? (
           <ButtonRow>
-            <Button type="primary">내 쿠폰함</Button>
+            <Button type="primary"  onClick={onShowMyPrize} >내 쿠폰함</Button>
             <Button>내 장소</Button>
             <Button>챌린지 현황</Button>
             <Button>프로필 수정</Button>
