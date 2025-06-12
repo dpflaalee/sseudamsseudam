@@ -60,7 +60,10 @@ module.exports = (sequelize, DataTypes) => {
     //Animal
     db.User.hasMany(db.Animal);
     //Post
-    db.User.hasMany(db.Post);
+    db.User.hasMany(db.Post,{
+      onDelete: 'CASCADE',
+      hooks:true,
+    });
     //Chatting
     db.User.hasMany(db.Chatting);
     //Comment

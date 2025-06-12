@@ -151,16 +151,27 @@ router.post('/logout', isLoggedIn, (req, res, next) => {  // 사용자가 로그
   }
 });
 //회원탈퇴
-router.post('/userDelete',isLoggedIn, async (req, res, next)=>{
+router.delete('/userDelete',isLoggedIn, async (req, res, next)=>{
   console.log('탈퇴유저:',req.user.id);
   try{
-    await User.update({
-      isDeleted: true,
-      deleteAt: new Date(),
-      updatedAt: new Date(),
-    }, {
-      where : { id : req.user.id }
-    });
+    // await User.update({
+    //   isDeleted: true,
+    //   deleteAt: new Date(),
+    //   updatedAt: new Date(),
+    // }, {
+    //   where : { id : req.user.id }
+    // });
+
+    await User.destroy({
+      where : {id:req.user.id},
+      // include:[{
+      //     model:Post,
+      //     attributes:['id']
+      // }]
+    })
+    await Post.destroy({
+      where : {userId:req.user.id}
+    })
     req.logout(function(err){
         if(err){
           return next(err);
