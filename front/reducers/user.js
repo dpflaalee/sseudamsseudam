@@ -4,6 +4,9 @@ import produce from 'immer';
 ////////////////////////////////////////////////////// 초기값
 
 export const initialState = {
+  followerList: [],
+  hasMoreList: true,
+
   logInLoading: false, // 로그인 시도중
   logInDone: false,
   logInError: null,
@@ -202,6 +205,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.followDone = false;
       break;
     case FOLLOW_SUCCESS:
+      //console.log('FOLLOW_SUCCESS',action.data.UserId);
       draft.followLoading = false;
       draft.user.Followings.push({ id: action.data.UserId });
       draft.followDone = true;
@@ -262,6 +266,9 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loadFollowersLoading = false;
       draft.user.Followers = action.data;
       draft.loadFollowersDone = true;
+      //draft.followerList = draft.followerList.concat(draft.followerList);
+      draft.followerList = action.data.concat(draft.followerList);
+      draft.hasMoreList = draft.followerList.length < 10;
       break;
     case LOAD_FOLLOWERS_FAILURE:
       draft.loadFollowersLoading = false;

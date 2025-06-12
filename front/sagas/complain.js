@@ -72,13 +72,11 @@ function* removeComplain(action) {
 
 ////////////////////////////
 function isBlindComplainAPI(data) {
-  console.log('🚩 isBlindComplainAPI : ', data);
   return axios.patch('/complain/blind', data);
 }
 
 function* isBlindComplain(action) {
   try {
-    console.log('🚩 isBlindComplain : ', action.data);
     const result = yield call(isBlindComplainAPI, action.data);
     yield put({
       type: IS_BLIND_SUCCESS,
