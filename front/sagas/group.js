@@ -14,7 +14,9 @@ import {
   APPLY_GROUP_REQUEST, APPLY_GROUP_SUCCESS, APPLY_GROUP_FAILURE, // 가입신청
   LOAD_JOIN_REQUESTS_REQUEST, LOAD_JOIN_REQUESTS_SUCCESS, LOAD_JOIN_REQUESTS_FAILURE, // 신청현황
   APPROVE_JOIN_REQUEST, APPROVE_JOIN_SUCCESS, APPROVE_JOIN_FAILURE, // 가입승인
-  REJECT_JOIN_REQUEST, REJECT_JOIN_SUCCESS, REJECT_JOIN_FAILURE, // 가입거절
+  REJECT_JOIN_REQUEST, REJECT_JOIN_SUCCESS, REJECT_JOIN_FAILURE,
+  LOAD_USER_GROUPS_FAILURE,
+  LOAD_USER_GROUPS_REQUEST, // 가입거절
 } from '@/reducers/group';
 
 // 알림
@@ -167,11 +169,8 @@ function* loadJoinRequests(action) {
 function* watchLoadJoinRequests() { yield takeLatest(LOAD_JOIN_REQUESTS_REQUEST, loadJoinRequests); }
 
 // 4. 승인
-function approveJoinAPI(groupId, requestId, userId) {
-  return axios.post(`/api/groups/${groupId}/requests/${requestId}/approve?userId=${userId}`);
-}
+function approveJoinAPI(groupId, requestId, userId) { return axios.post(`/api/groups/${groupId}/requests/${requestId}/approve?userId=${userId}`); }
 function* approveJoin(action) {
-  console.log("SAGA1. 승인 action데이터...............", action.data);
   try {
     const { groupId, requestId, userId } = action.data;
     console.log("SAGA1. 승인 action 데이터", action.data);
@@ -245,8 +244,20 @@ function* rejectJoin(action) {
     yield put({ type: REJECT_JOIN_FAILURE, error });
   }
 }
-
 function* watchRejectJoin() { yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin); }
+
+//6. 로그인한 유저가 가입된 그룹 리스트 불러오기
+function loadUserGroupsAPI(){return axios.get('/user/groups',{withCredentials:true});}
+function* loadUserGroups(){
+  try{
+    const response = yield call(loadUserGroupsAPI);
+    yield put({ type: LOAD_USER_GROUPS_REQUEST, data: response.data });
+    console.log("SAGA1. 로그인유저그룹테스트..........", response.data)
+  }catch(err){console.error = err.response ? err.response.data : err.message;
+    yield put({type: LOAD_USER_GROUPS_FAILURE});  }
+}
+function* watchLoadUserGroups(){ yield takeLatest(LOAD_USER_GROUPS_REQUEST, loadUserGroups); }
+
 
 // root saga
 export default function* groupSaga() {
@@ -264,5 +275,6 @@ export default function* groupSaga() {
     fork(watchLoadJoinRequests),
     fork(watchApproveJoin),
     fork(watchRejectJoin),
+    fork(watchLoadUserGroups),
   ]);
 }
