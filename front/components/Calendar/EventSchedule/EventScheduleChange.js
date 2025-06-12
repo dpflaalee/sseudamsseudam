@@ -35,12 +35,12 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
           setIsAdmin(true);
         } else {
           alert('권한이 없습니다.');
-          router.replace('/main');
+          router.replace('/schedule');
         }
       } catch (error) {
         console.error('유저 정보 불러오기 실패:', error);
         alert('권한이 없습니다.');
-        router.replace('/main');
+        router.replace('/schedule');
       } finally {
         setIsChecking(false);
       }

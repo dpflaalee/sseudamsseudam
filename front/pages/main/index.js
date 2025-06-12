@@ -16,6 +16,7 @@ import wrapper from '../../store/configureStore';
 import { END } from 'redux-saga';
 import AnimalList from '@/components/animal/AnimalList';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
+import { LOAD_NOTIFICATION_REQUEST } from '@/reducers/notification';
 
 //// import 수정
 const Home = () => {
@@ -125,6 +126,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
   context.store.dispatch({ type: LOAD_POSTS_REQUEST });
   context.store.dispatch({ type: LOAD_COMPLAIN_REQUEST });
+  context.store.dispatch({ type: LOAD_NOTIFICATION_REQUEST });
   context.store.dispatch(END);
 
   await context.store.sagaTask.toPromise();
