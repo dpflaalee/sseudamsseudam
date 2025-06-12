@@ -56,7 +56,7 @@ const EventScheduleForm = () => {
       if (response.status === 200 || response.status === 201) {
         message.success('일정 등록 완료');
         form.resetFields();
-        router.push('/schedule');
+        router.push('/admin/manage');
       } else {
         message.error('일정 등록 실패 (서버 응답 오류)');
       }
@@ -66,12 +66,12 @@ const EventScheduleForm = () => {
     }
   };
 
-const handleCancel = () => {
-  router.push('/schedule');
-};
+  const handleCancel = () => {
+    router.push('/admin/manage');
+  };
 
-if (isChecking) return null;
-if (!isAdmin) return null;
+  if (isChecking) return null;
+  if (!isAdmin) return null;
 
   return (
     <>
