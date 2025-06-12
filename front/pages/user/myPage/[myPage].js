@@ -13,6 +13,7 @@ import { LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../../../reducers/user'
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import TARGET_TYPE from '../../../../shared/constants/TARGET_TYPE';
 import { LOAD_POSTS_REQUEST } from '../../../reducers/post';
+import AnimalList from '@/components/animal/AnimalList';
 
 const MyPage = () => {
     const dispatch = useDispatch();
@@ -24,6 +25,8 @@ const MyPage = () => {
 
     // 신고 당한 유저 블라인드 처리
     const { mainComplainCard } = useSelector((state) => state.complain);
+    // 동물프로필 불러오기
+    const { myAnimals, selectedAnimal } = useSelector((state) => state.animal);
 
     useEffect(() => {
         dispatch({
@@ -41,6 +44,11 @@ const MyPage = () => {
         return Number(report.targetId) === Number(myPage) && report.isBlind && report.targetType === TARGET_TYPE.USER;
     });
 
+    useEffect(() => {
+        if (user) {
+          dispatch({ type: 'LOAD_ANIMAL_LIST_REQUEST' });
+        }
+      }, [user, dispatch]);
 
     return (
         <AppLayout>
@@ -50,6 +58,7 @@ const MyPage = () => {
                     <PostCard post={c} key={c.id} />
                 );
             })}
+            <AnimalList animals={myAnimals} />
         </AppLayout>
     );
 }
