@@ -367,8 +367,9 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loadBlockDone = false;
       draft.loadBlockError = action.error;
       break;
-
+    /////////////////////
     case ADD_BLOCK_REQUEST:
+      console.log('💥', action.data);
       draft.addBlockLoading = true;
       draft.addBlockDone = false;
       draft.addBlockError = null;
@@ -377,7 +378,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.addBlockLoading = false;
       draft.addBlockDone = true;
       draft.addBlockError = null;
-      draft.user.blockList.push({ id: action.data });
+      draft.blockList.push(action.data);
       break;
     case ADD_BLOCK_FAILURE:
       draft.addBlockLoading = false;
@@ -394,7 +395,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.removeBlockLoading = false;
       draft.removeBlockDone = true;
       draft.addBlockError = null;
-      draft.user.blockList = draft.user.blockList.filter((v) => v.id !== action.data);
+      draft.blockList = draft.blockList.filter((v) => v.id !== action.data);
       break;
     case REMOVE_BLOCK_FAILURE:
       draft.removeBlockLoading = false;

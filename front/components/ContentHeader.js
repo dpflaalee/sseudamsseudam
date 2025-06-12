@@ -37,7 +37,7 @@ const RightWrapper = styled.div`
 
 const menuItems = [
   { key: 'notice', label: '공지', icon: <NotificationOutlined />, path: '/notice' },
-  { key: 'home', label: '홈', icon: <HomeOutlined />, path: '/' },
+  { key: 'home', label: '홈', icon: <HomeOutlined />, path: '/main' },
   { key: 'groups', label: '그룹', icon: <TeamOutlined />, path: '/groups' },
   { key: 'notification', label: '알림', icon: <BellOutlined />, path: '/notification' },
   { key: 'search', label: '검색', icon: <SearchOutlined />, path: '/search' },

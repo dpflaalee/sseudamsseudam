@@ -60,9 +60,9 @@ module.exports = (sequelize, DataTypes) => {
     //Animal
     db.User.hasMany(db.Animal);
     //Post
-    db.User.hasMany(db.Post,{
+    db.User.hasMany(db.Post, {
       onDelete: 'CASCADE',
-      hooks:true,
+      hooks: true,
     });
     //Chatting
     db.User.hasMany(db.Chatting);
@@ -85,8 +85,16 @@ module.exports = (sequelize, DataTypes) => {
     //ChattingMemebers
     db.User.belongsToMany(db.ChattingRoom, { through: db.ChattingMember, foreignKey: 'UserId' });
     //BlackList
-    db.User.belongsToMany(db.User, { through: 'Block', as: 'Blocking', foreignKey: 'BlokedId' });
-    db.User.belongsToMany(db.User, { through: 'Block', as: 'Blocked', foreignKey: 'BlokingId' });
+    db.User.belongsToMany(db.User, {
+      through: 'Blacklist',
+      as: 'Blocking',        // 내가 차단한 사람들
+      foreignKey: 'BlockingId',  // 내가 blocker다
+    });
+    db.User.belongsToMany(db.User, {
+      through: 'Blacklist',
+      as: 'Blocked',         // 나를 차단한 사람들
+      foreignKey: 'BlockedId',   // 내가 block 당한 쪽
+    });
 
   };
   return User;
