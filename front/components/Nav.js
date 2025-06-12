@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { MailOutlined, HomeOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, BellOutlined, UserOutlined, } from "@ant-design/icons";
+import { MailOutlined, HomeOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, BellOutlined, UserOutlined, BellTwoTone } from "@ant-design/icons";
 import { Avatar, Dropdown, Menu } from "antd";
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from "react-redux";
 import { LOG_OUT_REQUEST } from "@/reducers/user";
+import { LOAD_NOTIFICATION_REQUEST } from "@/reducers/notification";
 
 const { SubMenu } = Menu;
 
@@ -14,7 +15,10 @@ const Nav = () => {
   const dispatch = useDispatch();
   const { logOutLoading, user } = useSelector(state => state.user);
 
-  const onLogout = useCallback(() => { dispatch({ type: LOG_OUT_REQUEST }) }, [])
+  const onLogout = useCallback(() => {
+     dispatch({ type: LOG_OUT_REQUEST }) 
+     router.replace('/');
+    }, [])
 
   useEffect(() => {
     const handleResize = () => { setIsMobile(window.innerWidth <= 768); };
@@ -44,6 +48,12 @@ const Nav = () => {
   const handleOpenChange = (keys) => {
     setOpenKeys(keys);
   };
+
+  // 새로 온 알림
+  const { hasNewNotification } = useSelector(state => state.notification);
+  dispatch({
+    type: LOAD_NOTIFICATION_REQUEST
+  }, [dispatch]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -78,7 +88,12 @@ const Nav = () => {
             <Menu.Item key="groupHome" style={{ fontWeight: 'bold' }}>그룹 홈</Menu.Item>
             <Menu.Item key="group2">Group2</Menu.Item>
           </SubMenu>
-          <Menu.Item key="notification" icon={<BellOutlined />}>{!isMobile && "알림"}</Menu.Item>
+          <Menu.Item
+            key="notification"
+            icon={hasNewNotification ? <BellTwoTone twoToneColor="#eb2f96" /> : <BellOutlined />}
+          >
+            {!isMobile && "알림"}
+          </Menu.Item>
           <Menu.Item key="search" icon={<SearchOutlined />}>{!isMobile && "검색"}</Menu.Item>
           <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item>
           <Menu.Item key="animal" icon={<MailOutlined />}>{!isMobile && "임시동물"}</Menu.Item>

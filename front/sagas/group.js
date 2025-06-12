@@ -115,6 +115,9 @@ function* joinGroup(action) {
     yield call(joinGroupAPI, action.data);
     yield put({ type: JOIN_GROUP_SUCCESS });
     // 알림
+    console.log('🍻 Group NOTIFICATION : SenderId : ', action.notiData.SenderId);
+    console.log('🍻 Group NOTIFICATION : ReceiverId : ', action.notiData.ReceiverId);
+    console.log('🍻 Group NOTIFICATION : targetId : ', action.notiData.targetId);
     yield put({
       type: ADD_NOTIFICATION_REQUEST,
       data: {

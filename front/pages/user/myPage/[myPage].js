@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import AppLayout from '@/components/AppLayout';
 import Profile from '@/components/user/Profile';
 import PostCard from '@/components/post/PostCard';
@@ -13,6 +13,7 @@ import { LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../../../reducers/user'
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import TARGET_TYPE from '../../../../shared/constants/TARGET_TYPE';
 import { LOAD_POSTS_REQUEST } from '../../../reducers/post';
+import MyPrize from '@/components/prize/MyPrize';
 
 const MyPage = () => {
     const dispatch = useDispatch();
@@ -41,15 +42,31 @@ const MyPage = () => {
         return Number(report.targetId) === Number(myPage) && report.isBlind && report.targetType === TARGET_TYPE.USER;
     });
 
+    const [showMyPrize, setShowMyPrize] = useState(false); // "내 쿠폰함" 상태
+
+    const onShowMyPrize = () => {
+        setShowMyPrize(prev => !prev); // "내 쿠폰함" 버튼 클릭 시 상태 토글
+    };
+
 
     return (
         <AppLayout>
-            <Profile postUserId={myPage} />
-            {!isBlinded && mainPosts.map((c) => {
-                return (
-                    <PostCard post={c} key={c.id} />
-                );
-            })}
+         <Profile
+            postUserId={myPage}
+            mainPosts={mainPosts}
+            onShowMyPrize={onShowMyPrize}
+            isMyProfile={user?.id === myPage}
+        />
+      
+        {/* "내 쿠폰함" 버튼을 클릭했을 때 MyPrize만 렌더링 */}
+        {showMyPrize ? (
+            <MyPrize />
+        ) : (
+            // 기본적으로 게시물이 보이게
+            !isBlinded && mainPosts.map((post) => {
+            return <PostCard post={post} key={post.id} />;
+            })
+        )}
         </AppLayout>
     );
 }

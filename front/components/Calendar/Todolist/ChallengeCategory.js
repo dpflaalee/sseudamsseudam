@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox, Card, Divider, Dropdown, Typography, Tag } from 'antd';
+import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox, Card, Divider, Dropdown, Tag } from 'antd';
 import { UserOutlined, UploadOutlined, EnvironmentOutlined, DownOutlined, FireOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -12,7 +12,6 @@ import axios from 'axios';
 
 const { TextArea } = Input;
 const { Option } = Select;
-const { Title } = Typography;
 
 // '챌린지' 판별
 const isChallengeTitle = (title) => {

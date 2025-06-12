@@ -27,6 +27,10 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf('day');
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -34,19 +38,20 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
         if (res.data && Number(res.data.isAdmin) === 1) {
           setIsAdmin(true);
         } else {
+          if (isChecking) {
           alert('권한이 없습니다.');
-          router.replace('/main');
+          router.replace('/schedule');
+          }
         }
       } catch (error) {
         console.error('유저 정보 불러오기 실패:', error);
-        alert('권한이 없습니다.');
-        router.replace('/main');
+        router.replace('/schedule');
+        message.error('정보 불러오기에 실패했습니다.');
       } finally {
         setIsChecking(false);
       }
     };
-    fetchUser();
-  }, [router]);
+  if (isChecking) { fetchUser(); }}, [isChecking, router]);
 
   useEffect(() => {
     if (schedule && schedule.startDate && schedule.endDate) {
@@ -114,7 +119,7 @@ if (!isAdmin) return null;
           <Form.Item
             name="range"
             rules={[{ required: true, message: '시작일과 종료일을 선택하세요.' }]} >
-            <RangePicker showTime style={{ width: '100%' }} />
+            <RangePicker showTime disabledDate={disabledDate} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
