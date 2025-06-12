@@ -45,7 +45,7 @@ const Home = () => {
     }
   }, [user, mainComplainCard, alreadyChecked]);
 
-  const handleModalOk = async () => {
+  const handleModalOk = () => {
     await Router.replace('/');
     setModalVisible(false);
   };
@@ -84,12 +84,6 @@ const Home = () => {
     };
   }, [mainPosts, hasMorePosts, loadPostsLoading]);
 
-  useEffect(() => {
-    if (user) {
-      dispatch({ type: 'LOAD_ANIMAL_LIST_REQUEST' });
-    }
-  }, [user, dispatch]);
-
   // 신고 당한 유저 글 보이지 않게 처리
   useEffect(() => {
     dispatch({
@@ -111,7 +105,6 @@ const Home = () => {
         <p>신고 누적으로 인해 로그인이 제한되었습니다.</p>
       </Modal>
       <AppLayout>
-        <AnimalList animals={myAnimals} />
         {user && <PostForm />}
         {mainPosts
           .filter((post) => {
