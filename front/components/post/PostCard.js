@@ -218,12 +218,16 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
           </Popover>
           ]}
         >
-          <PostCardContent
-            editMode={false} // 리트윗 원본은 수정 불가
-            postData={post.Retweet.content}
-            onEditPost={() => {}}
-            onCancelUpdate={() => {}}
-          />
+        <Link href={`/post/${post.id}`} legacyBehavior>
+          <a style={{ textDecoration: 'none', color: 'inherit' }}>
+            <PostCardContent
+              editMode={false}
+              postData={post.Retweet.content}
+              onEditPost={() => {}}
+              onCancelUpdate={() => {}}
+            />
+          </a>
+        </Link>
 
           {post.Retweet.Images && post.Retweet.Images.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
@@ -270,12 +274,16 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}  
         >
 
-          <PostCardContent
-            editMode={editMode}
-            onEditPost={onEditPost}
-            onCancelUpdate={onCancelUpdate}
-            postData={content}
-          />
+        <Link href={`/post/${post.id}`} legacyBehavior>
+          <a style={{ textDecoration: 'none', color: 'inherit' }}>
+            <PostCardContent
+              editMode={editMode}
+              onEditPost={onEditPost}
+              onCancelUpdate={onCancelUpdate}
+              postData={content}
+            />
+          </a>
+        </Link>
 
           {post.Images && post.Images.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>

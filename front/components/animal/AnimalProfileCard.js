@@ -21,8 +21,8 @@ const AnimalProfileCard = () => {
     router.push(`/animal/${id}/edit`);
   };
 
-  const handleClick = () => {
-    router.push('/main');
+  const handleClick = (UserId) => {
+    router.push(`/user/myPage/${UserId}`);
   }
   // const { category } = selectedAnimal;
 
@@ -33,10 +33,10 @@ const AnimalProfileCard = () => {
         data: id,
       });
       message.success('프로필 삭제 요청을 보냈습니다.');
-      router.push('/');
+      router.push(`/main`);
     }
   };
-  
+
   const popoverContent = (
     <div style={{ display: 'flex', flexDirection: 'column', padding: 6 }}>
       <Button type="text" style={{ textAlign: 'left', padding: '4px 8px' }}
@@ -45,7 +45,6 @@ const AnimalProfileCard = () => {
       </Button>
     </div>
   );
-
   return (
     <div style={{width: '100%', borderRadius: 8, overflow: 'hidden', backgroundColor: '#fff', position: 'relative' }}>
       <LeftOutlined

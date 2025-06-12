@@ -40,12 +40,12 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
         } else {
           if (isChecking) {
           alert('권한이 없습니다.');
-          router.replace('/schedule');
+          router.replace('/admin/manage');
           }
         }
       } catch (error) {
         console.error('유저 정보 불러오기 실패:', error);
-        router.replace('/schedule');
+        router.replace('/admin/manage');
         message.error('정보 불러오기에 실패했습니다.');
       } finally {
         setIsChecking(false);
@@ -75,7 +75,7 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
   };
 
 const handleCancel = () => {
-  router.push('/schedule');
+  router.push('/admin/manage');
 };
 
 if (isChecking) return null;

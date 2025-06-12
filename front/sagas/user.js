@@ -22,7 +22,6 @@ import {
   USER_DELETE_SUCCESS,
   USER_DELETE_FAILURE,
 
-
   FOLLOW_REQUEST,
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE,
@@ -50,6 +49,7 @@ import {
   LOAD_BLOCK_REQUEST, LOAD_BLOCK_SUCCESS, LOAD_BLOCK_FAILURE,
   ADD_BLOCK_REQUEST, ADD_BLOCK_SUCCESS, ADD_BLOCK_FAILURE,
   REMOVE_BLOCK_REQUEST, REMOVE_BLOCK_SUCCESS, REMOVE_BLOCK_FAILURE,
+
 } from '../reducers/user';
 
 // 알림
@@ -180,7 +180,7 @@ function* logout() {
   }
 }
 function userDeleteApi() {   //★   function* (X)
-  return axios.post('/user/userDelete');
+  return axios.delete('/user/userDelete');
 }
 function* userDelete() {
 
