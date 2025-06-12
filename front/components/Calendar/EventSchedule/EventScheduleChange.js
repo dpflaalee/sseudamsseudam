@@ -34,19 +34,20 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
         if (res.data && Number(res.data.isAdmin) === 1) {
           setIsAdmin(true);
         } else {
+          if (isChecking) {
           alert('권한이 없습니다.');
-          router.replace('/main');
+          router.replace('/schedule');
+          }
         }
       } catch (error) {
         console.error('유저 정보 불러오기 실패:', error);
-        alert('권한이 없습니다.');
-        router.replace('/main');
+        router.replace('/schedule');
+        message.error('정보 불러오기에 실패했습니다.');
       } finally {
         setIsChecking(false);
       }
     };
-    fetchUser();
-  }, [router]);
+  if (isChecking) { fetchUser(); }}, [isChecking, router]);
 
   useEffect(() => {
     if (schedule && schedule.startDate && schedule.endDate) {
