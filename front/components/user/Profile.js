@@ -16,6 +16,8 @@ import axios from 'axios';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import MyPrize from '@/components/prize/MyPrize';
 
+import { ADD_BLOCK_REQUEST } from '@/reducers/user';
+
 const Wrapper = styled.div`
   width: 100%;
   background-color: #f0f2f5;
@@ -87,10 +89,10 @@ const Profile = (props) => {
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
 
   let postUserId = props.postUserId;
-  console.log('postUserIdpostUserId=',postUserId);
+  console.log('postUserIdpostUserId=', postUserId);
   const [postUser, setPostUser] = useState('');
   const [showMyPrize, setShowMyPrize] = useState(false);
-  const  { onShowMyPrize }  = props
+  const { onShowMyPrize } = props
 
   // 신고 당한 유저 블라인드 처리
   const { mainComplainCard } = useSelector((state) => state.complain);
@@ -105,13 +107,8 @@ const Profile = (props) => {
     return Number(report.targetId) === Number(postUserId) && report.isBlind && report.targetType === TARGET_TYPE.USER;
   });
 
-
-  console.log('🔥 isBlinded:', isBlinded);
-
-
-
   useEffect(() => {
-    console.log('postUser실행',postUserId);
+    console.log('postUser실행', postUserId);
     const postUserData = async () => {
       try {
         const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
@@ -202,6 +199,9 @@ const Profile = (props) => {
         </>
       ) : (
         <>
+          <Menu.Item key="block" onClick={() => dispatch({ type: ADD_BLOCK_REQUEST, data: postUserId })}>
+            차단하기
+          </Menu.Item>
           <Menu.Item key="report" onClick={() => setOpen(true)} danger>
             신고하기
           </Menu.Item>
@@ -214,10 +214,11 @@ const Profile = (props) => {
             targetUser={postUser}
           />
         </>
-      )}
-    </Menu>
+      )
+      }
+    </Menu >
   );
-  console.log('postUser체크',postUser);
+  console.log('postUser체크', postUser);
   return (
     <Wrapper>
       <Banner />
@@ -247,7 +248,7 @@ const Profile = (props) => {
         </TopRow>
         {isMyProfile ? (
           <ButtonRow>
-            <Button type="primary"  onClick={onShowMyPrize} >내 쿠폰함</Button>
+            <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button>
             <Button>내 장소</Button>
             <Button>챌린지 현황</Button>
             <Button>프로필 수정</Button>

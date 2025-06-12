@@ -27,18 +27,18 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false,
       allowNull: false,
     },
-    isDeleted:{
-      type:DataTypes.BOOLEAN,
-      allowNull:false,
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
       defaultValue: false,
     },
-    deleteAt:{
+    deleteAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW
     }
   }, {
-   // paranoid: true, // 소프트 삭제 활성화
+    // paranoid: true, // 소프트 삭제 활성화
     //timestamps: true, // createdAt, updatedAt, deletedAt 자동 생성
     charset: 'utf8',
     collate: 'utf8_general_ci'
@@ -65,8 +65,7 @@ module.exports = (sequelize, DataTypes) => {
     db.User.hasMany(db.Chatting);
     //Comment
     db.User.hasMany(db.Comment);
-    //BlackList
-    db.User.hasMany(db.BlackList);
+
 
     /// 다 대 다 
     db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' });
@@ -82,7 +81,9 @@ module.exports = (sequelize, DataTypes) => {
     db.User.belongsToMany(db.Place, { through: 'MyPlace', as: 'Places' });
     //ChattingMemebers
     db.User.belongsToMany(db.ChattingRoom, { through: db.ChattingMember, foreignKey: 'UserId' });
-
+    //BlackList
+    db.User.belongsToMany(db.User, { through: 'Block', as: 'Blocking', foreignKey: 'BlokedId' });
+    db.User.belongsToMany(db.User, { through: 'Block', as: 'Blocked', foreignKey: 'BlokingId' });
 
   };
   return User;
