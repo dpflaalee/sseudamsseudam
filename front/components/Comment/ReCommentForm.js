@@ -57,13 +57,20 @@ const ReCommentForm = ({ post, parentCommentId, onAddLocalComment, parentComment
   const id = useSelector((state) => state.user.user?.id);
   const nickname = useSelector((state) => state.user.user?.nickname);
   const dispatch = useDispatch();
-  const [comment, onChangeComment] = userInput('');
+  const [comment, onChangeComment, setComment] = userInput('');
 
   useEffect(() => {
     if (addCommentDone && onAddLocalComment) {
       onAddLocalComment(); // 부모 컴포넌트의 fetchPost 호출
     }
   }, [addCommentDone, onAddLocalComment]);
+
+  useEffect(() => {
+    if (addCommentDone && onAddLocalComment) {
+      onAddLocalComment();
+      setComment('');
+    }
+  }, [addCommentDone, onAddLocalComment, setComment]);
 
   const onSubmitForm = useCallback(() => {
     if (!id) {
