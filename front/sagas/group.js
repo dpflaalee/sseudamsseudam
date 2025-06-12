@@ -1,3 +1,4 @@
+import { notification } from 'antd';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import axios from 'axios';
 import {
@@ -31,16 +32,22 @@ function* loadGroups() {
 function* watchLoadGroups() { yield takeLatest(LOAD_GROUPS_REQUEST, loadGroups); }
 
 // 2. 그룹 생성
-function createGroupAPI(data) {
-  return axios.post('/groups', data, {
-    withCredentials: true,
-  });
-}
+function createGroupAPI(data) {  return axios.post('/groups', data, {    withCredentials: true,  });   }
 function* createGroup(action) {
   try {
     const result = yield call(createGroupAPI, action.data);
-    yield put({ type: CREATE_GROUP_SUCCESS, data: result?.data, });
-  } catch (err) { yield put({ type: CREATE_GROUP_FAILURE, error: err.response.data }); }
+    
+    // 그룹 생성 성공 후 알림
+    notification.success({ message: '그룹 생성 완료',description: '그룹이 성공적으로 생성되었습니다.', });
+
+    // CREATE_GROUP_SUCCESS 액션 디스패치 후 리디렉션
+    yield put({ type: CREATE_GROUP_SUCCESS, data: result?.data });
+
+    window.location.href = '/groups';  // 강제로 리디렉션
+  } catch (err) {
+    yield put({ type: CREATE_GROUP_FAILURE, error: err.response.data });
+    notification.error({message: '그룹 생성 실패', description: '그룹 생성 중 오류가 발생했습니다.', });
+  }
 }
 function* watchCreateGroup() { yield takeLatest(CREATE_GROUP_REQUEST, createGroup); }
 
