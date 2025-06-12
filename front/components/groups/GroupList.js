@@ -14,6 +14,7 @@ export default function GroupList({ g }) {
   const router = useRouter(); const dispatch = useDispatch();
   const { members, loadMembersLoading, loadMembersError } = useSelector((state) => state.group)
   const [isMember, setIsMember] = useState(false);
+  const [groupLeader, setGroupLeader] = useState(false);
   const { user } = useSelector(state => state.user); //console.log("로그인한유저정보", user.id);  // 1
   const [group, setGroup] = useState(g);
   const [open, setOpen] = useState(false);
@@ -34,6 +35,13 @@ export default function GroupList({ g }) {
       const memberFound = group.groupmembers.some((groupMember) => groupMember.id === user.id);
       setIsMember(memberFound);
       //console.log("----------------멤버상태 변경됐냐",memberFound);
+
+    }
+    /// 알림 그룹 리더 찾기
+    if (group.groupmembers && group.groupmembers.length > 0) {
+      const groupLeader = members.find((members) => members.isLeader === true); // GroupMember의 isLeader 확인
+      setGroupLeader(groupLeader);
+      console.log('🤭🤭 groupLeader:', groupLeader);
     }
   }, [members, user, group.groupmembers]);
 
@@ -74,29 +82,25 @@ export default function GroupList({ g }) {
     e.stopPropagation();
     if (isMember) { alert('이미 가입된 그룹입니다. 그룹으로 이동합니다.'); return router.push(`/gorups/${group.id}`) };
 
-    /// 알림 그룹 리더 찾기
-    if (group.groupmembers && group.groupmembers.length > 0) {
-      const groupLeader = members.find((members) => members.isLeader === true); // GroupMember의 isLeader 확인
-      console.log('🤭🤭 groupLeader:', groupLeader);
-    }
+
 
 
     try {
       if (group.OpenScopeId === 1) {
         dispatch({
           type: JOIN_GROUP_REQUEST, data: { groupId: group.id },
-          notyData: {
+          notiData: {
             targetId: group.id,
-            SenderId: user.User?.id,
+            SenderId: user?.id,
             ReceiverId: groupLeader.id,
           }
         });
       } else {
         dispatch({
           type: APPLY_GROUP_REQUEST, data: { groupId: group.id },
-          notyData: {
+          notiData: {
             targetId: group.id,
-            SenderId: user.User?.id,
+            SenderId: user?.id,
             ReceiverId: groupLeader.id,
           }
         });
