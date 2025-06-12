@@ -4,10 +4,10 @@ const router = express.Router();
 const { Post, User, Group, Notification, Animal, Comment, Prize, NotificationSetting, MyPrize } = require('../models');
 const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
 const { Op } = require('sequelize');
-
+const { isLoggedIn } = require('./middlewares');
 
 // 알림 저장
-router.post('/', async (req, res, next) => {
+router.post('/', isLoggedIn, async (req, res, next) => {
     try {
         console.log('📦 req.body:', req.body);
 
@@ -59,9 +59,14 @@ router.post('/', async (req, res, next) => {
 
 
 // 알림 보기
-router.get('/', async (req, res, next) => {
+router.get('/', isLoggedIn, async (req, res, next) => {
     try {
-        const userId = parseInt(req.query.userId, 10);
+        const userId = req.user.id;
+
+        if (!userId) {
+            return res.status(400).json({ message: '잘못된 사용자 정보입니다.' });
+        }
+
         // 1. 비활성화된 알림 타입 가져오기
         const disabledSettings = await NotificationSetting.findAll({
             where: {
@@ -76,7 +81,7 @@ router.get('/', async (req, res, next) => {
         // 2. 알림 가져오기 (꺼진 알림 타입 제외)
         const notifications = await Notification.findAll({
             where: {
-                ReceiverId: parseInt(req.query.userId, 10),
+                ReceiverId: userId,
                 ...(disabledTypes.length > 0 && {
                     type: { [Op.notIn]: disabledTypes },
                 }),
@@ -98,7 +103,7 @@ router.get('/', async (req, res, next) => {
                         target = await Comment.findByPk(noti.targetId, {
                             include: [
                                 { model: User, attributes: ['id', 'nickname'] },
-                                { model: Post, attributes: ['id',] }
+                                { model: Post, attributes: ['id'] },
                             ],
                         });
                         break;
@@ -108,17 +113,18 @@ router.get('/', async (req, res, next) => {
                         target = await Post.findByPk(noti.targetId, {
                             include: [
                                 { model: User, attributes: ['id', 'nickname'] },
-                                { model: Post, as: 'Retweet', include: [{ model: User, attributes: ['id', 'nickname'] }] },
+                                {
+                                    model: Post,
+                                    as: 'Retweet',
+                                    include: [{ model: User, attributes: ['id', 'nickname'] }],
+                                },
                             ],
-
                         });
                         break;
 
                     case NOTIFICATION_TYPE.FOLLOW:
                         target = await User.findByPk(noti.targetId, {
-                            include: [
-                                { model: User, attributes: ['id', 'nickname'] }
-                            ]
+                            attributes: ['id', 'nickname'],
                         });
                         break;
 
@@ -133,30 +139,27 @@ router.get('/', async (req, res, next) => {
                             include: [{ model: User, attributes: ['id', 'nickname'] }],
                         });
                         break;
+
                     case NOTIFICATION_TYPE.ANIMAL_FRIENDS:
                         target = await Animal.findByPk(noti.targetId, {
                             include: [{ model: Animal, as: 'Followers', attributes: ['id', 'aniName'] }],
                         })
                         break;
+
                     case NOTIFICATION_TYPE.RANDOMBOX:
                         target = await MyPrize.findByPk(Number(noti.targetId), {
-                            include: [{
-                                model: Prize,
-                                as: 'prize',
-                                attributes: ['id', 'content']
-                            }, {
-                                model: User,
-                                as: 'user',
-                                attributes: ['id', 'nickname']
-                            }]
+                            include: [
+                                { model: Prize, as: 'prize', attributes: ['id', 'content'] },
+                                { model: User, as: 'user', attributes: ['id', 'nickname'] },
+                            ],
                         });
                         break;
                 }
+
                 if (!target) {
                     console.warn(`⚠️ target을 찾을 수 없습니다. notiId=${noti.id}, targetId=${noti.targetId}`);
                 }
 
-                console.log('🐾🐾 target', target);
                 return {
                     ...noti.toJSON(),
                     targetObject: target,
@@ -173,19 +176,25 @@ router.get('/', async (req, res, next) => {
 
 // 알림 읽음 처리
 // 전체 알림 읽음 처리
-router.patch('/readAll', async (req, res, next) => {
+router.patch('/readAll', isLoggedIn, async (req, res, next) => {
     try {
+        const userId = req.user.id;
+
+        if (!userId) {
+            return res.status(400).json({ message: '잘못된 사용자 정보입니다.' });
+        }
+
         await Notification.update(
             { isRead: true },
-            { where: { ReceiverId: req.body.userId } }
+            { where: { ReceiverId: userId } }
         );
+
         res.status(200).json({ message: '모든 알림 읽음 처리 완료' });
     } catch (err) {
         console.error('🚨 전체 읽음 처리 에러:', err);
         res.status(500).send('전체 읽음 처리 실패');
     }
 });
-
 // 알림 삭제
 // 알림 삭제
 router.delete('/:id', async (req, res, next) => {
@@ -201,7 +210,7 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 // 알림 설정 불러오기 (기본값 true 보완 포함)
-router.get('/notificationSetting/:userId', async (req, res, next) => {
+router.get('/notificationSetting/:userId', isLoggedIn, async (req, res, next) => {
     try {
         const userId = parseInt(req.params.userId, 10);
 
@@ -230,9 +239,9 @@ router.get('/notificationSetting/:userId', async (req, res, next) => {
 });
 
 // 알림 설정 갱신하기
-router.patch('/notificationSetting/:userId', async (req, res, next) => {
+router.patch('/notificationSetting/:userId', isLoggedIn, async (req, res, next) => {
     try {
-        const userId = parseInt(req.params.userId, 10);
+        const userId = req.user.id;
         const { type, enabled } = req.body;
 
         // 기존 설정 있는지 확인

@@ -39,6 +39,7 @@ export const initialState = {
     removeNotificationError: null,
 
     mainNotification: [],
+    hasNewNotification: false,
 };
 
 //////////////////////////////////////////
@@ -57,6 +58,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             draft.loadNotificationDone = true;
             draft.loadNotificationError = null;
             draft.mainNotification = action.data;
+            draft.hasNewNotification = action.data.some(noti => !noti.isRead);
             break;
 
         case LOAD_NOTIFICATION_FAILURE:

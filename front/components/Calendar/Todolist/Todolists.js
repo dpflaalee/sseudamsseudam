@@ -34,7 +34,6 @@ const gridbar = {
 };
 
 const dateView = {
-  //marginLeft: '0px', //일자가 이상하게 나옴
   color: '#807E7E',
 };
 
@@ -47,10 +46,10 @@ const CardTitle = styled.span`
 `;
 
 const EventLabel = styled.span`
-  color: #FC5185; // 마젠타 색상
+  color: #FC5185;
   font-weight: bold;
   margin-right: 5px;
-  display: inline; /* 인라인 요소로 처리 */
+  display: inline;
 `;
 
 const Todolists = () => {
@@ -63,10 +62,10 @@ const Todolists = () => {
         const res = await axios.get('http://localhost:3065/calendar');
         const currentMonth = dayjs().month() + 1;
 
-        // 월이 일치하는 일정만 추출
+        // 현재 월에 해당하는 일정만 표시
         const filtered = res.data
           .filter(event => dayjs(event.startDate).month() + 1 === currentMonth)
-          .sort((a, b) => new Date(a.endDate) - new Date(b.endDate)) // 종료일 기준 정렬
+          .sort((a, b) => new Date(a.endDate) - new Date(b.endDate)) // 종료일 빠른 순서 정렬
           .slice(0, 5); // 최대 5개
 
         setEvents(filtered);

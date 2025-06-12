@@ -9,6 +9,10 @@ import { useSelector } from "react-redux";
 import ComplainCard from "@/components/complains/ComplainCard";
 import PostCard from "@/components/post/PostCard";
 import CategoryManage from "@/components/category/CategoryManage"
+import EventScheduleManage from '@/components/Calendar/EventSchedule/EventScheduleManage';
+import EventScheduleForm from '@/components/Calendar/EventSchedule/EventScheduleForm';
+import EventScheduleList from '@/components/Calendar/EventSchedule/EventScheduleList';
+import ChallengeList from '@/components/Calendar/Todolist/ChallengeList';
 
 const { Title, Text } = Typography;
 
@@ -31,7 +35,7 @@ const manage = () => {
                     </Col>
                     <Col>
                         <Title level={4} style={{ margin: 0 }}>관리자</Title>
-                        <Text>30일팔로잉 | 22팔로워 | 123개게시물</Text>
+                        <Text></Text>
                         <div style={{ marginTop: 8 }}>
                             <Button
                                 size="small"
@@ -57,6 +61,8 @@ const manage = () => {
             {/* 조건부로 보여줄 컴포넌트들 */}
             {activeSection === 'prize' && <PrizeManage />}
             {activeSection === 'category' && <CategoryManage />}
+            {activeSection === 'schedule' && <EventScheduleList />}
+            {activeSection === 'challenge' && <ChallengeList />}
             {/* 다른 섹션도 여기에 조건부로 추가 가능 */}
         </AppLayout>);
 }
