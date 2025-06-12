@@ -319,20 +319,20 @@ function* loadBlocks(action) {
 
 // 차단하기
 function addBlocksApi(data) {
-  return axios.post(`/user/${data}/block`, action.data);
+  return axios.patch(`/user/${data}/block`, data);
 }
 function* addBlocks(action) {
-  const result = yield call(addBlocksApi);
   console.log('🐬 addBlocks : ', action.data);
+  const result = yield call(addBlocksApi, action.data);
   try {
     yield delay(1000);
     yield put({
-      type: LOAD_BLOCK_SUCCESS,
+      type: ADD_BLOCK_SUCCESS,
       data: result.data
     })
   } catch (error) {
     yield put({
-      type: LOAD_BLOCK_FAILURE,
+      type: ADD_BLOCK_FAILURE,
       data: error.response.data
     })
   }
@@ -342,16 +342,16 @@ function removeBlocksApi(data) {
   return axios.delete(`/user/${data}/block`);
 }
 function* removeBlocks(action) {
-  const result = yield call(removeBlocksApi, action.data.BlockedId);
+  const result = yield call(removeBlocksApi, action.data);
   try {
     yield delay(1000);
     yield put({
-      type: LOAD_BLOCK_SUCCESS,
+      type: REMOVE_BLOCK_SUCCESS,
       data: result.data
     })
   } catch (error) {
     yield put({
-      type: LOAD_BLOCK_FAILURE,
+      type: REMOVE_BLOCK_FAILURE,
       data: error.response.data
     })
   }

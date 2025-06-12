@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const passport = require('passport');
 const nodemailer = require('nodemailer');
-const { User, Post } = require('../models');
+const { User, Post, Blacklist } = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 //const {smtpTransport} = require('../config/email');
 
@@ -416,14 +416,14 @@ router.post('/email/:userEmail', async (req, res, next) => {
 // 차단한 사람 불러오기
 router.get('/block', isLoggedIn, async (req, res, next) => {
   try {
-    const user = await User.findOne({ where: { id: req.user.id } });
-    if (!user) { res.status(403).send('유저를 확인해주세요'); }  //403 금지된.없는유저
-
-    const blockeds = await user.getBlocked();
-    res.status(200).json(blockeds);
-  } catch (error) {
-    console.error(error);
-    next(error);
+    const blocks = await Blacklist.findAll({
+      where: { blockingId: req.user.id },
+      include: [{ model: User, as: 'Blocked' }],
+    });
+    res.status(200).json(blocks.map(b => b.Blocked));
+  } catch (err) {
+    console.error(err);
+    next(err);
   }
 });
 
@@ -432,10 +432,10 @@ router.patch('/:userId/block', isLoggedIn, async (req, res, next) => {
   console.log('차단 당하는 유저 아이디=', req.params.userId);
   console.log('내 아이디=', req.user.id);
   try {
-    const user = await User.findOne({ where: { id: req.params.userId } });
-    if (!user) { res.status(403).send('유저를 확인해주세요'); }
+    const me = await User.findOne({ where: { id: req.user.id } });
+    await me.addBlocking(req.params.userId);
+    if (!me) { res.status(403).send('유저를 확인해주세요'); }
 
-    await user.addBlocked(req.user.id);
     res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
   } catch (error) {
     console.error(error);
@@ -445,17 +445,16 @@ router.patch('/:userId/block', isLoggedIn, async (req, res, next) => {
 
 // 차단 삭제
 router.delete('/:userId/block', isLoggedIn, async (req, res, next) => {
-  console.log('유저아이디=', req.params.userId);
-  console.log('내 아이디=', req.user.id);
-  console.log('팔로우 삭제');
   try {
-    const user = await User.findOne({ where: { id: req.params.userId } });
-    if (!user) { res.status(403).send('유저를 확인해주세요'); }  //403 금지된.없는유저
+    const me = await User.findOne({ where: { id: req.user.id } });
+    if (!me) {
+      return res.status(403).send('유저를 확인해주세요');
+    }
 
-    await user.removeBlocked(req.user.id);
+    await me.removeBlocking(req.params.userId);
     res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
   } catch (error) {
-    console.error(error);
+    console.error('🚨 차단 해제 중 에러:', error);
     next(error);
   }
 });
