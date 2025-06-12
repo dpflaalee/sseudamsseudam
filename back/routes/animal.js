@@ -235,7 +235,8 @@ router.get('/:animalId/followers', async (req, res, next) => {
     const animal = await Animal.findByPk(req.params.animalId);
     const followers = await animal.getFollowers({
       include: [
-        {model: Category, attributes: ['content','id'],}
+        {model: Category, attributes: ['content','id'],},
+        {model: Animal, as: 'Followings', attributes: ['id'],},
       ]
     });
     res.status(200).json(followers);
@@ -251,7 +252,8 @@ router.get('/:animalId/followings', async (req, res, next) => {
     const animal = await Animal.findByPk(req.params.animalId);
     const followings = await animal.getFollowings({
       include: [
-        {model: Category, attributes: ['content','id'],}
+        {model: Category, attributes: ['content','id'],},
+        {model: Animal, as: 'Followers', attributes: ['id'],},
       ]
     });
     res.status(200).json(followings);
