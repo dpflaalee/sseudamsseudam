@@ -17,14 +17,16 @@ const CusLink = styled(Link)`color: #aaa`;
 
 const LoginForm = () => {
   const dispatch = useDispatch();  //#4.   redux
-  const [cookies ,setCookie, removeCookie] = useCookies('[userEmail]');
+  const [cookies ,setCookie, removeCookie] = useCookies(['userEmail']);
   const { logInLoading, logInDone, logInError } = useSelector(state => state.user);
 
   ///////////////////////////////////////////// code
-  const [email, onChangeEmail] = userInput(cookies.userEmail || '');
-  const [password, onChangePassword] = userInput('');
+  const [email, onChangeEmail] = useState(cookies.userEmail||'');
+  const [password, setChangePassword] = useState('');
+  //const [email, onChangeEmail] = useState(cookies.userEmail || '');
+  //const [password, onChangePassword] = useState('');
 
-  const [userEmail, setUserEmail] = useState(!!cookies.userEmail);
+  const [checkEmail, setCheckEmail] = useState(!!cookies.userEmail);
 
   const [errLoginFlag, setErrLoginFlag] = useState(false);
   const [errLoginMsg, setErrLoginMsg] = useState('');
@@ -45,39 +47,50 @@ const LoginForm = () => {
         logInError;
       } 
   }, [logInError]);
+  useEffect(() => {
+    if (cookies.userEmail) {
+      console.log(cookies.userEmail);
+      onChangeEmail(cookies.userEmail);
+      setCheckEmail(true);
+    }
+  }, [cookies.userEmail,email,checkEmail]);
+  const onChangePassword = useCallback((e) => {  
+    setChangePassword(e.target.value);
+  },[password])
    // 이메일 기억하기 체크박스 핸들러
   const onSaveEmail = useCallback((e) => {
     const checked = e.target.checked;
-    setUserEmail(checked);
+    setCheckEmail(checked);
 
     if (checked) {
       setCookie('userEmail', email, {
         path: '/',
         maxAge: 60 * 5,
-        secure: process.env.NODE_ENV === 'production',
+        //secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
       });
     } else {
       removeCookie('userEmail', { path: '/' });
     }
-  }, [email]);
+  }, [email,checkEmail]);
    // 이메일 입력이 바뀔 때 쿠키도 갱신 (체크한 경우만)
   const onChangeEmailWithCookie = useCallback((e) => {
-    onChangeEmail(e);
-    if (userEmail) {
+    onChangeEmail(e.target.value);
+    console.log('email확인',e.target.value);
+    if (checkEmail) { 
       setCookie('userEmail', e.target.value, {
         path: '/',
         maxAge: 60 * 5,
-        secure: process.env.NODE_ENV === 'production',
+        //secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
       });
     }
-  }, [userEmail]);
+  }, [checkEmail,email]);
 
-  const onSubmitForm = useCallback(() => {
-    console.log('cookies.userEmail=',cookies.userEmail);
+  const onSubmitForm = useCallback((e) => {
     setErrLoginFlag(false);
     setErrLoginMsg('');
+    console.log('이메일/패스워드');
     console.log(email, password);
     //setIsLoggedIn(true);
     dispatch({
@@ -107,7 +120,8 @@ const LoginForm = () => {
           span: 16,
         }}
         initialValues={{
-          remember: true,
+          email: cookies.userEmail || '', // <-- 여기를 수정!
+          remember: !!cookies.userEmail, // <-- remember 체크박스도 쿠키 여부에 따라 초기화
         }}
         onFinish={onSubmitForm}
         // onFinishFailed={onFinishFailed}
@@ -134,7 +148,7 @@ const LoginForm = () => {
           ]}
         >
 
-          <Input placeholder="user@gmail.com 형식으로 입력"
+          <Input  placeholder="user@gmail.com 형식으로 입력"
             value={email} onChange={onChangeEmailWithCookie} required />
         </Form.Item>
 
@@ -163,7 +177,7 @@ const LoginForm = () => {
             span: 16,
           }}
         >
-          <Checkbox checked={userEmail} onChange={onSaveEmail}>이메일 기억하기</Checkbox>
+          <Checkbox checked={checkEmail} onChange={onSaveEmail}>이메일 기억하기</Checkbox>
         </Form.Item>
 
         <Form.Item
