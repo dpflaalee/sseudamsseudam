@@ -3,11 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 
 import AppLayout from "@/components/AppLayout";
 import GroupList from '@/components/groups/GroupList';
-import { LOAD_GROUPS_REQUEST } from "@/reducers/group";
 import { Spin } from "antd";
 import wrapper from "@/store/configureStore";
 import axios from "axios";
 import { LOAD_MY_INFO_REQUEST } from "@/reducers/user";
+import { LOAD_GROUPS_REQUEST, LOAD_MEMBERS_REQUEST } from "@/reducers/group";
 import { END } from "redux-saga";
 
 const GroupListPage = ()=>{
@@ -36,7 +36,8 @@ export const getServerSideProps = wrapper.getServerSideProps( async (context) =>
   }
   //2. redux 액션
   context.store.dispatch({type:LOAD_MY_INFO_REQUEST});
-  //context.store.dispatch({type:LOAD_POSTS_REQUEST});
+  context.store.dispatch({type: LOAD_GROUPS_REQUEST});
+  context.store.dispatch({type: LOAD_MEMBERS_REQUEST});
   context.store.dispatch(END);
 
   await context.store.sagaTask.toPromise();
