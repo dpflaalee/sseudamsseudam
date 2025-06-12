@@ -25,14 +25,13 @@ const ChallengeChange = ({ challenge, onSubmit }) => {
           setIsAdmin(true);
         } else {
           alert('권한이 없습니다.');
-          router.replace('/challenge');
         }
       } catch (error) {
         console.error('유저 정보 불러오기 실패:', error);
-        alert('권한이 없습니다.');
-        router.replace('/challenge');
+        message.error('정보 불러오기에 실패했습니다.');
       } finally {
         setIsChecking(false);
+        router.replace('/challenge');
       }
     };
     fetchUser();

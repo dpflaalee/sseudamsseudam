@@ -25,7 +25,7 @@ const ChallengeList = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(5); // 처음에 보여줄 챌린지 개수
+  const [visibleCount, setVisibleCount] = useState(5);
 
   useEffect(() => {
     const fetchUser = async () => {
