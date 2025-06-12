@@ -34,7 +34,6 @@ const Nav = () => {
     if (key === 'notification') router.push('/notification');
     if (key === 'search') router.push('/search');
     if (key === 'chat') router.push('/chat');
-    if (key === 'animal') router.push('/animal/ani-profile-form');
   };
 
   const profileMenu = (
@@ -96,7 +95,6 @@ const Nav = () => {
           </Menu.Item>
           <Menu.Item key="search" icon={<SearchOutlined />}>{!isMobile && "검색"}</Menu.Item>
           <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item>
-          <Menu.Item key="animal" icon={<MailOutlined />}>{!isMobile && "임시동물"}</Menu.Item>
         </Menu>
       </div>
     </div>
