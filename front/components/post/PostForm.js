@@ -63,10 +63,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
     selectedCategories.forEach((catId) => {
       formData.append('categoryIds', catId); // key 이름은 서버에서 받는 이름에 맞춰서
     });
-    // 🐛 콘솔 확인
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
 
     dispatch({
       type: ADD_POST_REQUEST,
@@ -97,7 +93,7 @@ const PostForm = ({ groupId, isGroup = false }) => {
     if (link) {
       window.open(link, '_blank');
     }
-  };  
+  };
 
   // 카테고리
   useEffect(() => {
@@ -120,7 +116,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
                   <Option value="public">전체 공개</Option>
                   <Option value="private">나만 보기</Option>
                   <Option value="follower">팔로워 공개</Option>
-                  <Option value="group">그룹 공개</Option>
                 </Select>
                 <Button onClick={() => setIsModalOpen(true)}>카테고리</Button>
               </Space>
