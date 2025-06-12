@@ -139,6 +139,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
   const [editRecommentContent, setEditRecommentContent] = useState('');
   const [editContent, setEditContent] = useState('');
   const { updateCommentLoading, updateCommentDone, removeCommentLoading, removeCommentDone } = useSelector((state) => state.post);
+  const { me } = useSelector((state) => state.user);
 
 
   const handleReport = (commentId) => {
@@ -274,10 +275,14 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
 
         const menu = (
           <Menu>
-            <Menu.Item onClick={() => onClickEdit(comment)} loading={updateCommentLoading}>
-              {editingCommentId === comment.id ? '수정 취소' : '수정'}
-            </Menu.Item>
-            <Menu.Item danger onClick={() => onRemoveComment(comment.id)}>삭제</Menu.Item>
+            {me?.id === comment.User?.id && (
+              <>
+                <Menu.Item onClick={() => onClickEdit(comment)} loading={updateCommentLoading}>
+                  {editingCommentId === comment.id ? '수정 취소' : '수정'}
+                </Menu.Item>
+                <Menu.Item danger onClick={() => onRemoveComment(comment.id)}>삭제</Menu.Item>
+              </>
+            )}
             <Menu.Item danger onClick={() => handleReport(comment.id)}>
               신고하기
             </Menu.Item>
@@ -353,10 +358,14 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                 // 대댓글 메뉴 정의
                 const recommentMenu = (
                   <Menu>
-                    <Menu.Item onClick={() => onClickEditRecomment(recomment)}>
-                      {editingRecommentId === recomment.id ? '수정 취소' : '수정'}
-                    </Menu.Item>
-                    <Menu.Item danger onClick={() => onRemoveComment(recomment.id)}>삭제</Menu.Item>
+                    {me?.id === recomment.User?.id && (
+                      <>
+                        <Menu.Item onClick={() => onClickEditRecomment(recomment)}>
+                          {editingRecommentId === recomment.id ? '수정 취소' : '수정'}
+                        </Menu.Item>
+                        <Menu.Item danger onClick={() => onRemoveComment(recomment.id)}>삭제</Menu.Item>
+                      </>
+                    )}
                     <Menu.Item danger onClick={() => handleReport(recomment.id)}>신고하기</Menu.Item>
                     <ComplainForm
                       open={openReport && targetId === recomment.id}

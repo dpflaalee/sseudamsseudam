@@ -68,8 +68,10 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const router = useRouter();
   const { Option } = Select;
   const [newContent, setNewContent] = useState(post.content);
+  const [newScope, setNewScope] = useState(post.scope || 'public');  
 
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const { updatePostDone } = useSelector((state) => state.post);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const { removePostDone } = useSelector((state) => state.post);
   const [localComments, setLocalComments] = useState(post.Comments || []);
@@ -79,6 +81,17 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const [liked, setLiked] = useState(post?.Likers?.some((v) => v.id === id));
   const [likeLoading, setLikeLoading] = useState(false);
 
+  useEffect(() => {
+    setNewContent(post.content);
+    setNewScope(post.scope || 'public');
+  }, [post]);
+
+  useEffect(() => {
+    if (updatePostDone) {
+      onRefreshPost();
+      setEditModalVisible(false);
+    }
+  }, [updatePostDone, onRefreshPost]);
 
   useEffect(() => {
     setLocalComments(post.Comments || []);
@@ -134,16 +147,22 @@ const DetailCard = ({ post, onRefreshPost }) => {
     setEditModalVisible(false);
   }, []);
   const handleEditSubmit = useCallback(() => {
-    if (newContent.trim() === post.content.trim()) {
+    if (newContent.trim() === post.content.trim() && newScope === (post.scope || 'public')) {
       return closeEditModal();
     }
     dispatch({
       type: UPDATE_POST_REQUEST,
-      data: { PostId: post.id, content: newContent }
+      data: { 
+        PostId: post.id, 
+        content: newContent,
+        openScope: newScope,
+      },
+    callback: () => {
+      // 수정 완료 후 후속 작업 (API 응답을 받은 후 상태 갱신)
+      onRefreshPost();  // 새로운 데이터 반영
+    },  
     });
-    setEditModalVisible(false);
-    router.push('/main');
-  }, [newContent, post, dispatch, router, closeEditModal]);
+  }, [newContent, newScope, post, dispatch]);
 
   //삭제
   const openDeleteModal = () => {
@@ -169,7 +188,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
       type: UPDATE_POST_REQUEST,
       data: { PostId: post.id, content: editText }
     });
-  }, [post]);
+  }, [post.id, dispatch]);
   const onRetweet = useCallback(() => {
     if (!id) { return alert('로그인 후 리트윗이 가능합니다.'); }
     return dispatch({
@@ -242,16 +261,16 @@ const DetailCard = ({ post, onRefreshPost }) => {
             </span>,
             <Popover content={(
               <Button.Group>
-                <>
-                  <Button onClick={openEditModal}>수정</Button>
-                  <Button type="danger" onClick={openDeleteModal}>삭제</Button>
-                </>
-                <>
-                  <Button onClick={() => setOpen(true)}>신고하기</Button>
-                </>
+                {id === post.User.id && (
+                  <>
+                    <Button onClick={openEditModal}>수정</Button>
+                    <Button type="danger" onClick={openDeleteModal}>삭제</Button>
+                  </>
+                )}
+                <Button onClick={() => setOpen(true)}>신고하기</Button>
               </Button.Group>
             )}>
-              < EllipsisOutlined />
+              <EllipsisOutlined />
             </Popover>
           ]}
         >
@@ -296,16 +315,16 @@ const DetailCard = ({ post, onRefreshPost }) => {
                 </span>,
                 <Popover content={(
                   <Button.Group>
-                    <>
-                      <Button onClick={openEditModal}>수정</Button>
-                      <Button type="danger" onClick={openDeleteModal}>삭제</Button>
-                    </>
-                    <>
-                      <Button onClick={() => setOpen(true)}>신고하기</Button>
-                    </>
+                    {id === post.User.id && (
+                      <>
+                        <Button onClick={openEditModal}>수정</Button>
+                        <Button type="danger" onClick={openDeleteModal}>삭제</Button>
+                      </>
+                    )}
+                    <Button onClick={() => setOpen(true)}>신고하기</Button>
                   </Button.Group>
                 )}>
-                  < EllipsisOutlined />
+                  <EllipsisOutlined />
                 </Popover>
               ]}
             // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}  
@@ -339,10 +358,14 @@ const DetailCard = ({ post, onRefreshPost }) => {
         <div style={{ display: 'flex', marginBottom: 16 }}>
           <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px' }}>게시물 수정</span>
           <Space>
-            <Select defaultValue="public" style={{ width: 120 }}>
-              <Option value="public">전체공개</Option>
-              <Option value="friends">친구공개</Option>
-              <Option value="private">비공개</Option>
+            <Select 
+              value={newScope} 
+              style={{ width: 120 }}
+              onChange={(value) => setNewScope(value)}
+            >
+              <Option value="public">전체 공개</Option>
+              <Option value="private">나만 보기</Option>
+              <Option value="follower">팔로워 공개</Option>
             </Select>
           </Space>
         </div>
