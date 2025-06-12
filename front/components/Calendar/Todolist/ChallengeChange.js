@@ -17,26 +17,30 @@ const ChallengeChange = ({ challenge, onSubmit }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
-      if (res.data && Number(res.data.isAdmin) === 1) {
-        setIsAdmin(true);
-      } else {
-        if (isChecking) {
-          alert('권한이 없습니다.');
-          router.replace('/challenge');
-        }
-      }
-    } catch (error) {
-      console.error('유저 정보 불러오기 실패:', error);
-      message.error('정보 불러오기에 실패했습니다.');
-      router.replace('/challenge');
-    } finally {
-      setIsChecking(false);
-    }
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf('day');
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
+        if (res.data && Number(res.data.isAdmin) === 1) {
+          setIsAdmin(true);
+        } else {
+          if (isChecking) {
+            alert('권한이 없습니다.');
+            router.replace('/challenge');
+          }
+        }
+      } catch (error) {
+        console.error('유저 정보 불러오기 실패:', error);
+        message.error('정보 불러오기에 실패했습니다.');
+        router.replace('/challenge');
+      } finally {
+        setIsChecking(false);
+      }
+    };
   if (isChecking) { fetchUser(); }}, [isChecking, router]);
 
   useEffect(() => {
@@ -99,7 +103,7 @@ useEffect(() => {
             <Input.TextArea placeholder="챌린지 설명" />
           </Form.Item>
           <Form.Item name="range" rules={[{ required: true, message: '시작일과 종료일을 선택하세요.' }]}>
-            <RangePicker showTime style={{ width: '100%' }} />
+            <RangePicker showTime disabledDate={disabledDate} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
