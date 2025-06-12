@@ -6,6 +6,7 @@ import produce from 'immer';
 export const initialState = {
   followerList: [],
   hasMoreList: true,
+  userImagePaths: [],
 
   logInLoading: false, // 로그인 시도중
   logInDone: false,
@@ -22,7 +23,10 @@ export const initialState = {
   userOutLoading: false,//회원 탈퇴 시도중
   userOutDone: false,
   userOutError: null,
-
+  
+  userProfileLoading: false, //회원 프로필 수정 시도중
+  userProfileDone: false,
+  userProfileError: null,
 
   followLoading: false, // 팔로우 시도중
   followDone: false,
@@ -30,7 +34,7 @@ export const initialState = {
   unfollowLoading: false, // 언팔로우 시도중
   unfollowDone: false,
   unfollowError: null,
- 
+
   loadFollowingsLoading: false,
   loadFollowingsDone: false,
   loadFollowingsError: null,
@@ -51,7 +55,21 @@ export const initialState = {
   user: null,
   userInfo: null,
   signUpData: {},
-  loginData: {}
+  loginData: {},
+
+  //// 차단
+  blockList: [],
+  loadBlockLoading: false,
+  loadBlockDone: false,
+  loadBlockError: null,
+
+  addBlockLoading: false,
+  addBlockDone: false,
+  addBlockError: null,
+
+  removeBlockLoading: false,
+  removeBlockDone: false,
+  removeBlockError: null
 };
 /*
 const dummyUser = (data) => ({
@@ -104,6 +122,10 @@ export const USER_DELETE_REQUEST = 'USER_DELETE_REQUEST';
 export const USER_DELETE_SUCCESS = 'USER_DELETE_SUCCESS';
 export const USER_DELETE_FAILURE = 'USER_DELETE_FAILURE';
 
+export const USER_PROFILE_UPDATE_REQUEST = 'USER_PROFILE_UPDATE_REQUEST';
+export const USER_PROFILE_UPDATE_SUCCESS = 'USER_PROFILE_UPDATE_SUCCESS';
+export const USER_PROFILE_UPDATE_FAILURE = 'USER_PROFILE_UPDATE_FAILURE';
+
 export const FOLLOW_REQUEST = 'FOLLOW_REQUEST';
 export const FOLLOW_SUCCESS = 'FOLLOW_SUCCESS';
 export const FOLLOW_FAILURE = 'FOLLOW_FAILURE';
@@ -137,17 +159,29 @@ export const LOAD_USER_FAILURE = 'LOAD_USER_FAILURE';
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
 export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
 
+export const LOAD_BLOCK_REQUEST = 'LOAD_BLOCK_REQUEST';
+export const LOAD_BLOCK_SUCCESS = 'LOAD_BLOCK_SUCCESS';
+export const LOAD_BLOCK_FAILURE = 'LOAD_BLOCK_FAILURE';
 
+export const ADD_BLOCK_REQUEST = 'ADD_BLOCK_REQUEST';
+export const ADD_BLOCK_SUCCESS = 'ADD_BLOCK_SUCCESS';
+export const ADD_BLOCK_FAILURE = 'ADD_BLOCK_FAILURE';
+
+export const REMOVE_BLOCK_REQUEST = 'REMOVE_BLOCK_REQUEST';
+export const REMOVE_BLOCK_SUCCESS = 'REMOVE_BLOCK_SUCCESS';
+export const REMOVE_BLOCK_FAILURE = 'REMOVE_BLOCK_FAILURE';
 
 ////////////////////////////////////////////////////// next
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
     case LOG_IN_REQUEST:
+      console.log('내 정보 요청:', action.data);  // 이 부분에서 요청하는 데이터 확인
       draft.logInLoading = true;
       draft.logInError = null;
       draft.logInDone = false;
       break;
     case LOG_IN_SUCCESS:
+      console.log('로그인 성공 데이터:', action.data); // 추가된 로그로 data 확인
       draft.logInLoading = false;
       draft.user = action.data;   ////dummyUser(action.data);
       draft.logInDone = true;
@@ -183,6 +217,33 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.signUpLoading = false;
       draft.signUpError = action.error;
       break;
+    case USER_DELETE_REQUEST:
+      draft.userOutLoading = true;
+      draft.userOutError = null;
+      draft.userOutDone = false;
+      break;
+    case USER_DELETE_SUCCESS:
+      draft.userOutLoading = false;
+      draft.userOutDone = true;
+      break;
+    case USER_DELETE_FAILURE:
+      draft.userOutLoading = false;
+      draft.userOutError = action.error;
+      break;
+    case USER_PROFILE_UPDATE_REQUEST:
+      draft.userProfileLoading= true; //회원 프로필 수정 시도중
+      draft.userProfileDone= false;
+      draft.userProfileError= null;
+      break;
+    case USER_PROFILE_UPDATE_SUCCESS:
+      draft.userImagePaths = draft.userImagePaths.concat(action.data);
+      draft.userProfileLoading= false;
+      draft.userProfileDone= false;
+      break;
+    case USER_PROFILE_UPDATE_FAILURE:
+      draft.userProfileLoading= false;
+      draft.userProfileError= action.error;
+      break;
     case CHANGE_NICKNAME_REQUEST:
       draft.changeNicknameLoading = true;
       draft.changeNicknameError = null;
@@ -198,8 +259,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.changeNicknameError = action.error;
       break;
 
-     //////////////////////////////
-     case FOLLOW_REQUEST:
+    //////////////////////////////
+    case FOLLOW_REQUEST:
       draft.followLoading = true;
       draft.followError = null;
       draft.followDone = false;
@@ -228,7 +289,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.unfollowLoading = false;
       draft.unfollowError = action.error;
       break;
-     //////////////////////////////
+    //////////////////////////////
     case REMOVE_FOLLOWER_REQUEST:
       draft.removeFollowerLoading = true;
       draft.removeFollowerError = null;
@@ -274,14 +335,15 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loadFollowersLoading = false;
       draft.loadFollowersError = action.error;
       break;
-    
-     //////////////////////////////
+
+    //////////////////////////////
     case LOAD_MY_INFO_REQUEST:
       draft.loadMyInfoLoading = true;
       draft.loadMyInfoError = null;
       draft.loadMyInfoDone = false;
       break;
     case LOAD_MY_INFO_SUCCESS:
+      console.log('내 정보 로드 성공:', action.data); // 추가된 로그로 data 확인
       draft.loadMyInfoLoading = false;
       draft.user = action.data;
       draft.loadMyInfoDone = true;
@@ -304,14 +366,68 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loadUserLoading = false;
       draft.loadUserError = action.error;
       break;
- 
-     //////////////////////////////
+
+    //////////////////////////////
     case ADD_POST_TO_ME:
       draft.user.Posts.unshift({ id: action.data });
       break;
     case REMOVE_POST_OF_ME:
       draft.user.Posts = draft.user.Posts.filter((v) => v.id !== action.data);
       break;
+
+    /////////////////////////// 차단
+    case LOAD_BLOCK_REQUEST:
+      draft.loadBlockLoading = true;
+      draft.loadBlockDone = false;
+      draft.loadBlockError = null;
+      break;
+    case LOAD_BLOCK_SUCCESS:
+      draft.loadBlockLoading = false;
+      draft.loadBlockDone = true;
+      draft.loadBlockError = null;
+      draft.blockList = action.data;
+      break;
+    case LOAD_BLOCK_FAILURE:
+      draft.loadBlockLoading = false;
+      draft.loadBlockDone = false;
+      draft.loadBlockError = action.error;
+      break;
+    /////////////////////
+    case ADD_BLOCK_REQUEST:
+      console.log('💥', action.data);
+      draft.addBlockLoading = true;
+      draft.addBlockDone = false;
+      draft.addBlockError = null;
+      break;
+    case ADD_BLOCK_SUCCESS:
+      draft.addBlockLoading = false;
+      draft.addBlockDone = true;
+      draft.addBlockError = null;
+      draft.blockList.push(action.data);
+      break;
+    case ADD_BLOCK_FAILURE:
+      draft.addBlockLoading = false;
+      draft.addBlockDone = false;
+      draft.addBlockError = action.error;
+      break;
+
+    case REMOVE_BLOCK_REQUEST:
+      draft.removeBlockLoading = true;
+      draft.removeBlockDone = false;
+      draft.addBlockError = null;
+      break;
+    case REMOVE_BLOCK_SUCCESS:
+      draft.removeBlockLoading = false;
+      draft.removeBlockDone = true;
+      draft.addBlockError = null;
+      draft.blockList = draft.blockList.filter((v) => v.id !== action.data);
+      break;
+    case REMOVE_BLOCK_FAILURE:
+      draft.removeBlockLoading = false;
+      draft.removeBlockDone = false;
+      draft.addBlockError = action.error;
+      break
+    ///////////////////////////
     default:
       break;
   }

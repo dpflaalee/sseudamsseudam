@@ -11,7 +11,6 @@ const Ssdam = ({ Component }) => {
   //const { pageProps } = props;
   return (
     //<Provider store={store}>
-    //<>
     <CookiesProvider>
       <Head>
         <meta charSet="utf-8" />
@@ -19,7 +18,6 @@ const Ssdam = ({ Component }) => {
       </Head>
       <Component />
     </CookiesProvider>
-    //</>
     //</Provider>
   );
 };

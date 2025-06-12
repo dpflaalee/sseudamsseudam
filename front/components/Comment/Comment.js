@@ -11,6 +11,7 @@ import { REMOVE_COMMENT_REQUEST, UPDATE_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST }
 import ReCommentForm from './ReCommentForm';
 import ReComment from './ReComment';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
+import { LOAD_USER_REQUEST } from '@/reducers/user';
 
 const Wrapper = styled.div`
   margin-top: 24px;
@@ -139,7 +140,8 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
   const [editRecommentContent, setEditRecommentContent] = useState('');
   const [editContent, setEditContent] = useState('');
   const { updateCommentLoading, updateCommentDone, removeCommentLoading, removeCommentDone } = useSelector((state) => state.post);
-
+  const user = useSelector((state) => state.user.user);
+  const userId = user?.id;
 
   const handleReport = (commentId) => {
     setTargetId(commentId);
@@ -151,6 +153,14 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
   const onClickReply = useCallback((commentId) => {
     setReplyTargetId((prev) => (prev === commentId ? null : commentId));
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      dispatch({
+        type: LOAD_USER_REQUEST,
+      });
+    }
+  }, [dispatch, user]);
 
   //댓글 수정
   const onClickEdit = useCallback((comment) => {
@@ -266,6 +276,8 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
         const createdAt = comment.createdAt
           ? new Date(comment.createdAt).toLocaleString()
           : '';
+  
+        const isAuthor = user?.id && Number(user.id) === Number(comment.User?.id);  
 
         const isBlindedUser = mainComplainCard.some((report) => {
           console.log(report);
@@ -274,10 +286,14 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
 
         const menu = (
           <Menu>
-            <Menu.Item onClick={() => onClickEdit(comment)} loading={updateCommentLoading}>
-              {editingCommentId === comment.id ? '수정 취소' : '수정'}
-            </Menu.Item>
-            <Menu.Item danger onClick={() => onRemoveComment(comment.id)}>삭제</Menu.Item>
+            {isAuthor && (
+              <>
+                <Menu.Item onClick={() => onClickEdit(comment)} loading={updateCommentLoading}>
+                  {editingCommentId === comment.id ? '수정 취소' : '수정'}
+                </Menu.Item>
+                <Menu.Item danger onClick={() => onRemoveComment(comment.id)}>삭제</Menu.Item>
+              </>
+            )}
             <Menu.Item danger onClick={() => handleReport(comment.id)}>
               신고하기
             </Menu.Item>
@@ -353,10 +369,14 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                 // 대댓글 메뉴 정의
                 const recommentMenu = (
                   <Menu>
-                    <Menu.Item onClick={() => onClickEditRecomment(recomment)}>
-                      {editingRecommentId === recomment.id ? '수정 취소' : '수정'}
-                    </Menu.Item>
-                    <Menu.Item danger onClick={() => onRemoveComment(recomment.id)}>삭제</Menu.Item>
+                    {isAuthor && (
+                      <>
+                        <Menu.Item onClick={() => onClickEditRecomment(recomment)}>
+                          {editingRecommentId === recomment.id ? '수정 취소' : '수정'}
+                        </Menu.Item>
+                        <Menu.Item danger onClick={() => onRemoveComment(recomment.id)}>삭제</Menu.Item>
+                      </>
+                    )}
                     <Menu.Item danger onClick={() => handleReport(recomment.id)}>신고하기</Menu.Item>
                     <ComplainForm
                       open={openReport && targetId === recomment.id}

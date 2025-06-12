@@ -2,7 +2,7 @@ import produce from 'immer';
 
 export const initialState = {
   prizes: [],
-  categoryBoxes: [],
+  randomBoxes: [],  // 랜덤박스 리스트 분리 (추가)
 
   addPrizeLoading: false,
   addPrizeDone: false,
@@ -28,9 +28,11 @@ export const initialState = {
   loadRandomBoxListDone: false,
   loadRandomBoxListError: null,
 
-  loadCategoryRandomBoxesLoading: false,
-  loadCategoryRandomBoxesDone: false,
-  loadCategoryRandomBoxesError: null,
+  issuedRandomBoxes: [],
+  loadIssuedRandomBoxesLoading: false,
+  loadIssuedRandomBoxesDone: false,
+  loadIssuedRandomBoxesError: null,
+
 };
 
 export const ADD_PRIZE_REQUEST = 'ADD_PRIZE_REQUEST';
@@ -57,9 +59,9 @@ export const LOAD_RANDOM_BOX_LIST_REQUEST = 'LOAD_RANDOM_BOX_LIST_REQUEST';
 export const LOAD_RANDOM_BOX_LIST_SUCCESS = 'LOAD_RANDOM_BOX_LIST_SUCCESS';
 export const LOAD_RANDOM_BOX_LIST_FAILURE = 'LOAD_RANDOM_BOX_LIST_FAILURE';
 
-export const LOAD_CATEGORY_RANDOM_BOXES_REQUEST = 'LOAD_CATEGORY_RANDOM_BOXES_REQUEST';
-export const LOAD_CATEGORY_RANDOM_BOXES_SUCCESS = 'LOAD_CATEGORY_RANDOM_BOXES_SUCCESS';
-export const LOAD_CATEGORY_RANDOM_BOXES_FAILURE = 'LOAD_CATEGORY_RANDOM_BOXES_FAILURE';
+export const LOAD_ISSUED_RANDOM_BOXES_REQUEST = 'LOAD_ISSUED_RANDOM_BOXES_REQUEST';
+export const LOAD_ISSUED_RANDOM_BOXES_SUCCESS = 'LOAD_ISSUED_RANDOM_BOXES_SUCCESS';
+export const LOAD_ISSUED_RANDOM_BOXES_FAILURE = 'LOAD_ISSUED_RANDOM_BOXES_FAILURE';
 
 
 const reducer = (state = initialState, action) => produce(state, (draft) => {
@@ -134,7 +136,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case OPEN_RANDOM_BOX_SUCCESS:
       draft.openRandomBoxLoading = false;
       draft.openRandomBoxDone = true;
-      // 성공 시 특별히 prizes 배열을 수정할 필요는 없을 수도 있음
+      draft.issuedRandomBoxes = draft.issuedRandomBoxes.filter(box => box.issuedId !== action.data.issuedId);
+      draft.latestCoupon = action.data.coupon || null;
       break;
     case OPEN_RANDOM_BOX_FAILURE:
       draft.openRandomBoxLoading = false;
@@ -149,27 +152,27 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case LOAD_RANDOM_BOX_LIST_SUCCESS:
       draft.loadRandomBoxListLoading = false;
       draft.loadRandomBoxListDone = true;
-      draft.prizes = action.data; // 랜덤박스 리스트를 prizes 배열에 저장 (필요에 따라 분리 가능)
+      draft.randomBoxes = action.data; // prizes 대신 randomBoxes에 저장
       break;
     case LOAD_RANDOM_BOX_LIST_FAILURE:
       draft.loadRandomBoxListLoading = false;
       draft.loadRandomBoxListError = action.error;
       break;
 
-    case LOAD_CATEGORY_RANDOM_BOXES_REQUEST:
-      draft.loadCategoryRandomBoxesLoading = true;
-      draft.loadCategoryRandomBoxesDone = false;
-      draft.loadCategoryRandomBoxesError = null;
+    case LOAD_ISSUED_RANDOM_BOXES_REQUEST:
+      draft.loadIssuedRandomBoxesLoading = true;
+      draft.loadIssuedRandomBoxesDone = false;
+      draft.loadIssuedRandomBoxesError = null;
       break;
-    case LOAD_CATEGORY_RANDOM_BOXES_SUCCESS:
-      draft.loadCategoryRandomBoxesLoading = false;
-      draft.loadCategoryRandomBoxesDone = true;
-      draft.categoryBoxes = action.data; // 카테고리별 박스 목록 저장
+    case LOAD_ISSUED_RANDOM_BOXES_SUCCESS:
+      draft.loadIssuedRandomBoxesLoading = false;
+      draft.loadIssuedRandomBoxesDone = true;
+      draft.issuedRandomBoxes = action.data;
       break;
-    case LOAD_CATEGORY_RANDOM_BOXES_FAILURE:
-      draft.loadCategoryRandomBoxesLoading = false;
-      draft.loadCategoryRandomBoxesError = action.error;
-      break;
+    case LOAD_ISSUED_RANDOM_BOXES_FAILURE:
+      draft.loadIssuedRandomBoxesLoading = false;
+      draft.loadIssuedRandomBoxesError = action.error;
+      break;  
   
 
     default:
@@ -200,16 +203,16 @@ export const removePrize = (id) => ({
   data: id,
 });
 
-export const openRandomBox = (category) => ({
+export const openRandomBox = (issuedId) => ({
   type: OPEN_RANDOM_BOX_REQUEST,
-  data: category,
+  data: issuedId,
 });
 
 export const loadRandomBoxList = () => ({
   type: LOAD_RANDOM_BOX_LIST_REQUEST,
 });
 
-export const loadCategoryRandomBoxes = () => ({
-  type: LOAD_CATEGORY_RANDOM_BOXES_REQUEST,
+export const loadIssuedRandomBoxes = () => ({
+  type: LOAD_ISSUED_RANDOM_BOXES_REQUEST,
 });
 
