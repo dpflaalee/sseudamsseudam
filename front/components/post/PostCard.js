@@ -186,11 +186,32 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         <Card
           size="small"
           title={
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
-                <Avatar style={{ marginRight: 8 }}>{post.Retweet.User.nickname[0]}</Avatar>
-              </Link>
-              <span>{post.Retweet.User.nickname}</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
+                  <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
+                </Link>
+                <span>{post.User?.nickname}</span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 4 }}>
+                {post.Categorys && post.Categorys.length > 0 ? (
+                  post.Categorys.map((category) => (
+                    <span
+                      key={category.id}
+                      style={{
+                        backgroundColor: !category.isAnimal ? '#ffcc00' : '#f0f0f0',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: 12,
+                        color: '#555',
+                      }}
+                    >
+                      {category.content}
+                    </span>
+                  ))
+                ) : null}
+              </div>
             </div>
           }
           actions={[
@@ -239,14 +260,35 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     ) : (
         // 일반 게시글
         <Card
-              title={
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                  <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                    <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
-                  </Link>
-                  <span>{post.User?.nickname}</span>
-                </div>
-              } 
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
+                  <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
+                </Link>
+                <span>{post.User?.nickname}</span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 4 }}>
+                {post.Categorys && post.Categorys.length > 0 ? (
+                  post.Categorys.map((category) => (
+                    <span
+                      key={category.id}
+                      style={{
+                        backgroundColor: !category.isAnimal ? '#ffcc00' : '#f0f0f0',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: 12,
+                        color: '#555',
+                      }}
+                    >
+                      {category.content}
+                    </span>
+                  ))
+                ) : null}
+              </div>
+            </div>
+          }
               actions={[
                 <RetweetOutlined key="retweet" onClick={onRetweet} />,
                 like
