@@ -167,10 +167,11 @@ function* loadJoinRequests(action) {
 function* watchLoadJoinRequests() { yield takeLatest(LOAD_JOIN_REQUESTS_REQUEST, loadJoinRequests); }
 
 // 4. 승인
-function approveJoinAPI(groupId, requestId, userId) {   
-  return axios.post(`/api/groups/${groupId}/requests/${requestId}/approve?userId=${userId}`); }
+function approveJoinAPI(groupId, requestId, userId) {
+  return axios.post(`/api/groups/${groupId}/requests/${requestId}/approve?userId=${userId}`);
+}
 function* approveJoin(action) {
-  console.log("SAGA1. 승인 action데이터...............", action.data); 
+  console.log("SAGA1. 승인 action데이터...............", action.data);
   try {
     const { groupId, requestId, userId } = action.data;
     console.log("SAGA1. 승인 action 데이터", action.data);
@@ -178,13 +179,24 @@ function* approveJoin(action) {
     const response = yield call(axios.get, `/api/groups/${groupId}/requests`);
     console.log("SAGA2-0. 응답 상태", response.status);
     const request = response.data.find((req) => req.id === requestId); // 요청 찾기
-    console.log("SAGA2. 조회된 요청............", request); 
+    console.log("SAGA2. 조회된 요청............", request);
 
-    if (!request) { throw new Error('해당 요청을 찾을 수 없습니다.');    }
+    if (!request) { throw new Error('해당 요청을 찾을 수 없습니다.'); }
 
     // userId가 일치하는 요청을 찾은 뒤 승인 API 호출
     yield call(approveJoinAPI, groupId, request.id, userId);  // groupId, requestId, userId 전달
     yield put({ type: APPROVE_JOIN_SUCCESS, data: requestId });
+    // 알림
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.GROUPAPPLY_APPROVE,
+        SenderId: action.notiData.SenderId,
+        ReceiverId: action.notiData.ReceiverId,
+        targetId: action.notiData.targetId,
+      }
+    });
+    // E 알림
   } catch (err) {
     const error = err.response ? err.response.data : err.message;
     yield put({ type: APPROVE_JOIN_FAILURE, error });
@@ -195,26 +207,38 @@ function* watchApproveJoin() { yield takeLatest(APPROVE_JOIN_REQUEST, approveJoi
 // 5. 거절
 function rejectJoinAPI(groupId, requestId, userId) {
   console.log("SAGA4. 거절한 요청 ID.................", groupId, requestId, userId);
-  return axios.post(`/api/groups/${groupId}/requests/${requestId}/reject?userId=${userId}`); } // 쿼리스트링 방식으로 전달
+  return axios.post(`/api/groups/${groupId}/requests/${requestId}/reject?userId=${userId}`);
+} // 쿼리스트링 방식으로 전달
 
 function* rejectJoin(action) {
   console.log("거절 action 데이터...............", action.data);
   try {
     const { groupId, requestId, userId } = action.data;
     console.log("SAGA1. 거절 action 데이터", action.data);
-    
+
     // 요청을 불러오는 API 호출
     const response = yield call(axios.get, `/api/groups/${groupId}/requests`);
     console.log("SAGA2. 거절 조회된 요청...............", response.data);
 
     // 요청을 찾기
     const request = response.data.find((req) => req.id === requestId);
-    
-    if (!request) {      throw new Error('해당 요청을 찾을 수 없습니다.');    }
+
+    if (!request) { throw new Error('해당 요청을 찾을 수 없습니다.'); }
 
     // 거절 API 호출
     yield call(rejectJoinAPI, groupId, request.id, userId);
     yield put({ type: REJECT_JOIN_SUCCESS, data: requestId });
+    // 알림
+    yield put({
+      type: ADD_NOTIFICATION_REQUEST,
+      data: {
+        notiType: NOTIFICATION_TYPE.GROUPAPPLY_REJECT,
+        SenderId: action.notiData.SenderId,
+        ReceiverId: action.notiData.ReceiverId,
+        targetId: action.notiData.targetId,
+      }
+    });
+    // E 알림
   } catch (err) {
     console.error("거절 처리 중 에러 발생", err);
     const error = err.response ? err.response.data : err.message;
@@ -222,7 +246,7 @@ function* rejectJoin(action) {
   }
 }
 
-function* watchRejectJoin() {  yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin); }
+function* watchRejectJoin() { yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin); }
 
 // root saga
 export default function* groupSaga() {

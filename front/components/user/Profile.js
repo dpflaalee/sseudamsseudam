@@ -113,7 +113,6 @@ const Profile = (props) => {
   }, [postUserId]);
 
   const { blockList } = useSelector((state) => state.user);
-  console.log('💥 blockList', blockList);
   const isBlocked = blockList.some((blockedUser) => Number(blockedUser.id) === Number(postUserId));
   useEffect(() => {
     if (addBlockDone || removeBlockDone) {
@@ -280,12 +279,6 @@ const Profile = (props) => {
           </ButtonRow>
         )}
       </Container>
-      {/* {!isBlinded && mainPosts.map((c) => {
-        return (
-          <PostCard post={c} key={c.id} />
-        );
-      })} */}
-
     </Wrapper>
   );
 };
