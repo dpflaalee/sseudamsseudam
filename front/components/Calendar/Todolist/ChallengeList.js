@@ -60,9 +60,8 @@ const ChallengeList = () => {
 
   const handleAddEvent = () => router.push('/challenge/regichallenge');
   const handleChangeEvent = (id) => router.push(`/challenge/editchallenge?id=${id}`);
-  const seeMore = () => router.push('/challenge/morechallenge');
 
-  const handleSeeMore = () => {
+  const SeeMore = () => {
     setVisibleCount(prev => prev + 5);
   };
 
@@ -205,10 +204,8 @@ const ChallengeList = () => {
             <Divider />
           </div>
         ))}
-
-        {/* "더보기" 버튼은 보여진 챌린지 수가 전체보다 작을 때만 노출 */}
         {visibleCount < schedules.length && (
-          <Button type="primary" htmlType="button" block onClick={handleSeeMore}>더보기</Button>
+          <Button type="primary" htmlType="button" block onClick={SeeMore}>더보기</Button>
         )}
 
         {/* 글쓰기 카테고리에서 챌린지 선택하기 기능 테스트용 */}

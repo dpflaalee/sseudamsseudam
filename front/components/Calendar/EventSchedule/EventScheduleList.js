@@ -18,7 +18,6 @@ const EventScheduleList = () => {
   const [schedules, setSchedules] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
-// 1) 서버에서 현재 로그인한 유저 정보 받아오기
 useEffect(() => {
   const fetchUser = async () => {
     try {
@@ -117,7 +116,8 @@ const formatRange = (start, end) => {
                 gap: '10px',
               }}>
           {isAdmin && (
-            <div style={{
+            <div
+                style={{
                 display: 'flex',
                 alignItems: 'center',
                 marginLeft: 'auto',
@@ -146,7 +146,8 @@ const formatRange = (start, end) => {
                 <span style={dateStyle}>{formatRange(schedule.startDate, schedule.endDate)}</span>
               </div>
               {isAdmin && (
-              <div style={{
+              <div
+                  style={{
                   display: 'flex',
                   alignItems: 'center',
                   marginLeft: 'auto',
