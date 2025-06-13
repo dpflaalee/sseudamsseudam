@@ -53,10 +53,10 @@ module.exports = (sequelize, DataTypes) => {
       as: 'NotificationSettings',
       onDelete: 'CASCADE',
     });
-
+    //UserProfileImage
+    db.User.hasMany(db.UserProfileImage)
     // Complain
     db.User.hasMany(db.Complain, { foreignKey: 'ReporterId' });
-
     //Animal
     db.User.hasMany(db.Animal);
     //Post

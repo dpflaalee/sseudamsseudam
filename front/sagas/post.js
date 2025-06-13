@@ -57,7 +57,7 @@ function loadPostAPI(data,userId,number) {
 
 function* loadPost(action) {
   try {
-    const result = yield call(loadPostAPI, action.data,action.userId,action.number);
+    const result = yield call(loadPostAPI, action.data);
     yield put({
       type: LOAD_POST_SUCCESS,
       data: result.data,
@@ -72,23 +72,14 @@ function* loadPost(action) {
 }
 
 function loadPostsAPI(lastId,userId,number) {
-  console.log('number='+number);
   userId = userId === 'undefined'? -1 : userId;
   return axios.get(`/posts?lastId=${lastId || 0}&number=${number}&userId=${userId}`);
-  // if(number){
-  //   console.log('본인 게시물 클릭');
-  //   return axios.get(`/posts?lastId=${lastId || 0}&number=${number}`);
-  // }else{
-  //   console.log('다른 게시물 클릭');
-  //   return axios.get(`/posts?lastId=${lastId || 0}&userId=${userId}`);
-  // }
 }
 
 function* loadPosts(action) {
-  console.log('action.userId-=',action.userId);
-  console.log('action.number-=',action.number);
   try {
-    const result = yield call(loadPostsAPI, action.lastId,action.userId,action.number);
+    const { lastId, userId, number } = action;
+    const result = yield call(loadPostsAPI, lastId, userId, number);
     yield put({
       type: LOAD_POSTS_SUCCESS,
       data: result.data,

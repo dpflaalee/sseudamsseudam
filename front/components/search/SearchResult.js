@@ -4,7 +4,8 @@ import { Input, Button, Avatar } from 'antd';
 import Link from 'next/Link';
 import PostCard from '../post/PostCard';
 import Profile from '../user/Profile';
-import SearchResultGroup from './SeachResultGroupList';
+import SearchResultGroup from './SearchResultGroupList';
+import SearchUserList from './SearchUserList';
 
 const Container = styled.div`
   padding: 20px;
@@ -60,7 +61,7 @@ const SearchResult = ({ results }) => {
           <div key={item.id}>
             {activeTab === 'post' && <PostCard post={item} />}
             {activeTab === 'group' && <SearchResultGroup g={item} />}
-            {activeTab === 'member' && <Profile postUserId={item} />}
+            {activeTab === 'member' && <SearchUserList user={item} />}
           </div>
         ))
       )}

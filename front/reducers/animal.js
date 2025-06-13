@@ -6,6 +6,7 @@ export const initialState = {
 
   userAnimals: [],     // 선택한 동물의 유저가 가진 모든 동물 목록
   myAnimals: [],       // 내 동물들 (내가 등록한 전체 리스트)
+  userDetailAnimals: [],
 
   followers: [],
   followings: [],
@@ -62,6 +63,9 @@ export const initialState = {
   searchProfilesDone: false,
   searchProfilesError: null,
 
+  loadUserAnimalListLoading: false,
+  loadUserAnimalListDone: false,
+  loadUserAnimalListError: null,
   animal: null,
 }
 
@@ -115,8 +119,24 @@ export const SEARCH_PROFILES_REQUEST = 'SEARCH_PROFILES_REQUEST';
 export const SEARCH_PROFILES_SUCCESS = 'SEARCH_PROFILES_SUCCESS';
 export const SEARCH_PROFILES_FAILURE = 'SEARCH_PROFILES_FAILURE';
 
+export const LOAD_USER_ANIMAL_LIST_REQUEST = 'LOAD_USER_ANIMAL_LIST_REQUEST';
+export const LOAD_USER_ANIMAL_LIST_SUCCESS = 'LOAD_USER_ANIMAL_LIST_SUCCESS';
+export const LOAD_USER_ANIMAL_LIST_FAILURE = 'LOAD_USER_ANIMAL_LIST_FAILURE';
+
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch(action.type){
+    case LOAD_USER_ANIMAL_LIST_REQUEST:
+      draft.loadUserAnimalListLoading = true;
+      draft.loadUserAnimalListDone = false; 
+      draft.loadUserAnimalListError = null;
+      break;
+    case LOAD_USER_ANIMAL_LIST_SUCCESS:
+      draft.userDetailAnimals = action.data;
+      draft.loadUserAnimalListDone = true;
+      break;
+    case LOAD_USER_ANIMAL_LIST_FAILURE:
+      draft.loadUserAnimalListError = action.error;
+      break;
     case SEARCH_PROFILES_REQUEST:
       draft.searchProfilesLoading = true;
       draft.searchProfilesDone = false;

@@ -18,6 +18,10 @@ import {
   CHANGE_NICKNAME_SUCCESS,
   CHANGE_NICKNAME_FAILURE,
 
+  USER_PROFILE_UPDATE_REQUEST,
+  USER_PROFILE_UPDATE_SUCCESS,
+  USER_PROFILE_UPDATE_FAILURE,
+
   USER_DELETE_REQUEST,
   USER_DELETE_SUCCESS,
   USER_DELETE_FAILURE,
@@ -220,7 +224,28 @@ function* signUp(action) {
     });
   }
 }
+//-- 
+function changeUserProfileAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
+  console.log('data=', data);
+  return axios.post('/user', data);   //         /user 경로 , post, 회원가입정보(data)
+}
 
+function* changeUserProfile(action) {
+  console.log('login=', action.data);
+  try {
+    const result = yield call(signUpAPI, action.data);  // 사용자가 화면에서 넘겨준값
+    console.log('result=', result.data);
+    yield put({
+      type: SIGN_UP_SUCCESS,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: SIGN_UP_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 function followAPI(data) {
   return axios.patch(`/user/${data}/follow`);
 }
@@ -377,6 +402,10 @@ function* watchSignup() {
 function* watchChangeNickname() {
   yield takeLatest(CHANGE_NICKNAME_REQUEST, changeNickname);  //요청 10 ->응답1
 }
+function* watchUserUploadImage() {
+  yield takeLatest(USER_PROFILE_UPDATE_REQUEST, changeUserProfile);  //요청 10 ->응답1
+}
+
 function* watchFollow() {
   yield takeLatest(FOLLOW_REQUEST, follow);
 }
@@ -412,6 +441,7 @@ export default function* userSaga() {
     fork(watchLogout),
     fork(watchSignup),
     fork(watchLoadMyInfo),
+    fork(watchUserUploadImage),
     fork(watchUserDelete),
     fork(watchFollow),
     fork(watchUnfollow),
