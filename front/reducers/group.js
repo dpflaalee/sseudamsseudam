@@ -285,11 +285,15 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
   //------------------- 가입관리 -------------------//      
       // 공개 그룹 즉시 가입
       case JOIN_GROUP_REQUEST:
+        console.log("📌 JOIN_GROUP_REQUEST 실행");
         draft.joinGroupLoading = true;
         draft.joinGroupDone = false;
         draft.joinGroupError = null;
         break;
+
       case JOIN_GROUP_SUCCESS:
+        console.log("✅ JOIN_GROUP_SUCCESS 실행");
+        if (draft.joinGroupDone) break; // 🚀 중복 실행 방지
         draft.joinGroupLoading = false;
         draft.joinGroupDone = true;
         break;
@@ -300,9 +304,10 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         break;        
       // 공개 그룹 가입 상태 리셋
       case JOIN_GROUP_RESET:
+        console.log("🔄 JOIN_GROUP_RESET 실행");
         draft.joinGroupDone = false;
         draft.joinGroupError = null;
-        break;        
+        break;       
       //가입신청
       case APPLY_GROUP_REQUEST:
         draft.applyGroupLoading = true;
@@ -339,7 +344,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         draft.loadJoinRequestsLoading = false;
         draft.loadJoinRequestsError = action.error;
         break;
-
       //가입 승인
       case APPROVE_JOIN_REQUEST:
         draft.approveJoinRequestLoading =true;

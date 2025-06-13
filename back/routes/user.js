@@ -4,14 +4,43 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const passport = require('passport');
 const nodemailer = require('nodemailer');
-const { User, Post } = require('../models');
+const { User, Post, Blacklist,UserProfileImage } = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
+const { Transaction } = require('sequelize');
+const multer = require('multer');  // 파일업로드
+const path = require('path');  // 경로
+const fs = require('fs');  // file system
 //const {smtpTransport} = require('../config/email');
 
 // create :  객체.create({})
 // select :  객체.findAll , 객체.findOne
 // update :  객체.update
 // delete :  객체.destroy()
+
+try {
+    fs.accessSync('userImages');  // 폴더 존재여부 확인
+} catch (error) {
+    console.log('uploads 폴더가 없으면 생성합니다. ');
+    fs.mkdirSync('userImages'); // 폴더만들기
+}
+/////////////////////////////////////////////////
+//1. 업로드 설정
+const upload = multer({
+  storage: multer.diskStorage({ // 저장소설정 - 업로드된 파일의 저장위치,파일이름 지정하는 역할
+    //파일을 디스크 (로컬 파일시스템)에 저장하도록 설정
+    destination(req, file, done) {  // 지정경로
+      done(       null,  'uploads');  //지정경로 지정 - 콜백  
+      //  null 에러없음,   uploads  저장될 폴더경로
+    },
+    filename(req, file, done) {  // 업로드된 파일이름 지정
+      // images1.png
+      const ext      = path.extname(file.originalname);       //1. 확장자 추출  .png
+      const basename = path.basename(file.originalname, ext); //2. 이미지이름   images1
+      done(null, basename + '_' + new Date().getTime() + ext);//3. images1_날짜지정.png
+    },
+  }),
+  limits : { fileSize: 10*1024*1024 }   // 10MB
+});
 
 // 1. 회원가입
 // post :  localhost:3065/user/
@@ -35,6 +64,9 @@ router.post('/', isNotLoggedIn, async (req, res, next) => {   //res.send('..... 
       password: hashPassword,
       phonenumber: req.body.phoneNum,
     });
+    await UserProfileImage.create({
+      src: ''
+    })
     //5. 응답 - 회원가입 성공 ok
     res.status(201).send('회원가입완료!');
   } catch (error) {
@@ -93,6 +125,7 @@ router.get('/', async (req, res, next) => {
           { model: Post, attributes: ['id'] }
           , { model: User, as: 'Followings', attributes: ['id'] }
           , { model: User, as: 'Followers', attributes: ['id'] }
+          , { model: UserProfileImage, attributes: ['id']}
         ]// Post, Followers , Followings
       });
       res.status(200).json(fullUser);
@@ -104,6 +137,29 @@ router.get('/', async (req, res, next) => {
     next(error);
   }
 });
+router.get('/', async (req, res, next) => {
+  try{
+    await User.update({
+        nickname: req.body.nickname,
+    },{
+      where: {id:req.user.id},
+      transaction:t
+    })
+    await UserProfileImage.update({
+      src: req.body.imagePaths,
+    },{
+      where: {src: req.user.id},
+      transaction:t
+    })
+    await t.commit();
+    res.status(201).json({success: true});
+  }catch(error){
+    await t.rollback();
+    console.log(error);
+    next(error)
+  }
+})
+
 router.get('/postUser', async (req, res, next) => {
   // res.send('사용자정보조회');
   console.log('사용자정보조회', req.user.id);
@@ -416,14 +472,14 @@ router.post('/email/:userEmail', async (req, res, next) => {
 // 차단한 사람 불러오기
 router.get('/block', isLoggedIn, async (req, res, next) => {
   try {
-    const user = await User.findOne({ where: { id: req.user.id } });
-    if (!user) { res.status(403).send('유저를 확인해주세요'); }  //403 금지된.없는유저
-
-    const blockeds = await user.getBlocked();
-    res.status(200).json(blockeds);
-  } catch (error) {
-    console.error(error);
-    next(error);
+    const blocks = await Blacklist.findAll({
+      where: { blockingId: req.user.id },
+      include: [{ model: User, as: 'Blocked' }],
+    });
+    res.status(200).json(blocks.map(b => b.Blocked));
+  } catch (err) {
+    console.error(err);
+    next(err);
   }
 });
 
@@ -432,10 +488,10 @@ router.patch('/:userId/block', isLoggedIn, async (req, res, next) => {
   console.log('차단 당하는 유저 아이디=', req.params.userId);
   console.log('내 아이디=', req.user.id);
   try {
-    const user = await User.findOne({ where: { id: req.params.userId } });
-    if (!user) { res.status(403).send('유저를 확인해주세요'); }
+    const me = await User.findOne({ where: { id: req.user.id } });
+    await me.addBlocking(req.params.userId);
+    if (!me) { res.status(403).send('유저를 확인해주세요'); }
 
-    await user.addBlocked(req.user.id);
     res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
   } catch (error) {
     console.error(error);
@@ -445,17 +501,16 @@ router.patch('/:userId/block', isLoggedIn, async (req, res, next) => {
 
 // 차단 삭제
 router.delete('/:userId/block', isLoggedIn, async (req, res, next) => {
-  console.log('유저아이디=', req.params.userId);
-  console.log('내 아이디=', req.user.id);
-  console.log('팔로우 삭제');
   try {
-    const user = await User.findOne({ where: { id: req.params.userId } });
-    if (!user) { res.status(403).send('유저를 확인해주세요'); }  //403 금지된.없는유저
+    const me = await User.findOne({ where: { id: req.user.id } });
+    if (!me) {
+      return res.status(403).send('유저를 확인해주세요');
+    }
 
-    await user.removeBlocked(req.user.id);
+    await me.removeBlocking(req.params.userId);
     res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
   } catch (error) {
-    console.error(error);
+    console.error('🚨 차단 해제 중 에러:', error);
     next(error);
   }
 });

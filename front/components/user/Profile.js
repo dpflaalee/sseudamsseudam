@@ -9,14 +9,12 @@ import FollowButton from './FollowButton';
 import MyPrize from '@/components/prize/MyPrize';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
+import { LOAD_BLOCK_REQUEST, ADD_BLOCK_REQUEST, REMOVE_BLOCK_REQUEST, LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'
 import Router from 'next/router';
 import PostCard from '../post/PostCard';
 import axios from 'axios';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
-
-import { ADD_BLOCK_REQUEST } from '@/reducers/user';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -85,8 +83,10 @@ const ButtonRow = styled.div`
 
 const Profile = (props) => {
   const dispatch = useDispatch();
-  const { userOutDone,logOutDone, user } = useSelector(state => state.user);
+  const { userOutDone, logOutDone, user } = useSelector(state => state.user);
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
+  const { addBlockDone, removeBlockDone } = useSelector((state) => state.user);
+
 
   let postUserId = props.postUserId;
   console.log('postUserIdpostUserId=', postUserId);
@@ -107,8 +107,20 @@ const Profile = (props) => {
     return Number(report.targetId) === Number(postUserId) && report.isBlind && report.targetType === TARGET_TYPE.USER;
   });
 
+  // 차단한 유저
   useEffect(() => {
-    console.log('postUser실행', postUserId);
+    dispatch({ type: LOAD_BLOCK_REQUEST });
+  }, [postUserId]);
+
+  const { blockList } = useSelector((state) => state.user);
+  const isBlocked = blockList.some((blockedUser) => Number(blockedUser.id) === Number(postUserId));
+  useEffect(() => {
+    if (addBlockDone || removeBlockDone) {
+      dispatch({ type: LOAD_BLOCK_REQUEST });
+    }
+  }, [addBlockDone, removeBlockDone]);
+
+  useEffect(() => {
     const postUserData = async () => {
       try {
         const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
@@ -125,8 +137,6 @@ const Profile = (props) => {
 
   useEffect(() => {
     const lastId = mainPosts[mainPosts.length - 1]?.id;
-    console.log('입장1');
-    console.log('mainPosts', mainPosts[mainPosts.length - 1]?.id);
     const number = [1, 2, 3];
     // number = 1,
     // number = 2 
@@ -138,7 +148,6 @@ const Profile = (props) => {
         //postuser
         //본인페이지 클릭
         if (user.id == props.postUserId) {
-          console.log('입장2');
           dispatch({
             type: LOAD_POSTS_REQUEST,
             lastId,
@@ -146,7 +155,6 @@ const Profile = (props) => {
             //userId: props.postUserId,
           })
         } else {
-          console.log('postUserId = -1');
           dispatch({
             type: LOAD_POSTS_REQUEST,
             lastId,
@@ -155,7 +163,6 @@ const Profile = (props) => {
           })
         }
       } else {//비로그인
-        console.log('비로그인 입장');
         dispatch({
           type: LOAD_POSTS_REQUEST,
           lastId,
@@ -170,7 +177,7 @@ const Profile = (props) => {
     }
   }, [logOutDone])
   useEffect(() => {
-    if(userOutDone){
+    if (userOutDone) {
       Router.replace('/');
     }
   })
@@ -203,9 +210,15 @@ const Profile = (props) => {
         </>
       ) : (
         <>
-          <Menu.Item key="block" onClick={() => dispatch({ type: ADD_BLOCK_REQUEST, data: postUserId })}>
-            차단하기
-          </Menu.Item>
+          {isBlocked ? (
+            <Menu.Item key="unblock" onClick={() => dispatch({ type: 'REMOVE_BLOCK_REQUEST', data: postUserId })}>
+              차단 해제
+            </Menu.Item>
+          ) : (
+            <Menu.Item key="block" onClick={() => dispatch({ type: 'ADD_BLOCK_REQUEST', data: postUserId })}>
+              차단하기
+            </Menu.Item>
+          )}
           <Menu.Item key="report" onClick={() => setOpen(true)} danger>
             신고하기
           </Menu.Item>
@@ -222,7 +235,6 @@ const Profile = (props) => {
       }
     </Menu >
   );
-  console.log('postUser체크', postUser);
   return (
     <Wrapper>
       <Banner />
@@ -267,12 +279,6 @@ const Profile = (props) => {
           </ButtonRow>
         )}
       </Container>
-      {/* {!isBlinded && mainPosts.map((c) => {
-        return (
-          <PostCard post={c} key={c.id} />
-        );
-      })} */}
-
     </Wrapper>
   );
 };

@@ -8,12 +8,13 @@ import {
   REMOVE_PRIZE_REQUEST, REMOVE_PRIZE_SUCCESS, REMOVE_PRIZE_FAILURE,
   OPEN_RANDOM_BOX_REQUEST, OPEN_RANDOM_BOX_SUCCESS, OPEN_RANDOM_BOX_FAILURE,
   LOAD_RANDOM_BOX_LIST_REQUEST, LOAD_RANDOM_BOX_LIST_SUCCESS, LOAD_RANDOM_BOX_LIST_FAILURE,
-  LOAD_CATEGORY_RANDOM_BOXES_REQUEST,LOAD_CATEGORY_RANDOM_BOXES_SUCCESS,LOAD_CATEGORY_RANDOM_BOXES_FAILURE,
+  LOAD_ISSUED_RANDOM_BOXES_REQUEST,LOAD_ISSUED_RANDOM_BOXES_SUCCESS,LOAD_ISSUED_RANDOM_BOXES_FAILURE,
 } from '../reducers/prize';
 
 function addPrizeAPI(data) {
   return axios.post('/admin/prizes', data);
 }
+
 
 function* addPrize(action) {
   try {
@@ -65,21 +66,10 @@ function* removePrize(action) {
   }
 }
 
-function openRandomBoxAPI(category) {
-  return axios.post(`/api/open-random-box?category=${category}`);
-}
 
-function* openRandomBox(action) {
-  try {
-    const result = yield call(openRandomBoxAPI, action.data);
-    yield put({ type: OPEN_RANDOM_BOX_SUCCESS, data: result.data });
-  } catch (err) {
-    yield put({ type: OPEN_RANDOM_BOX_FAILURE, error: err.response?.data || err.message });
-  }
-}
-
+// 발급된 랜덤박스 목록을 조회하는 API
 function loadRandomBoxListAPI() {
-  return axios.get('/random-boxes');
+  return axios.get('/random-boxes/issued');  // 현재 발급된 모든 랜덤박스 조회
 }
 
 function* loadRandomBoxList() {
@@ -99,40 +89,40 @@ function* loadRandomBoxList() {
   }
 }
 
-function loadCategoryRandomBoxesAPI(userId) {
-  return axios.get(`/random-boxes/by-user-categories?userId=${userId}`);
+function openRandomBoxAPI(issuedId) {
+  return axios.post(`/random-boxes/issued/use/${issuedId}`);
 }
 
-function* loadCategoryRandomBoxes() {
-  const userId = yield select((state) => {
-  console.log(state.user); // 여기서 상태를 출력
-  return state.user.User?.id; // 또는 state.user.id
-});
-  
-  // 로그인되지 않은 경우, API 호출을 막고 에러 메시지를 디스패치합니다.
-  if (!userId) {
-    yield put({
-      type: LOAD_CATEGORY_RANDOM_BOXES_FAILURE,
-      error: '사용자가 로그인되지 않았습니다.',
-    });
-    return;
-  }
-
+function* openRandomBox(action) {
   try {
-    const result = yield call(loadCategoryRandomBoxesAPI, userId);
+    const result = yield call(openRandomBoxAPI, action.data); // action.data가 prizeId여야 함
+    console.log("🎯 Open Random Box API 응답:", result.data);
+    yield put({ type: OPEN_RANDOM_BOX_SUCCESS, data: result.data });
+  } catch (err) {
+    yield put({ type: OPEN_RANDOM_BOX_FAILURE, error: err.response?.data || err.message });
+  }
+}
+
+
+// 발급된 랜덤박스 중 사용 가능한 것만 조회하는 API
+function loadIssuedRandomBoxesAPI() {
+  return axios.get('/random-boxes/issued/list');  // 사용 가능한 랜덤박스만 조회
+}
+
+function* loadIssuedRandomBoxes() {
+  try {
+    const result = yield call(loadIssuedRandomBoxesAPI);
     yield put({
-      type: LOAD_CATEGORY_RANDOM_BOXES_SUCCESS,
-      data: result.data,
+      type: LOAD_ISSUED_RANDOM_BOXES_SUCCESS,
+      data: result.data.data || [],  // API 응답 형태에 맞게 조절
     });
   } catch (err) {
-    const errorMessage = err.response?.data?.message || err.message || '알 수 없는 오류가 발생했습니다.';
     yield put({
-      type: LOAD_CATEGORY_RANDOM_BOXES_FAILURE,
-      error: errorMessage,
+      type: LOAD_ISSUED_RANDOM_BOXES_FAILURE,
+      error: err.response?.data?.message || err.message,
     });
   }
 }
-
 
 
 
@@ -160,9 +150,11 @@ function* watchLoadRandomBoxList() {
   yield takeLatest(LOAD_RANDOM_BOX_LIST_REQUEST, loadRandomBoxList);
 }
 
-function* watchLoadCategoryRandomBoxes() {
-  yield takeLatest(LOAD_CATEGORY_RANDOM_BOXES_REQUEST, loadCategoryRandomBoxes);
+
+function* watchLoadIssuedRandomBoxes() {
+  yield takeLatest(LOAD_ISSUED_RANDOM_BOXES_REQUEST, loadIssuedRandomBoxes);
 }
+
 
 export default function* prizeSaga() {
   yield all([
@@ -172,6 +164,6 @@ export default function* prizeSaga() {
     fork(watchRemovePrize),
     fork(watchOpenRandomBox),
     fork(watchLoadRandomBoxList),
-    fork(watchLoadCategoryRandomBoxes),
+    fork(watchLoadIssuedRandomBoxes),
   ]);
 }
