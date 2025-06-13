@@ -1,11 +1,17 @@
 import React from "react";
 import AppLayout from "../../components/AppLayout";
 import 'antd/dist/antd.css';
-
+import axios from 'axios';
+import wrapper from '../../store/configureStore';
+import { END } from 'redux-saga';
 import { useSelector } from "react-redux";
 
 import PostCard from "../../components/post/PostCard";
 import AdminProfile from "@/components/AdminProfile";
+
+import { LOAD_MY_INFO_REQUEST } from "@/reducers/user";
+import { LOAD_POSTS_REQUEST } from "@/reducers/post";
+import { LOAD_COMPLAIN_REQUEST } from "@/reducers/complain";
 
 const adminPage = () => {
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);

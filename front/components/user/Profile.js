@@ -4,15 +4,12 @@ import styled from 'styled-components';
 import { MoreOutlined } from '@ant-design/icons';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-import useSelection from 'antd/lib/table/hooks/useSelection';
 import FollowButton from './FollowButton';
-import MyPrize from '@/components/prize/MyPrize';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { LOAD_BLOCK_REQUEST, ADD_BLOCK_REQUEST, REMOVE_BLOCK_REQUEST, LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'
 import Router from 'next/router';
-import PostCard from '../post/PostCard';
 import axios from 'axios';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 
@@ -107,10 +104,6 @@ const Profile = (props) => {
     return Number(report.targetId) === Number(postUserId) && report.isBlind && report.targetType === TARGET_TYPE.USER;
   });
 
-  // 차단한 유저
-  useEffect(() => {
-    dispatch({ type: LOAD_BLOCK_REQUEST });
-  }, [postUserId]);
 
   const { blockList } = useSelector((state) => state.user);
   const isBlocked = blockList.some((blockedUser) => Number(blockedUser.id) === Number(postUserId));
@@ -181,6 +174,7 @@ const Profile = (props) => {
       Router.replace('/');
     }
   })
+
   const [open, setOpen] = useState(false);
   const onLogout = useCallback(() => {
     dispatch({ type: LOG_OUT_REQUEST })
@@ -235,7 +229,19 @@ const Profile = (props) => {
       }
     </Menu >
   );
+  if (postUser?.isBlockedMe) {
+    return (
+      <Wrapper>
+        <Container>
+          <Nickname style={{ textAlign: 'center', fontSize: '18px', color: '#999' }}>
+            해당 유저의 프로필을 볼 수 없습니다. (차단됨)
+          </Nickname>
+        </Container>
+      </Wrapper>
+    );
+  }
   return (
+
     <Wrapper>
       <Banner />
       <Container>
