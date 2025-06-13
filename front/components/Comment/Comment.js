@@ -256,7 +256,9 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
         ...comment,
         content: isBlind ? '신고된 댓글입니다.' : comment.content,
       };
-    });
+    })
+    // 최신 댓글이 위로 오도록 내림차순 정렬
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   // 신고 당한 유저 닉네임 처리
   useEffect(() => {
@@ -378,8 +380,12 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                   대댓글 {comment.Recomments.length}개
                 </div>
                 {comment.Recomments.length === 0 && <div>대댓글이 없습니다.</div>}
-                {comment.Recomments.map((recomment) => {
+                {comment.Recomments
+                .slice() // 원본 배열 직접 변경 방지용 복사
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // 최신순 정렬                
+                .map((recomment) => {
                 const reCreatedAt = recomment.createdAt ? new Date(recomment.createdAt).toLocaleString() : '';
+                const isRecommentAuthor = user?.id && Number(user.id) === Number(recomment.User?.id);
                 const isDeleted = recomment.isDeleted;
 
                 const displayContent = isDeleted ? '삭제된 댓글입니다.' : recomment.content;
@@ -393,7 +399,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                 // 대댓글 메뉴 정의
                 const recommentMenu = (
                   <Menu>
-                    {isAuthor && !isDeleted && (
+                    {isRecommentAuthor && !isDeleted && (
                       <>
                         <Menu.Item onClick={() => onClickEditRecomment(recomment)}>
                           {editingRecommentId === recomment.id ? '수정 취소' : '수정'}

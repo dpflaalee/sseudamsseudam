@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { useRouter } from 'next/router';
 
 function EnglishCalendar() {
+  const router = useRouter();
   const [date, setDate] = useState(new Date());
 
 function getItem(label, icon) {
@@ -110,10 +111,9 @@ const CalendarTitle = styled.div`
 `;
 
 const items = getItem('챌린지 참여 현황', <CheckCircleOutlined />);
-  const router = useRouter();
   return (
     <CalendarUI>
-      <CalendarTitle onClick={() => router.push('/challenge')} style={{cursor: 'pointer'}}>
+      <CalendarTitle onClick={() => router.push('/admin/manage')} style={{cursor: 'pointer'}}>
         {items.icon}
         <span style={{ marginLeft: '8px' }}>{items.label}</span>
       </CalendarTitle>

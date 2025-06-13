@@ -109,7 +109,7 @@ const ChallengeList = () => {
         }}>
         <div style={{ display: 'flex' }}>
           <h3 style={{ marginBottom: '0px' }}>
-            {isAdmin ? '진행 중인 챌린지' : '내 챌린지 참여현황'}<br />
+            {isAdmin? '진행 중인 챌린지' : '내 챌린지 참여현황'}<br />
           </h3>
           {isAdmin && (
             <div

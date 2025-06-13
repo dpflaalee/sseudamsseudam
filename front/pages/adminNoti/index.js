@@ -2,7 +2,8 @@ import 'antd/dist/antd.css';
 import React, { useEffect } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { useDispatch, useSelector } from 'react-redux';
-
+import axios from 'axios';
+import wrapper from '../../store/configureStore';
 import { Button } from 'antd';
 import { useRouter } from 'next/router';
 
@@ -48,15 +49,9 @@ const Home = () => {
     return (
         <AppLayout>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                <Button type="primary" onClick={() => router.push('/admin/complain')}>
-                    신고 관리 페이지로 이동
-                </Button>
-                <Button type="primary" onClick={() => router.push(`/user/myPage/${user?.id}`)}>
-                    마이페이지로 이동
-                </Button>
             </div>
             {mainPosts
-                .filter((post) => post.User.isAdmin)
+                .filter((post) => post.User?.isAdmin)
                 .map((post) => (
                     <PostCard post={post} key={post.id} />
                 ))}
