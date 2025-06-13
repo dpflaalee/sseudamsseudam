@@ -93,6 +93,8 @@ export const ANIUNFOLLOW_REQUEST = 'ANIUNFOLLOW_REQUEST';
 export const ANIUNFOLLOW_SUCCESS = 'ANIUNFOLLOW_SUCCESS';
 export const ANIUNFOLLOW_FAILURE = 'ANIUNFOLLOW_FAILURE';
 
+export const RESET_ANIFOLLOW_STATE = 'RESET_ANIFOLLOW_STATE';
+
 export const MODIFY_ANIPROFILE_REQUEST = 'MODIFY_ANIPROFILE_REQUEST';
 export const MODIFY_ANIPROFILE_SUCCESS = 'MODIFY_ANIPROFILE_SUCCESS';
 export const MODIFY_ANIPROFILE_FAILURE = 'MODIFY_ANIPROFILE_FAILURE';
@@ -193,6 +195,12 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case LOAD_ANIMAL_PROFILE_FAILURE:
       draft.loadAnimalProfileLoading = false;
       draft.loadAnimalProfileError = action.error;
+      break;
+    case RESET_ANIFOLLOW_STATE:
+      draft.anifollowDone = false;
+      draft.aniunfollowDone = false;
+      draft.anifollowError = null;
+      draft.aniunfollowError = null;
       break;
     case ANIFOLLOW_REQUEST:
       draft.anifollowLoading = true;
@@ -314,7 +322,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.modifyAniprofileDone = false;
       draft.modifyAniprofileError = null;
       break;
-
     case REMOVE_ANIFOLLOW_REQUEST:
       draft.removeAnifollowLoading = true;
       draft.removeAnifollowDone = false;

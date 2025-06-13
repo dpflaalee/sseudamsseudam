@@ -27,6 +27,10 @@ export const initialState = {
   userProfileLoading: false, //회원 프로필 수정 시도중
   userProfileDone: false,
   userProfileError: null,
+  
+  userImageLoading: false, //회원 이미지 수정 시도중
+  userImageDone: false,
+  userImageError: null,
 
   followLoading: false, // 팔로우 시도중
   followDone: false,
@@ -125,6 +129,10 @@ export const USER_DELETE_FAILURE = 'USER_DELETE_FAILURE';
 export const USER_PROFILE_UPDATE_REQUEST = 'USER_PROFILE_UPDATE_REQUEST';
 export const USER_PROFILE_UPDATE_SUCCESS = 'USER_PROFILE_UPDATE_SUCCESS';
 export const USER_PROFILE_UPDATE_FAILURE = 'USER_PROFILE_UPDATE_FAILURE';
+
+export const USER_IMAGE_UPDATE_REQUEST = 'USER_IMAGE_UPDATE_REQUEST';
+export const USER_IMAGE_UPDATE_SUCCESS = 'USER_IMAGE_UPDATE_SUCCESS';
+export const USER_IMAGE_UPDATE_FAILURE = 'USER_IMAGE_UPDATE_FAILURE';
 
 export const FOLLOW_REQUEST = 'FOLLOW_REQUEST';
 export const FOLLOW_SUCCESS = 'FOLLOW_SUCCESS';
@@ -231,19 +239,37 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.userOutError = action.error;
       break;
     case USER_PROFILE_UPDATE_REQUEST:
-      draft.userProfileLoading = true; //회원 프로필 수정 시도중
-      draft.userProfileDone = false;
-      draft.userProfileError = null;
+      console.log('USER_PROFILE_UPDATE_REQUEST', action.data);
+      draft.userProfileLoading= true; //회원 프로필 수정 시도중
+      draft.userProfileDone= false;
+      draft.userProfileError= null;
       break;
     case USER_PROFILE_UPDATE_SUCCESS:
-      draft.userImagePaths = draft.userImagePaths.concat(action.data);
-      draft.userProfileLoading = false;
-      draft.userProfileDone = false;
+      draft.userImagePaths = [];
+      draft.userProfileLoading= false;
+      draft.userProfileDone= false;
       break;
     case USER_PROFILE_UPDATE_FAILURE:
       draft.userProfileLoading = false;
       draft.userProfileError = action.error;
       break;
+
+    case USER_IMAGE_UPDATE_REQUEST:
+      console.log('reducers = USER_IMAGE_UPDATE_REQUEST', action.data);
+      draft.userImageLoading= true; //회원 이미지 수정 시도중
+      draft.userImageDone= false;
+      draft.userImageError= null;
+      break;
+    case USER_IMAGE_UPDATE_SUCCESS:
+      draft.userImagePaths = draft.userImagePaths.concat(action.data);
+      draft.userImageLoading= false;
+      draft.userImageDone= false;
+      break;
+    case USER_IMAGE_UPDATE_FAILURE:
+      draft.userImageLoading= false;
+      draft.userImageError= action.error;
+      break;
+
     case CHANGE_NICKNAME_REQUEST:
       draft.changeNicknameLoading = true;
       draft.changeNicknameError = null;

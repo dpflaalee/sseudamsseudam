@@ -1,5 +1,6 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Input, Button, Select } from 'antd';
+import {CloseOutlined} from '@ant-design/icons'
 import { useDispatch, useSelector } from 'react-redux';
 import { addAniProfile } from '@/reducers/animal';
 import { useRouter } from 'next/router';
@@ -14,6 +15,9 @@ const AniProfileForm = () => {
   const router = useRouter();
   const imageInput = useRef();
 
+  const onCancel = () => {
+    router.back();
+  }
   // 카테고리
   useEffect(() => {
     dispatch({ type: LOAD_CATEGORIES_REQUEST });
@@ -84,6 +88,7 @@ const AniProfileForm = () => {
   return (
     <div
       style={{
+        position: 'relative',
         width: 300,
         margin: 'auto',
         padding: 20,
@@ -92,20 +97,36 @@ const AniProfileForm = () => {
         textAlign: 'center',
       }}
     >
+      <Button
+        type="text"
+        icon={<CloseOutlined />}
+        onClick={onCancel}
+        style={{
+          position: 'absolute',
+          top: 8,
+          left: 8,
+          zIndex: 10,
+          fontSize: 20,
+          color: '#666',
+        }}
+      />
       {form.previewUrl ? (
         <img
           src={form.previewUrl}
           alt="preview"
+          onClick={() => imageInput.current?.click()}
           style={{
             width: 80,
             height: 80,
             borderRadius: '50%',
             objectFit: 'cover',
             marginBottom: 10,
+            cursor: 'pointer',
           }}
         />
       ) : (
         <div
+        onClick={() => imageInput.current?.click()}
           style={{
             width: 80,
             height: 80,
@@ -113,6 +134,7 @@ const AniProfileForm = () => {
             backgroundColor: '#111',
             margin: 'auto',
             marginBottom: 10,
+            cursor: 'pointer',
           }}
         />
       )}
