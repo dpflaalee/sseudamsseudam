@@ -11,7 +11,7 @@ import GroupJoinRequests from "@/components/groups/GroupJoinRequests";
 import wrapper from "@/store/configureStore";
 import axios from "axios";
 import { END } from "redux-saga";
-import { LOAD_JOIN_REQUESTS_REQUEST, LOAD_MEMBERS_REQUEST } from "@/reducers/group";
+import { LOAD_GROUPS_REQUEST, LOAD_JOIN_REQUESTS_REQUEST, LOAD_MEMBERS_REQUEST } from "@/reducers/group";
 import { LOAD_MY_INFO_REQUEST } from "@/reducers/user";
 import { LOAD_POSTS_REQUEST } from "@/reducers/post";
 
@@ -26,15 +26,19 @@ const GroupMain = () => {
   const currentUserId = useSelector((state) => state.user.user?.id);
 
   // 방장 여부 판별
-  const isLeader = members?.some(
-    (member) => member.id === currentUserId && member.isLeader
-  );
+  const isLeader = members?.some((member) => member.id === currentUserId && member.isLeader );
 
   //승인/거절용 가입 멤버 불러오기
   useEffect(()=>{
     if(groupId){dispatch({type: LOAD_MEMBERS_REQUEST, data:groupId});}
     if(isLeader){dispatch({type:LOAD_JOIN_REQUESTS_REQUEST, data: groupId});}
   },[groupId, dispatch, isLeader])
+  console.log('groupId.................', groupId)
+
+  const allGroups = useSelector((state)=>state.group.groups);
+  console.log('allGroups............', allGroups)
+  const groupDetail = allGroups.find((group)=>group.id ===parseInt(groupId, 10));
+  console.log('그룹디테일.............', groupDetail);
 
   return (
     <AppLayout group={group}>
@@ -43,6 +47,7 @@ const GroupMain = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isLeader={isLeader}
+        title={groupDetail?.title}
       />
       {activeTab === "timeline" && (
         <>
@@ -76,6 +81,7 @@ export const getServerSideProps = wrapper.getServerSideProps( async (context) =>
   context.store.dispatch({type: LOAD_POSTS_REQUEST});
   context.store.dispatch({type: LOAD_MEMBERS_REQUEST});
   context.store.dispatch({type: LOAD_JOIN_REQUESTS_REQUEST});
+  context.store.dispatch({type: LOAD_GROUPS_REQUEST});
   context.store.dispatch(END);
 
   await context.store.sagaTask.toPromise();
