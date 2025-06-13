@@ -15,6 +15,7 @@ import TARGET_TYPE from '../../../../shared/constants/TARGET_TYPE';
 import { LOAD_POSTS_REQUEST } from '../../../reducers/post';
 import MyPrize from '@/components/prize/MyPrize';
 import AnimalList from '@/components/animal/AnimalList';
+import { LOAD_USER_ANIMAL_LIST_REQUEST } from '@/reducers/animal';
 
 const MyPage = () => {
     const dispatch = useDispatch();
@@ -23,7 +24,7 @@ const MyPage = () => {
     const router = useRouter();
     const { myPage } = router.query;
     const { myAnimals, selectedAnimal } = useSelector((state) => state.animal);
-
+    const { userDetailAnimals } = useSelector((state) => state.animal);
     // 신고 당한 유저 블라인드 처리
     const { mainComplainCard } = useSelector((state) => state.complain);
 
@@ -40,10 +41,10 @@ const MyPage = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        if (user) {
-            dispatch({ type: 'LOAD_ANIMAL_LIST_REQUEST' });
+        if (myPage) {
+            dispatch({ type: LOAD_USER_ANIMAL_LIST_REQUEST, data: Number(myPage) });
         }
-    }, [user, dispatch]);
+    }, [myPage]);
 
     const isBlinded = mainComplainCard.some((report) => {
         return Number(report.targetId) === Number(myPage) && report.isBlind && report.targetType === TARGET_TYPE.USER;
@@ -64,7 +65,7 @@ const MyPage = () => {
                 onShowMyPrize={onShowMyPrize}
                 isMyProfile={user?.id === myPage}
             />
-
+            <AnimalList animals={userDetailAnimals} ownerId={Number(myPage)} />
             {/* "내 쿠폰함" 버튼을 클릭했을 때 MyPrize만 렌더링 */}
             {showMyPrize ? (
                 <MyPrize />
@@ -74,7 +75,6 @@ const MyPage = () => {
                     return <PostCard post={post} key={post.id} />;
                 })
             )}
-            <AnimalList animals={myAnimals} />
         </AppLayout>
     );
 }

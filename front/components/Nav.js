@@ -1,7 +1,7 @@
-import React, { useState,useRef,useEffect, useCallback } from "react";
-import { MailOutlined, HomeOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, BellOutlined, UserOutlined, BellTwoTone } from "@ant-design/icons";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { MailOutlined, HomeOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, BellOutlined, UserOutlined, BellTwoTone, AuditOutlined } from "@ant-design/icons";
 import styled from 'styled-components';
-import { Avatar, Dropdown, Menu, Button, Modal,Card,Skeleton,Input,Form } from "antd";
+import { Avatar, Dropdown, Menu, Button, Modal, Card, Skeleton, Input, Form } from "antd";
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from "react-redux";
 import { LOG_OUT_REQUEST, USER_PROFILE_UPDATE_REQUEST } from "@/reducers/user";
@@ -28,18 +28,18 @@ const Nav = () => {
   const [openKeys, setOpenKeys] = useState([]);
   const dispatch = useDispatch();
   const { logOutLoading, user, imagePaths } = useSelector(state => state.user);
-    const [text, onChangeText, setText] = userInput(''); 
+  const [text, onChangeText, setText] = userInput('');
   const onLogout = useCallback(() => {
-     dispatch({ type: LOG_OUT_REQUEST }) 
-     router.replace('/');
-    }, [])
-  const onUserDelete = useCallback(()=> {
+    dispatch({ type: LOG_OUT_REQUEST })
+    router.replace('/');
+  }, [])
+  const onUserDelete = useCallback(() => {
 
   })
   const [modalFlag, setModalFlag] = useState(false);
-  const onUserProfileUpdate = useCallback(()=>{
+  const onUserProfileUpdate = useCallback(() => {
     setModalFlag(prev => !prev);
-  },[])
+  }, [])
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
@@ -52,39 +52,39 @@ const Nav = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const onChange = (checked) => {
     setLoading(!checked);
   };
   const [nickname, setNickname] = useState('홍길동');
   const onChangeNickname = useCallback((e) => {
     setNickname(e.target.value);
-  },[nickname])
+  }, [nickname])
 
   const imageInput = useRef();
   const onClickImageUpload = useCallback(() => {
-    console.log('imageInput.current=',imageInput.current);
-    if (imageInput.current) {  
+    console.log('imageInput.current=', imageInput.current);
+    if (imageInput.current) {
       imageInput.current.click();
     }
   }, []);
   const onChangeImage = useCallback((e) => {
-    console.log(`.....`,e.target.files);
+    console.log(`.....`, e.target.files);
     const imageFormData = new FormData();
 
-      [].forEach.call(e.target.files, (f)=>{
-         imageFormData.append('image',f);
-     });
+    [].forEach.call(e.target.files, (f) => {
+      imageFormData.append('image', f);
+    });
     //   Array.from(e.target.files).forEach((f) => {
     //     console.log('array');
     //     console.log(f);
     //     imageFormData.append('image', f);
     // });
     dispatch({
-      type:UPLOAD_IMAGES_REQUEST,
-      data:imageFormData,
+      type: UPLOAD_IMAGES_REQUEST,
+      data: imageFormData,
     })
-  },[]);
+  }, []);
   useEffect(() => {
     const handleResize = () => { setIsMobile(window.innerWidth <= 768); };
     window.addEventListener("resize", handleResize);
@@ -92,22 +92,33 @@ const [loading, setLoading] = useState(false);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const [imgFile, setImgFile] = useState("");
+  const imgRef = useRef();
+  //이미지 미리보기
+  const saveImgFile = () => {
+    const file = imgRef.current.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      setImgFile(reader.result);
+    };
+  };
   const onSubmitForm = useCallback(() => {
     //1. 글 있는지 확인 
-    if(!text || !text.trim()){
+    if (!text || !text.trim()) {
       return alert('게시글을 작성하세요.')
     }
     //2. content - text 으로 넘기기
     //3. image - 이미지도 있다면
     const formData = new FormData();
-    imagePaths.forEach((i) => {formData.append('image', i)});
+    imagePaths.forEach((i) => { formData.append('image', i) });
     formData.append('content', text);
-    
+
     dispatch({
       type: USER_PROFILE_UPDATE_REQUEST,
       data: formData   //##
     });
-  }, [text,imagePaths]);
+  }, [text, imagePaths]);
   const handleClick = ({ key }) => {
     if (key === 'notice') router.push('/adminNoti');
     if (key === 'home') router.push('/main');
@@ -134,6 +145,9 @@ const [loading, setLoading] = useState(false);
   dispatch({
     type: LOAD_NOTIFICATION_REQUEST
   }, [dispatch]);
+
+  // 내가 관리자인지?
+  const me = useSelector(state => state.user);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -176,64 +190,66 @@ const [loading, setLoading] = useState(false);
           </Menu.Item>
           <Menu.Item key="search" icon={<SearchOutlined />}>{!isMobile && "검색"}</Menu.Item>
           <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item>
+          {(me.user && me.user.isAdmin) ? <Menu.Item key="admin" onClick={() => router.push('/admin')} icon={<AuditOutlined />}>{!isMobile && "관리자 페이지"}</Menu.Item> : ''}
         </Menu>
       </div>
-      {modalFlag&&
-      <Form onFinish={onSubmitForm}>
-        <div>
-          {/* <Button type="primary" onClick={showModal}>
+      {modalFlag &&
+        <Form onFinish={onSubmitForm}>
+          <div>
+            {/* <Button type="primary" onClick={showModal}>
             Open Modal
             </Button> */}
-          <Modal title="Basic Modal" 
-          open={isModalOpen} 
-          onOk={handleOk} 
-          onCancel={handleCancel}
-          footer={[
-           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} key="footer-buttons">
-            <Form.Item style={{ margin: 0 }}>
-              <input
-                type="file"
-                name="image"
-                multiple
-                hidden
-                ref={imageInput}
-                style={{ display: 'none' }}
-                onChange={onChangeImage}
-              />
-              <Button onClick={onClickImageUpload}>프로필편집</Button>
-            </Form.Item>
-            <Button key="submit" type="primary" loading={loading} onClick={handleOk}>
-              프로필변경
-            </Button>
-            <Button key="back" onClick={handleCancel}>
-              나가기
-            </Button>
-          </div>,
-          ]}
-          >
-            <Card
-              style={{
-                width: 450,
-                marginTop: 16,
-              }}
-              actions={[
-                
+            <Modal title="Basic Modal"
+              open={isModalOpen}
+              onOk={handleOk}
+              onCancel={handleCancel}
+              footer={[
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} key="footer-buttons">
+                  <Form.Item style={{ margin: 0 }}>
+                    <input
+                      type="file"
+                      name="image"
+                      multiple
+                      hidden
+                      ref={imgRef}
+                      style={{ display: 'none' }}
+                      onChange={saveImgFile}
+                    />
+                    <Button onClick={() => imgRef.current?.click()}>프로필편집</Button>
+                  </Form.Item>
+                  <Button key="submit" type="primary" loading={loading} onClick={handleOk}>
+                    프로필변경
+                  </Button>
+                  <Button key="back" onClick={handleCancel}>
+                    나가기
+                  </Button>
+                </div>,
               ]}
+            >
+              <Card
+                style={{
+                  width: 450,
+                  marginTop: 16,
+                }}
+                actions={[
+
+                ]}
               >
                 <Card.Meta
                   // avatar={<Avatar  src="https://joeschmoe.io/api/v1/random" />}
-                  avatar={<Avatar  icon={<UserOutlined />} />}
+                  avatar={<Avatar src={imgFile ? imgFile : "/images/user.png"} />}
+                  //avatar={<Avatar  icon={<UserOutlined />} />}
                   title={<div style={{ fontSize: '15px', color: 'black' }}>{nickname}</div>}
                   description=""
                   style={{
                     marginBottom: 16,
                   }}
-                  />
-                <UnderlineInput value={nickname} onChange={onChangeNickname} placeholder="기존 닉네임 노출(해당 칸에 입력하여 변경)"/>
-            </Card>
-          </Modal>
-        </div>
-      </Form>
+                />
+                <UnderlineInput value={nickname} onChange={onChangeNickname} placeholder="기존 닉네임 노출(해당 칸에 입력하여 변경)" />
+              </Card>
+            </Modal>
+          </div>
+        </Form>
       }
     </div>
 
