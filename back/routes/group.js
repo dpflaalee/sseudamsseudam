@@ -47,6 +47,21 @@ router.post('/', isLoggedIn, async (req, res, next) => {
   } catch (error) { console.error('🔥 전체 에러:', error); res.status(500).json(error); console.error(error); next(error); }
 });
 
+//3-0. 단일 그룹 불러오기
+router.get('/:groupId', async(req,res,next)=>{
+  try{
+    const{groupId} = req.params;
+    const group = await Group.findByPk(groupId,{
+      include:[
+        {model: Category, through: {attributes: []} }
+       ,{model: OpenScope, attributes: [ 'id', 'content' ]}
+      ]
+    });
+    if(!group){ return res.status(404).send('그룹이 존재하지 않습니다.')};
+    res.status(200).json(group);
+  }catch(error){console.error(error); next(error);}
+})
+
 //3. 그룹 수정
 router.patch('/:groupId', isLoggedIn, async (req, res, next) => {
   try {

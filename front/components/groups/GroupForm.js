@@ -13,11 +13,26 @@ const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => {
   const { createGroupLoading, updateGroupLoading } = useSelector((state) => state.group);
   const [animalCategories, setCategoryOptions] = useState([]);
 
+  useEffect(()=>{
+    if(initialValues){
+      form.setFieldValue({
+        title: '',
+        categories: [],
+        content: '',
+        isPrivate: false,
+        ...initialValues,
+      });
+      console.log('GroupForm 초기값 세팅............', initialValues);
+    }
+  }, [initialValues]);
+
   const handleFinish = (values) => {
+    console.log ('GroupForm................values', values);
     const categoryIds = values.categories;
     const openScopeId = values.isPrivate ? 2 : 1;
 
     const payload = { title: values.title, content: values.content, categoryIds, openScopeId };
+    console.log('GroupFomr..........payload', payload);
     onFinish(mode === 'edit' ? { ...payload, groupId } : payload);
   };
 
@@ -31,6 +46,8 @@ const GroupForm = ({ initialValues = {}, onFinish, mode = 'create' }) => {
     };
     fetchCategories();
   }, []);
+
+  
 
   return (
     <Form

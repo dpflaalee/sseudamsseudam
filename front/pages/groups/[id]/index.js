@@ -33,12 +33,10 @@ const GroupMain = () => {
     if(groupId){dispatch({type: LOAD_MEMBERS_REQUEST, data:groupId});}
     if(isLeader){dispatch({type:LOAD_JOIN_REQUESTS_REQUEST, data: groupId});}
   },[groupId, dispatch, isLeader])
-  console.log('groupId.................', groupId)
 
   const allGroups = useSelector((state)=>state.group.groups);
   console.log('allGroups............', allGroups)
   const groupDetail = allGroups.find((group)=>group.id ===parseInt(groupId, 10));
-  console.log('그룹디테일.............', groupDetail);
 
   return (
     <AppLayout group={group}>

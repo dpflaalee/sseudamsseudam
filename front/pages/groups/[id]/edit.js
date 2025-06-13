@@ -15,27 +15,28 @@ const EditGroupPage = () => {
   const {group} = useSelector((state)=>state.group)
 
   useEffect(()=>{
-    if(groupId){ dispatch({type: LOAD_SINGLE_GROUP_REQUEST, data: groupId}); }
-  }, [groupId]);
+    if(router.isReady && groupId){ dispatch({type: LOAD_SINGLE_GROUP_REQUEST, data: groupId}); }
+  }, [router.isReady, groupId, dispatch]);
 
   useEffect(()=>{
     if(updateGroupDone){router.push(`/groups/${groupId}`);} //  수정 후 그룹상세로 이동
-  }, [updateGroupDone]);
+  }, [updateGroupDone, router, groupId]);
 
   const handleSubmit = (formData) =>{
     dispatch({ type: UPDATE_GROUP_REQUEST, data: {groupId, ...formData} });
   };
 
-  return(<AppLayout group={group}>
+  return(<AppLayout group={singleGroup}>
     {singleGroup?(
       <GroupForm
         initialValues={{
           title: singleGroup.title,
           content: singleGroup.content,
           categoryIds: singleGroup.Categories.map((c)=>c.id),
-          openScopeId: singleGroup.OpenScope?.id
+          openScopeId: singleGroup.OpenScope?.id===2
         }}
         onFinish={handleSubmit}
+        mode="edit"
         isEditing={true}
         loading={updateGroupLoading}
       />

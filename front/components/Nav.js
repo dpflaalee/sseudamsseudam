@@ -28,18 +28,16 @@ const Nav = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [openKeys, setOpenKeys] = useState([]);
   const dispatch = useDispatch();
+  const { logOutLoading, user, userImagePaths } = useSelector(state => state.user);  
   const{userGroups} = useSelector((state)=>state.group);
-
-  useEffect(()=>{
-    dispatch({type: LOAD_USER_GROUPS_REQUEST});
-  }, [dispatch]);
-
-  const { logOutLoading, user, userImagePaths } = useSelector(state => state.user);
   const [nickname, onChangeNickname, setNickname] = userInput(user?.nickname); 
   const onLogout = useCallback(() => {
      dispatch({ type: LOG_OUT_REQUEST }) 
      router.replace('/');
     }, [])
+  useEffect(()=>{
+    dispatch({type: LOAD_USER_GROUPS_REQUEST});
+  }, [dispatch]);
     //닉네임 초기값
   useEffect(() => {
     if (user?.nickname) {
