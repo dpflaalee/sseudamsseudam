@@ -253,7 +253,6 @@ function followAPI(data) {
 function* follow(action) {
   console.log('followData1111', typeof action.data);
 
-  // 알림
   try {
     const result = yield call(followAPI, action.data);
     console.log('followData2222', result.data);
@@ -347,7 +346,6 @@ function addBlocksApi(data) {
   return axios.patch(`/user/${data}/block`, data);
 }
 function* addBlocks(action) {
-  console.log('🐬 addBlocks : ', action.data);
   const result = yield call(addBlocksApi, action.data);
   try {
     yield delay(1000);
