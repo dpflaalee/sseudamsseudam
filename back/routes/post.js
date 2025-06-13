@@ -147,6 +147,27 @@ router.get('/:postId', async (req, res, next) => {
       return res.status(404).send('게시글이 존재하지 않습니다.');
     }
 
+if (post?.Retweet?.UserId && req.user) {
+  const blockedRetweet = await Blacklist.findOne({
+    where: {
+      [Sequelize.Op.or]: [
+        { BlockingId: req.user.id, BlockedId: post.Retweet.UserId },
+        { BlockingId: post.Retweet.UserId, BlockedId: req.user.id },
+      ]
+    }
+  });
+
+  if (blockedRetweet) {
+    // 리트윗된 원글을 비공개 처리 (내용과 작성자 숨김)
+    post.Retweet.content = '비공개된 게시물입니다.';
+    post.Retweet.User = null;
+    post.Retweet.Images = [];
+    post.Retweet.Comments = [];
+    post.Retweet.Likers = [];
+    // 필요한 필드 초기화 또는 비우기
+  }
+}
+
     const isBlocked = await Blacklist.findOne({
       where: {
         [Sequelize.Op.or]: [
