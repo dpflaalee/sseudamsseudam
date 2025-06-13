@@ -198,13 +198,13 @@ const signup = () => {
     // 5. dispatch ###
   } , [username, phoneNum, email, password, passwordRe, nickname]);
     return (
-         <>
+         <div style={{display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", width: "100%",}}>
       <Head>
         <meta charSet="utf-8"/>
         <title> Signup | TheJoa </title>
       </Head>
-      <AppLayout>
-         <Form  layout='vertical'  style={{ margin:'2%' }}  onFinish={onSubmitForm}  > 
+      <div  style={{ width: '100%', maxWidth: "80%", margin: '0 auto' }}>
+         <Form  layout='vertical' style={{  width: '100%', padding: '20px', boxSizing: 'border-box',}}  onFinish={onSubmitForm}  > 
         
         {/* <Form  layout='vertical'  style={{ margin:'2%' }}  > */}
           <Form.Item>
@@ -212,6 +212,11 @@ const signup = () => {
             <UnderlineInput placeholder='이름' id='username'
                 value={username} onChange={onChangeUsername}    name='username' required />
           </Form.Item>
+          <Form.Item>
+             <label htmlFor='nickname'></label>
+            <UnderlineInput placeholder='닉네임' id='nickname'
+                value={nickname} onChange={onChangeNickname}  name='nickname'  required />
+          </Form.Item>          
           <Form.Item>
             <label htmlFor='email'></label>
             <UnderlineInput placeholder='이메일' id='email'
@@ -264,11 +269,6 @@ const signup = () => {
             {passwordReError   && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>}
           </Form.Item>
           <Form.Item>
-             <label htmlFor='nickname'></label>
-            <UnderlineInput placeholder='닉네임' id='nickname'
-                value={nickname} onChange={onChangeNickname}  name='nickname'  required />
-          </Form.Item>
-          <Form.Item>
            
             {/* <Checkbox name='check' id='check' checked={check}
                       onChange={onChangeCheck}
@@ -280,8 +280,8 @@ const signup = () => {
             {/* <Button type='primary'   htmlType='submit'  style={{width:'100%'}} >회원가입</Button> */}
           </Form.Item>
         </Form>
-      </AppLayout>
-    </>
+      </div>
+    </div>
     )
 }
 
