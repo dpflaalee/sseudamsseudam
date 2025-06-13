@@ -240,12 +240,18 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
     case USER_PROFILE_UPDATE_REQUEST:
       console.log('USER_PROFILE_UPDATE_REQUEST', action.data);
+      for (let pair of action.data.entries()) {
+        console.log('📦 saga에서 FormData 확인:', pair[0], pair[1]);
+      }
       draft.userProfileLoading= true; //회원 프로필 수정 시도중
       draft.userProfileDone= false;
       draft.userProfileError= null;
+      //draft.userImagePaths= action.data;
       break;
     case USER_PROFILE_UPDATE_SUCCESS:
-      draft.userImagePaths = [];
+      console.log('USER_PROFILE_UPDATE_SUCCESS=',action.data);
+      draft.userImagePaths = draft.userImagePaths.concat(action.data);
+      //draft.userImagePaths = action.data;
       draft.userProfileLoading= false;
       draft.userProfileDone= false;
       break;
@@ -255,13 +261,15 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
 
     case USER_IMAGE_UPDATE_REQUEST:
-      console.log('reducers = USER_IMAGE_UPDATE_REQUEST', action.data);
+      console.log('USER_IMAGE_UPDATE_REQUEST',action.data);
       draft.userImageLoading= true; //회원 이미지 수정 시도중
       draft.userImageDone= false;
       draft.userImageError= null;
       break;
     case USER_IMAGE_UPDATE_SUCCESS:
+      console.log('USER_IMAGE_UPDATE_SUCCESS',action.data);
       draft.userImagePaths = draft.userImagePaths.concat(action.data);
+      //draft.userImagePaths = action.data;
       draft.userImageLoading= false;
       draft.userImageDone= false;
       break;
