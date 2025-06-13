@@ -250,10 +250,10 @@ function* changeUserProfile(action) {
     });
   }
 }
-//-- 
+//이미지 불러옴
 function changeUserImageAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
   console.log('image=', data);
-  return axios.post('/user/image', data);   //         /user 경로 , post, 회원가입정보(data)
+  return axios.post('/user/images', data);   //         /user 경로 , post, 회원가입정보(data)
 }
 function* changeUserImage(action) {
   console.log('image=', action);
