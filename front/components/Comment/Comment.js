@@ -380,6 +380,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                 {comment.Recomments.length === 0 && <div>대댓글이 없습니다.</div>}
                 {comment.Recomments.map((recomment) => {
                 const reCreatedAt = recomment.createdAt ? new Date(recomment.createdAt).toLocaleString() : '';
+                const isRecommentAuthor = user?.id && Number(user.id) === Number(recomment.User?.id);
                 const isDeleted = recomment.isDeleted;
 
                 const displayContent = isDeleted ? '삭제된 댓글입니다.' : recomment.content;
@@ -393,7 +394,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                 // 대댓글 메뉴 정의
                 const recommentMenu = (
                   <Menu>
-                    {isAuthor && !isDeleted && (
+                    {isRecommentAuthor && !isDeleted && (
                       <>
                         <Menu.Item onClick={() => onClickEditRecomment(recomment)}>
                           {editingRecommentId === recomment.id ? '수정 취소' : '수정'}
