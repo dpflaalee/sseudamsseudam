@@ -53,9 +53,9 @@ async function seedOpenScopes() {
     const hashedPassword = await bcrypt.hash('1234',10);
     await db.User.bulkCreate([
       { id: 1, username: 'admin' , email:'admin', nickname:'admin', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
-      { id: 2, username: 'test1' , email:'test1', nickname:'test1', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
-      { id: 3, username: 'test2' , email:'test2', nickname:'test2', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
-      { id: 4, username: 'test3' , email:'test3', nickname:'test3', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
+      { id: 2, username: 'test1' , email:'test1', nickname:'test1', password:hashedPassword,phonenumber:11, isAdmin:0,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
+      { id: 3, username: 'test2' , email:'test2', nickname:'test2', password:hashedPassword,phonenumber:11, isAdmin:0,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
+      { id: 4, username: 'test3' , email:'test3', nickname:'test3', password:hashedPassword,phonenumber:11, isAdmin:0,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
     ]);
     console.log('OpenScope 기본 데이터 삽입 완료');
   }
