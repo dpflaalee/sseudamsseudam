@@ -51,22 +51,23 @@ router.post('/', isNotLoggedIn, async (req, res, next) => {   //res.send('..... 
   try {
     console.log('req.body=', req.body);
     //1. 이메일중복확인  sql - select :  객체.findOne
-    const user = await User.findOne({ where: { email: req.body?.email, } });
+   // const user = await User.findOne({ where: { email: req.body?.email, } });
     //2. 결과확인 - 존재하면 이미사용중인 아이디입니다.
-    if (user) { return res.status(403).send('이미사용중인 아이디입니다.'); }
+    //if (user) { return res.status(403).send('이미사용중인 아이디입니다.'); }
     //3. 비밀번호 암호화
     const hashPassword = await bcrypt.hash(req.body.password, 12);  // 암호화강도 10~13
     //4. 사용자 생성  객체.create - insert
-    await User.create({
+    const user = await User.create({
       username: req.body.username,
       email: req.body.email,
       nickname: req.body.nickname,
       password: hashPassword,
       phonenumber: req.body.phoneNum,
     });
-    await UserProfileImage.create({
+    const image = await UserProfileImage.create({
       src: ''
     })
+    await user?.addUserProfileImage(image);
     //5. 응답 - 회원가입 성공 ok
     res.status(201).send('회원가입완료!');
   } catch (error) {
@@ -96,6 +97,7 @@ router.post('/login', isNotLoggedIn, async (req, res, next) => {
         include: [{ model: Post, attributes: ['id'] }
           , { model: User, as: 'Followings', attributes: ['id'] }  // 사용자가 팔로우한    다른user id
           , { model: User, as: 'Followers', attributes: ['id'] }  // 사용자를 팔로우하는   다른user id
+          , {model: UserProfileImage, attributes: ['id']}
         ],
       });
       return res.status(200).json(fullUser);
@@ -125,7 +127,7 @@ router.get('/', async (req, res, next) => {
           { model: Post, attributes: ['id'] }
           , { model: User, as: 'Followings', attributes: ['id'] }
           , { model: User, as: 'Followers', attributes: ['id'] }
-          , { model: UserProfileImage, attributes: ['id'] }
+          , { model: UserProfileImage}
         ]// Post, Followers , Followings
       });
       res.status(200).json(fullUser);
