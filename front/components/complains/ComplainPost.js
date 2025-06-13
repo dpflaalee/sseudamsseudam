@@ -192,6 +192,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
         ]}
       // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}
       >
+
         {post.RetweetId && post.Retweet ? (
           <Card
             cover={
@@ -214,6 +215,11 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
                   postData={post.Retweet.content}
                 />}
             />
+            {post.Images && post.Images.length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+                <PostImages images={post.Images} />
+              </div>
+            )}
           </Card>
         ) : (
           <Card.Meta

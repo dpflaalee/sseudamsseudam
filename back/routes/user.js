@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const passport = require('passport');
 const nodemailer = require('nodemailer');
-const { User, Post, Blacklist,UserProfileImage } = require('../models');
+const { User, Post, Blacklist, UserProfileImage } = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const { Transaction } = require('sequelize');
 const multer = require('multer');  // 파일업로드
@@ -18,10 +18,10 @@ const fs = require('fs');  // file system
 // delete :  객체.destroy()
 
 try {
-    fs.accessSync('userImages');  // 폴더 존재여부 확인
+  fs.accessSync('userImages');  // 폴더 존재여부 확인
 } catch (error) {
-    console.log('uploads 폴더가 없으면 생성합니다. ');
-    fs.mkdirSync('userImages'); // 폴더만들기
+  console.log('uploads 폴더가 없으면 생성합니다. ');
+  fs.mkdirSync('userImages'); // 폴더만들기
 }
 /////////////////////////////////////////////////
 //1. 업로드 설정
@@ -29,17 +29,17 @@ const upload = multer({
   storage: multer.diskStorage({ // 저장소설정 - 업로드된 파일의 저장위치,파일이름 지정하는 역할
     //파일을 디스크 (로컬 파일시스템)에 저장하도록 설정
     destination(req, file, done) {  // 지정경로
-      done(       null,  'uploads');  //지정경로 지정 - 콜백  
+      done(null, 'userImages');  //지정경로 지정 - 콜백  
       //  null 에러없음,   uploads  저장될 폴더경로
     },
     filename(req, file, done) {  // 업로드된 파일이름 지정
       // images1.png
-      const ext      = path.extname(file.originalname);       //1. 확장자 추출  .png
+      const ext = path.extname(file.originalname);       //1. 확장자 추출  .png
       const basename = path.basename(file.originalname, ext); //2. 이미지이름   images1
       done(null, basename + '_' + new Date().getTime() + ext);//3. images1_날짜지정.png
     },
   }),
-  limits : { fileSize: 10*1024*1024 }   // 10MB
+  limits: { fileSize: 10 * 1024 * 1024 }   // 10MB
 });
 
 // 1. 회원가입
@@ -51,22 +51,23 @@ router.post('/', isNotLoggedIn, async (req, res, next) => {   //res.send('..... 
   try {
     console.log('req.body=', req.body);
     //1. 이메일중복확인  sql - select :  객체.findOne
-    const user = await User.findOne({ where: { email: req.body?.email, } });
+    // const user = await User.findOne({ where: { email: req.body?.email, } });
     //2. 결과확인 - 존재하면 이미사용중인 아이디입니다.
-    if (user) { return res.status(403).send('이미사용중인 아이디입니다.'); }
+    //if (user) { return res.status(403).send('이미사용중인 아이디입니다.'); }
     //3. 비밀번호 암호화
     const hashPassword = await bcrypt.hash(req.body.password, 12);  // 암호화강도 10~13
     //4. 사용자 생성  객체.create - insert
-    await User.create({
+    const user = await User.create({
       username: req.body.username,
       email: req.body.email,
       nickname: req.body.nickname,
       password: hashPassword,
       phonenumber: req.body.phoneNum,
     });
-    await UserProfileImage.create({
+    const image = await UserProfileImage.create({
       src: ''
     })
+    await user?.addUserProfileImage(image);
     //5. 응답 - 회원가입 성공 ok
     res.status(201).send('회원가입완료!');
   } catch (error) {
@@ -96,6 +97,7 @@ router.post('/login', isNotLoggedIn, async (req, res, next) => {
         include: [{ model: Post, attributes: ['id'] }
           , { model: User, as: 'Followings', attributes: ['id'] }  // 사용자가 팔로우한    다른user id
           , { model: User, as: 'Followers', attributes: ['id'] }  // 사용자를 팔로우하는   다른user id
+          , { model: UserProfileImage, attributes: ['id'] }
         ],
       });
       return res.status(200).json(fullUser);
@@ -125,7 +127,9 @@ router.get('/', async (req, res, next) => {
           { model: Post, attributes: ['id'] }
           , { model: User, as: 'Followings', attributes: ['id'] }
           , { model: User, as: 'Followers', attributes: ['id'] }
-          , { model: UserProfileImage, attributes: ['id']}
+          , { model: User, as: 'Blocking', attributes: ['id'] }
+          , { model: User, as: 'Blocked', attributes: ['id'] }
+          , { model: UserProfileImage }
         ]// Post, Followers , Followings
       });
       res.status(200).json(fullUser);
@@ -137,34 +141,48 @@ router.get('/', async (req, res, next) => {
     next(error);
   }
 });
-router.get('/', async (req, res, next) => {
-  try{
+router.post('/profileUpdate', isLoggedIn , upload.array('nickname'), async (req, res, next) => {
+  //res.send('닉네임변경');
+  // update users   set  nickname=?  where  id=? 
+  console.log('닉네임변경=',req.body.nickname);
+  try {
     await User.update({
-        nickname: req.body.nickname,
-    },{
-      where: {id:req.user.id},
-      transaction:t
-    })
+      nickname: req.body.nickname,
+    }, {
+      where: { id: req.user.id },transaction:t
+    });
     await UserProfileImage.update({
-      src: req.body.imagePaths,
-    },{
-      where: {src: req.user.id},
-      transaction:t
+      src: req.files[0].originalname,
+    }, {
+      where: { userId: req.user.id },transaction:t
     })
     await t.commit();
-    res.status(201).json({success: true});
-  }catch(error){
-    await t.rollback();
-    console.log(error);
-    next(error)
+    res.status(201).json({ success: true });
+  } catch (error) {
+    await t.commit();
+    console.error(error);
+    next(error);
   }
-})
+});
+router.post('/images', isLoggedIn, upload.array('image'), (req, res, next) => { 
+  console.log(req.files);
+  res.json(  req.files.map(  (v)=> v.filename  ));
+});
 
 router.get('/postUser', async (req, res, next) => {
   // res.send('사용자정보조회');
   console.log('사용자정보조회', req.user.id);
   console.log('postUser프로필확인', req.query.userId);
   try {
+    // 상대방 아이디
+    const targetUserId = req.query.userId;
+    // 내 아이디
+    const meId = req.user?.id;
+    // 차단한 유저 확인
+    const isBlocked = await Blacklist.findOne({
+      where: { BlockingId: targetUserId, BlockedId: meId },
+    });
+
     //1) 로그인사용자확인
     //2) 로그인한유저 정보반환
     if (req.user) {
@@ -175,9 +193,14 @@ router.get('/postUser', async (req, res, next) => {
           { model: Post, attributes: ['id'] }
           , { model: User, as: 'Followings', attributes: ['id'] }
           , { model: User, as: 'Followers', attributes: ['id'] }
+          , { model: User, as: 'Blocking', attributes: ['id'] } // ✅ 이게 차단한 유저
+          , { model: User, as: 'Blocked', attributes: ['id'] }  // 이건 나를 차단한 유저
         ]// Post, Followers , Followings
       });
-      res.status(200).json(fullUser);
+      res.status(200).json({
+        ...fullUser?.toJSON(),
+        isBlockedMe: !!isBlocked,
+      });
     } else {
       res.status(200).json(null);   //로그인안되면 null 반환
     }
@@ -249,9 +272,10 @@ router.delete('/userDelete', isLoggedIn, async (req, res, next) => {
 // 1. 로그인
 // 2. Header 쿠키설정
 // 3. Body  - [Raw] - [Json]  {  "nickname":"4444" }
-router.post('/nickname', isLoggedIn, async (req, res, next) => {
+router.post('/nickname', isLoggedIn , upload.array('nickname'), async (req, res, next) => {
   //res.send('닉네임변경');
   // update users   set  nickname=?  where  id=? 
+  console.log('닉네임변경=',req.body.nickname);
   try {
     await User.update({
       nickname: req.body.nickname,
@@ -488,13 +512,52 @@ router.patch('/:userId/block', isLoggedIn, async (req, res, next) => {
   console.log('차단 당하는 유저 아이디=', req.params.userId);
   console.log('내 아이디=', req.user.id);
   try {
-    const me = await User.findOne({ where: { id: req.user.id } });
-    await me.addBlocking(req.params.userId);
-    if (!me) { res.status(403).send('유저를 확인해주세요'); }
+    const me = await User.findOne({
+      where: { id: req.user.id },
+      include: [
+        { model: User, as: 'Followings', attributes: ['id'] },
+        { model: User, as: 'Followers', attributes: ['id'] },
+      ],
+    });
+
+    const target = await User.findOne({
+      where: { id: req.params.userId },
+      include: [
+        { model: User, as: 'Followings', attributes: ['id'] },
+        { model: User, as: 'Followers', attributes: ['id'] },
+      ],
+    });
+
+    if (!me || !target) {
+      return res.status(403).send('유저를 확인해주세요');
+    }
+
+    // 내가 팔로우했으면 끊기
+    if (me.Followings.some(u => u.id === target.id)) {
+      await me.removeFollowings(target);
+    }
+
+    // 내가 팔로워로 등록되어 있으면 끊기
+    if (me.Followers.some(u => u.id === target.id)) {
+      await me.removeFollowers(target);
+    }
+
+    // 상대가 나를 팔로우했으면 끊기
+    if (target.Followings.some(u => u.id === me.id)) {
+      await target.removeFollowings(me);
+    }
+
+    // 상대가 나를 팔로워로 등록했으면 끊기
+    if (target.Followers.some(u => u.id === me.id)) {
+      await target.removeFollowers(me);
+    }
+
+    // 차단 등록
+    await me.addBlocking(target);
 
     res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
   } catch (error) {
-    console.error(error);
+    console.error('🚨 차단 중 에러:', error);
     next(error);
   }
 });
@@ -514,6 +577,5 @@ router.delete('/:userId/block', isLoggedIn, async (req, res, next) => {
     next(error);
   }
 });
-
 /////////////////////////////////////
 module.exports = router;

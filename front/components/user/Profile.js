@@ -4,15 +4,12 @@ import styled from 'styled-components';
 import { MoreOutlined } from '@ant-design/icons';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
-import useSelection from 'antd/lib/table/hooks/useSelection';
 import FollowButton from './FollowButton';
-import MyPrize from '@/components/prize/MyPrize';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { LOAD_BLOCK_REQUEST, ADD_BLOCK_REQUEST, REMOVE_BLOCK_REQUEST, LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'
 import Router from 'next/router';
-import PostCard from '../post/PostCard';
 import axios from 'axios';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 
@@ -94,6 +91,25 @@ const Profile = (props) => {
   const [showMyPrize, setShowMyPrize] = useState(false);
   const { onShowMyPrize } = props
 
+
+  // 차단 한 유저인지 확인
+  const me = useSelector(state => state.user);
+  console.log(me);
+
+  console.log('me.user.Blocking:', me.user?.Blocking);
+  console.log('postUserId:', postUserId);
+
+  const blockingList = me.user?.Blocking || [];
+  console.log('blockingList:', blockingList);
+
+  const [isBlockedByMe, setIsBlockedByMe] = useState(null);
+
+  useEffect(() => {
+    const blocked = blockingList.some((u) => Number(u.Blacklist?.BlockedId) === Number(postUserId));
+    setIsBlockedByMe(blocked);
+    console.log('🧪 차단 여부 판단 결과:', blocked);
+  }, [blockingList, postUserId]);
+
   // 신고 당한 유저 블라인드 처리
   const { mainComplainCard } = useSelector((state) => state.complain);
 
@@ -107,10 +123,6 @@ const Profile = (props) => {
     return Number(report.targetId) === Number(postUserId) && report.isBlind && report.targetType === TARGET_TYPE.USER;
   });
 
-  // 차단한 유저
-  useEffect(() => {
-    dispatch({ type: LOAD_BLOCK_REQUEST });
-  }, [postUserId]);
 
   const { blockList } = useSelector((state) => state.user);
   const isBlocked = blockList.some((blockedUser) => Number(blockedUser.id) === Number(postUserId));
@@ -181,6 +193,7 @@ const Profile = (props) => {
       Router.replace('/');
     }
   })
+
   const [open, setOpen] = useState(false);
   const onLogout = useCallback(() => {
     dispatch({ type: LOG_OUT_REQUEST })
@@ -192,6 +205,9 @@ const Profile = (props) => {
     })
   });
 
+
+
+
   const isMyProfile = user && (user.id == postUserId);
 
 
@@ -199,7 +215,7 @@ const Profile = (props) => {
     <Menu>
       {isMyProfile ? (
         <>
-          <Menu.Item key="edit">프로필 수정</Menu.Item>
+          {/* <Menu.Item key="edit">프로필 수정</Menu.Item> */}
           <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
           <Menu.Item key="logout" onClick={onLogout}>
             {logOutLoding ? '로그아웃 중...' : '로그아웃'}
@@ -235,7 +251,19 @@ const Profile = (props) => {
       }
     </Menu >
   );
+  if (postUser?.isBlockedMe) {
+    return (
+      <Wrapper>
+        <Container>
+          <Nickname style={{ textAlign: 'center', fontSize: '18px', color: '#999' }}>
+            해당 유저의 프로필을 볼 수 없습니다. (차단됨)
+          </Nickname>
+        </Container>
+      </Wrapper>
+    );
+  }
   return (
+
     <Wrapper>
       <Banner />
       <Container>
@@ -264,17 +292,17 @@ const Profile = (props) => {
         </TopRow>
         {isMyProfile ? (
           <ButtonRow>
-            <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button>
-            <Button>내 장소</Button>
-            <Button>챌린지 현황</Button>
-            <Button>프로필 수정</Button>
+            {/* <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button> */}
+            {/* <Button>내 장소</Button> */}
+            {/* <Button>챌린지 현황</Button> */}
+            {/* <Button>프로필 수정</Button> */}
           </ButtonRow>
         ) : (
           <ButtonRow>
             {/* <FollowButton post={props.postUserId} /> */}
-            <FollowButton postUser={postUser}
+            {!isBlockedByMe && !isMyProfile && <FollowButton postUser={postUser}
               setPostUser={setPostUser}
-              currentUserId={user?.id} />
+              currentUserId={user?.id} />}
             <Button>장소</Button>
           </ButtonRow>
         )}

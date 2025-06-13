@@ -5,13 +5,13 @@ const { Op } = Sequelize;
 const { isLoggedIn } = require('./middlewares');
 
 // --- 1) 랜덤박스 사용 처리 ---
-router.post('/use/:issuedId', isLoggedIn, async (req, res) => {
+router.post('/issued/use/:issuedId', isLoggedIn, async (req, res) => {
   const userId = req.user.id;
   const issuedId = req.params.issuedId;
 
   try {
     const issuedBox = await IssuedRandomBox.findOne({
-      where: { id: req.params.issuedId, UserId: req.user.id },
+      where: { id: issuedId, UserId: userId },
       include: [{ model: Category, as: 'category' }]
     });
 
@@ -50,9 +50,26 @@ router.post('/use/:issuedId', isLoggedIn, async (req, res) => {
 
     let coupon = null;
     if (selectedPrize) {
+      // ✅ 중복 확인: 이미 동일 상품을 받은 적 있는지 확인
+      const alreadyIssued = await MyPrize.findOne({
+        where: {
+          UserId: userId,
+          PrizeId: selectedPrize.id
+        }
+      });
+
+      if (alreadyIssued) {
+        return res.status(409).json({
+          success: false,
+          message: '이미 발급된 상품입니다. 다른 랜덤박스를 사용해 보세요.'
+        });
+      }
+
+      // 수량 감소 및 저장
       selectedPrize.quantity -= 1;
       await selectedPrize.save();
 
+      // 쿠폰 발급
       const myPrize = await MyPrize.create({
         UserId: userId,
         PrizeId: selectedPrize.id,
@@ -69,6 +86,7 @@ router.post('/use/:issuedId', isLoggedIn, async (req, res) => {
       };
     }
 
+    // 랜덤박스 사용 처리
     issuedBox.usedAt = new Date();
     await issuedBox.save();
 
@@ -82,6 +100,7 @@ router.post('/use/:issuedId', isLoggedIn, async (req, res) => {
     return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 });
+
 
 // --- 2) 유저가 받은 미사용 랜덤박스 목록 조회 ---
 router.get('/issued', isLoggedIn, async (req, res) => {
@@ -100,10 +119,14 @@ router.get('/issued', isLoggedIn, async (req, res) => {
       data: issuedBoxes.map(box => ({
         issuedId: box.id,
         categoryId: box.CategoryId,
-        category: box.Category.content,
-        issuedAt: box.issuedAt
+        category: {
+          id: box.category?.id || null,
+          content: box.category?.content || null,
+        },
+        issuedAt: box.issuedAt,
       }))
     });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: '서버 오류' });
