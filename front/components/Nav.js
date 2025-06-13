@@ -92,6 +92,17 @@ const Nav = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const [imgFile, setImgFile] = useState("");
+  const imgRef = useRef();
+  //이미지 미리보기
+  const saveImgFile = () => {
+    const file = imgRef.current.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      setImgFile(reader.result);
+    };
+  };
   const onSubmitForm = useCallback(() => {
     //1. 글 있는지 확인 
     if (!text || !text.trim()) {
@@ -200,11 +211,11 @@ const Nav = () => {
                       name="image"
                       multiple
                       hidden
-                      ref={imageInput}
+                      ref={imgRef}
                       style={{ display: 'none' }}
-                      onChange={onChangeImage}
+                      onChange={saveImgFile}
                     />
-                    <Button onClick={onClickImageUpload}>프로필편집</Button>
+                    <Button onClick={() => imgRef.current?.click()}>프로필편집</Button>
                   </Form.Item>
                   <Button key="submit" type="primary" loading={loading} onClick={handleOk}>
                     프로필변경
@@ -226,7 +237,8 @@ const Nav = () => {
               >
                 <Card.Meta
                   // avatar={<Avatar  src="https://joeschmoe.io/api/v1/random" />}
-                  avatar={<Avatar icon={<UserOutlined />} />}
+                  avatar={<Avatar src={imgFile ? imgFile : "/images/user.png"} />}
+                  //avatar={<Avatar  icon={<UserOutlined />} />}
                   title={<div style={{ fontSize: '15px', color: 'black' }}>{nickname}</div>}
                   description=""
                   style={{
