@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, Popover, message, Modal, Select, Avatar } from 'antd';
-import { EllipsisOutlined, LeftOutlined, UserOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, LeftOutlined, UserOutlined, PictureOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
 import { REMOVE_ANIPROFILE_REQUEST, ANIFOLLOW_REQUEST, ANIUNFOLLOW_REQUEST } from '@/reducers/animal';
 
@@ -118,7 +118,7 @@ const AnimalProfileCard = ({ ownerId }) => {
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
-            <UserOutlined style={{ fontSize: 36, color: 'white'}} />
+            <PictureOutlined style={{ fontSize: 36, color: 'white'}} />
           )}
         </div>
         <div style={{ flexGrow: 1 }}>
@@ -169,10 +169,22 @@ const AnimalProfileCard = ({ ownerId }) => {
             placeholder="내 동물 선택"
             onChange={(value) => setSelectedMyAnimalId(value)}
             value={selectedMyAnimalId}
+            dropdownRender={menu => (
+              <div style={{ maxHeight: 240, overflowY: 'auto' }}>
+                {menu}
+              </div>
+            )}
           >
             {myAnimals.map((ani) => (
               <Select.Option key={ani.id} value={ani.id}>
-                {ani.aniName}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Avatar
+                    size="small"
+                    src={ani.aniProfile ? `${imageBaseUrl}/${ani.aniProfile}` : null}
+                    icon={!ani.aniProfile && <UserOutlined />}
+                  />
+                  <span>{ani.aniName}</span>
+                </div>
               </Select.Option>
             ))}
           </Select>

@@ -6,6 +6,7 @@ import ComplainForm from './complains/ComplainForm';
 import TARGET_TYPE from '../../shared/constants/TARGET_TYPE';
 import Link from 'next/Link';
 import { useSelector } from 'react-redux';
+import Router from 'next/router';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -81,7 +82,7 @@ const ManageButtonRow = styled.div`
   justify-content: center/* 왼쪽 정렬 */
 `;
 
-const AdminProfile = ({ showManageButtons = false, onSectionChange }) => {
+const AdminProfile = ({ showManageButtons = false, onSectionChange, isComplain }) => {
 
   const me = useSelector(state => state.user.user);
   console.log(me);
@@ -126,15 +127,21 @@ const AdminProfile = ({ showManageButtons = false, onSectionChange }) => {
         </TopRow>
         {showManageButtons ? (
           <ManageButtonRow>
+            <Button size="small" onClick={() => Router.push('/admin/complain')}>신고 관리</Button>
             <Button size="small" onClick={() => onSectionChange('category')}>카테고리 관리</Button>
             <Button size="small" onClick={() => onSectionChange('schedule')}>일정 관리</Button>
-            <Button size="small" onClick={() => onSectionChange('challenge')}>챌린지 현황</Button>
+            {/* <Button size="small" onClick={() => onSectionChange('challenge')}>챌린지 현황</Button> */}
             <Button size="small" type="primary" onClick={() => onSectionChange('prize')}>상품 관리</Button>
           </ManageButtonRow>
         )
           :
           (<ButtonRow>
-            <Button>프로필 수정</Button>
+            {!isComplain ?
+              <Button ><Link href={'/admin/complain'}>신고 페이지로</Link></Button>
+              :
+              <Button ><Link href={'/admin'}>공지 페이지로</Link></Button>
+            }
+            <Button ><Link href={'/admin/manage'}>관리 페이지로</Link></Button>
             <Button type="primary"><Link href={'/main'}>공지 작성하기</Link></Button>
           </ButtonRow>)}
       </Container>

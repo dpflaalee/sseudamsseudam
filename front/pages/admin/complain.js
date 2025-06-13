@@ -25,11 +25,11 @@ const ComplainPage = () => {
 
     // 신고 목록을 type + targetId 기준으로 묶기
     const grouped = _.groupBy(mainComplainCard, (r) => `${r.type}_${r.targetId}`);
-    const groupedCards = Object.entries(grouped); // [ [groupKey, reports[]], ... ]
+    const groupedCards = Object.entries(grouped);
 
     return (
         <AppLayout>
-            <AdminProfile />
+            <AdminProfile isComplain={true} />
             {groupedCards.map(([groupKey, reports]) => (
                 <ComplainCard key={groupKey} reports={reports} />
             ))}

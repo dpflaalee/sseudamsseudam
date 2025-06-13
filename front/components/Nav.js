@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from "react-redux";
 import { LOG_OUT_REQUEST, USER_PROFILE_UPDATE_REQUEST, USER_IMAGE_UPDATE_REQUEST } from "@/reducers/user";
 import { LOAD_NOTIFICATION_REQUEST } from "@/reducers/notification";
+import { LOAD_USER_GROUPS_REQUEST } from "@/reducers/group";
 import userInput from "@/hooks/userInput";
 
 const { SubMenu } = Menu;
@@ -27,6 +28,12 @@ const Nav = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [openKeys, setOpenKeys] = useState([]);
   const dispatch = useDispatch();
+  const{userGroups} = useSelector((state)=>state.group);
+
+  useEffect(()=>{
+    dispatch({type: LOAD_USER_GROUPS_REQUEST});
+  }, [dispatch]);
+
   const { logOutLoading, user, userImagePaths } = useSelector(state => state.user);
   const [nickname, onChangeNickname, setNickname] = userInput(user?.nickname); 
   const onLogout = useCallback(() => {
@@ -149,7 +156,7 @@ const Nav = () => {
 
   const profileMenu = (
     <Menu>
-      <Menu.Item key="profileUpdate" onClick={showModal}>프로필 수정</Menu.Item>
+      {/* <Menu.Item key="profileUpdate" onClick={showModal}>프로필 수정</Menu.Item> */}
       <Menu.Item key="logout" onClick={onLogout} loading={logOutLoading}>로그아웃</Menu.Item>
       <Menu.Item key="deactivate" onClick={onUserDelete} style={{ color: 'red' }}>탈퇴하기</Menu.Item>
     </Menu>
@@ -203,7 +210,12 @@ const Nav = () => {
           <Menu.Item key="home" icon={<HomeOutlined />}> {!isMobile && "홈"} </Menu.Item>
           <SubMenu key="group" icon={<TeamOutlined />} title={!isMobile && "그룹"}>
             <Menu.Item key="groupHome" style={{ fontWeight: 'bold' }}>그룹 홈</Menu.Item>
-            <Menu.Item key="group2">Group2</Menu.Item>
+
+            {userGroups && userGroups.map((group) => (
+              <Menu.Item key={`group-${group.id}`} onClick={() => router.push(`/groups/${group.id}`)} >
+                {group.title}
+              </Menu.Item>
+            ))}
           </SubMenu>
           <Menu.Item
             key="notification"
@@ -212,7 +224,7 @@ const Nav = () => {
             {!isMobile && "알림"}
           </Menu.Item>
           <Menu.Item key="search" icon={<SearchOutlined />}>{!isMobile && "검색"}</Menu.Item>
-          <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item>
+          {/* <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item> */}
           {(me.user && me.user.isAdmin) ? <Menu.Item key="admin" onClick={() => router.push('/admin')} icon={<AuditOutlined />}>{!isMobile && "관리자 페이지"}</Menu.Item> : ''}
         </Menu>
       </div>
