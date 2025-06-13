@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Button, Popover, message, Modal, Select } from 'antd';
-import { EllipsisOutlined, LeftOutlined } from '@ant-design/icons';
+import { Button, Popover, message, Modal, Select, Avatar } from 'antd';
+import { EllipsisOutlined, LeftOutlined, UserOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
 import { REMOVE_ANIPROFILE_REQUEST, ANIFOLLOW_REQUEST, ANIUNFOLLOW_REQUEST } from '@/reducers/animal';
-import AnimalSearch from './AnimalSeach';
-
-const { Option } = Select;
 
 const AnimalProfileCard = ({ ownerId }) => {
   const dispatch = useDispatch();
@@ -46,7 +43,7 @@ const AnimalProfileCard = ({ ownerId }) => {
     if (window.confirm(`${aniName} 프로필을 정말 삭제하시겠습니까?`)) {
       dispatch({ type: REMOVE_ANIPROFILE_REQUEST, data: id });
       message.success('프로필 삭제 요청을 보냈습니다.');
-      router.push(`/main`);
+      router.push(`/user/myPage/${user.id}`);
     }
   };
 
@@ -69,13 +66,13 @@ const AnimalProfileCard = ({ ownerId }) => {
     setSelectedMyAnimalId(null);
   };
 
-  const popoverContent = (
-    <div style={{ display: 'flex', flexDirection: 'column', padding: 6 }}>
-      <Button type="text" style={{ textAlign: 'left', padding: '4px 8px' }} onClick={() => setIsModalOpen(true)}>
-        친구찾기
-      </Button>
-    </div>
-  );
+  // const popoverContent = (
+  //   <div style={{ display: 'flex', flexDirection: 'column', padding: 6 }}>
+  //     <Button type="text" style={{ textAlign: 'left', padding: '4px 8px' }} onClick={() => setIsModalOpen(true)}>
+  //       친구찾기
+  //     </Button>
+  //   </div>
+  // );
 
   return (
     <div style={{ width: '100%', borderRadius: 8, overflow: 'hidden', backgroundColor: '#fff', position: 'relative' }}>
@@ -109,14 +106,19 @@ const AnimalProfileCard = ({ ownerId }) => {
             overflow: 'hidden',
             marginRight: 16,
             flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          {aniProfile && (
+          {aniProfile ? (
             <img
               src={`${imageBaseUrl}/${aniProfile}`}
               alt="프로필 사진"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+          ) : (
+            <UserOutlined style={{ fontSize: 36, color: 'white'}} />
           )}
         </div>
         <div style={{ flexGrow: 1 }}>
@@ -137,10 +139,10 @@ const AnimalProfileCard = ({ ownerId }) => {
         <div style={{ padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Button size="small" onClick={onClickModify}>정보 수정</Button>
           <Button size="small" danger onClick={onClickDelete}>프로필 삭제</Button>
-          <Popover content={popoverContent} trigger="click">
+          {/*<Popover content={popoverContent} trigger="click">
             <EllipsisOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
           </Popover>
-          <AnimalSearch visible={isModalOpen} onClose={() => setIsModalOpen(false)} />
+          <AnimalSearch visible={isModalOpen} onClose={() => setIsModalOpen(false)} />*/}
         </div>
       )}
 
