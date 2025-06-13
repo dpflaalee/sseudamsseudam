@@ -112,6 +112,11 @@ const Nav = () => {
       };
   },[imgFile]);
 
+  const onMyPage = useCallback(() => {
+    router.push(`/user/myPage/${user.id}`)
+  },[]);
+
+  
   const onSubmitForm = useCallback((e) => {
     //1. 글 있는지 확인 
     if(!nickname || !nickname.trim()){
