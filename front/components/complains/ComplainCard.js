@@ -23,6 +23,7 @@ const ComplainCard = ({ reports }) => {
             data: { targetId },
         });
     };
+    console.log('targetObject', targetObject)
 
     const renderByType = () => {
         if (!targetObject) return <div>불러오는 중입니다...</div>;
@@ -56,7 +57,7 @@ const ComplainCard = ({ reports }) => {
                 return (
                     <>
                         <div style={{ fontWeight: 'bold' }}>
-                            총 {reports.length}명이 유저 {targetId}을 신고했습니다.
+                            총 {reports.length}명이 유저 ' {targetObject?.nickname} ' 신고했습니다.
                         </div>
                         <div style={{ padding: '8px', backgroundColor: '#fff7e6', marginTop: 8 }}>
                             <ComplainProfile postUserId={targetObject.id} />
