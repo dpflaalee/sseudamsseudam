@@ -104,23 +104,6 @@ router.get('/:groupId/members', async (req, res, next) => {
   } catch (error) { console.error(error); next(error); }
 });
 
-/*//1-1 특정 유저 정보 가져오기
-router.get('/:groupId/members/:userId', async(req,res,next)=>{
-  try{
-    const member = await User.findOne({
-      where: { id: req.params.userId },
-      include: [{
-        model: Group, as: 'groupmembers', where: {id: req.params.groupId}, through: { attributes: ['isLeader'], model: GroupMember }
-      }],
-      attributes: ['id', 'nickname', 'email']
-    });
-    if(!member){ return res.status(404).json({message: 'Member not Found'});}
-
-    const formatted = { id:member.id, nickname: member.nickname, email: member.email, isLeader: member.groupmembers[0].GroupMember.isLeader};
-    res.status(200).json(formatted);
-  }catch(error){console.error(error); next(error);}
-});*/
-
 //2. 강퇴
 router.delete('/:groupId/members/:userId', async (req, res, next) => {
   try {
@@ -251,5 +234,30 @@ router.post('/:groupId/requests/:requestId/reject', isLoggedIn, async (req, res,
     res.status(500).json({ message: '서버 오류', error });
   }
 });
+
+//4. 로그인한 유저 그룹 불러오기
+router.get('/mygroups', isLoggedIn, async (req, res, next) => {
+  try {
+    const groups = await Group.findAll({
+      include: [
+        {
+          model: User,
+          as: 'groupmembers',
+          where: { id: req.user.id },
+          attributes: [], 
+          through: { attributes: [] }, 
+        },
+      ],
+      attributes: ['id', 'title'], 
+    });
+
+    return res.status(200).json(groups);
+    console.log(groups);
+  } catch (err) {
+    console.error('로그인 유저 그룹 조회 오류:', err);
+    return res.status(500).send('서버 오류');
+  }
+});
+
 
 module.exports = router;

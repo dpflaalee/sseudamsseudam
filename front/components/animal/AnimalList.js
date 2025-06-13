@@ -3,7 +3,7 @@ import { Button, Tabs, Avatar, List } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from 'next/router';
 import AniProfile from '@/pages/animal/AniProfile';
-import { PlusOutlined, UserOutlined } from '@ant-design/icons';
+import { PlusOutlined, PictureOutlined } from '@ant-design/icons';
 
 const AnimalList = ({ animals, ownerId }) => {
   const router = useRouter();
@@ -44,7 +44,7 @@ const AnimalList = ({ animals, ownerId }) => {
             <Avatar
               size={64}
               src={ani.aniProfile ? `${imageBaseUrl}/${ani.aniProfile}` : undefined}
-              icon={!ani.aniProfile && <UserOutlined />}
+              icon={!ani.aniProfile && <PictureOutlined />}
               style={{ backgroundColor: '#ddd', marginBottom: 8 }}
             />
             <div style={{ fontSize: 14, color: '#333' }}>{ani.aniName}</div>

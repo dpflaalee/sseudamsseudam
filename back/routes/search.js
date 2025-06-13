@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { Post, User, Group, Image, Comment, OpenScope, Category, Blacklist } = require('../models');
+const { Post, User, Group, Image, Comment, OpenScope, Category, Blacklist, Complain } = require('../models');
 const { Op } = require('sequelize');
+const TARGET_TYPE = require('../../shared/constants/TARGET_TYPE');
 
 
 // 검색
@@ -20,12 +21,24 @@ router.get('/:searchInput', async (req, res, next) => {
             where: { BlockedId: myId },
             attributes: ['BlockingId'],
         });
-        const blockedIds = blockedMeUsers.map(entry => entry.BlockingId);
+        const blockingIds = blockedMeUsers.map(entry => entry.BlockingId);
+
+        // 신고된 유저
+        const blindedUser = await Complain.findAll({
+            where: {
+                isBlind: true,
+                targetType: TARGET_TYPE.USER,
+            },
+            attributes: ['targetId'],
+        });
+        const blindedUserIds = blindedUser.map(entry => entry.targetId);
+
+        const excludedUserIds = [...new Set([...blockingIds, ...blindedUserIds])];
 
         const postResults = await Post.findAll({
             where: {
                 content: { [Op.like]: `%${keyword}%` },
-                UserId: { [Op.notIn]: blockedIds },
+                UserId: { [Op.notIn]: excludedUserIds },
             },
             include: [
                 { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
@@ -51,7 +64,7 @@ router.get('/:searchInput', async (req, res, next) => {
         const memberResults = await User.findAll({
             where: {
                 nickname: { [Op.like]: `%${keyword}%` },
-                id: { [Op.notIn]: blockedIds },
+                id: { [Op.notIn]: excludedUserIds },
             },
             include: [
                 {
