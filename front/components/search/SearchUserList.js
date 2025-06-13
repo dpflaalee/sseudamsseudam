@@ -26,8 +26,6 @@ const SearchUserList = ({ user }) => {
     e.stopPropagation();
     Router.push(`/user/myPage/${user.id}`);
   };
-  console.log('🐶 me.id', me.user.id);
-  console.log('🐶 user.id', user.id);
   return (
     <>
       <Card

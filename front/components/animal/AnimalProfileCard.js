@@ -1,62 +1,91 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Button, Popover, message } from 'antd';
-import { EllipsisOutlined, LeftCircleOutlined, LeftOutlined } from '@ant-design/icons';
+import { Button, Popover, message, Modal, Select, Avatar } from 'antd';
+import { EllipsisOutlined, LeftOutlined, UserOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
-import { REMOVE_ANIPROFILE_REQUEST } from '@/reducers/animal';
-import AnimalSearch from './AnimalSeach';
+import { REMOVE_ANIPROFILE_REQUEST, ANIFOLLOW_REQUEST, ANIUNFOLLOW_REQUEST } from '@/reducers/animal';
 
-const AnimalProfileCard = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const AnimalProfileCard = ({ ownerId }) => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { selectedAnimal } = useSelector((state) => state.animal);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [actionType, setActionType] = useState(null);
+  const [selectedMyAnimalId, setSelectedMyAnimalId] = useState(null);
+
+  const { selectedAnimal, myAnimals } = useSelector((state) => state.animal);
+  const { user } = useSelector((state) => state.user);
+  const isOwner = user && Number(user.id) === Number(ownerId);
+
   const imageBaseUrl = 'http://localhost:3065/uploads/animalProfile';
 
   if (!selectedAnimal) return null;
 
-  const { id, aniName, aniAge, aniProfile, Followings, Followers, Category} = selectedAnimal;
+  const {
+    id,
+    aniName,
+    aniAge,
+    aniProfile,
+    Followings,
+    Followers,
+    Category,
+    UserId,
+  } = selectedAnimal;
 
   const onClickModify = () => {
     router.push(`/animal/${id}/edit`);
   };
 
-  const handleClick = (UserId) => {
+  const handleClick = () => {
     router.push(`/user/myPage/${UserId}`);
-  }
-  // const { category } = selectedAnimal;
+  };
 
   const onClickDelete = () => {
     if (window.confirm(`${aniName} 프로필을 정말 삭제하시겠습니까?`)) {
-      dispatch({
-        type: REMOVE_ANIPROFILE_REQUEST,
-        data: id,
-      });
+      dispatch({ type: REMOVE_ANIPROFILE_REQUEST, data: id });
       message.success('프로필 삭제 요청을 보냈습니다.');
-      router.push(`/main`);
+      router.push(`/user/myPage/${user.id}`);
     }
   };
 
-  const popoverContent = (
-    <div style={{ display: 'flex', flexDirection: 'column', padding: 6 }}>
-      <Button type="text" style={{ textAlign: 'left', padding: '4px 8px' }}
-        onClick={() => setIsModalOpen(true)}>
-        친구찾기
-      </Button>
-    </div>
-  );
+  const showSelectModal = (type) => {
+    setActionType(type); // 'follow' or 'unfollow'
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmAction = () => {
+    if (!selectedMyAnimalId) return;
+
+    dispatch({
+      type: actionType === 'follow' ? ANIFOLLOW_REQUEST : ANIUNFOLLOW_REQUEST,
+      data: {
+        myAnimalId: selectedMyAnimalId,
+        targetAnimalId: selectedAnimal.id,
+      },
+    });
+    setIsModalOpen(false);
+    setSelectedMyAnimalId(null);
+  };
+
+  // const popoverContent = (
+  //   <div style={{ display: 'flex', flexDirection: 'column', padding: 6 }}>
+  //     <Button type="text" style={{ textAlign: 'left', padding: '4px 8px' }} onClick={() => setIsModalOpen(true)}>
+  //       친구찾기
+  //     </Button>
+  //   </div>
+  // );
+
   return (
-    <div style={{width: '100%', borderRadius: 8, overflow: 'hidden', backgroundColor: '#fff', position: 'relative' }}>
+    <div style={{ width: '100%', borderRadius: 8, overflow: 'hidden', backgroundColor: '#fff', position: 'relative' }}>
       <LeftOutlined
         onClick={handleClick}
         style={{
           fontSize: 20,
           cursor: 'pointer',
           position: 'absolute',
-          top: 12, // 상단 여백
+          top: 12,
           left: 16,
           zIndex: 2,
-          color: '#fff', // 흰색으로 변경
+          color: '#fff',
         }}
       />
       <div
@@ -76,24 +105,26 @@ const AnimalProfileCard = () => {
             backgroundColor: '#ccc',
             overflow: 'hidden',
             marginRight: 16,
-            transform: 'translateY(0)',
             flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          {aniProfile && (
+          {aniProfile ? (
             <img
               src={`${imageBaseUrl}/${aniProfile}`}
               alt="프로필 사진"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+          ) : (
+            <UserOutlined style={{ fontSize: 36, color: 'white'}} />
           )}
         </div>
         <div style={{ flexGrow: 1 }}>
           <div style={{ fontWeight: 'bold', fontSize: 16 }}>{aniName}</div>
           {Category?.content && (
-            <div style={{ fontSize: 13, marginTop: 4, color: '#666' }}>
-              {Category.content}
-            </div>
+            <div style={{ fontSize: 13, marginTop: 4, color: '#666' }}>{Category.content}</div>
           )}
           <div style={{ fontSize: 14, marginTop: 4 }}>
             {aniAge}살&nbsp;&nbsp;&nbsp;
@@ -101,21 +132,54 @@ const AnimalProfileCard = () => {
             {Followers?.length ?? 0}팔로워
           </div>
         </div>
-        
       </div>
 
-      <div style={{ padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-        <Button size="small" onClick={onClickModify}>
-          정보 수정
-        </Button>
-        <Button size="small" danger onClick={onClickDelete}>
-          프로필 삭제
-        </Button>
-        <Popover content={popoverContent} trigger="click">
-          <EllipsisOutlined style={{ fontSize: 20, cursor: 'pointer', justifyContent: 'flex-end' }} />
-        </Popover>
-        <AnimalSearch visible={isModalOpen} onClose={() => setIsModalOpen(false)} />
-      </div>
+      {/* 주인일 때: 수정, 삭제, 친구찾기 */}
+      {isOwner && (
+        <div style={{ padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <Button size="small" onClick={onClickModify}>정보 수정</Button>
+          <Button size="small" danger onClick={onClickDelete}>프로필 삭제</Button>
+          {/*<Popover content={popoverContent} trigger="click">
+            <EllipsisOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
+          </Popover>
+          <AnimalSearch visible={isModalOpen} onClose={() => setIsModalOpen(false)} />*/}
+        </div>
+      )}
+
+      {/* 주인이 아닐 때: 친구 맺기/끊기 */}
+      {!isOwner && (
+        <div style={{ padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <Button type="primary" onClick={() => showSelectModal('follow')}>친구 맺기</Button>
+          <Button danger onClick={() => showSelectModal('unfollow')}>친구 끊기</Button>
+        </div>
+      )}
+
+      {/* 친구 맺기/끊기용 모달 */}
+      <Modal
+        title={actionType === 'follow' ? '친구 맺을 내 동물 선택' : '친구 끊을 내 동물 선택'}
+        open={isModalOpen}
+        onOk={handleConfirmAction}
+        onCancel={() => setIsModalOpen(false)}
+        okText={actionType === 'follow' ? '친구 맺기' : '친구 끊기'}
+        cancelText="취소"
+      >
+        {myAnimals.length > 0 ? (
+          <Select
+            style={{ width: '100%' }}
+            placeholder="내 동물 선택"
+            onChange={(value) => setSelectedMyAnimalId(value)}
+            value={selectedMyAnimalId}
+          >
+            {myAnimals.map((ani) => (
+              <Select.Option key={ani.id} value={ani.id}>
+                {ani.aniName}
+              </Select.Option>
+            ))}
+          </Select>
+        ) : (
+          <div style={{ textAlign: 'center', color: '#999' }}>등록된 내 동물이 없습니다.</div>
+        )}
+      </Modal>
     </div>
   );
 };

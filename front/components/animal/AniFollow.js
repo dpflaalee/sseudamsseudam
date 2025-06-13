@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Tabs, Avatar, List, Spin, Popover } from "antd";
+import { Button, Tabs, Avatar, List, Spin, Popover, message } from "antd";
 import { UserOutlined, MoreOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -11,15 +11,19 @@ import {
   ANIFOLLOW_REQUEST,
   ANIUNFOLLOW_REQUEST,
   REMOVE_ANIFOLLOW_REQUEST,
+  RESET_ANIFOLLOW_STATE,
 } from "@/reducers/animal";
 
 const { TabPane } = Tabs;
 
-const AniFollow = () => {
+const AniFollow = ({ownerId}) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { id } = router.query;
   const imageBaseUrl = 'http://localhost:3065/uploads/animalProfile';
+
+  const { user } = useSelector((state) => state.user);
+  const isOwner = user && Number(user.id) === Number(ownerId);
 
   const {
     followers = [],
@@ -28,9 +32,15 @@ const AniFollow = () => {
     loadRecommendedAnimalsLoading,
     loadAnifollowersLoading,
     loadAnifollowingsLoading,
+    anifollowDone,
+    aniunfollowDone,
+    anifollowError,
+    aniunfollowError,
   } = useSelector((state) => state.animal);
 
   const [myAnimalName, setMyAnimalName] = useState('');
+
+  
 
   // 친구 요청 / 끊기
   const handleFollowToggle = (targetAnimalId, isFollowing) => {
@@ -56,6 +66,33 @@ const AniFollow = () => {
       },
     });
   };
+
+  useEffect(() => {
+    if (anifollowDone) {
+      message.success('친구 요청을 보냈습니다!');
+      dispatch({type: RESET_ANIFOLLOW_STATE});
+    }
+  }, [anifollowDone]);
+
+  useEffect(() => {
+    if (aniunfollowDone) {
+      message.success('친구를 끊었습니다.');
+      dispatch({type: RESET_ANIFOLLOW_STATE});
+    }
+  }, [aniunfollowDone]);
+  useEffect(() => {
+    if (anifollowError) {
+      message.error(`친구 요청 실패: ${anifollowError}`);
+      dispatch({type: RESET_ANIFOLLOW_STATE});
+    }
+  }, [anifollowError]);
+
+  useEffect(() => {
+    if (aniunfollowError) {
+      message.error(`친구 끊기 실패: ${aniunfollowError}`);
+      dispatch({type: RESET_ANIFOLLOW_STATE});
+    }
+  }, [aniunfollowError]);
 
   // 동물 정보 + 팔로잉/팔로워/추천 동물 불러오기
   useEffect(() => {
@@ -95,15 +132,17 @@ const AniFollow = () => {
           return (
             <List.Item
               actions={[
-                <Button
-                  key="friend"
-                  type={item.isFollowing ? "default" : "primary"}
-                  danger={item.isFollowing}
-                  onClick={() => handleFollowToggle(item.id, item.isFollowing)}
-                >
-                  {item.isFollowing ? "친구" : "친구 맺기"}
-                </Button>,
-                showActions && (
+                isOwner && (
+                  <Button
+                    key="friend"
+                    type={item.isFollowing ? "default" : "primary"}
+                    danger={item.isFollowing}
+                    onClick={() => handleFollowToggle(item.id, item.isFollowing)}
+                  >
+                    {item.isFollowing ? "친구" : "친구 맺기"}
+                  </Button>
+                ),
+                isOwner && showActions && (
                   <Popover
                     key="more"
                     content={
@@ -122,14 +161,19 @@ const AniFollow = () => {
             >
               <List.Item.Meta
                 avatar={
-                  item.aniProfile ? (
-                    <Avatar src={`${imageBaseUrl}/${item.aniProfile}`} />
-                  ) : (
-                    <Avatar icon={<UserOutlined />} />
-                  )
+                  <div onClick={() => router.push(`/animal/${item.id}`)} style={{ cursor: 'pointer' }}>
+                    {item.aniProfile ? (
+                      <Avatar src={`${imageBaseUrl}/${item.aniProfile}`} />
+                    ) : (
+                      <Avatar icon={<UserOutlined />} />
+                    )}
+                  </div>
                 }
                 title={
-                  <div>
+                  <div
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => router.push(`/animal/${item.id}`)}
+                  >
                     <div>{item.aniName || '이름 없음'}</div>
                     <div style={{ fontSize: 12, color: '#666' }}>{description}</div>
                   </div>
@@ -146,16 +190,18 @@ const AniFollow = () => {
     <div style={{ backgroundColor: "#fff", padding: 24, borderRadius: 8 }}>
       <Tabs defaultActiveKey="followers" centered>
         <TabPane tab="팔로잉" key="followings">
-          {renderList(followings, loadAnifollowingsLoading, "팔로잉한 동물이 없습니다.", false, 'followings')}
+          {renderList(followings, loadAnifollowingsLoading, "친구 맺은 동물이 없습니다.", false, 'followings')}
         </TabPane>
         <TabPane tab="팔로워" key="followers">
-          {renderList(followers, loadAnifollowersLoading, "나를 팔로우한 동물이 없습니다.", true, 'followers')}
+          {renderList(followers, loadAnifollowersLoading, "나를 친구 맺기로 한 동물이 없습니다.", true, 'followers')}
         </TabPane>
       </Tabs>
+      {isOwner && (
       <div style={{ marginTop: 24 }}>
         <h3>친구 추천</h3>
         {renderList(recommendedAnimals, loadRecommendedAnimalsLoading, "추천할 친구가 없습니다.", false)}
       </div>
+      )}
     </div>
   );
 };

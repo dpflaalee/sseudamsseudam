@@ -3,16 +3,17 @@ import { Card, Row, Col, Button, Typography } from 'antd';
 import AppLayout from "@/components/AppLayout";
 import PrizeManage from '@/components/prize/PrizeManage';
 import 'antd/dist/antd.css';
+import axios from 'axios';
+import wrapper from '../../store/configureStore';
+import { END } from 'redux-saga';
+import { LOAD_MY_INFO_REQUEST } from '@/reducers/user';
 
 import { useSelector } from "react-redux";
 
-import ComplainCard from "@/components/complains/ComplainCard";
-import PostCard from "@/components/post/PostCard";
 import CategoryManage from "@/components/category/CategoryManage"
-import EventScheduleManage from '@/components/Calendar/EventSchedule/EventScheduleManage';
-import EventScheduleForm from '@/components/Calendar/EventSchedule/EventScheduleForm';
 import EventScheduleList from '@/components/Calendar/EventSchedule/EventScheduleList';
 import ChallengeList from '@/components/Calendar/Todolist/ChallengeList';
+import AdminProfile from '@/components/AdminProfile';
 
 const { Title, Text } = Typography;
 
@@ -21,42 +22,7 @@ const manage = () => {
     return (
         <AppLayout>
             {/* 상단 프로필 카드 */}
-            <Card style={{ background: '#e6f7ff', marginBottom: 24 }}>
-                <Row align="middle" gutter={16}>
-                    <Col>
-                        <div
-                            style={{
-                                width: 80,
-                                height: 80,
-                                borderRadius: '50%',
-                                backgroundColor: '#ccc',
-                            }}
-                        />
-                    </Col>
-                    <Col>
-                        <Title level={4} style={{ margin: 0 }}>관리자</Title>
-                        <Text></Text>
-                        <div style={{ marginTop: 8 }}>
-                            <Button
-                                size="small"
-                                style={{ marginRight: 8 }}
-                                onClick={() => setActiveSection('category')}>카테고리 관리</Button>
-                            <Button
-                                size="small"
-                                style={{ marginRight: 8 }}
-                                onClick={() => setActiveSection('schedule')}>일정 관리</Button>
-                            <Button
-                                size="small"
-                                style={{ marginRight: 8 }}
-                                onClick={() => setActiveSection('challenge')}>챌린지 현황</Button>
-                            <Button
-                                size="small"
-                                type="primary"
-                                onClick={() => setActiveSection('prize')}>상품 관리</Button>
-                        </div>
-                    </Col>
-                </Row>
-            </Card>
+            <AdminProfile showManageButtons={true} onSectionChange={setActiveSection} />
 
             {/* 조건부로 보여줄 컴포넌트들 */}
             {activeSection === 'prize' && <PrizeManage />}
@@ -66,5 +32,20 @@ const manage = () => {
             {/* 다른 섹션도 여기에 조건부로 추가 가능 */}
         </AppLayout>);
 }
+////////////////////////////////////////////////////////
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+    //1. cookie 설정
+    const cookie = context.req ? context.req.headers.cookie : '';
+    axios.defaults.headers.Cookie = '';
 
+    if (context.req && cookie) { axios.defaults.headers.Cookie = cookie; }
+
+    //2. redux 액션
+    context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
+    context.store.dispatch(END);
+
+    await context.store.sagaTask.toPromise();
+
+});
+////////////////////////////////////////////////////////
 export default manage;

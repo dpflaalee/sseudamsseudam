@@ -6,14 +6,18 @@ import AppLayout from '@/components/AppLayout';
 import AnimalProfileCard from '@/components/animal/AnimalProfileCard'; // 등록된 리스트
 import AniFollow from '@/components/animal/AniFollow';
 import AnimalList from '@/components/animal/AnimalList';
+import { LOAD_MY_INFO_REQUEST } from '@/reducers/user';
+import { LOAD_ANIMAL_LIST_REQUEST } from '@/reducers/animal';
 
 const AniProfile = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { id } = router.query;
+  const user = useSelector(state => state.user );
 
   // const {animals, selectedAnimal} = useSelector((state) => state.animal);
   const { userAnimals, selectedAnimal } = useSelector((state) => state.animal);
+  console.log('전체 user:', useSelector(state => state.user));
 
   useEffect(() => {
     if (id) {
@@ -21,11 +25,17 @@ const AniProfile = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+  if (user) {
+    dispatch({ type: LOAD_ANIMAL_LIST_REQUEST });
+  }
+}, [user]);
+
   return (
     <AppLayout>
-      <AnimalProfileCard />
-      <AnimalList animals={userAnimals}/>
-      <AniFollow/>
+      <AnimalProfileCard ownerId={selectedAnimal?.UserId} />
+      <AnimalList animals={userAnimals} ownerId={selectedAnimal?.UserId}/>
+      <AniFollow ownerId={selectedAnimal?.UserId}/>
     </AppLayout>
   );
 };
