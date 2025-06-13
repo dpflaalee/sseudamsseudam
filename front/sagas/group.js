@@ -14,7 +14,8 @@ import {
   APPLY_GROUP_REQUEST, APPLY_GROUP_SUCCESS, APPLY_GROUP_FAILURE, // 가입신청
   LOAD_JOIN_REQUESTS_REQUEST, LOAD_JOIN_REQUESTS_SUCCESS, LOAD_JOIN_REQUESTS_FAILURE, // 신청현황
   APPROVE_JOIN_REQUEST, APPROVE_JOIN_SUCCESS, APPROVE_JOIN_FAILURE, // 가입승인
-  REJECT_JOIN_REQUEST, REJECT_JOIN_SUCCESS, REJECT_JOIN_FAILURE, // 가입거절
+  REJECT_JOIN_REQUEST, REJECT_JOIN_SUCCESS, REJECT_JOIN_FAILURE,//가입거절
+  LOAD_USER_GROUPS_FAILURE, LOAD_USER_GROUPS_SUCCESS, LOAD_USER_GROUPS_REQUEST, 
 } from '@/reducers/group';
 
 // 알림
@@ -116,7 +117,7 @@ function* watchTransferOwnership() { yield takeLatest(TRANSFER_OWNERSHIP_REQUEST
 
 //가입-----------------------------------------------------------------------------------
 //1. 공개그룹 즉시가입
-function joinGroupAPI(data) { console.log('joinGroupAPI 데이터----------------:', data); return axios.post(`/api/groups/${data.groupId}/join`); }
+function joinGroupAPI(data) { return axios.post(`/api/groups/${data.groupId}/join`); }
 function* joinGroup(action) {
   try {
     yield call(joinGroupAPI, action.data);
@@ -130,6 +131,11 @@ function* joinGroup(action) {
         targetId: action.notiData.targetId,
       }
     });
+    notification.success({
+      message: "가입 완료",
+      description: "가입이 완료되었습니다.",
+      placement: "topRight",
+    });    
     // E 알림
   } catch (err) { yield put({ type: JOIN_GROUP_FAILURE, error: err.response.data || err.message }); }
 }
@@ -151,6 +157,11 @@ function* applyGroup(action) {
         targetId: action.notiData.targetId,
       }
     });
+    notification.success({
+      message: "가입 신청 완료",
+      description: "가입 신청이 완료되었습니다!",
+      placement: "topRight",
+    });    
     // E 알림
   } catch (err) { yield put({ type: APPLY_GROUP_FAILURE, error: err.response.data || err.message }) }
 }
@@ -167,11 +178,8 @@ function* loadJoinRequests(action) {
 function* watchLoadJoinRequests() { yield takeLatest(LOAD_JOIN_REQUESTS_REQUEST, loadJoinRequests); }
 
 // 4. 승인
-function approveJoinAPI(groupId, requestId, userId) {
-  return axios.post(`/api/groups/${groupId}/requests/${requestId}/approve?userId=${userId}`);
-}
+function approveJoinAPI(groupId, requestId, userId) { return axios.post(`/api/groups/${groupId}/requests/${requestId}/approve?userId=${userId}`); }
 function* approveJoin(action) {
-  console.log("SAGA1. 승인 action데이터...............", action.data);
   try {
     const { groupId, requestId, userId } = action.data;
     console.log("SAGA1. 승인 action 데이터", action.data);
@@ -198,7 +206,7 @@ function* approveJoin(action) {
     });
     // E 알림
   } catch (err) {
-    const error = err.response ? err.response.data : err.message;
+    const error = (err.response ? err.response.data : err.message);
     yield put({ type: APPROVE_JOIN_FAILURE, error });
   }
 }
@@ -240,13 +248,26 @@ function* rejectJoin(action) {
     });
     // E 알림
   } catch (err) {
-    console.error("거절 처리 중 에러 발생", err);
-    const error = err.response ? err.response.data : err.message;
+    const error = (err.response ? err.response.data : err.message);
     yield put({ type: REJECT_JOIN_FAILURE, error });
   }
 }
-
 function* watchRejectJoin() { yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin); }
+
+//6. 로그인한 유저가 가입된 그룹 리스트 불러오기
+function loadUserGroupsAPI(){return axios.get('/groups/mygroups',{withCredentials:true});}
+function* loadUserGroups(){
+  try{
+    const response = yield call(loadUserGroupsAPI);
+    console.log("SAGA............유저 그룹정보", response.data)
+    
+    yield put({ type: LOAD_USER_GROUPS_SUCCESS , data: response.data });
+    console.log("SAGA1. 로그인유저그룹테스트..........", response.data)
+  }catch(err){
+    yield put({type: LOAD_USER_GROUPS_FAILURE, error: err});  }
+}
+function* watchLoadUserGroups(){ yield takeLatest(LOAD_USER_GROUPS_REQUEST, loadUserGroups); }
+
 
 // root saga
 export default function* groupSaga() {
@@ -264,5 +285,6 @@ export default function* groupSaga() {
     fork(watchLoadJoinRequests),
     fork(watchApproveJoin),
     fork(watchRejectJoin),
+    fork(watchLoadUserGroups),
   ]);
 }
