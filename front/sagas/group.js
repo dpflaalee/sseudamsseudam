@@ -245,7 +245,7 @@ function* rejectJoin(action) {
 function* watchRejectJoin() { yield takeLatest(REJECT_JOIN_REQUEST, rejectJoin); }
 
 //6. 로그인한 유저가 가입된 그룹 리스트 불러오기
-function loadUserGroupsAPI(){return axios.get('/group/mygroups',{withCredentials:true});}
+function loadUserGroupsAPI(){return axios.get('/groups/mygroups',{withCredentials:true});}
 function* loadUserGroups(){
   try{
     const response = yield call(loadUserGroupsAPI);
@@ -254,7 +254,7 @@ function* loadUserGroups(){
     yield put({ type: LOAD_USER_GROUPS_SUCCESS , data: response.data });
     console.log("SAGA1. 로그인유저그룹테스트..........", response.data)
   }catch(err){
-    yield put({type: LOAD_USER_GROUPS_FAILURE});  }
+    yield put({type: LOAD_USER_GROUPS_FAILURE, error: err});  }
 }
 function* watchLoadUserGroups(){ yield takeLatest(LOAD_USER_GROUPS_REQUEST, loadUserGroups); }
 

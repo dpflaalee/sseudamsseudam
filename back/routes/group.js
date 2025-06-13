@@ -236,20 +236,28 @@ router.post('/:groupId/requests/:requestId/reject', isLoggedIn, async (req, res,
 });
 
 //4. 로그인한 유저 그룹 불러오기
-router.get('/mygroups', isLoggedIn, async(req,res,next)=>{
-  try{
+router.get('/mygroups', isLoggedIn, async (req, res, next) => {
+  try {
     const groups = await Group.findAll({
-      include: [{
-        model: GroupMember,
-        where: {userId: req.user.id},
-        attributes: []
-      }]
+      include: [
+        {
+          model: User,
+          as: 'groupmembers',
+          where: { id: req.user.id },
+          attributes: [], 
+          through: { attributes: [] }, 
+        },
+      ],
+      attributes: ['id', 'title'], 
     });
-    if(!groups){ return res.status(404).send('유저 정보가 존재하지 않습니다.'); }
 
-    res.status(200).json(groups);
-  }catch(err){ next(err);}
-})
+    return res.status(200).json(groups);
+    console.log(groups);
+  } catch (err) {
+    console.error('로그인 유저 그룹 조회 오류:', err);
+    return res.status(500).send('서버 오류');
+  }
+});
 
 
 module.exports = router;

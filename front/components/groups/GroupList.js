@@ -31,12 +31,9 @@ export default function GroupList({ g }) {
 
   //멤버상태변경
   useEffect(() => {
-    //console.log(">>>>>>>>>>멤버상태변경의 members", members);
     if (members && members.length > 0) {
       const memberFound = group?.groupmembers?.some((groupMember) => groupMember.id === user.id);
       setIsMember(memberFound);
-      //console.log("----------------멤버상태 변경됐냐",memberFound);
-
     }
     /// 알림 그룹 리더 찾기
     if (group?.groupmembers && group?.groupmembers.length > 0) {
@@ -80,30 +77,9 @@ useEffect(() => {
 
   const handleEnterGroup = (e) => { e.stopPropagation(); router.push(`/groups/${group.id}`); } // 가입한 그룹일 시 해당 그룹으로 이동
 
-// const handleJoin = async (e) => {
-//   e.stopPropagation();
-//   if (isMember) {
-//     alert('이미 가입된 그룹입니다. 그룹으로 이동합니다.');
-//     return router.push(`/groups/${group.id}`);
-//   }
-
-//   try {
-//     console.log("📌 JOIN_GROUP_REQUEST 실행됨");
-//     if (group.OpenScopeId === 1) {
-//       dispatch({ type: JOIN_GROUP_REQUEST, data: { groupId: group.id } });
-//     } else {
-//       dispatch({ type: APPLY_GROUP_REQUEST, data: { groupId: group.id } });
-//     }
-//   } catch (error) {
-//     alert("가입 중 오류발생");
-//   }
-// };
   const handleJoin = async (e) => {
     e.stopPropagation();
     if (isMember) { alert('이미 가입된 그룹입니다. 그룹으로 이동합니다.'); return router.push(`/gorups/${group.id}`) };
-
-
-
 
     try {
       if (group.OpenScopeId === 1) {

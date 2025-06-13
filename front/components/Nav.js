@@ -18,8 +18,8 @@ const Nav = () => {
   const{userGroups} = useSelector((state)=>state.group);
 
   useEffect(()=>{
-    if(user?.id){ dispatch({type: LOAD_USER_GROUPS_REQUEST});}
-  }, [user?.id, dispatch]);
+    dispatch({type: LOAD_USER_GROUPS_REQUEST});
+  }, [dispatch]);
 
   const onLogout = useCallback(() => {
      dispatch({ type: LOG_OUT_REQUEST }) 
