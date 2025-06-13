@@ -225,7 +225,7 @@ const Nav = () => {
           </Menu.Item>
           <Menu.Item key="search" icon={<SearchOutlined />}>{!isMobile && "검색"}</Menu.Item>
           <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item>
-          {(me.user && me.user.isAdmin) ? <Menu.Item key="admin" onClick={() => router.push('/admin')} icon={<AuditOutlined />}>{!isMobile && "관리자 페이지"}</Menu.Item> : ''}
+          {(me.user && me.user.isAdmin) ? <Menu.Item key="admin" onClick={() => router.push('/admin/manage')} icon={<AuditOutlined />}>{!isMobile && "관리자 페이지"}</Menu.Item> : ''}
         </Menu>
       </div>
       {modalFlag &&

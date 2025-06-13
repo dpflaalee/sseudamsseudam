@@ -59,11 +59,18 @@ const Stats = styled.div`
   color: #555;
 `;
 
+// const ButtonRow = styled.div`
+//   margin-top: 16px;
+//   display: flex;
+//   justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
+//   gap: 8px;
+// `;
 const ButtonRow = styled.div`
-  margin-top: 16px;
+  margin-top: 24px;
   display: flex;
-  justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
-  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
 `;
 
 const DropdownBox = styled.div`
@@ -72,14 +79,21 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
+// const ManageButtonRow = styled.div`
+//   margin-top: 16px;
+//   margin-left: 10%;
+//   margin-right: 10%;
+//   display: flex;
+//   flex-wrap: wrap;
+//   gap: 12px;
+//   justify-content: center/* 왼쪽 정렬 */
+// `;
 const ManageButtonRow = styled.div`
-  margin-top: 16px;
-  margin-left: 10%;
-  margin-right: 10%;
-  display: flex;
-  flex-wrap: wrap;
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
-  justify-content: center/* 왼쪽 정렬 */
+  padding: 0 10%;
 `;
 
 const AdminProfile = ({ showManageButtons = false, onSectionChange, isComplain }) => {
@@ -94,8 +108,6 @@ const AdminProfile = ({ showManageButtons = false, onSectionChange, isComplain }
   const menu = (
     <Menu>
       <Menu.Item key="logout">로그아웃</Menu.Item>
-      <Menu.Item key="complain"><Link href={'/admin/complain'}>신고 페이지로 가기</Link></Menu.Item>
-      <Menu.Item key="manage"><Link href={'/admin/manage'}>관리 페이지로 가기</Link></Menu.Item>
     </Menu>
   );
 
@@ -127,20 +139,23 @@ const AdminProfile = ({ showManageButtons = false, onSectionChange, isComplain }
         </TopRow>
         {showManageButtons ? (
           <ManageButtonRow>
-            <Button size="small" onClick={() => Router.push('/admin/complain')}>신고 관리</Button>
-            <Button size="small" onClick={() => onSectionChange('category')}>카테고리 관리</Button>
-            <Button size="small" onClick={() => onSectionChange('schedule')}>일정 관리</Button>
-            <Button size="small" onClick={() => onSectionChange('challenge')}>챌린지 현황</Button>
-            <Button size="small" type="primary" onClick={() => onSectionChange('prize')}>상품 관리</Button>
+            {/* <Button size="small" onClick={() => Router.push('/admin/complain')}>신고 관리</Button> */}
+            <Button size="middle" type="default" onClick={() => onSectionChange('category')}>카테고리 관리</Button>
+            <Button size="middle" onClick={() => onSectionChange('schedule')}>일정 관리</Button>
+            <Button size="middle" onClick={() => onSectionChange('challenge')}>챌린지 현황</Button>
+            <Button size="middle" onClick={() => onSectionChange('prize')}>상품 관리</Button>
+            
+            <Button size="middle" type="primary" onClick={() => Router.push('/admin')}>공지 페이지로</Button> 
+            <Button size="middle" type="primary" onClick={() => Router.push('/admin/complain')}>신고 페이지로</Button>
           </ManageButtonRow>
         )
           :
           (<ButtonRow>
-            {!isComplain ?
+            {/* {!isComplain ?
               <Button ><Link href={'/admin/complain'}>신고 페이지로</Link></Button>
               :
               <Button ><Link href={'/admin'}>공지 페이지로</Link></Button>
-            }
+            } */}
             <Button ><Link href={'/admin/manage'}>관리 페이지로</Link></Button>
             <Button type="primary"><Link href={'/main'}>공지 작성하기</Link></Button>
           </ButtonRow>)}
