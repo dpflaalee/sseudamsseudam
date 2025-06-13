@@ -72,6 +72,25 @@ router.get('/my', isLoggedIn, async (req, res, next) => {
   }
 });
 
+router.get('/user/:userId', async (req, res, next) => {
+  try {
+    const userId = parseInt(req.params.userId, 10);
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: '잘못된 사용자 ID입니다.' });
+    }
+
+    const animals = await Animal.findAll({
+      where: { UserId: userId },
+      order: [['createdAt', 'desc']],
+    });
+
+    res.status(200).json(animals);
+  } catch (error) {
+    console.error('❌ 사용자 동물 목록 조회 실패:', error);
+    next(error);
+  }
+});
+
 //2. 해당유저 동물 프로필 리스트
 // 동물 프로필 상세 보기 및 같은 유저의 모든 동물 목록 가져오기
 router.get('/:animalId', async (req, res, next) => {
