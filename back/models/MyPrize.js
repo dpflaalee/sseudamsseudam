@@ -1,5 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
   const MyPrize = sequelize.define('MyPrize', {
+    id: {                        // PK로 사용할 고유 ID 추가 (auto increment)
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     issuedReason: {
       type: DataTypes.STRING(100),
       allowNull: false
@@ -23,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     //timestamps: false
   });
 
-  // //관계 설정
+  // 관계 설정
   MyPrize.associate = (db) => {
     db.MyPrize.belongsTo(db.User, { foreignKey: 'UserId', as: 'user' });
     db.MyPrize.belongsTo(db.Prize, { foreignKey: 'PrizeId', as: 'prize' });
