@@ -23,7 +23,7 @@ export const initialState = {
   userOutLoading: false,//회원 탈퇴 시도중
   userOutDone: false,
   userOutError: null,
-  
+
   userProfileLoading: false, //회원 프로필 수정 시도중
   userProfileDone: false,
   userProfileError: null,
@@ -231,18 +231,18 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.userOutError = action.error;
       break;
     case USER_PROFILE_UPDATE_REQUEST:
-      draft.userProfileLoading= true; //회원 프로필 수정 시도중
-      draft.userProfileDone= false;
-      draft.userProfileError= null;
+      draft.userProfileLoading = true; //회원 프로필 수정 시도중
+      draft.userProfileDone = false;
+      draft.userProfileError = null;
       break;
     case USER_PROFILE_UPDATE_SUCCESS:
       draft.userImagePaths = draft.userImagePaths.concat(action.data);
-      draft.userProfileLoading= false;
-      draft.userProfileDone= false;
+      draft.userProfileLoading = false;
+      draft.userProfileDone = false;
       break;
     case USER_PROFILE_UPDATE_FAILURE:
-      draft.userProfileLoading= false;
-      draft.userProfileError= action.error;
+      draft.userProfileLoading = false;
+      draft.userProfileError = action.error;
       break;
     case CHANGE_NICKNAME_REQUEST:
       draft.changeNicknameLoading = true;
