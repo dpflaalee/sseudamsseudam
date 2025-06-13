@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useSelector, useDispatch } from "react-redux";
-import { Row, Col, Typography, Button, Card, Space, Spin } from "antd";
+import { Row, Col, Typography, Button, Card, Space, Spin, notification } from "antd";
 import GroupDropDown from "./GroupDropdown";
-import axios from "axios";
-import { LOAD_MEMBERS_REQUEST, APPLY_GROUP_REQUEST, JOIN_GROUP_REQUEST, JOIN_GROUP_RESET, APPLY_GROUP_RESET } from "@/reducers/group";
-import { useRef } from "react";
+import { LOAD_MEMBERS_REQUEST, APPLY_GROUP_REQUEST, JOIN_GROUP_REQUEST,} from "@/reducers/group";
 import { ADD_NOTIFICATION_REQUEST } from '../../reducers/notification';
 import NOTIFICATION_TYPE from "../../../shared/constants/NOTIFICATION_TYPE";
 
@@ -19,7 +17,7 @@ export default function GroupList({ g }) {
   const { user } = useSelector(state => state.user); //console.log("로그인한유저정보", user.id);  // 1
   const [group, setGroup] = useState(g);
   const [open, setOpen] = useState(false);
-  const { joinGroupDone, joinGroupError, applyGroupDone, applyGroupError } = useSelector(state => state.group);
+  const { joinGroupDone, applyGroupDone, } = useSelector(state => state.group);
 
   const formattedCategory = group?.Categories?.map((c) => c.content).join(", ") || "없음"; // 카테고리 공백 추가  
   const memberCount = group?.groupmembers ? new Set(group.groupmembers.map(m => m.id)).size : 0;//멤버 수 계산
@@ -42,44 +40,17 @@ export default function GroupList({ g }) {
     }
   }, [members, user, group?.groupmembers]);
 
-const hasAlerted = useRef(false);
-
-useEffect(() => {
-  console.log("🔄 useEffect 실행 - joinGroupDone:", joinGroupDone);
-
-  if (!hasAlerted.current && joinGroupDone) {
-    hasAlerted.current = true; // 🚀 먼저 실행
-    alert("가입이 완료되었습니다.");
-    dispatch({ type: JOIN_GROUP_RESET });
-    router.push(`/groups/${group.id}`);
-  } else if (!hasAlerted.current && joinGroupError) {
-    hasAlerted.current = true;
-    alert(joinGroupError);
-    dispatch({ type: JOIN_GROUP_RESET });
-  }
-}, [joinGroupDone]);
-
-  useEffect(() => {
-    if (applyGroupDone !== undefined) {
-      console.log('applyGroupDone 상태 확인:', applyGroupDone);
-      if (applyGroupDone) {
-        alert("가입 신청이 완료되었습니다!");
-        dispatch({ type: APPLY_GROUP_RESET }); // 상태 리셋
-      }
-      if (applyGroupError) {
-        alert(applyGroupError);
-        dispatch({ type: APPLY_GROUP_RESET });
-      }
-    }
-  }, [applyGroupDone, applyGroupError, dispatch]);
-
+  if (joinGroupDone || applyGroupDone) { router.push(`/groups/${g.id}`);  }
+  
   const handleGroupClick = () => { setOpen((prev) => !prev); };
 
   const handleEnterGroup = (e) => { e.stopPropagation(); router.push(`/groups/${group.id}`); } // 가입한 그룹일 시 해당 그룹으로 이동
 
   const handleJoin = async (e) => {
     e.stopPropagation();
-    if (isMember) { alert('이미 가입된 그룹입니다. 그룹으로 이동합니다.'); return router.push(`/gorups/${group.id}`) };
+    if (isMember) { 
+      notification.info({ message: "이미 가입된 그룹입니다.", placement: "topRight" });
+      return router.push(`/groups/${group.id}`); };
 
     try {
       if (group.OpenScopeId === 1) {

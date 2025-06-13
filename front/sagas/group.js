@@ -117,7 +117,7 @@ function* watchTransferOwnership() { yield takeLatest(TRANSFER_OWNERSHIP_REQUEST
 
 //가입-----------------------------------------------------------------------------------
 //1. 공개그룹 즉시가입
-function joinGroupAPI(data) { console.log('joinGroupAPI 데이터----------------:', data); return axios.post(`/api/groups/${data.groupId}/join`); }
+function joinGroupAPI(data) { return axios.post(`/api/groups/${data.groupId}/join`); }
 function* joinGroup(action) {
   try {
     yield call(joinGroupAPI, action.data);
@@ -131,6 +131,11 @@ function* joinGroup(action) {
         targetId: action.notiData.targetId,
       }
     });
+    notification.success({
+      message: "가입 완료",
+      description: "가입이 완료되었습니다.",
+      placement: "topRight",
+    });    
     // E 알림
   } catch (err) { yield put({ type: JOIN_GROUP_FAILURE, error: err.response.data || err.message }); }
 }
@@ -152,6 +157,11 @@ function* applyGroup(action) {
         targetId: action.notiData.targetId,
       }
     });
+    notification.success({
+      message: "가입 신청 완료",
+      description: "가입 신청이 완료되었습니다!",
+      placement: "topRight",
+    });    
     // E 알림
   } catch (err) { yield put({ type: APPLY_GROUP_FAILURE, error: err.response.data || err.message }) }
 }
