@@ -21,7 +21,7 @@ router.get('/:searchInput', async (req, res, next) => {
             where: { BlockedId: myId },
             attributes: ['BlockingId'],
         });
-        const blockedIds = blockedMeUsers.map(entry => entry.BlockingId);
+        const blockingIds = blockedMeUsers.map(entry => entry.BlockingId);
 
         // 신고된 유저
         const blindedUser = await Complain.findAll({
@@ -33,7 +33,7 @@ router.get('/:searchInput', async (req, res, next) => {
         });
         const blindedUserIds = blindedUser.map(entry => entry.targetId);
 
-        const excludedUserIds = [...new Set([...blockedIds, ...blindedUserIds])];
+        const excludedUserIds = [...new Set([...blockingIds, ...blindedUserIds])];
 
         const postResults = await Post.findAll({
             where: {
