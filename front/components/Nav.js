@@ -103,6 +103,10 @@ const Nav = () => {
       setImgFile(reader.result);
     };
   };
+  const onMyPage = useCallback(() => {
+    router.push(`/user/myPage/${user.id}`)
+  },[])
+
   const onSubmitForm = useCallback(() => {
     //1. 글 있는지 확인 
     if (!text || !text.trim()) {
@@ -152,17 +156,19 @@ const Nav = () => {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{ display: "flex", flexDirection: isMobile ? "row" : "column", justifyContent: "flex-start", gap: "10px", }} >
-        <Dropdown overlay={profileMenu} trigger={["click"]}>
+        
           <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop: "20px", padding: "15px", }} >
-            <Avatar size="large" icon={<UserOutlined />} />
+            <Avatar size="large" onClick={onMyPage} icon={<UserOutlined />} />
+            <Dropdown overlay={profileMenu} trigger={["click"]}>
             {!isMobile && user && (
               <div style={{ marginLeft: "10px" }}>
                 <strong>{user?.nickname}</strong>
                 <div style={{ color: "#888" }}>{user?.email}</div>
               </div>
             )}
+            </Dropdown>
           </div>
-        </Dropdown>
+        
 
         <Menu
           mode={isMobile ? "horizontal" : "inline"}

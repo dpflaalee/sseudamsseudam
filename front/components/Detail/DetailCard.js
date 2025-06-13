@@ -313,12 +313,16 @@ const DetailCard = ({ post, onRefreshPost }) => {
               </div>
             }
           >
+            <div
+              onClick={() => router.push(`/post/${post.RetweetId}`)}
+              style={{ cursor: 'pointer' }}
+            >
             <PostCardContent
               editMode={false} // 리트윗 원본은 수정 불가
               postData={post.Retweet.content}
               setLocationLink={setLocationLink}
             />
-
+            </div>
             {post.Retweet.Images && post.Retweet.Images.length > 0 && (
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
                 <PostImages images={post.Retweet.Images} />
