@@ -282,15 +282,6 @@ const Nav = () => {
               actions={[
               ]}
             >
-              <Card
-                style={{
-                  width: 450,
-                  marginTop: 16,
-                }}
-                actions={[
-
-                ]}
-              >
                 <Card.Meta
                   // avatar={<Avatar  src="https://joeschmoe.io/api/v1/random" />}
                   avatar={<Avatar src={imgFile ? imgFile : "/images/user.png"} />}
