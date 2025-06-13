@@ -33,12 +33,23 @@ router.get('/:searchInput', async (req, res, next) => {
         });
         const blindedUserIds = blindedUser.map(entry => entry.targetId);
 
+        // 신고된 게시글
+        const complainPost = await Complain.findAll({
+            where: {
+                isBlind: true,
+                targetType: TARGET_TYPE.POST,
+            },
+            attributes: ['targetId'],
+        });
+        const complainPostIds = complainPost.map(entry => entry.targetId);
+
         const excludedUserIds = [...new Set([...blockingIds, ...blindedUserIds])];
 
         const postResults = await Post.findAll({
             where: {
                 content: { [Op.like]: `%${keyword}%` },
                 UserId: { [Op.notIn]: excludedUserIds },
+                id: { [Op.notIn]: complainPostIds },
             },
             include: [
                 { model: User, attributes: ['id', 'nickname', 'isAdmin'] },

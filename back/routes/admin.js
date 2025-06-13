@@ -75,7 +75,8 @@ router.get('/complain', async (req, res, next) => {
                 switch (complain.targetType) {
                     case TARGET_TYPE.POST:
                         target = await Post.findByPk(Number(complain.targetId), {
-                            include: [{ model: User, attributes: ['id', 'nickname'] }],
+                            include: [{ model: User, attributes: ['id', 'nickname'] }, { model: Image },],
+
                         });
                         break;
                     case TARGET_TYPE.COMMENT:
