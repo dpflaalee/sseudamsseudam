@@ -1,13 +1,15 @@
 import { Input } from 'antd';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import SearchResult from './SearchResult';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
+import { LOAD_MY_INFO_REQUEST } from '@/reducers/user';
 
 const { Search } = Input;
 
 const SearchForm = () => {
+    const dispatch = useDispatch();
     const [searchInput, setSearchInput] = useState('');
     const [searchResult, setSearchResult] = useState({ post: [], group: [], member: [] });
 
@@ -65,6 +67,11 @@ const SearchForm = () => {
             ),
         };
     }, [searchInput, searchResult, user, mainComplainCard]);
+
+    // 마이페이지로 이동할 때 내 정보
+    useEffect(() => {
+        dispatch({ type: LOAD_MY_INFO_REQUEST });
+    }, []);
 
     return (
         <div>

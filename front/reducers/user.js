@@ -23,7 +23,7 @@ export const initialState = {
   userOutLoading: false,//회원 탈퇴 시도중
   userOutDone: false,
   userOutError: null,
-  
+
   userProfileLoading: false, //회원 프로필 수정 시도중
   userProfileDone: false,
   userProfileError: null,
@@ -250,8 +250,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.userProfileDone= false;
       break;
     case USER_PROFILE_UPDATE_FAILURE:
-      draft.userProfileLoading= false;
-      draft.userProfileError= action.error;
+      draft.userProfileLoading = false;
+      draft.userProfileError = action.error;
       break;
 
     case USER_IMAGE_UPDATE_REQUEST:
