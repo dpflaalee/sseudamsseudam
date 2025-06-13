@@ -6,7 +6,7 @@ const { Notification } = require('../models');
 const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
 
 // 매시간 정각마다 실행
-//cron.schedule('0 * * * *', async () => {
+cron.schedule('0 * * * *', async () => {
   console.log('🎁 랜덤박스 자동 지급 시작:', new Date());
 
   try {
