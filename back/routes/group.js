@@ -25,7 +25,6 @@ router.get('/', isLoggedIn, async (req, res, next) => {
 
 //2. 그룹생성
 router.post('/', isLoggedIn, async (req, res, next) => {
-  console.log('🐟 그룹 생성 데이터 :', req.body);
   try {
     const { title, content, openScopeId, categoryIds } = req.body;
 
@@ -105,23 +104,6 @@ router.get('/:groupId/members', async (req, res, next) => {
   } catch (error) { console.error(error); next(error); }
 });
 
-/*//1-1 특정 유저 정보 가져오기
-router.get('/:groupId/members/:userId', async(req,res,next)=>{
-  try{
-    const member = await User.findOne({
-      where: { id: req.params.userId },
-      include: [{
-        model: Group, as: 'groupmembers', where: {id: req.params.groupId}, through: { attributes: ['isLeader'], model: GroupMember }
-      }],
-      attributes: ['id', 'nickname', 'email']
-    });
-    if(!member){ return res.status(404).json({message: 'Member not Found'});}
-
-    const formatted = { id:member.id, nickname: member.nickname, email: member.email, isLeader: member.groupmembers[0].GroupMember.isLeader};
-    res.status(200).json(formatted);
-  }catch(error){console.error(error); next(error);}
-});*/
-
 //2. 강퇴
 router.delete('/:groupId/members/:userId', async (req, res, next) => {
   try {
@@ -148,29 +130,6 @@ router.patch('/:groupId/members/:userId/transfer', async (req, res, next) => {
 })
 
 //가입관리----------------------------------------------------------------
-// 로그인한 사용자 정보 (passport.js 등을 통해 세션에 저장된 정보)
-/*router.get('/:groupId/members/me', isLoggedIn, async (req, res, next) => {
-  try {
-    const me = req.user;  
-    const member = await User.findOne({
-      where: { id: me.id },
-      include: [{
-        model: Group,
-        as: 'groupmembers',
-        where: { id: req.params.groupId },
-        through: { attributes: ['isLeader'], model: GroupMember }
-      }],
-      attributes: ['id', 'nickname', 'email']
-    });
-
-    if (!member) { return res.status(404).json({ message: 'You are not a member of this group' }); }
-
-    const formatted = { id: member.id, nickname: member.nickname, email: member.email, isLeader: member.groupmembers[0].GroupMember.isLeader };
-
-    res.status(200).json(formatted);
-  } catch (error) {console.error(error); next(error);}
-});*/
-
 //1. 즉시가입
 router.post('/:groupId/join', isLoggedIn, async (req, res, next) => {
   console.log("그룹 라우터 데이터 잘 받아오고 있나요---------:", req.params.groupId);
@@ -218,17 +177,15 @@ router.get('/:groupId/requests', async (req, res, next) => {
       where: { GroupId: req.params.groupId, status: 'pending' },
       include: [{ model: User, attributes: ['id', 'nickname'] }]
     });
-    const formatted = requests.map((r) => ({ id: r.id, nickname: r.User.nickname, status: r.status, }));
+    const formatted = requests.map((r) => ({ id: r.id, userId:r.User.id, nickname: r.User.nickname, status: r.status, }));
     res.status(200).json(formatted);
   } catch (err) { console.error(err); next(err); }
 })
 
 // 2. 승인
-router.post('/requests/:requestId/approve', isLoggedIn, async (req, res, next) => {
-  const { requestId } = req.params;
+router.post('/:groupId/requests/:requestId/approve', isLoggedIn, async (req, res, next) => {
+  const { groupId, requestId } = req.params;
   const { userId } = req.query;  // 쿼리 스트링에서 userId를 받는다.
-  console.log("....................Router 요청아이디", requestId);
-  console.log("....................Router 유저아이디", userId);
 
   try {
     const request = await GroupRequest.findOne({
@@ -239,26 +196,23 @@ router.post('/requests/:requestId/approve', isLoggedIn, async (req, res, next) =
       },
     });
 
-    if (!request) {
-      return res.status(404).json({ message: '요청을 찾을 수 없습니다.' });
-    }
+    if (!request) {return res.status(404).json({ message: '요청을 찾을 수 없습니다.' });  }
 
     request.status = 'approved';  // 승인 처리
     await request.save();
 
     await GroupMember.create({ GroupId: request.GroupId, UserId: request.UserId });
     res.status(200).json({ message: '승인되었습니다.' });
-  } catch (error) {
-    res.status(500).json({ message: '서버 오류', error });
-  }
+  } catch (error) {    res.status(500).json({ message: '서버 오류', error });  }
 });
 
 // 3. 거절
-router.post('/requests/:requestId/reject', isLoggedIn, async (req, res, next) => {
-  const { requestId } = req.params;
+router.post('/:groupId/requests/:requestId/reject', isLoggedIn, async (req, res, next) => {
+  const { groupId, requestId } = req.params;
   const { userId } = req.query;  // 쿼리 스트링에서 userId를 받는다.
-  console.log("....................Router 요청아이디", requestId);
-  console.log("....................Router 유저아이디", userId);
+
+  console.log("🔎 거절 요청아이디:", requestId);
+  console.log("🔎 거절 유저아이디:", userId);
 
   try {
     const request = await GroupRequest.findOne({
@@ -269,17 +223,41 @@ router.post('/requests/:requestId/reject', isLoggedIn, async (req, res, next) =>
       },
     });
 
-    if (!request) {
-      return res.status(404).json({ message: '요청을 찾을 수 없습니다.' });
-    }
+    if (!request) {  return res.status(404).json({ message: '요청을 찾을 수 없습니다.' });    }
 
     request.status = 'rejected';  // 거절 처리
     await request.save();
 
     res.status(200).json({ message: '거절되었습니다.' });
   } catch (error) {
+    console.error("🔴 거절 처리 중 오류 발생:", error);
     res.status(500).json({ message: '서버 오류', error });
   }
 });
+
+//4. 로그인한 유저 그룹 불러오기
+router.get('/mygroups', isLoggedIn, async (req, res, next) => {
+  try {
+    const groups = await Group.findAll({
+      include: [
+        {
+          model: User,
+          as: 'groupmembers',
+          where: { id: req.user.id },
+          attributes: [], 
+          through: { attributes: [] }, 
+        },
+      ],
+      attributes: ['id', 'title'], 
+    });
+
+    return res.status(200).json(groups);
+    console.log(groups);
+  } catch (err) {
+    console.error('로그인 유저 그룹 조회 오류:', err);
+    return res.status(500).send('서버 오류');
+  }
+});
+
 
 module.exports = router;

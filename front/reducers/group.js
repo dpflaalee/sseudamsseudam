@@ -42,6 +42,7 @@ export const KICK_MEMBER_FAILURE = 'KICK_MEMBER_FAILURE';
 export const TRANSFER_OWNERSHIP_REQUEST = 'TRANSFER_OWNERSHIP_REQUEST';
 export const TRANSFER_OWNERSHIP_SUCCESS = 'TRANSFER_OWNERSHIP_SUCCESS';
 export const TRANSFER_OWNERSHIP_FAILURE = 'TRANSFER_OWNERSHIP_FAILURE';
+//멤버관리-------------------------------------------------
 
 //가입관리-------------------------------------------------- 
 //공개 그룹 가입
@@ -75,7 +76,11 @@ export const REJECT_JOIN_SUCCESS = 'REJECT_JOIN_SUCCESS';
 export const REJECT_JOIN_FAILURE = 'REJECT_JOIN_FAILURE';
 //가입요청 리셋
 export const RESET_JOIN_REQUESTS = 'RESET_JOIN_REQUESTS';
-//멤버관리-------------------------------------------------
+//가입관리-------------------------------------------------- 
+//로그인한 유저가 가입되어있는 그룹 로드
+export const LOAD_USER_GROUPS_REQUEST = 'LOAD_USER_GROUPS_REQUEST';
+export const LOAD_USER_GROUPS_SUCCESS = 'LOAD_USER_GROUPS_SUCCESS';
+export const LOAD_USER_GROUPS_FAILURE = 'LOAD_USER_GROUPS_FAILURE';
 
 //-------------- 초기값---------------//
 
@@ -141,10 +146,16 @@ export const initialState = {
   rejectJoinRequestDone: false,
   rejectJoinRequestError: null,
 
+  //로그인한 유저의 그룹 불러오기
+  userGroupLoading : false,
+  userGroupDone : false,
+  userGroupError  : null,
+
   groups: [],        // 그룹 리스트
   members: [],       // 현재 그룹의 멤버들
   joinRequests: [],  // 가입 요청 목록
   singleGroup: null,
+  userGroups: [], //로그인한 유저가 가입한 그룹 목록
 };
 
 //-------------- next---------------//
@@ -284,12 +295,13 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         
   //------------------- 가입관리 -------------------//      
       // 공개 그룹 즉시 가입
-      case JOIN_GROUP_REQUEST:
+      case JOIN_GROUP_REQUEST: 
         draft.joinGroupLoading = true;
         draft.joinGroupDone = false;
         draft.joinGroupError = null;
         break;
       case JOIN_GROUP_SUCCESS:
+        if (draft.joinGroupDone) break; 
         draft.joinGroupLoading = false;
         draft.joinGroupDone = true;
         break;
@@ -302,7 +314,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       case JOIN_GROUP_RESET:
         draft.joinGroupDone = false;
         draft.joinGroupError = null;
-        break;        
+        break;       
       //가입신청
       case APPLY_GROUP_REQUEST:
         draft.applyGroupLoading = true;
@@ -339,7 +351,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         draft.loadJoinRequestsLoading = false;
         draft.loadJoinRequestsError = action.error;
         break;
-
       //가입 승인
       case APPROVE_JOIN_REQUEST:
         draft.approveJoinRequestLoading =true;
@@ -383,6 +394,20 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       //가입 신청 리셋
       case RESET_JOIN_REQUESTS:
         draft.joinRequests = [];
+        break;
+      //로그인한 유저가 가입된 그룹 불러오기
+      case LOAD_USER_GROUPS_REQUEST:
+        draft.userGroupLoading = true;
+        draft.userGroupError=null;
+        break
+      case LOAD_USER_GROUPS_SUCCESS:
+        draft.userGroupLoading = false;
+        draft.userGroupDone = true;
+        draft.userGroups = action.data;
+        break;
+      case LOAD_USER_GROUPS_FAILURE:
+        draft.userGroupLoading = false;
+        draft.userGroupError = action.error;
         break;
 //--------------------------------------------------------------------------------//
 

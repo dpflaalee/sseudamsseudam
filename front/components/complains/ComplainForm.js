@@ -84,7 +84,7 @@ const ComplainForm = ({ open, onClose, TARGET_TYPE, targetId, targetUserNickname
       </Header>
 
       <UserInfo>
-        <Avatar size={48}>{targetUserNickname[0]}</Avatar>
+        <Avatar size={48}>{targetUserNickname ? targetUserNickname[0] : '?'}</Avatar>
         <div>
           <div>{targetUserNickname}</div>
         </div>

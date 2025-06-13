@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Avatar, Button, Popover, Modal, Input, Space, Select } from 'antd';
 import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined, CloseOutlined, } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
-import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST } from '@/reducers/post';
+import { LIKE_POST_REQUEST, UNLIKE_POST_REQUEST, REMOVE_POST_REQUEST, UPDATE_POST_REQUEST, RETWEET_REQUEST } from '@/reducers/post';
 import Link from 'next/Link';
 
 import PostImages from '../post/PostImages';
@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import CommentForm from '../comment/CommentForm';
 import Comment from '../comment/Comment';
 import PostCardContent from '../post/PostCardContent';
+import ComplainForm from '../complains/ComplainForm';
 
 import { ADD_NOTIFICATION_REQUEST } from '@/reducers/notification'
 import NOTIFICATION_TYPE from '../../../shared/constants/NOTIFICATION_TYPE';
@@ -62,13 +63,29 @@ const PawIcon = ({ filled = false, style = {}, onClick }) => (
   </svg>
 );
 
+const KakaoMapIcon = ({ style }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 512 512"
+    width="20"
+    height="20"
+    style={{ marginRight: 8, verticalAlign: 'middle', ...style }}
+  >
+    <circle cx="256" cy="256" r="256" fill="#ffcd00" />
+    <path
+      d="M256 128c-70.7 0-128 49.4-128 110.4 0 38.6 25.5 72.3 63.5 92.4l-20 53.2c-1.6 4.2 3.1 8 7 5.8l70.5-38.6c1.7.1 3.5.2 5.3.2 70.7 0 128-49.4 128-110.4S326.7 128 256 128z"
+      fill="#000"
+    />
+  </svg>
+);
+
 const DetailCard = ({ post, onRefreshPost }) => {
   const id = useSelector((state) => state.user.user?.id);
   const dispatch = useDispatch();
   const router = useRouter();
   const { Option } = Select;
   const [newContent, setNewContent] = useState(post.content);
-  const [newScope, setNewScope] = useState(post.scope || 'public');  
+  const [newScope, setNewScope] = useState(post.scope || 'public');
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const { updatePostDone } = useSelector((state) => state.post);
@@ -76,10 +93,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const { removePostDone } = useSelector((state) => state.post);
   const [localComments, setLocalComments] = useState(post.Comments || []);
   const [open, setOpen] = useState(false);
-
-  const like = post?.Likers?.some((v) => v.id === id);
-  const [liked, setLiked] = useState(post?.Likers?.some((v) => v.id === id));
-  const [likeLoading, setLikeLoading] = useState(false);
+  const [locationLink, setLocationLink] = useState(null);
 
   useEffect(() => {
     setNewContent(post.content);
@@ -96,23 +110,13 @@ const DetailCard = ({ post, onRefreshPost }) => {
   useEffect(() => {
     setLocalComments(post.Comments || []);
   }, [post.Comments]);
-
-  useEffect(() => {
-    setLiked(post?.Likers?.some((v) => v.id === id));
-  }, [post?.Likers, id]);
-
+  
   const onClickLike = useCallback(() => {
-    if (!id) {
-      return alert('로그인을 하시면 좋아요 추가가 가능합니다.');
-    }
-    setLiked(true); // 낙관적 업데이트
-
+    if (!id) { return alert('로그인을 하시면 좋아요 추가가 가능합니다.'); }
     dispatch({
       type: LIKE_POST_REQUEST,
       data: post.id,
-      callback: () => {
-        onRefreshPost?.(); // 서버 최신화가 필요하면
-      },
+      callback: () => onRefreshPost(),
     });
 
     dispatch({
@@ -124,20 +128,19 @@ const DetailCard = ({ post, onRefreshPost }) => {
         targetId: post.id,
       }
     });
-  }, [id, post.id, post.User.id, likeLoading]);
+  }, [id, post.id, dispatch, onRefreshPost]);
 
   const onClickunLike = useCallback(() => {
     if (!id) return alert('로그인을 하시면 좋아요 취소가 가능합니다.');
-    setLiked(false); // 낙관적 업데이트
 
     dispatch({
       type: UNLIKE_POST_REQUEST,
       data: post.id,
-      callback: () => {
-        onRefreshPost?.();
-      },
+      callback: () => onRefreshPost(),
     });
-  }, [id]);
+  }, [id, post.id, dispatch, onRefreshPost]);
+
+  const like = post?.Likers?.some((liker) => liker.id === id);
 
   //수정
   const openEditModal = useCallback(() => {
@@ -152,15 +155,15 @@ const DetailCard = ({ post, onRefreshPost }) => {
     }
     dispatch({
       type: UPDATE_POST_REQUEST,
-      data: { 
-        PostId: post.id, 
+      data: {
+        PostId: post.id,
         content: newContent,
         openScope: newScope,
       },
-    callback: () => {
-      // 수정 완료 후 후속 작업 (API 응답을 받은 후 상태 갱신)
-      onRefreshPost();  // 새로운 데이터 반영
-    },  
+      callback: () => {
+        // 수정 완료 후 후속 작업 (API 응답을 받은 후 상태 갱신)
+        onRefreshPost();  // 새로운 데이터 반영
+      },
     });
   }, [newContent, newScope, post, dispatch]);
 
@@ -191,11 +194,12 @@ const DetailCard = ({ post, onRefreshPost }) => {
   }, [post.id, dispatch]);
   const onRetweet = useCallback(() => {
     if (!id) { return alert('로그인 후 리트윗이 가능합니다.'); }
-    return dispatch({
+    dispatch({
       type: RETWEET_REQUEST,
       data: post.id
     });
-  });
+    router.push('/main');
+  },[dispatch, post.id, router]);
 
   /// 신고 처리된 댓글 , 게시글 블라인드 처리
   const { mainComplainCard } = useSelector(state => state.complain);
@@ -221,42 +225,30 @@ const DetailCard = ({ post, onRefreshPost }) => {
   return (
     <div style={{ margin: '3%' }}>
       {post.RetweetId && post.Retweet ? (
-      <Card
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-            <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
-              <Avatar style={{ marginRight: 8 }}>{post.User.nickname[0]}</Avatar>
-            </Link>
-            <span>{post.User.nickname}님이 리트윗했습니다.</span>
-          </div>  
-        }
-        extra={
-          <CloseOutlined
-            style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }}
-            onClick={() => router.push('/main')}
-          />
-        }           
-        style={{ marginBottom: 16 }}
-      >
-        {/* 내부에 리트윗된 게시물 카드 */}
         <Card
-          size="small"
+          style={{
+            backgroundColor: '#f5f7fa',
+            borderRadius: 16,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            padding: '12px',
+            marginBottom: 24,
+          }}
+          bodyStyle={{ padding: 16 }}
           title={
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <Link href={`/user/myPage/${post.Retweet.User.id}`} prefetch={false}>
-                <Avatar style={{ marginRight: 8 }}>{post.Retweet.User.nickname[0]}</Avatar>
+              <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
+                <Avatar style={{ marginRight: 8 }}>{post.User.nickname[0]}</Avatar>
               </Link>
-              <span>{post.Retweet.User.nickname}</span>
+              <span>{post.User.nickname}님이 리트윗한 게시물입니다.</span>
             </div>
           }
           actions={[
-            <RetweetOutlined key="retweet" onClick={onRetweet} />,
             like
               ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
               : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
             <span key="comment">
               <Link href={`/post/${post.id}`} passHref>
-                <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
+                <MessageOutlined /> {post.Comments?.filter(c => !c.RecommentId && !Boolean(c.isDeleted)).length || 0}
               </Link>
             </span>,
             <Popover content={(
@@ -272,62 +264,167 @@ const DetailCard = ({ post, onRefreshPost }) => {
             )}>
               <EllipsisOutlined />
             </Popover>
-          ]}
+          ]}          
+          extra={
+            <CloseOutlined
+              style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }}
+              onClick={() => router.push('/main')}
+            />
+          }
         >
-          <PostCardContent
-            editMode={false} // 리트윗 원본은 수정 불가
-            postData={post.Retweet.content}
-          />
+          {/* 내부에 리트윗된 게시물 카드 */}
+          <Card
+            size="small"
+            style={{
+              borderRadius: 16,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              padding: '12px',
+              backgroundColor: '#ffffff',
+              marginBottom: 24,
+            }}
+            bodyStyle={{ padding: 16 }}
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
+                    <Avatar style={{ marginRight: 8 }}>{post.Retweet?.User?.nickname[0]}</Avatar>
+                  </Link>
+                  <span>{post.Retweet?.User?.nickname}</span>
+                </div>
 
-          {post.Retweet.Images && post.Retweet.Images.length > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-              <PostImages images={post.Retweet.Images} />
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {post.Categorys && post.Categorys.length > 0 ? (
+                    post.Categorys.map((category) => (
+                      <span
+                        key={category.id}
+                        style={{
+                          backgroundColor: !category.isAnimal ? '#ffcc00' : '#f0f0f0',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: 12,
+                          color: '#555',
+                        }}
+                      >
+                        {category.content}
+                      </span>
+                    ))
+                  ) : null}
+                </div>
+              </div>
+            }
+          >
+            <div
+              onClick={() => router.push(`/post/${post.RetweetId}`)}
+              style={{ cursor: 'pointer' }}
+            >
+            <PostCardContent
+              editMode={false} // 리트윗 원본은 수정 불가
+              postData={post.Retweet.content}
+              setLocationLink={setLocationLink}
+            />
             </div>
-          )}
+            {post.Retweet.Images && post.Retweet.Images.length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+                <PostImages images={post.Retweet.Images} />
+              </div>
+            )}
+
+        {locationLink && (
+          <div style={{ marginTop: 12, textAlign: 'center' }}>
+            <Button
+              onClick={() => window.open(locationLink, '_blank')}
+              style={{ border: '1px solid #eee', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <KakaoMapIcon />
+              카카오맵에서 보기
+            </Button>
+          </div>
+        )}   
+
+          </Card>
         </Card>
-      </Card>
-    ) : (
+      ) : (
         // 일반 게시글
         <Card
-              title={
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                  <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                    <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
-                  </Link>
-                  <span>{post.User?.nickname}</span>
-                </div>
-              } 
-              extra={
-                <CloseOutlined
-                  style={{ fontSize: 20, color: 'gray', cursor: 'pointer' }}
-                  onClick={() => router.push('/main')}
+          style={{
+            borderRadius: 16,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            padding: '12px',
+            backgroundColor: '#ffffff',
+            marginBottom: 24,
+          }}        
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
+                  <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
+                </Link>
+                <span>{post.User?.nickname}</span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 4 }}>
+                {post.Categorys && post.Categorys.length > 0 ? (
+                  post.Categorys.map((category) => (
+                    <span
+                      key={category.id}
+                      style={{
+                        backgroundColor: !category.isAnimal ? '#ffcc00' : '#f0f0f0',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: 12,
+                        color: '#555',
+                      }}
+                    >
+                      {category.content}
+                    </span>
+                  ))
+                ) : null}
+              </div>
+            </div>
+          } 
+          extra={
+            <CloseOutlined
+              style={{ fontSize: 20, color: 'gray', cursor: 'pointer', marginLeft: 12 }}
+              onClick={() => router.push('/main')}
+            />
+          }
+          actions={[
+            <RetweetOutlined key="retweet" onClick={onRetweet} />,
+            like
+              ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
+              : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
+            <span key="comment">
+              <Link href={`/post/${post.id}`} passHref>
+                <MessageOutlined /> {post.Comments?.filter(c => !c.RecommentId && !Boolean(c.isDeleted)).length || 0}
+              </Link>
+            </span>,
+            <Popover content={(
+              <Button.Group>
+                {id === post.User.id && (
+                  <>
+                    <Button onClick={openEditModal}>수정</Button>
+                    <Button type="danger" onClick={openDeleteModal}>삭제</Button>
+                  </>
+                )}
+                <Button onClick={() => setOpen(true)}>신고하기</Button>
+              </Button.Group>
+
+            )}>
+              <EllipsisOutlined />
+              {/* 신고 모달 */}
+              {open && (
+                <ComplainForm
+                  open={open}
+                  targetId={post.Retweet ? post.Retweet.id : post.id}
+                  TARGET_TYPE={TARGET_TYPE.POST}
+                  targetUserNickname={post.User?.nickname}
+                  onClose={() => setOpen(false)}
                 />
-              }              
-              actions={[
-                <RetweetOutlined key="retweet" onClick={onRetweet} />,
-                like
-                  ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
-                  : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
-                <span key="comment">
-                  <Link href={`/post/${post.id}`} passHref>
-                    <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
-                  </Link>
-                </span>,
-                <Popover content={(
-                  <Button.Group>
-                    {id === post.User.id && (
-                      <>
-                        <Button onClick={openEditModal}>수정</Button>
-                        <Button type="danger" onClick={openDeleteModal}>삭제</Button>
-                      </>
-                    )}
-                    <Button onClick={() => setOpen(true)}>신고하기</Button>
-                  </Button.Group>
-                )}>
-                  <EllipsisOutlined />
-                </Popover>
-              ]}
-            // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}  
+              )}
+              {/* E 신고 모달 */}
+            </Popover>
+          ]}
+        // extra={<>{id && id !== post.User.id && <FollowButton post={post} />}</>}  
         >
 
           <PostCardContent
@@ -335,13 +432,27 @@ const DetailCard = ({ post, onRefreshPost }) => {
             onEditPost={onEditPost}
             onCancelUpdate={onCancelUpdate}
             postData={content}
+            setLocationLink={setLocationLink}
           />
 
           {post.Images && post.Images.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
               <PostImages images={post.Images} />
             </div>
-          )}   
+          )}
+
+        {locationLink && (
+          <div style={{ marginTop: 12, textAlign: 'center' }}>
+            <Button
+              onClick={() => window.open(locationLink, '_blank')}
+              style={{ border: '1px solid #eee', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <KakaoMapIcon />
+              카카오맵에서 보기
+            </Button>
+          </div>
+        )}  
+
         </Card>
       )}
 
@@ -358,8 +469,8 @@ const DetailCard = ({ post, onRefreshPost }) => {
         <div style={{ display: 'flex', marginBottom: 16 }}>
           <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: '10px' }}>게시물 수정</span>
           <Space>
-            <Select 
-              value={newScope} 
+            <Select
+              value={newScope}
               style={{ width: 120 }}
               onChange={(value) => setNewScope(value)}
             >

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Input, Select, Button, message } from 'antd';
 import axios from 'axios';
 import { MODIFY_ANIPROFILE_REQUEST, RESET_MODIFY_ANIPROFILE_STATE } from '@/reducers/animal';
-import { CameraOutlined } from '@ant-design/icons';
+import { CloseOutlined } from '@ant-design/icons';
 import { LOAD_CATEGORIES_REQUEST } from '@/reducers/category';
 const { Option } = Select;
 
@@ -13,10 +13,9 @@ const AnimalEdit = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  useEffect(() => {
-    dispatch({ type: RESET_MODIFY_ANIPROFILE_STATE });
-  }, [dispatch]);
-
+  const onCancel = () => {
+    router.back();
+  }
   // 카테고리
   useEffect(() => {
     dispatch({ type: LOAD_CATEGORIES_REQUEST });
@@ -55,6 +54,7 @@ const AnimalEdit = () => {
   useEffect(() => {
     if (modifyAniprofileDone) {
       message.success('수정 완료!');
+      dispatch({type: RESET_MODIFY_ANIPROFILE_STATE});
       router.push(`/animal/${id}`);
     }
     if (modifyAniprofileError) {
@@ -108,11 +108,24 @@ const AnimalEdit = () => {
 
   return (
     <form onSubmit={onSubmit}>
-      <div style={{ width: 300, margin: 'auto', padding: 20, border: '1px solid #ddd', borderRadius: 10, textAlign: 'center' }}>
+      <div style={{ position: 'relative', width: 300, margin: 'auto', padding: 20, border: '1px solid #ddd', borderRadius: 10, textAlign: 'center' }}>
+        <Button
+          type="text"
+          icon={<CloseOutlined />}
+          onClick={onCancel}
+          style={{
+            position: 'absolute',
+            top: 8,
+            left: 8,
+            zIndex: 10,
+            fontSize: 20,
+            color: '#666',
+          }}
+        />
         {form.previewUrl ? (
-          <img onClick={() => imageInput.current?.click()} src={form.previewUrl} alt="preview" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10 }} />
+          <img onClick={() => imageInput.current?.click()} src={form.previewUrl} alt="preview" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, cursor: 'pointer' }} />
         ) : (
-          <div style={{ width: 80, height: 80, borderRadius: '50%', backgroundColor: '#ccc', margin: 'auto', marginBottom: 10 }} />
+          <div onClick={() => imageInput.current?.click()} style={{ width: 80, height: 80, borderRadius: '50%', backgroundColor: '#111', margin: 'auto', marginBottom: 10, cursor: 'pointer' }} />
         )}
         <input type="file" accept="image/*" hidden ref={imageInput} onChange={handleFileChange} />
 

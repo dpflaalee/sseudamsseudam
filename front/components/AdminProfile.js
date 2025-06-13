@@ -5,6 +5,8 @@ import { MoreOutlined } from '@ant-design/icons';
 import ComplainForm from './complains/ComplainForm';
 import TARGET_TYPE from '../../shared/constants/TARGET_TYPE';
 import Link from 'next/Link';
+import { useSelector } from 'react-redux';
+import Router from 'next/router';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -60,6 +62,7 @@ const Stats = styled.div`
 const ButtonRow = styled.div`
   margin-top: 16px;
   display: flex;
+  justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
   gap: 8px;
 `;
 
@@ -69,60 +72,81 @@ const DropdownBox = styled.div`
   right: 16px;
 `;
 
-const AdminProfile = () => {
-    const admin = {
-        nickname: '관리자',
-        profileImage: null,
-        followerCount: 0,
-        postCount: 0,
-        followingCount: 0,
-    }
+const ManageButtonRow = styled.div`
+  margin-top: 16px;
+  margin-left: 10%;
+  margin-right: 10%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center/* 왼쪽 정렬 */
+`;
 
-    const [open, setOpen] = useState(false);
-    //const userId = useSelector(state => state.user.user?.id);
-    const userId = 1;
-    const menu = (
-        <Menu>
-            <Menu.Item key="logout">로그아웃</Menu.Item>
-            <Menu.Item key="complain"><Link href={'/admin/complain'}>신고 페이지로 가기</Link></Menu.Item>
-            <Menu.Item key="manage"><Link href={'/admin/manage'}>관리 페이지로 가기</Link></Menu.Item>
-        </Menu>
-    );
+const AdminProfile = ({ showManageButtons = false, onSectionChange, isComplain }) => {
 
-    return (
-        <Wrapper>
-            <Banner />
-            <Container>
-                <AvatarBox>
-                    <Avatar size={80} src={admin.profileImage}>
-                        {admin.nickname[0]}
-                    </Avatar>
-                </AvatarBox>
+  const me = useSelector(state => state.user.user);
+  console.log(me);
+  const mainPosts = useSelector(state => state.post);
 
-                <DropdownBox>
-                    <Dropdown overlay={menu} trigger={['click']}>
-                        <Button icon={<MoreOutlined />} />
-                    </Dropdown>
-                </DropdownBox>
+  const [open, setOpen] = useState(false);
+  //const userId = useSelector(state => state.user.user?.id);
+  const userId = 1;
+  const menu = (
+    <Menu>
+      <Menu.Item key="logout">로그아웃</Menu.Item>
+      <Menu.Item key="complain"><Link href={'/admin/complain'}>신고 페이지로 가기</Link></Menu.Item>
+      <Menu.Item key="manage"><Link href={'/admin/manage'}>관리 페이지로 가기</Link></Menu.Item>
+    </Menu>
+  );
 
-                <TopRow>
-                    <InfoBox>
-                        <Nickname>{admin.nickname}</Nickname>
-                        <Stats>
-                            {admin.followerCount} 팔로잉 &nbsp;&nbsp;
-                            {admin.postCount} 팔로워 &nbsp;&nbsp;
-                            {admin.followingCount} 게시물
-                        </Stats>
-                    </InfoBox>
-                </TopRow>
+  return (
+    <Wrapper>
+      <Banner />
+      <Container>
+        <AvatarBox>
+          <Avatar size={80} src={me?.profileImage}>
+            {me?.nickname[0]}
+          </Avatar>
+        </AvatarBox>
 
-                <ButtonRow>
-                    <Button>프로필 수정</Button>
-                    <Button type="primary">공지 작성하기</Button>
-                </ButtonRow>
-            </Container>
-        </Wrapper>
-    );
+        <DropdownBox>
+          <Dropdown overlay={menu} trigger={['click']}>
+            <Button icon={<MoreOutlined />} />
+          </Dropdown>
+        </DropdownBox>
+
+        <TopRow>
+          <InfoBox>
+            <Nickname>{me.nickname}</Nickname>
+            <Stats>
+              {me?.FollowingList?.length || 0} 팔로잉 &nbsp;&nbsp;
+              {me?.FollowerList?.length || 0} 팔로워 &nbsp;&nbsp;
+              {mainPosts?.length || 0} 게시물
+            </Stats>
+          </InfoBox>
+        </TopRow>
+        {showManageButtons ? (
+          <ManageButtonRow>
+            <Button size="small" onClick={() => Router.push('/admin/complain')}>신고 관리</Button>
+            <Button size="small" onClick={() => onSectionChange('category')}>카테고리 관리</Button>
+            <Button size="small" onClick={() => onSectionChange('schedule')}>일정 관리</Button>
+            <Button size="small" onClick={() => onSectionChange('challenge')}>챌린지 현황</Button>
+            <Button size="small" type="primary" onClick={() => onSectionChange('prize')}>상품 관리</Button>
+          </ManageButtonRow>
+        )
+          :
+          (<ButtonRow>
+            {!isComplain ?
+              <Button ><Link href={'/admin/complain'}>신고 페이지로</Link></Button>
+              :
+              <Button ><Link href={'/admin'}>공지 페이지로</Link></Button>
+            }
+            <Button ><Link href={'/admin/manage'}>관리 페이지로</Link></Button>
+            <Button type="primary"><Link href={'/main'}>공지 작성하기</Link></Button>
+          </ButtonRow>)}
+      </Container>
+    </Wrapper>
+  );
 };
 
 export default AdminProfile;

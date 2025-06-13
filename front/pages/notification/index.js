@@ -3,20 +3,16 @@ import AppLayout from "../../components/AppLayout";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import 'antd/dist/antd.css';
-import { Tabs, Button } from 'antd';
+import { Tabs, Button, Modal } from 'antd';
 import groupBy from 'lodash/groupBy';
-import { useRouter } from 'next/router';
-import { Modal } from 'antd';
-
 import Notification from "@/components/notifications/Notification";
-import NotificationSetting from "@/components/notifications/NotificationSetting";
+import NotificationSetting from '@/components/notifications/NotificationSetting';
 
 import {
     LOAD_NOTIFICATION_REQUEST,
     READ_ALL_NOTIFICATION_REQUEST,
     REMOVE_NOTIFICATION_REQUEST,
 } from "@/reducers/notification";
-
 import NOTIFICATION_TYPE from "../../../shared/constants/NOTIFICATION_TYPE";
 
 const { TabPane } = Tabs;
@@ -37,60 +33,39 @@ const typeLabels = {
 
 const NotificationPage = () => {
     const dispatch = useDispatch();
-    const router = useRouter();
     const { mainNotification } = useSelector((state) => state.notification);
     const userId = useSelector((state) => state.user.user?.id);
     const grouped = groupBy(mainNotification, 'type');
 
-    // 알림 설정 모달 열고 닫기
     const [isSettingModalOpen, setIsSettingModalOpen] = useState(false);
-    const openSettingModal = () => setIsSettingModalOpen(true);
-    const closeSettingModal = () => setIsSettingModalOpen(false);
 
     useEffect(() => {
         if (userId) {
-            dispatch({
-                type: LOAD_NOTIFICATION_REQUEST,
-                data: userId,
-            });
-
-            dispatch({
-                type: READ_ALL_NOTIFICATION_REQUEST,
-                data: userId,
-            });
-
-            axios.patch('/notification/readAll', {
-                userId: userId,
-            }).then(() => {
-            }).catch((err) => {
-                console.error('🚨 전체 읽음 처리 실패:', err);
-            });
+            dispatch({ type: LOAD_NOTIFICATION_REQUEST, data: userId });
+            dispatch({ type: READ_ALL_NOTIFICATION_REQUEST, data: userId });
+            axios.patch('/notification/readAll', { userId }).catch(console.error);
         }
     }, [userId]);
 
     const handleDelete = (id) => {
-        dispatch({
-            type: REMOVE_NOTIFICATION_REQUEST,
-            data: id,
-        });
+        dispatch({ type: REMOVE_NOTIFICATION_REQUEST, data: id });
     };
-
-
 
     return (
         <AppLayout>
-            <Button onClick={openSettingModal} type="default" size="middle">
+            <Button onClick={() => setIsSettingModalOpen(true)} type="default" size="middle">
                 ⚙ 알림 설정
             </Button>
             <Modal
                 title="🔔 알림 설정"
                 open={isSettingModalOpen}
-                onCancel={closeSettingModal}
+                onCancel={() => setIsSettingModalOpen(false)}
                 footer={null}
                 width={500}
             >
                 <NotificationSetting />
             </Modal>
+
             <Tabs defaultActiveKey="all">
                 <TabPane tab="📬 전체" key="all">
                     {mainNotification.map((noti) => (

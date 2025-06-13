@@ -7,7 +7,6 @@ import { FOLLOW_REQUEST, UNFOLLOW_REQUEST, UNFOLLOW_SUCCESS } from "@/reducers/u
 
 const FollowButton = ({ postUser, setPostUser, currentUserId }) => {
   /////////////////////////////////////code
-  console.log('followUser',postUser)
   const dispatch = useDispatch();
   const { user, followLoading, unFollowLoading } = useSelector(state => state.user);
   //팔로잉하는 사람들 목록중에 아이디가 있니? - 팔로잉여부
@@ -16,9 +15,6 @@ const FollowButton = ({ postUser, setPostUser, currentUserId }) => {
   console.log("postUser 객체 구조:", postUser);
 
   const onClickFollow = useCallback(() => {
-    console.log('🔥 postUser:', postUser);
-    console.log('🔥 user:', user);
-    console.log('🔥 ReceiverId:', postUser?.id);
 
     if (isFollowing) { // 팔로잉 - 내친구 - 언팔로우
       dispatch({
@@ -45,7 +41,7 @@ const FollowButton = ({ postUser, setPostUser, currentUserId }) => {
         Followers: [...prev.Followers, { id: currentUserId }],
       }));
     }
-  }, [isFollowing,postUser]);
+  }, [isFollowing, postUser]);
   /////////////////////////////////////view
   return (
     <Button loading={followLoading || unFollowLoading} onClick={onClickFollow}>
@@ -53,7 +49,7 @@ const FollowButton = ({ postUser, setPostUser, currentUserId }) => {
     </Button>
   );
 }
-FollowButton.propTypes  ={
+FollowButton.propTypes = {
   //post : PropTypes.string
   postUser: PropTypes.object.isRequired,
 

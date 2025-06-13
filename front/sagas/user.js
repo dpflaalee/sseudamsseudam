@@ -18,10 +18,17 @@ import {
   CHANGE_NICKNAME_SUCCESS,
   CHANGE_NICKNAME_FAILURE,
 
+  USER_PROFILE_UPDATE_REQUEST,
+  USER_PROFILE_UPDATE_SUCCESS,
+  USER_PROFILE_UPDATE_FAILURE,
+  
+  USER_IMAGE_UPDATE_REQUEST,
+  USER_IMAGE_UPDATE_SUCCESS,
+  USER_IMAGE_UPDATE_FAILURE,
+
   USER_DELETE_REQUEST,
   USER_DELETE_SUCCESS,
   USER_DELETE_FAILURE,
-
 
   FOLLOW_REQUEST,
   FOLLOW_SUCCESS,
@@ -46,6 +53,11 @@ import {
   REMOVE_FOLLOWER_REQUEST,
   REMOVE_FOLLOWER_FAILURE,
   REMOVE_FOLLOWER_SUCCESS,
+
+  LOAD_BLOCK_REQUEST, LOAD_BLOCK_SUCCESS, LOAD_BLOCK_FAILURE,
+  ADD_BLOCK_REQUEST, ADD_BLOCK_SUCCESS, ADD_BLOCK_FAILURE,
+  REMOVE_BLOCK_REQUEST, REMOVE_BLOCK_SUCCESS, REMOVE_BLOCK_FAILURE,
+
 } from '../reducers/user';
 
 // 알림
@@ -176,7 +188,7 @@ function* logout() {
   }
 }
 function userDeleteApi() {   //★   function* (X)
-  return axios.post('/user/userDelete');
+  return axios.delete('/user/userDelete');
 }
 function* userDelete() {
 
@@ -216,7 +228,49 @@ function* signUp(action) {
     });
   }
 }
-
+//-- 
+function changeUserProfileAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
+  console.log('data=', data);
+  return axios.post('/user/profile', data);   //         /user 경로 , post, 회원가입정보(data)
+}
+function* changeUserProfile(action) {
+  console.log('login=', action.data);
+  try {
+    const result = yield call(changeUserProfileAPI, action.data);  // 사용자가 화면에서 넘겨준값
+    console.log('result=', result.data);
+    yield put({
+      type: SIGN_UP_SUCCESS,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: SIGN_UP_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+//-- 
+function changeUserImageAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
+  console.log('image=', data);
+  return axios.post('/user/image', data);   //         /user 경로 , post, 회원가입정보(data)
+}
+function* changeUserImage(action) {
+  console.log('image=', action);
+  try {
+    const result = yield call(changeUserImageAPI, action.data);  // 사용자가 화면에서 넘겨준값
+    console.log('result=', result.data);
+    yield put({
+      type: USER_IMAGE_UPDATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: USER_IMAGE_UPDATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 function followAPI(data) {
   return axios.patch(`/user/${data}/follow`);
 }
@@ -224,9 +278,6 @@ function followAPI(data) {
 function* follow(action) {
   console.log('followData1111', typeof action.data);
 
-  // 알림
-  console.log('👻👻 follow action.notiData ', action.notiData);
-  console.log('👻👻 follow action.data ', action.data);
   try {
     const result = yield call(followAPI, action.data);
     console.log('followData2222', result.data);
@@ -294,6 +345,65 @@ function* changeNickname(action) {
     })
   }
 }
+
+// 차단 목록 불러오기
+function loadBlocksApi(data) {
+  return axios.get(`/user/block`);
+}
+function* loadBlocks(action) {
+  const result = yield call(loadBlocksApi);
+  try {
+    yield delay(1000);
+    yield put({
+      type: LOAD_BLOCK_SUCCESS,
+      data: result.data
+    })
+  } catch (error) {
+    yield put({
+      type: LOAD_BLOCK_FAILURE,
+      data: error.response.data
+    })
+  }
+}
+
+// 차단하기
+function addBlocksApi(data) {
+  return axios.patch(`/user/${data}/block`, data);
+}
+function* addBlocks(action) {
+  const result = yield call(addBlocksApi, action.data);
+  try {
+    yield delay(1000);
+    yield put({
+      type: ADD_BLOCK_SUCCESS,
+      data: result.data
+    })
+  } catch (error) {
+    yield put({
+      type: ADD_BLOCK_FAILURE,
+      data: error.response.data
+    })
+  }
+}
+// 차단 풀기
+function removeBlocksApi(data) {
+  return axios.delete(`/user/${data}/block`);
+}
+function* removeBlocks(action) {
+  const result = yield call(removeBlocksApi, action.data);
+  try {
+    yield delay(1000);
+    yield put({
+      type: REMOVE_BLOCK_SUCCESS,
+      data: result.data
+    })
+  } catch (error) {
+    yield put({
+      type: REMOVE_BLOCK_FAILURE,
+      data: error.response.data
+    })
+  }
+}
 ///// step2) ACTION 기능추가
 function* watchLoadMyInfo() {
   yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo);  //LOG_IN 액션이 실행될때까지 기다리기
@@ -315,6 +425,12 @@ function* watchSignup() {
 function* watchChangeNickname() {
   yield takeLatest(CHANGE_NICKNAME_REQUEST, changeNickname);  //요청 10 ->응답1
 }
+function* watchUserProfile() {
+  yield takeLatest(USER_PROFILE_UPDATE_REQUEST, changeUserProfile);  //요청 10 ->응답1
+}
+function* watchUserImage() {
+  yield takeLatest(USER_IMAGE_UPDATE_REQUEST, changeUserImage);  //요청 10 ->응답1
+}
 function* watchFollow() {
   yield takeLatest(FOLLOW_REQUEST, follow);
 }
@@ -333,6 +449,16 @@ function* watchLoadFollowers() {
 function* watchLoadFollowings() {
   yield takeLatest(LOAD_FOLLOWINGS_REQUEST, loadFollowings);
 }
+
+function* watchLoadBlock() {
+  yield takeLatest(LOAD_BLOCK_REQUEST, loadBlocks);
+}
+function* watchadddBlock() {
+  yield takeLatest(ADD_BLOCK_REQUEST, addBlocks);
+}
+function* watchRemoveBlock() {
+  yield takeLatest(REMOVE_BLOCK_REQUEST, removeBlocks);
+}
 ///// step1) all()
 export default function* userSaga() {
   yield all([
@@ -340,6 +466,8 @@ export default function* userSaga() {
     fork(watchLogout),
     fork(watchSignup),
     fork(watchLoadMyInfo),
+    fork(watchUserProfile),
+    fork(watchUserImage),
     fork(watchUserDelete),
     fork(watchFollow),
     fork(watchUnfollow),
@@ -347,5 +475,8 @@ export default function* userSaga() {
     fork(watchRemoveFollower),
     fork(watchLoadFollowers),
     fork(watchLoadFollowings),
+    fork(watchLoadBlock),
+    fork(watchadddBlock),
+    fork(watchRemoveBlock),
   ]);
 }

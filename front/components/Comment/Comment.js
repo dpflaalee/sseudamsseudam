@@ -134,7 +134,7 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
   const dispatch = useDispatch();
   const [targetId, setTargetId] = useState(null);
   const [openReport, setOpenReport] = useState(false);
-  const parentComments = comments.filter(comment => !comment.RecommentId);
+  const parentComments = comments.filter(comment => !comment.RecommentId && !comment.isDeleted);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingRecommentId, setEditingRecommentId] = useState(null);
   const [editRecommentContent, setEditRecommentContent] = useState('');
@@ -264,19 +264,18 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
       type: LOAD_COMPLAIN_REQUEST,
     });
   }, [dispatch]);
-
-
+  
   return (
     <Wrapper>
       <div style={{ fontWeight: 'bold', marginBottom: '12px' }}>
         댓글 {parentComments.length}개
       </div>
-      {parentComments.length === 0 && <div>댓글이 없습니다.</div>}
+      {comments.length === 0 && <div>댓글이 없습니다.</div>}
       {processedParentComments.map((comment) => {
         const createdAt = comment.createdAt
           ? new Date(comment.createdAt).toLocaleString()
           : '';
-  
+
         const isAuthor = user?.id && Number(user.id) === Number(comment.User?.id);  
 
         const isBlindedUser = mainComplainCard.some((report) => {
@@ -284,9 +283,19 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
           return Number(report.targetId) === Number(comment.User?.id) && report.isBlind && report.targetType === TARGET_TYPE.USER;
         });
 
+        const isDeleted = comment.isDeleted;
+
+        const displayContent = isDeleted ? '삭제된 댓글입니다.' : comment.content;
+        const displayNickname = isDeleted ? '알 수 없음' : (isBlindedUser ? '신고된 유저입니다' : comment.User?.nickname || '알 수 없음');
+        const displayAvatar = isDeleted
+        ? 'U'
+        : isBlindedUser
+          ? 'X'
+          : (comment.User?.nickname ? comment.User.nickname[0] : 'U');
+
         const menu = (
           <Menu>
-            {isAuthor && (
+            {isAuthor && !isDeleted && (
               <>
                 <Menu.Item onClick={() => onClickEdit(comment)} loading={updateCommentLoading}>
                   {editingCommentId === comment.id ? '수정 취소' : '수정'}
@@ -294,16 +303,20 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                 <Menu.Item danger onClick={() => onRemoveComment(comment.id)}>삭제</Menu.Item>
               </>
             )}
-            <Menu.Item danger onClick={() => handleReport(comment.id)}>
-              신고하기
-            </Menu.Item>
-            <ComplainForm
-              open={openReport}
-              onClose={() => setOpenReport(false)}
-              TARGET_TYPE={TARGET_TYPE.COMMENT}
-              targetId={targetId}
-              targetUserNickname={comment.User?.nickname}
-            />
+            {!isDeleted && (
+              <Menu.Item danger onClick={() => handleReport(comment.id)}>
+                신고하기
+              </Menu.Item>
+            )}
+            {!isDeleted && (
+              <ComplainForm
+                open={openReport}
+                onClose={() => setOpenReport(false)}
+                TARGET_TYPE={TARGET_TYPE.COMMENT}
+                targetId={targetId}
+                targetUserNickname={comment.User?.nickname}
+              />
+            )}
           </Menu>
         );
 
@@ -311,12 +324,12 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
           <div key={comment.id}>
             <CommentItem>
               <Left>
-                <AvatarStyled>{isBlindedUser ? 'X' : comment.User?.nickname?.[0] || 'U'}</AvatarStyled>
+                <AvatarStyled>{displayAvatar}</AvatarStyled>
                 <Content>
-                  <NicknameDateWrapper>
-                    <Nickname>{isBlindedUser ? '신고된 유저입니다' : comment.User?.nickname || '알 수 없음'}</Nickname>
-                    {createdAt && <CommentDate>{createdAt}</CommentDate>}
-                  </NicknameDateWrapper>
+                <NicknameDateWrapper>
+                  <Nickname>{displayNickname}</Nickname>
+                  {createdAt && <CommentDate>{createdAt}</CommentDate>}
+                </NicknameDateWrapper>
 
                   {editingCommentId === comment.id ? (
                     <>
@@ -333,23 +346,25 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                       </ButtonGroup>
                     </>
                   ) : (
-                    <Text>{comment.content}</Text>
+                    <Text>{displayContent}</Text>
                   )}
 
                   <MessageIconStyled onClick={() => onClickReply(comment.id)} />
                 </Content>
               </Left>
-              <Dropdown overlay={menu} trigger={['click']}>
-                <Button type="text" icon={<MoreOutlined />} />
-              </Dropdown>
+                {!isDeleted && (
+                  <Dropdown overlay={menu} trigger={['click']}>
+                    <Button type="text" icon={<MoreOutlined />} />
+                  </Dropdown>
+                )}
             </CommentItem>
 
             {/* 대댓글 폼 */}
-            {replyTargetId === comment.id && (
+            {replyTargetId === comment.id && !comment.isDeleted && (
               <ReCommentForm
                 post={post}
                 parentCommentId={comment.id}  // 여기가 핵심! 대댓글 대상 댓글 ID 전달
-                parentCommentUserId={comment.User.id}
+                parentCommentUserId={comment.User?.id}
                 onAddLocalComment={() => {
                   // 댓글 재요청 함수 등 있으면 여기에 호출
                 }}
@@ -365,11 +380,21 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                 {comment.Recomments.length === 0 && <div>대댓글이 없습니다.</div>}
                 {comment.Recomments.map((recomment) => {
                 const reCreatedAt = recomment.createdAt ? new Date(recomment.createdAt).toLocaleString() : '';
+                const isRecommentAuthor = user?.id && Number(user.id) === Number(recomment.User?.id);
+                const isDeleted = recomment.isDeleted;
+
+                const displayContent = isDeleted ? '삭제된 댓글입니다.' : recomment.content;
+                const displayNickname = isDeleted ? '알 수 없음' : (isBlindedUser ? '신고된 유저입니다' : recomment.User?.nickname || '알 수 없음');
+                const displayAvatarRecomment = isDeleted
+                  ? 'U'
+                  : isBlindedUser
+                    ? 'X'
+                    : (recomment.User?.nickname ? recomment.User.nickname[0] : 'U');
 
                 // 대댓글 메뉴 정의
                 const recommentMenu = (
                   <Menu>
-                    {isAuthor && (
+                    {isRecommentAuthor && !isDeleted && (
                       <>
                         <Menu.Item onClick={() => onClickEditRecomment(recomment)}>
                           {editingRecommentId === recomment.id ? '수정 취소' : '수정'}
@@ -377,24 +402,28 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                         <Menu.Item danger onClick={() => onRemoveComment(recomment.id)}>삭제</Menu.Item>
                       </>
                     )}
-                    <Menu.Item danger onClick={() => handleReport(recomment.id)}>신고하기</Menu.Item>
-                    <ComplainForm
-                      open={openReport && targetId === recomment.id}
-                      onClose={() => setOpenReport(false)}
-                      TARGET_TYPE={TARGET_TYPE.COMMENT}
-                      targetId={targetId}
-                      targetUserNickname={recomment.User?.nickname}
-                    />
+                    {!isDeleted && (
+                      <Menu.Item danger onClick={() => handleReport(recomment.id)}>신고하기</Menu.Item>
+                    )}
+                    {!isDeleted && (
+                      <ComplainForm
+                        open={openReport && targetId === recomment.id}
+                        onClose={() => setOpenReport(false)}
+                        TARGET_TYPE={TARGET_TYPE.COMMENT}
+                        targetId={targetId}
+                        targetUserNickname={recomment.User?.nickname}
+                      />
+                    )}
                   </Menu>
                 );
 
                 return (
                   <CommentItem key={recomment.id} style={{ padding: '10px 16px', marginBottom: '8px', background: '#f9f9f9', borderRadius: '6px' }}>
                     <Left>
-                      <AvatarStyled>{isBlindedUser ? 'X' : recomment.User?.nickname?.[0] || 'U'}</AvatarStyled>
+                      <AvatarStyled>{displayAvatarRecomment}</AvatarStyled>
                       <Content>
                         <RecommentNicknameDate>
-                          <RecommentNickname>{isBlindedUser ? '신고된 유저입니다' : recomment.User?.nickname || '알 수 없음'}</RecommentNickname>
+                          <RecommentNickname>{displayNickname}</RecommentNickname>
                           <RecommentDate>{reCreatedAt}</RecommentDate>
                         </RecommentNicknameDate>
 
@@ -411,13 +440,15 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
                             </ButtonGroup>
                           </>
                         ) : (
-                          <RecommentText>{recomment.content}</RecommentText>
+                          <RecommentText>{displayContent}</RecommentText>
                         )}
                       </Content>
                     </Left>
-                    <Dropdown overlay={recommentMenu} trigger={['click']}>
-                      <Button type="text" icon={<MoreOutlined />} />
-                    </Dropdown>
+                      {!isDeleted && (
+                        <Dropdown overlay={recommentMenu} trigger={['click']}>
+                          <Button type="text" icon={<MoreOutlined />} />
+                        </Dropdown>
+                      )}
                   </CommentItem>
                 );
               })}
