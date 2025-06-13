@@ -47,6 +47,17 @@ const MyPrize = () => {
     }
   }, [openRandomBoxDone, dispatch]);
 
+   // ✅ 쿠폰 사용 완료 후 selectedCoupon 업데이트 & 모달 다시 열기
+  useEffect(() => {
+    if (!useMyPrizeLoading && selectedCoupon?.id) {
+      const updated = myPrizes.find((c) => c.id === selectedCoupon.id);
+      if (updated?.barcode && !isModalVisible) {
+        setSelectedCoupon(updated);
+        setIsModalVisible(true);
+      }
+    }
+  }, [useMyPrizeLoading, myPrizes, selectedCoupon?.id, isModalVisible]);
+
   // 랜덤박스 열기
   const handleOpenRandomBox = useCallback(
     (issuedId) => {
@@ -206,32 +217,48 @@ const MyPrize = () => {
 
       {/* ✅ 상태 기반 쿠폰 사용 모달 */}
       {selectedCoupon && (
-        <Modal
-          title="쿠폰을 사용하시겠습니까?"
-          visible={isModalVisible}
-          onOk={() => {
-            dispatch(useMyPrize(selectedCoupon.id));
-            setIsModalVisible(false);
-          }}
-          onCancel={() => setIsModalVisible(false)}
-          okText="사용"
-          cancelText="취소"
-        >
-          <p>
-            <strong>상품:</strong> {selectedCoupon.content}
-          </p>
-          <p>
-            <strong>유효기간:</strong>{" "}
-            {new Date(selectedCoupon.dueAt).toLocaleDateString()}
-          </p>
-          {selectedCoupon.barcode && (
-            <div style={{ marginTop: 12 }}>
-              <Barcode value={selectedCoupon.barcode} />
-              <Text type="secondary">{selectedCoupon.barcode}</Text>
-            </div>
-          )}
-        </Modal>
-      )}
+  <Modal
+    title="쿠폰을 사용하시겠습니까?"
+    visible={isModalVisible}
+    onOk={() => {
+      dispatch(useMyPrize(selectedCoupon.id));
+      setIsModalVisible(false);
+    }}
+    onCancel={() => setIsModalVisible(false)}
+    okText="사용"
+    cancelText="취소"
+  >
+ 
+    {selectedCoupon.barcode && (
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
+        <Barcode value={selectedCoupon.barcode} />
+        <div style={{ marginTop: 8 }}>
+          <Text strong>{selectedCoupon.content}</Text>
+        </div>
+      </div>
+    )}
+
+    {/* 상품명 중복 방지 */}
+    {!selectedCoupon.image && (
+      <p>
+        <strong>상품:</strong> {selectedCoupon.content}
+      </p>
+    )}
+
+    <p>
+      <strong>유효기간:</strong>{" "}
+      {new Date(selectedCoupon.dueAt).toLocaleDateString()}
+    </p>
+
+    {selectedCoupon.barcode && (
+      <div style={{ marginTop: 12 }}>
+        <Barcode value={selectedCoupon.barcode} />
+        <Text type="secondary">{selectedCoupon.barcode}</Text>
+      </div>
+    )}
+  </Modal>
+)}
+
     </>
   );
 };

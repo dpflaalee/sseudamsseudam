@@ -100,7 +100,8 @@ router.post('/issued/use/:issuedId', isLoggedIn, async (req, res) => {
         PrizeId: selectedPrize.id,
         issuedReason: '좋아요 1위',
         dueAt: selectedPrize.dueAt,
-        isRead: false
+        isRead: false,
+        barcode: `CPN-${Date.now()}-${Math.floor(Math.random() * 10000)}`  // 예시 바코드 생성
       });
 
       coupon = {
