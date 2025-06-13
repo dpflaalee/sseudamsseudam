@@ -193,6 +193,8 @@ router.get('/postUser', async (req, res, next) => {
           { model: Post, attributes: ['id'] }
           , { model: User, as: 'Followings', attributes: ['id'] }
           , { model: User, as: 'Followers', attributes: ['id'] }
+          , { model: User, as: 'Blocking', attributes: ['id'] } // ✅ 이게 차단한 유저
+          , { model: User, as: 'Blocked', attributes: ['id'] }  // 이건 나를 차단한 유저
         ]// Post, Followers , Followings
       });
       res.status(200).json({
