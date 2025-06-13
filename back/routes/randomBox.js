@@ -103,11 +103,13 @@ router.post('/issued/use/:issuedId', isLoggedIn, async (req, res) => {
         isRead: false,
         barcode: `CPN-${Date.now()}-${Math.floor(Math.random() * 10000)}`  // 예시 바코드 생성
       });
+      console.log("발급된 쿠폰 바코드:", myPrize.barcode);
 
       coupon = {
         content: selectedPrize.content,
         issuedAt: myPrize.createdAt,
         usedAt: myPrize.usedAt,
+        barcode: myPrize.barcode, 
       };
     }
 
