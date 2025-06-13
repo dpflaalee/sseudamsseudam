@@ -14,6 +14,7 @@ const MyPrize = () => {
   const { User: user } = useSelector((state) => state.user);
   const {
     prizes,
+    randomBoxes,
     openRandomBoxLoading,
     openRandomBoxDone,
     latestCoupon,
@@ -29,10 +30,19 @@ const MyPrize = () => {
   } = useSelector((state) => state.myPrize);
 
   // 초기 데이터 로드
+
   useEffect(() => {
-    dispatch(loadRandomBoxList());
-    dispatch(loadMyPrizes());
-  }, [dispatch]);
+  dispatch(loadRandomBoxList());
+  dispatch(loadMyPrizes());
+
+  // const timeoutId = setTimeout(() => {
+  //   dispatch(loadRandomBoxList());
+  //   dispatch(loadMyPrizes());
+  // }, 60000);
+
+  // return () => clearTimeout(timeoutId);
+}, [dispatch]);
+
 
   // 랜덤박스 열기 (issuedId 사용)
   const handleOpenRandomBox = useCallback(
@@ -70,8 +80,10 @@ const MyPrize = () => {
     }
   }, [openRandomBoxDone, latestCoupon]);
 
-  // 필터링
-  const validRandomBoxes = prizes.filter((prize) => prize && prize.issuedId && prize.dueAt);
+  // 필터링 (디버깅용 로그 포함)
+const validRandomBoxes = randomBoxes.filter((prize) => {
+  return prize && prize.issuedId; // 일단 dueAt 조건은 제거
+});  
   const validCoupons = myPrizes.filter((coupon) => coupon && coupon.content && coupon.issuedAt);
 
   // 에러/로딩 처리
@@ -84,7 +96,7 @@ const MyPrize = () => {
     );
 
   return (
-    <>
+    <>    
       {/* 🎁 내 박스 */}
       <Card title="내 박스" style={{ marginBottom: 24 }}>
         <Row gutter={[0, 16]}>
@@ -107,7 +119,6 @@ const MyPrize = () => {
                     </Button>
                   }
                 >
-                  유효기간: {new Date(prize.dueAt).toLocaleDateString()}
                 </Card>
               </Col>
             ))

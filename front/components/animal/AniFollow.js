@@ -11,6 +11,7 @@ import {
   ANIFOLLOW_REQUEST,
   ANIUNFOLLOW_REQUEST,
   REMOVE_ANIFOLLOW_REQUEST,
+  RESET_ANIFOLLOW_STATE,
 } from "@/reducers/animal";
 
 const { TabPane } = Tabs;
@@ -69,23 +70,27 @@ const AniFollow = ({ownerId}) => {
   useEffect(() => {
     if (anifollowDone) {
       message.success('친구 요청을 보냈습니다!');
+      dispatch({type: RESET_ANIFOLLOW_STATE});
     }
   }, [anifollowDone]);
 
   useEffect(() => {
     if (aniunfollowDone) {
       message.success('친구를 끊었습니다.');
+      dispatch({type: RESET_ANIFOLLOW_STATE});
     }
   }, [aniunfollowDone]);
   useEffect(() => {
     if (anifollowError) {
       message.error(`친구 요청 실패: ${anifollowError}`);
+      dispatch({type: RESET_ANIFOLLOW_STATE});
     }
   }, [anifollowError]);
 
   useEffect(() => {
     if (aniunfollowError) {
       message.error(`친구 끊기 실패: ${aniunfollowError}`);
+      dispatch({type: RESET_ANIFOLLOW_STATE});
     }
   }, [aniunfollowError]);
 

@@ -3,7 +3,7 @@ import { Button, Tabs, Avatar, List } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from 'next/router';
 import AniProfile from '@/pages/animal/AniProfile';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, UserOutlined } from '@ant-design/icons';
 
 const AnimalList = ({ animals, ownerId }) => {
   const router = useRouter();
@@ -32,6 +32,7 @@ const AnimalList = ({ animals, ownerId }) => {
           padding: '16px 110px 16px 16px', // 버튼 공간 확보
           backgroundColor: 'rgba(254, 254, 220, 0.5)',
           borderRadius: 8,
+          minHeight: 100,
         }}
       >
         {animals?.map((ani) => (
@@ -43,6 +44,7 @@ const AnimalList = ({ animals, ownerId }) => {
             <Avatar
               size={64}
               src={ani.aniProfile ? `${imageBaseUrl}/${ani.aniProfile}` : undefined}
+              icon={!ani.aniProfile && <UserOutlined />}
               style={{ backgroundColor: '#ddd', marginBottom: 8 }}
             />
             <div style={{ fontSize: 14, color: '#333' }}>{ani.aniName}</div>
