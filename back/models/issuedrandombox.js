@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     IssuedRandomBox.belongsTo(models.Category, {
       foreignKey: 'CategoryId',
       onDelete: 'CASCADE',
+      as: 'category',
     });
   };
 

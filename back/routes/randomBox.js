@@ -100,7 +100,7 @@ router.get('/issued', isLoggedIn, async (req, res) => {
       data: issuedBoxes.map(box => ({
         issuedId: box.id,
         categoryId: box.CategoryId,
-        category: box.Category.content,
+        category: box.category?.content || null,
         issuedAt: box.issuedAt
       }))
     });
