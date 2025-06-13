@@ -130,7 +130,7 @@ const AdminProfile = ({ showManageButtons = false, onSectionChange, isComplain }
             <Button size="small" onClick={() => Router.push('/admin/complain')}>신고 관리</Button>
             <Button size="small" onClick={() => onSectionChange('category')}>카테고리 관리</Button>
             <Button size="small" onClick={() => onSectionChange('schedule')}>일정 관리</Button>
-            <Button size="small" onClick={() => onSectionChange('challenge')}>챌린지 현황</Button>
+            {/* <Button size="small" onClick={() => onSectionChange('challenge')}>챌린지 현황</Button> */}
             <Button size="small" type="primary" onClick={() => onSectionChange('prize')}>상품 관리</Button>
           </ManageButtonRow>
         )

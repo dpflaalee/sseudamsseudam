@@ -193,7 +193,7 @@ const Profile = (props) => {
     <Menu>
       {isMyProfile ? (
         <>
-          <Menu.Item key="edit">프로필 수정</Menu.Item>
+          {/* <Menu.Item key="edit">프로필 수정</Menu.Item> */}
           <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
           <Menu.Item key="logout" onClick={onLogout}>
             {logOutLoding ? '로그아웃 중...' : '로그아웃'}
@@ -270,10 +270,10 @@ const Profile = (props) => {
         </TopRow>
         {isMyProfile ? (
           <ButtonRow>
-            <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button>
-            <Button>내 장소</Button>
-            <Button>챌린지 현황</Button>
-            <Button>프로필 수정</Button>
+            {/* <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button> */}
+            {/* <Button>내 장소</Button> */}
+            {/* <Button>챌린지 현황</Button> */}
+            {/* <Button>프로필 수정</Button> */}
           </ButtonRow>
         ) : (
           <ButtonRow>

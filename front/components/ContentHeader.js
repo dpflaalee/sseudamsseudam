@@ -80,11 +80,11 @@ const groupMenu = (
   <Menu onClick={handelGroupMenyClick}>
       {isLeader && (
         <>
-          <Menu.Item key="edit">수정하기</Menu.Item>
-          <Menu.Item key="delete" danger>삭제하기</Menu.Item>
+          {/* <Menu.Item key="edit">수정하기</Menu.Item> */}
+          {/* <Menu.Item key="delete" danger>삭제하기</Menu.Item> */}
         </>
       )}
-      {isGroupMember && <Menu.Item key="leave" danger>탈퇴하기</Menu.Item>}
+      {/* {isGroupMember && <Menu.Item key="leave" danger>탈퇴하기</Menu.Item>} */}
     </Menu>
   )
   
