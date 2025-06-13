@@ -160,12 +160,14 @@ const Nav = () => {
           <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop: "20px", padding: "15px", }} >
             <Avatar size="large" onClick={onMyPage} icon={<UserOutlined />} />
             <Dropdown overlay={profileMenu} trigger={["click"]}>
+              <div>
             {!isMobile && user && (
               <div style={{ marginLeft: "10px" }}>
                 <strong>{user?.nickname}</strong>
                 <div style={{ color: "#888" }}>{user?.email}</div>
               </div>
             )}
+            </div>
             </Dropdown>
           </div>
         

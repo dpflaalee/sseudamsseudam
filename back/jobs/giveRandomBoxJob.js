@@ -1,8 +1,13 @@
 const { User, Animal, Prize, Category, IssuedRandomBox, sequelize } = require('../models');
 const cron = require('node-cron');
 
+// 매분마다 실행
+// cron.schedule('* * * * *', async () => {
+// 20분마다 실행 
+cron.schedule('*/20 * * * *', async () => {
+
 // 매시간 정각마다 실행
-cron.schedule('0 * * * *', async () => {
+//cron.schedule('0 * * * *', async () => {
   console.log('🎁 랜덤박스 자동 지급 시작:', new Date());
 
   try {

@@ -1,9 +1,10 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Typography, Button, Card, Row, Col, Empty, Modal, message } from "antd";
 import dayjs from "dayjs";
 import { loadMyPrizes, useMyPrize } from "../../reducers/myPrize";
 import { openRandomBox, loadRandomBoxList } from "../../reducers/prize";
+import Barcode from "react-barcode";
 
 const { Text } = Typography;
 
@@ -29,39 +30,55 @@ const MyPrize = () => {
     useMyPrizeError,
   } = useSelector((state) => state.myPrize);
 
+  // 모달 상태
+  const [selectedCoupon, setSelectedCoupon] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   // 초기 데이터 로드
+  useEffect(() => {
+    dispatch(loadRandomBoxList());
+    dispatch(loadMyPrizes());
+  }, [dispatch]);
 
   useEffect(() => {
-  dispatch(loadRandomBoxList());
-  dispatch(loadMyPrizes());
+    if (openRandomBoxDone) {
+      dispatch(loadRandomBoxList());
+      dispatch(loadMyPrizes());
+    }
+  }, [openRandomBoxDone, dispatch]);
 
-  // const timeoutId = setTimeout(() => {
-  //   dispatch(loadRandomBoxList());
-  //   dispatch(loadMyPrizes());
-  // }, 60000);
-
-  // return () => clearTimeout(timeoutId);
-}, [dispatch]);
-
-
-  // 랜덤박스 열기 (issuedId 사용)
+  // 랜덤박스 열기
   const handleOpenRandomBox = useCallback(
     (issuedId) => {
       if (!issuedId) return alert("잘못된 랜덤박스입니다.");
+
+      const usedBox = myPrizes.find(
+        (coupon) => coupon.issuedId === issuedId && coupon.usedAt && coupon.isRead
+      );
+
+      if (usedBox) {
+        return message.warning("이미 사용한 랜덤박스입니다.");
+      }
+
       dispatch(openRandomBox(issuedId));
     },
-    [dispatch]
+    [dispatch, myPrizes]
   );
 
   // 쿠폰 사용
   const handleUsePrize = useCallback(
     (prizeId) => {
-      if (!prizeId) return alert("잘못된 쿠폰입니다.");
-      if (window.confirm("쿠폰을 사용하시겠습니까?")) {
-        dispatch(useMyPrize(prizeId));
+      const coupon = myPrizes.find((c) => c.id === prizeId);
+      if (!coupon) return;
+
+      if (coupon.usedAt && coupon.isRead) {
+        return message.warning("이미 사용한 쿠폰입니다.");
       }
+
+      setSelectedCoupon(coupon);
+      setIsModalVisible(true);
     },
-    [dispatch]
+    [myPrizes]
   );
 
   // 랜덤박스 사용 결과 모달
@@ -80,13 +97,21 @@ const MyPrize = () => {
     }
   }, [openRandomBoxDone, latestCoupon]);
 
-  // 필터링 (디버깅용 로그 포함)
-const validRandomBoxes = randomBoxes.filter((prize) => {
-  return prize && prize.issuedId; // 일단 dueAt 조건은 제거
-});  
+  // 유효한 랜덤박스 필터링
+  const validRandomBoxes = randomBoxes.filter((prize) => {
+    return (
+      prize &&
+      prize.issuedId &&
+      !myPrizes.find(
+        (coupon) => coupon.issuedId === prize.issuedId && coupon.usedAt && coupon.isRead
+      )
+    );
+  });
+
+  // 유효한 쿠폰 필터링
   const validCoupons = myPrizes.filter((coupon) => coupon && coupon.content && coupon.issuedAt);
 
-  // 에러/로딩 처리
+  // 로딩/에러 처리
   if (loadMyPrizesLoading || loadRandomBoxListLoading) return <Text>로딩 중...</Text>;
   if (loadMyPrizesError || loadRandomBoxListError)
     return (
@@ -96,7 +121,7 @@ const validRandomBoxes = randomBoxes.filter((prize) => {
     );
 
   return (
-    <>    
+    <>
       {/* 🎁 내 박스 */}
       <Card title="내 박스" style={{ marginBottom: 24 }}>
         <Row gutter={[0, 16]}>
@@ -118,8 +143,7 @@ const validRandomBoxes = randomBoxes.filter((prize) => {
                       사용
                     </Button>
                   }
-                >
-                </Card>
+                />
               </Col>
             ))
           )}
@@ -136,10 +160,24 @@ const validRandomBoxes = randomBoxes.filter((prize) => {
               <Col span={24} key={coupon.id}>
                 <Card
                   type="inner"
-                  title={coupon.content}
+                  title={
+                    <>
+                      <div>{coupon.content}</div>
+                      {coupon.issuedReason && (
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          발급 사유: {coupon.issuedReason}
+                        </Text>
+                      )}
+                    </>
+                  }
                   extra={
-                    coupon.isRead ? (
-                      <Button disabled>사용 완료</Button>
+                    coupon.usedAt && coupon.isRead ? (
+                      <>
+                        <Button disabled>사용 완료</Button>
+                        <Text type="secondary" style={{ marginLeft: 8 }}>
+                          이미 사용된 쿠폰입니다.
+                        </Text>
+                      </>
                     ) : (
                       <Button
                         type="primary"
@@ -152,6 +190,8 @@ const validRandomBoxes = randomBoxes.filter((prize) => {
                   }
                 >
                   유효기간: {new Date(coupon.dueAt).toLocaleDateString()}
+                  <br />
+                  <Text type="warning">쿠폰은 조기 마감될 수 있습니다.</Text>
                 </Card>
               </Col>
             ))
@@ -163,6 +203,35 @@ const validRandomBoxes = randomBoxes.filter((prize) => {
           </Text>
         )}
       </Card>
+
+      {/* ✅ 상태 기반 쿠폰 사용 모달 */}
+      {selectedCoupon && (
+        <Modal
+          title="쿠폰을 사용하시겠습니까?"
+          visible={isModalVisible}
+          onOk={() => {
+            dispatch(useMyPrize(selectedCoupon.id));
+            setIsModalVisible(false);
+          }}
+          onCancel={() => setIsModalVisible(false)}
+          okText="사용"
+          cancelText="취소"
+        >
+          <p>
+            <strong>상품:</strong> {selectedCoupon.content}
+          </p>
+          <p>
+            <strong>유효기간:</strong>{" "}
+            {new Date(selectedCoupon.dueAt).toLocaleDateString()}
+          </p>
+          {selectedCoupon.barcode && (
+            <div style={{ marginTop: 12 }}>
+              <Barcode value={selectedCoupon.barcode} />
+              <Text type="secondary">{selectedCoupon.barcode}</Text>
+            </div>
+          )}
+        </Modal>
+      )}
     </>
   );
 };
