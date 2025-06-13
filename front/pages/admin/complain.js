@@ -29,7 +29,7 @@ const ComplainPage = () => {
 
     return (
         <AppLayout>
-            <AdminProfile />
+            <AdminProfile isComplain={true} />
             {groupedCards.map(([groupKey, reports]) => (
                 <ComplainCard key={groupKey} reports={reports} />
             ))}
