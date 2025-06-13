@@ -49,37 +49,43 @@ const Home = () => {
     setModalVisible(false);
   };
 
-  useEffect(() => {
-    if (mainPosts.length === 0) {
-      dispatch({
-        type: LOAD_POSTS_REQUEST,
-        data: { lastId: 0 },
-      });
-    }
-  }, []);
+// 최초 로딩
+useEffect(() => {
+  if (mainPosts.length === 0) {
+    dispatch({
+      type: LOAD_POSTS_REQUEST,
+      lastId: 0,
+      userId: 'undefined',  // ✅ 홈 피드의 기본값
+      number: '1',          // ✅ 본인 피드 기준
+    });
+  }
+}, []);
 
-  useEffect(() => {
-    const onScroll = () => {
-      const scrollY = window.scrollY;
-      const clientHeight = document.documentElement.clientHeight;
-      const scrollHeight = document.documentElement.scrollHeight;
+// 무한 스크롤
+useEffect(() => {
+  const onScroll = () => {
+    const scrollY = window.scrollY;
+    const clientHeight = document.documentElement.clientHeight;
+    const scrollHeight = document.documentElement.scrollHeight;
 
-      if (scrollY + clientHeight > scrollHeight - 200) {
-        if (hasMorePosts && !loadPostsLoading) {
-          const lastId = mainPosts[mainPosts.length - 1]?.id;
-          dispatch({
-            type: LOAD_POSTS_REQUEST,
-            data: { lastId }, // 꼭 객체로 감싸야 함
-          });
-        }
+    if (scrollY + clientHeight > scrollHeight - 200) {
+      if (hasMorePosts && !loadPostsLoading) {
+        const lastId = mainPosts[mainPosts.length - 1]?.id;
+        dispatch({
+          type: LOAD_POSTS_REQUEST,
+          lastId,
+          userId: 'undefined', // ✅ 계속 유지
+          number: '1',
+        });
       }
-    };
+    }
+  };
 
-    window.addEventListener('scroll', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-    };
-  }, [mainPosts, hasMorePosts, loadPostsLoading]);
+  window.addEventListener('scroll', onScroll);
+  return () => {
+    window.removeEventListener('scroll', onScroll);
+  };
+}, [mainPosts, hasMorePosts, loadPostsLoading]);
 
   // 신고 당한 유저 글 보이지 않게 처리
   useEffect(() => {

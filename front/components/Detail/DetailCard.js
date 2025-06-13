@@ -63,6 +63,22 @@ const PawIcon = ({ filled = false, style = {}, onClick }) => (
   </svg>
 );
 
+const KakaoMapIcon = ({ style }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 512 512"
+    width="20"
+    height="20"
+    style={{ marginRight: 8, verticalAlign: 'middle', ...style }}
+  >
+    <circle cx="256" cy="256" r="256" fill="#ffcd00" />
+    <path
+      d="M256 128c-70.7 0-128 49.4-128 110.4 0 38.6 25.5 72.3 63.5 92.4l-20 53.2c-1.6 4.2 3.1 8 7 5.8l70.5-38.6c1.7.1 3.5.2 5.3.2 70.7 0 128-49.4 128-110.4S326.7 128 256 128z"
+      fill="#000"
+    />
+  </svg>
+);
+
 const DetailCard = ({ post, onRefreshPost }) => {
   const id = useSelector((state) => state.user.user?.id);
   const dispatch = useDispatch();
@@ -77,6 +93,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
   const { removePostDone } = useSelector((state) => state.post);
   const [localComments, setLocalComments] = useState(post.Comments || []);
   const [open, setOpen] = useState(false);
+  const [locationLink, setLocationLink] = useState(null);
 
   useEffect(() => {
     setNewContent(post.content);
@@ -208,6 +225,14 @@ const DetailCard = ({ post, onRefreshPost }) => {
     <div style={{ margin: '3%' }}>
       {post.RetweetId && post.Retweet ? (
         <Card
+          style={{
+            backgroundColor: '#f5f7fa',
+            borderRadius: 16,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            padding: '12px',
+            marginBottom: 24,
+          }}
+          bodyStyle={{ padding: 16 }}
           title={
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
               <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
@@ -222,18 +247,25 @@ const DetailCard = ({ post, onRefreshPost }) => {
               onClick={() => router.push('/main')}
             />
           }
-          style={{ marginBottom: 16 }}
         >
           {/* 내부에 리트윗된 게시물 카드 */}
           <Card
             size="small"
+            style={{
+              borderRadius: 16,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              padding: '12px',
+              backgroundColor: '#ffffff',
+              marginBottom: 24,
+            }}
+            bodyStyle={{ padding: 16 }}
             title={
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                    <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
+                    <Avatar style={{ marginRight: 8 }}>{post.Retweet?.User?.nickname[0]}</Avatar>
                   </Link>
-                  <span>{post.User?.nickname}</span>
+                  <span>{post.Retweet?.User?.nickname}</span>
                 </div>
 
                 <div style={{ display: 'flex', gap: 4 }}>
@@ -263,7 +295,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
                 : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
               <span key="comment">
                 <Link href={`/post/${post.id}`} passHref>
-                  <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
+                  <MessageOutlined /> {post.Comments?.filter(c => !c.RecommentId && !Boolean(c.isDeleted)).length || 0}
                 </Link>
               </span>,
               <Popover content={(
@@ -284,18 +316,39 @@ const DetailCard = ({ post, onRefreshPost }) => {
             <PostCardContent
               editMode={false} // 리트윗 원본은 수정 불가
               postData={post.Retweet.content}
+              setLocationLink={setLocationLink}
             />
 
             {post.Retweet.Images && post.Retweet.Images.length > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
                 <PostImages images={post.Retweet.Images} />
               </div>
             )}
+
+        {locationLink && (
+          <div style={{ marginTop: 12, textAlign: 'center' }}>
+            <Button
+              onClick={() => window.open(locationLink, '_blank')}
+              style={{ border: '1px solid #eee', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <KakaoMapIcon />
+              카카오맵에서 보기
+            </Button>
+          </div>
+        )}   
+
           </Card>
         </Card>
       ) : (
         // 일반 게시글
         <Card
+          style={{
+            borderRadius: 16,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            padding: '12px',
+            backgroundColor: '#ffffff',
+            marginBottom: 24,
+          }}        
           title={
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -338,7 +391,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
               : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
             <span key="comment">
               <Link href={`/post/${post.id}`} passHref>
-                <MessageOutlined /> {post.Comments?.filter(comment => !comment.RecommentId).length || 0}
+                <MessageOutlined /> {post.Comments?.filter(c => !c.RecommentId && !Boolean(c.isDeleted)).length || 0}
               </Link>
             </span>,
             <Popover content={(
@@ -375,6 +428,7 @@ const DetailCard = ({ post, onRefreshPost }) => {
             onEditPost={onEditPost}
             onCancelUpdate={onCancelUpdate}
             postData={content}
+            setLocationLink={setLocationLink}
           />
 
           {post.Images && post.Images.length > 0 && (
@@ -382,6 +436,19 @@ const DetailCard = ({ post, onRefreshPost }) => {
               <PostImages images={post.Images} />
             </div>
           )}
+
+        {locationLink && (
+          <div style={{ marginTop: 12, textAlign: 'center' }}>
+            <Button
+              onClick={() => window.open(locationLink, '_blank')}
+              style={{ border: '1px solid #eee', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <KakaoMapIcon />
+              카카오맵에서 보기
+            </Button>
+          </div>
+        )}  
+
         </Card>
       )}
 
