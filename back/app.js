@@ -47,18 +47,123 @@ async function seedOpenScopes() {
     ]);
     console.log('OpenScope 기본 데이터 삽입 완료');
   }
-const userCount = await db.User.count();
-  if (userCount === 0) {
-    const hashedPassword = await bcrypt.hash('1234',10);
-    await db.User.bulkCreate([
-      { id: 1, username: 'admin' , email:'admin', nickname:'admin', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
-      { id: 2, username: 'test1' , email:'test1', nickname:'test1', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
-      { id: 3, username: 'test2' , email:'test2', nickname:'test2', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
-      { id: 4, username: 'test3' , email:'test3', nickname:'test3', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
-    ]);
-    console.log('OpenScope 기본 데이터 삽입 완료');
+  const userCount = await db.User.count();
+    if (userCount === 0) {
+      const hashedPassword = await bcrypt.hash('1234',10);
+      await db.User.bulkCreate([
+        { id: 1, username: 'admin' , email:'admin', nickname:'admin', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
+        { id: 2, username: 'test1' , email:'test1', nickname:'test1', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
+        { id: 3, username: 'test2' , email:'test2', nickname:'test2', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
+        { id: 4, username: 'test3' , email:'test3', nickname:'test3', password:hashedPassword,phonenumber:11, isAdmin:1,isdelete:0,deleteAt:Date(), createdAt: new Date(), updatedAt: new Date() },
+      ]);
+      console.log('User 기본 데이터 삽입 완료');
+    }
+  const CalendarDB = await db.Calendar.count();
+    if (CalendarDB === 0) {
+        await db.Calendar.bulkCreate([
+        {
+          id: 1,
+          title: '대전 펫&캣쇼',
+          content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit augue ac tristique finibus. Suspendisse vitae gravida erat. Donec condimentum, lectus nec ultrices sodales, massa lectus viverra.',
+          startDate: new Date('2025-05-09T10:00:00'),
+          endDate: new Date('2025-05-11T18:00:00'),
+          totaldays: 0,
+          currentdays: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 2,
+          title: '메가주 일산',
+          content: '반려동물과 함께하는 특별한 축제, 2025 메가주 일산에 여러분을 초대합니다. 최신 반려용품, 건강·영양, 훈련·교육 등 다양한 브랜드와 이벤트가 한자리에! 반려동물과 함께 새로운 제품과 서비스를 직접 체험하며, 다가오는 5월 잊지 못할 소중한 추억을 만들어보세요!',
+          startDate: new Date('2025-05-16T09:30:00'),
+          endDate: new Date('2025-05-18T20:00:00'),
+          totaldays: 0,
+          currentdays: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 3,
+          title: '궁디팡팡 캣페스타 양재',
+          content: '고양이와 집사를 위한 축제 궁디팡팡 캣페스타',
+          startDate: new Date('2025-05-30T10:00:00'),
+          endDate: new Date('2025-06-01T17:30:00'),
+          totaldays: 0,
+          currentdays: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 4,
+          title: '하루 만 보 걷기 챌린지',
+          content: '반려동물과 매일 만 보 걷고 건강도 챙기자! 하루 만 보 걷기 챌린지, 지금 바로 시작하세요!',
+          startDate: new Date('2025-06-01T00:00:00'),
+          endDate: new Date('2025-06-08T00:00:00'),
+          totaldays: 0,
+          currentdays: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 5,
+          title: '함께 아침 산책 챌린지',
+          content: '매일 아침, 반려동물과 상쾌한 산책을 시작해보세요! 건강도 챙기고 하루를 활기차게 시작할 수 있어요.',
+          startDate: new Date('2025-08-15T00:00:00'),
+          endDate: new Date('2025-08-25T00:00:00'),
+          totaldays: 0,
+          currentdays: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 6,
+          title: '셀카 한 장 챌린지',
+          content: '매일 반려동물과 셀카 한 장씩 찍으며 추억을 쌓아보세요! 시간이 흐를수록 특별한 포토 다이어리가 완성됩니다.',
+          startDate: new Date('2025-06-01T00:00:00'),
+          endDate: new Date('2025-06-30T22:00:00'),
+          totaldays: 0,
+          currentdays: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 7,
+          title: '고양이와 조용한 독서 시간 챌린지',
+          content: '고양이와 함께 조용한 공간에서 책 읽기 20분! 함께하는 평화로운 시간이 정서적 안정에 좋아요.',
+          startDate: new Date('2025-07-15T00:00:00'),
+          endDate: new Date('2025-07-25T22:30:00'),
+          totaldays: 0,
+          currentdays: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 8,
+          title: '건강 간식 만들기 챌린지',
+          content: '우리 아이를 위한 건강한 수제 간식, 직접 만들어보는 건 어떨까요? 맛있고 안전한 간식으로 사랑을 표현해보세요.',
+          startDate: new Date('2025-07-01T00:00:00'),
+          endDate: new Date('2025-07-25T00:00:00'),
+          totaldays: 0,
+          currentdays: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 9,
+          title: '반려동물 놀이 30분 챌린지',
+          content: '하루 30분, 반려동물과 놀아주는 시간을 가져보세요! 즐거운 유대감이 깊어지고 스트레스도 날아가요.',
+          startDate: new Date('2025-06-10T00:00:00'),
+          endDate: new Date('2025-09-20T20:00:00'),
+          totaldays: 0,
+          currentdays: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+      ]);
+      console.log('Calendars 기본 데이터 삽입 완료됨.');
+    }
   }
-}
 
 db.sequelize
   .sync()
