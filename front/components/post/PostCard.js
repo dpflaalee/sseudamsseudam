@@ -205,6 +205,29 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             <span>{post.User.nickname}님이 리트윗했습니다.</span>
           </div>
         }
+        actions={[
+            like
+              ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
+              : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
+            <span key="comment">
+              <Link href={`/post/${post.id}`} passHref>
+                <MessageOutlined /> {post.Comments?.filter(c => !c.RecommentId && !Boolean(c.isDeleted)).length || 0}
+              </Link>
+            </span>,
+          <Popover content={(
+            <Button.Group>
+              {id === post.User.id && (
+                <>
+                  <Button onClick={openEditModal}>수정</Button>
+                  <Button type="danger" onClick={openDeleteModal}>삭제</Button>
+                </>
+              )}
+              <Button onClick={() => setOpen(true)}>신고하기</Button>
+            </Button.Group>
+          )}>
+            <EllipsisOutlined />
+          </Popover>
+          ]}
       >
         {/* 내부에 리트윗된 게시물 카드 */}
         <Card
@@ -246,30 +269,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
               </div>
             </div>
           }
-          actions={[
-            <RetweetOutlined key="retweet" onClick={onRetweet} />,
-            like
-              ? <span key="heart"><PawIcon filled={true} style={{ fontSize: '32px' }} onClick={onClickunLike} /> {post.Likers.length}</span>
-              : <span key="heart"><PawIcon filled={false} style={{ fontSize: '32px' }} onClick={onClickLike} /> {post?.Likers?.length}</span>,
-            <span key="comment">
-              <Link href={`/post/${post.id}`} passHref>
-                <MessageOutlined /> {post.Comments?.filter(c => !c.RecommentId && !Boolean(c.isDeleted)).length || 0}
-              </Link>
-            </span>,
-          <Popover content={(
-            <Button.Group>
-              {id === post.User.id && (
-                <>
-                  <Button onClick={openEditModal}>수정</Button>
-                  <Button type="danger" onClick={openDeleteModal}>삭제</Button>
-                </>
-              )}
-              <Button onClick={() => setOpen(true)}>신고하기</Button>
-            </Button.Group>
-          )}>
-            <EllipsisOutlined />
-          </Popover>
-          ]}
         >
         <Link href={`/post/${post.id}`} legacyBehavior>
           <a style={{ textDecoration: 'none', color: 'inherit' }}>
