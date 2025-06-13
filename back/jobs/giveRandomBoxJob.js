@@ -1,10 +1,9 @@
 const { User, Animal, Prize, Category, IssuedRandomBox, sequelize } = require('../models');
 const cron = require('node-cron');
 
-// 매분마다 실행
-// cron.schedule('* * * * *', async () => {
-// 20분마다 실행 
-cron.schedule('*/20 * * * *', async () => {
+// 알림
+const { Notification } = require('../models');
+const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
 
 // 매시간 정각마다 실행
 //cron.schedule('0 * * * *', async () => {
@@ -47,12 +46,32 @@ cron.schedule('*/20 * * * *', async () => {
       }
 
       // 지급 기록 저장
-      await IssuedRandomBox.create({
+      const issuedBox = await IssuedRandomBox.create({
         UserId: user.id,
         CategoryId: categoryId,
         issuedAt: new Date(),
         usedAt: null // 아직 사용하지 않음
       });
+
+      if (prize && issuedBox) {
+        const notification = await Notification.create({
+          type: NOTIFICATION_TYPE.RANDOMBOX,
+          targetId: issuedBox.id,
+          SenderId: 1,
+          ReceiverId: user.id,
+        });
+
+        const fullNotification = await Notification.findOne({
+          where: { id: notification.id },
+          include: [
+            { model: User, as: 'Sender', attributes: ['id', 'nickname'] },
+            { model: User, as: 'Receiver', attributes: ['id', 'nickname'] },
+          ],
+        });
+
+        console.log('📩 fullNotification:', fullNotification?.toJSON());
+
+      }
 
       const categoryContent = prize.category?.content || '알 수 없는 카테고리';
       console.log(`✅ 유저 ${user.id} (${user.username})에게 [${categoryContent}] 랜덤박스 지급`);

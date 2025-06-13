@@ -123,9 +123,9 @@ const AnimalEdit = () => {
           }}
         />
         {form.previewUrl ? (
-          <img onClick={() => imageInput.current?.click()} src={form.previewUrl} alt="preview" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10 }} />
+          <img onClick={() => imageInput.current?.click()} src={form.previewUrl} alt="preview" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, cursor: 'pointer' }} />
         ) : (
-          <div style={{ width: 80, height: 80, borderRadius: '50%', backgroundColor: '#ccc', margin: 'auto', marginBottom: 10 }} />
+          <div onClick={() => imageInput.current?.click()} style={{ width: 80, height: 80, borderRadius: '50%', backgroundColor: '#111', margin: 'auto', marginBottom: 10, cursor: 'pointer' }} />
         )}
         <input type="file" accept="image/*" hidden ref={imageInput} onChange={handleFileChange} />
 
