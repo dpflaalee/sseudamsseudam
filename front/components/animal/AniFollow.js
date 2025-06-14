@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Tabs, Avatar, List, Spin, Popover, message } from "antd";
-import { UserOutlined, MoreOutlined } from "@ant-design/icons";
+import { PictureOutlined, MoreOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useSelector, useDispatch } from "react-redux";
@@ -149,7 +149,7 @@ const AniFollow = ({ownerId}) => {
                       <div>
                         <Button type="text" onClick={() => handleRemoveFollower(item.id)}>친구끊기</Button>
                         <br />
-                        <Button type="text" danger onClick={() => console.log("차단하기", item.id)}>차단하기</Button>
+                        {/* <Button type="text" danger onClick={() => console.log("차단하기", item.id)}>차단하기</Button> */}
                       </div>
                     }
                     trigger="click"
@@ -165,7 +165,7 @@ const AniFollow = ({ownerId}) => {
                     {item.aniProfile ? (
                       <Avatar src={`${imageBaseUrl}/${item.aniProfile}`} />
                     ) : (
-                      <Avatar icon={<UserOutlined />} />
+                      <Avatar icon={<PictureOutlined />} />
                     )}
                   </div>
                 }

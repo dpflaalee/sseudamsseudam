@@ -6,7 +6,7 @@ const multer = require('multer');  // 파일업로드
 const path = require('path');  // 경로
 const fs = require('fs');  // file system
 
-const { Post, User, Image, Comment, Hashtag, OpenScope, Category } = require('../models');
+const { Post, User, Image, Comment, Hashtag, OpenScope, Category, Blacklist } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 
 //이미지 폴더 생성
@@ -145,6 +145,40 @@ router.get('/:postId', async (req, res, next) => {
     });
     if (!post) {
       return res.status(404).send('게시글이 존재하지 않습니다.');
+    }
+
+if (post?.Retweet?.UserId && req.user) {
+  const blockedRetweet = await Blacklist.findOne({
+    where: {
+      [Sequelize.Op.or]: [
+        { BlockingId: req.user.id, BlockedId: post.Retweet.UserId },
+        { BlockingId: post.Retweet.UserId, BlockedId: req.user.id },
+      ]
+    }
+  });
+
+  if (blockedRetweet) {
+    // 리트윗된 원글을 비공개 처리 (내용과 작성자 숨김)
+    post.Retweet.content = '비공개된 게시물입니다.';
+    post.Retweet.User = null;
+    post.Retweet.Images = [];
+    post.Retweet.Comments = [];
+    post.Retweet.Likers = [];
+    // 필요한 필드 초기화 또는 비우기
+  }
+}
+
+    const isBlocked = await Blacklist.findOne({
+      where: {
+        [Sequelize.Op.or]: [
+          { BlockingId: post.UserId, BlockedId: req.user.id },  // 작성자가 나를 차단
+          { BlockingId: req.user.id, BlockedId: post.UserId },  // 내가 작성자를 차단
+        ]
+      }
+    });
+
+    if (isBlocked) {
+      return res.status(403).send('차단된 사용자와의 상호작용이 제한됩니다.');
     }
 
     // 댓글 데이터 가공: 부모댓글과 대댓글 분리 후 대댓글을 부모댓글에 묶기
@@ -387,6 +421,21 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
 
     // 리트윗 대상 추출
     const retweetTarget = post.Retweet || post;
+    const targetUserId = retweetTarget.UserId;
+
+    // 차단 여부 확인
+    const isBlocked = await Blacklist.findOne({
+      where: {
+        [Sequelize.Op.or]: [
+          { BlockingId: req.user.id, BlockedId: targetUserId },
+          { BlockingId: targetUserId, BlockedId: req.user.id },
+        ]
+      }
+    });
+
+    if (isBlocked) {
+      return res.status(403).send('차단된 사용자와의 게시물은 리트윗할 수 없습니다.');
+    }
 
     // 비공개 범위 체크
     if (
@@ -461,55 +510,6 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
   } catch (error) {
     console.error(error)
     next(error)
-  }
-});
-
-router.get('/:postId', async (req, res, next) => { // GET /post/1
-  try {
-    const post = await Post.findOne({
-      where: { id: req.params.postId },
-    });
-    if (!post) {
-      return res.status(404).send('존재하지 않는 게시글입니다.');
-    }
-    const fullPost = await Post.findOne({
-      where: { id: post.id },
-      include: [{
-        model: Post,
-        as: 'Retweet',
-        include: [{
-          model: User,
-          attributes: ['id', 'nickname'],
-        }, {
-          model: Image,
-        }]
-      }, {
-        model: User,
-        attributes: ['id', 'nickname'],
-      }, {
-        model: User,
-        as: 'Likers',
-        attributes: ['id', 'nickname'],
-      }, {
-        model: Image,
-      }, {
-        model: Comment,
-        include: [{
-          model: User,
-          attributes: ['id', 'nickname'],
-        }],
-      },{ model: OpenScope },
-      {
-      model: Category,
-      as: 'Categorys',
-      through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
-      attributes: ['id', 'content', 'isAnimal']
-      }],
-    })
-    res.status(200).json(fullPost);
-  } catch (error) {
-    console.error(error);
-    next(error);
   }
 });
 

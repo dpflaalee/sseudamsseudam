@@ -9,16 +9,28 @@ import {
 } from '@/reducers/prize';
 import PrizeForm from '@/components/prize/PrizeForm';
 import PrizeList from '@/components/prize/PrizeList';
+import axios from 'axios';
+
 
 const { Title } = Typography;
 
-const categoryData = [
-  { id: 1, content: '강아지' },
-  { id: 2, content: '고양이' },
-];
+
 
 const PrizeManage = () => {
   const dispatch = useDispatch();
+
+  // 카테고리 데이터 불러오기
+  const [animalCategories, setCategoryOptions] = useState([]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get('/category');
+        const animalCategories = res.data.filter(category => category.isAnimal);
+        setCategoryOptions(animalCategories);
+      } catch (err) { message.error('카테고리를 불러오지 못했습니다.'); }
+    };
+    fetchCategories();
+  }, []);
 
   // Redux state
   const { prizes, addPrizeDone, modifyPrizeDone, removePrizeDone } = useSelector(
@@ -78,7 +90,7 @@ const PrizeManage = () => {
 
       <PrizeList
         prizes={prizes}
-        categories={categoryData}
+        categories={animalCategories}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
@@ -88,7 +100,7 @@ const PrizeManage = () => {
         onCancel={() => setFormVisible(false)}
         onSubmit={handleSubmit}
         editingPrize={editingPrize}
-        categories={categoryData}
+        categories={animalCategories}
       />
     </>
   );

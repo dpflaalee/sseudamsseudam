@@ -154,7 +154,7 @@ const Nav = () => {
 
   const profileMenu = (
     <Menu>
-      <Menu.Item key="profileUpdate" onClick={showModal}>프로필 수정</Menu.Item>
+      {/* <Menu.Item key="profileUpdate" onClick={showModal}>프로필 수정</Menu.Item> */}
       <Menu.Item key="logout" onClick={onLogout} loading={logOutLoading}>로그아웃</Menu.Item>
       <Menu.Item key="deactivate" onClick={onUserDelete} style={{ color: 'red' }}>탈퇴하기</Menu.Item>
     </Menu>
@@ -222,7 +222,7 @@ const Nav = () => {
             {!isMobile && "알림"}
           </Menu.Item>
           <Menu.Item key="search" icon={<SearchOutlined />}>{!isMobile && "검색"}</Menu.Item>
-          <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item>
+          {/* <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item> */}
           {(me.user && me.user.isAdmin) ? <Menu.Item key="admin" onClick={() => router.push('/admin')} icon={<AuditOutlined />}>{!isMobile && "관리자 페이지"}</Menu.Item> : ''}
         </Menu>
       </div>
