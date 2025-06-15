@@ -10,6 +10,7 @@ const { Transaction } = require('sequelize');
 const multer = require('multer');  // 파일업로드
 const path = require('path');  // 경로
 const fs = require('fs');  // file system
+const { sequelize } = require('../models');
 //const {smtpTransport} = require('../config/email');
 
 // create :  객체.create({})
@@ -150,10 +151,15 @@ router.get('/', async (req, res, next) => {
     next(error);
   }
 });
-router.post('/profileUpdate', isLoggedIn , upload.array('nickname'), async (req, res, next) => {
+router.post('/profileUpdate', isLoggedIn , upload.array('profileImage'), async (req, res, next) => {
+  const t = await sequelize.transaction();
   //res.send('닉네임변경');
   // update users   set  nickname=?  where  id=? 
   console.log('닉네임변경=',req.body.nickname);
+   console.log('사진변경=',req.body.profileImage);
+  //console.log('사진변경=',req.files);
+  //console.log('사진변경=',req.files[0].originalname,);
+  
   try {
     await User.update({
       nickname: req.body.nickname,
@@ -161,7 +167,7 @@ router.post('/profileUpdate', isLoggedIn , upload.array('nickname'), async (req,
       where: { id: req.user.id },transaction:t
     });
     await UserProfileImage.update({
-      src: req.files[0].originalname,
+      src: req.body.profileImage,
     }, {
       where: { userId: req.user.id },transaction:t
     })
@@ -173,8 +179,8 @@ router.post('/profileUpdate', isLoggedIn , upload.array('nickname'), async (req,
     next(error);
   }
 });
-router.post('/images', isLoggedIn, upload.array('image'), (req, res, next) => { 
-  console.log(req.files);
+router.post('/images', isLoggedIn, upload.array('profileImage'), (req, res, next) => { 
+  console.log('profileImage',req.files);
   res.json(  req.files.map(  (v)=> v.filename  ));
 });
 

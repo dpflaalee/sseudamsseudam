@@ -235,7 +235,13 @@ function* signUp(action) {
 //-- 
 function changeUserProfileAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
   console.log('data=', data);
-  return axios.post('/user/nickname', data);   //         /user 경로 , post, 회원가입정보(data)
+  // return axios.post('/user/nickname', data);   //         /user 경로 , post, 회원가입정보(data)
+  return axios.post('/user/profileUpdate', data,{
+       headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    withCredentials: true, // 로그인 세션 유지
+  });   //         /user 경로 , post, 회원가입정보(data)
 }
 function* changeUserProfile(action) {
   console.log('login=', action.data);

@@ -36,6 +36,7 @@ const Nav = () => {
 
   const { logOutLoading, user, userImagePaths } = useSelector(state => state.user);
   const [nickname, onChangeNickname, setNickname] = userInput(user?.nickname); 
+  const filename = user.UserProfileImages[0]?.src;
   const onLogout = useCallback(() => {
      dispatch({ type: LOG_OUT_REQUEST }) 
      router.replace('/');
@@ -137,7 +138,7 @@ const Nav = () => {
     userImagePaths.forEach((i) => {formData.append('profileImage', i)});
     formData.append('nickname', nickname);
     //e.preventDefault();
-
+    console.log('user.UserProfileImage.src',user.UserProfileImages[0]?.src);
     dispatch({
       type: USER_PROFILE_UPDATE_REQUEST,
       data: formData   //##
@@ -156,7 +157,7 @@ const Nav = () => {
 
   const profileMenu = (
     <Menu>
-      {/* <Menu.Item key="profileUpdate" onClick={showModal}>프로필 수정</Menu.Item> */}
+      <Menu.Item key="profileUpdate" onClick={showModal}>프로필 수정</Menu.Item>
       <Menu.Item key="logout" onClick={onLogout} loading={logOutLoading}>로그아웃</Menu.Item>
       <Menu.Item key="deactivate" onClick={onUserDelete} style={{ color: 'red' }}>탈퇴하기</Menu.Item>
     </Menu>
@@ -180,7 +181,7 @@ const Nav = () => {
       <div style={{ display: "flex", flexDirection: isMobile ? "row" : "column", justifyContent: "flex-start", gap: "10px", }} >
         
           <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop: "20px", padding: "15px", }} >
-            <Avatar size="large" onClick={onMyPage} src={imgFile} />
+            <Avatar size="large" onClick={onMyPage} src= {imgFile ? `http://localhost:3065/userImages/${filename}` : "/images/user.png"} />
             <Dropdown overlay={profileMenu} trigger={["click"]}>
             <div>
               {!isMobile && user && (
@@ -284,7 +285,8 @@ const Nav = () => {
             >
                 <Card.Meta
                   // avatar={<Avatar  src="https://joeschmoe.io/api/v1/random" />}
-                  avatar={<Avatar src={imgFile ? imgFile : "/images/user.png"} />}
+                  avatar={<Avatar src={`http://localhost:3065/userImages/version1_1750025786935.png`} />}
+                  // avatar={<Avatar src={imgFile ? `http://localhost:3065/userImages/${filename}` : "/images/user.png"} />}
                   //avatar={<Avatar  icon={<UserOutlined />} />}
                   title={<div style={{ fontSize: '15px', color: 'black' }}>{nickname}</div>}
                   description=""
