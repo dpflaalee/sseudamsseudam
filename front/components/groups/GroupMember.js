@@ -1,26 +1,38 @@
-import React from 'react';
-import { Avatar, Button, List, Popover, Space, Typography } from 'antd';
+import React, { useEffect } from 'react';
+import { Avatar, Button, List, message, Popover, Space, Typography } from 'antd';
 import { EllipsisOutlined, UserOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { TRANSFER_OWNERSHIP_REQUEST } from '@/reducers/group';
 
 const { Text } = Typography;
 
-const GroupMember = ({ isLeader }) => {
+const GroupMember = ({ isLeader, groupId }) => {
+  const dispatch = useDispatch();
   const members = useSelector((state) => state.group.members);
   const currentUserId = useSelector((state) => state.user.me?.id); // 로그인한 유저 ID
+  const {transferOwnershipDone} = useSelector((state)=>state.group.transferOwnershipDone);
+
+
+  const onTransferOwnership = (userId) =>{
+    dispatch({ type: TRANSFER_OWNERSHIP_REQUEST, data:{ groupId:groupId, userId } });
+  }
+
+  useEffect(()=>{
+    if(transferOwnershipDone){message.success('방장 권한을 위임했습니다.')}
+  },[transferOwnershipDone])
 
   const renderActions = (member) => {
     if (isLeader) {
       return (
         <Space direction="vertical">
-          <Button type="text">차단하기</Button>
+          <Button type="text" danger>차단하기</Button>
           {!member.isLeader && (
             <>
-              {/* <Button type="text">방장 권한 주기</Button> */}
-              {/* <Button type="text" danger>강퇴시키기</Button> */}
+              <Button type="text" onClick={()=>onTransferOwnership(member.id)}>방장 권한 주기</Button>
+              <Button type="text" danger>강퇴시키기</Button>
             </>
           )}
-          <Button type="text">신고하기</Button>
+          <Button type="text" danger>신고하기</Button>
         </Space>
       );
     }
