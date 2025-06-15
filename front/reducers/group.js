@@ -195,6 +195,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         break;       
       //단일그룹 로딩
       case LOAD_SINGLE_GROUP_REQUEST :
+        draft.singleGroup = null;
         draft.loadSingleGroupLoading = true;
         draft.loadSingleGroupDone = false;
         draft.loadSingleGroupError = null;

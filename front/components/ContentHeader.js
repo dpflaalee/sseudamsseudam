@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { Dropdown, Menu, Button, message, Modal } from 'antd';
 import { HomeOutlined, NotificationOutlined, TeamOutlined, SearchOutlined, MailOutlined, PlusOutlined, BellOutlined,MoreOutlined} from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { DELETE_GROUP_REQUEST } from '@/reducers/group';
 
 const HeaderWrapper = styled.div`
   position: sticky;
@@ -44,19 +46,24 @@ const menuItems = [
   { key: 'chat', label: '채팅', icon: <MailOutlined />, path: '/chat' },
 ];
 
-//테스트용
-const currentUserId = 1;
-const groupLeaderId = 1;
-const isGroupMember = true;
-//테스트용
-
 const ContentHeader = ({group}) => {
-  const router = useRouter();
+  const router = useRouter(); const dispatch = useDispatch();
+  const currentUser = useSelector((state)=>state.user);
 
   const [showDeleteModal, setShowDeleteModal]= useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+
   const isGroup = router.pathname.startsWith('/groups/[id]');
-  const isLeader = currentUserId === groupLeaderId;
+  const isLeader = group?.leaderId === currentUser?.id;
+  const isGroupMember = group?.groupmembers?.some((member)=>member.id===currentUser?.id);
+  const {deleteGroupDone} = useSelector((state)=>state.group);
+
+  useEffect(()=>{
+    if(deleteGroupDone){
+      message.success('그룹이 삭제되었습니다.');
+      router.push('/groups');
+    }
+  }, [deleteGroupDone]);
 
   const currentMenu = menuItems.find((item) => router.pathname.startsWith(item.path)) || menuItems[1];
 
@@ -65,7 +72,7 @@ const ContentHeader = ({group}) => {
     if (selected) { router.push(selected.path);  }
   };
 //----------------------------------------------------------code그룹관련메뉴
-const handelGroupMenyClick = ({key})=>{
+const handleGroupMenuClick  = ({key})=>{
   if (!group) {
     message.error('그룹 정보를 불러올 수 없습니다.');
     return;
@@ -77,11 +84,11 @@ const handelGroupMenyClick = ({key})=>{
 }
 
 const groupMenu = (
-  <Menu onClick={handelGroupMenyClick}>
+  <Menu onClick={handleGroupMenuClick }>
       {isLeader && (
         <>
-          {/* <Menu.Item key="edit">수정하기</Menu.Item> */}
-          {/* <Menu.Item key="delete" danger>삭제하기</Menu.Item> */}
+          <Menu.Item key="edit">수정하기</Menu.Item>
+          <Menu.Item key="delete" danger>삭제하기</Menu.Item>
         </>
       )}
       {/* {isGroupMember && <Menu.Item key="leave" danger>탈퇴하기</Menu.Item>} */}
@@ -89,9 +96,8 @@ const groupMenu = (
   )
   
   const handleDeleteGroup = () => {
+    dispatch({type: DELETE_GROUP_REQUEST, data: group.id});
     setShowDeleteModal(false);
-    message.success('그룹이 삭제되었습니다.');
-    router.push('/groups');
   };
   
   const handleLeaveGroup = ()=>{

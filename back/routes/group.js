@@ -51,12 +51,13 @@ router.post('/', isLoggedIn, async (req, res, next) => {
 router.get('/:groupId', async(req,res,next)=>{
   try{
     const{groupId} = req.params;
-    const group = await Group.findByPk(groupId,{
-      include:[
-        {model: Category, through: {attributes: []} }
-       ,{model: OpenScope, attributes: [ 'id', 'content' ]}
-      ]
-    });
+    const group = await Group.findByPk(groupId, {
+  include: [
+    { model: Category, through: { attributes: [] } },
+    { model: OpenScope, attributes: ['id', 'content'] },
+    { model: User, as: 'groupmembers', through: { attributes: ['isLeader'] } }
+  ],
+});
     if(!group){ return res.status(404).send('그룹이 존재하지 않습니다.')};
     res.status(200).json(group);
   }catch(error){console.error(error); next(error);}
