@@ -135,6 +135,7 @@ const signup = () => {
           //setIsStopTimer(false);
           isStopTimer.current = false;
           setIsDisabled(true);
+          setBtnDisabled()
           console.log('에러');
         }
       }

@@ -448,7 +448,7 @@ useEffect(()=>{
           <Dropdown overlay={menu} trigger={['click']}>
             <Button icon={<MoreOutlined />} />
           </Dropdown>
-        </DropdownBox>
+        </DropdownBox> 
 
         <TopRow>
           <InfoBox>

@@ -23,21 +23,21 @@ const MyFollow = () => {
       
     }, [router.isReady]);
 ////////////////////////////////////////////////
-  //   useEffect(() => {
-  //   const postUserData = async () => {
-  //     try {
-  //       const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
-  //         { withCredentials: true }
-  //       )
-  //       console.log('postUserSelect.data',postUserSelect.data);
-  //       setPostUser(postUserSelect.data);
+    //useEffect(() => {
+    const postUserData = async () => {
+      try {
+        const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
+          { withCredentials: true }
+        )
+        console.log('postUserSelect.data',postUserSelect.data);
+        setPostUser(postUserSelect.data);
 
-  //     } catch (error) {
-  //       console.error('유저 정보 불러오기 실패:', error);
-  //     }
-  //   };
-  //   postUserData();
-  // }, [postUserId]);
+      } catch (error) {
+        console.error('유저 정보 불러오기 실패:', error);
+      }
+    };
+//   postUserData();
+ // }, [postUserId]);
 ////////////////////////////
 {/* <Profile
                 postUserId={myPage}
