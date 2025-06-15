@@ -86,7 +86,7 @@ const Nav = () => {
         console.log('filetext=',f)
          return imageFormData.append('profileImage',f);
      });
-
+     console.log(`imageFormData111=`,imageFormData);
     //   Array.from(e.target.files).forEach((f) => {
     //     console.log('array');
     //     console.log(f);
@@ -178,7 +178,7 @@ const Nav = () => {
       <div style={{ display: "flex", flexDirection: isMobile ? "row" : "column", justifyContent: "flex-start", gap: "10px", }} >
         
           <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop: "20px", padding: "15px", }} >
-            <Avatar size="large" onClick={onMyPage} icon={<UserOutlined />} />
+            <Avatar size="large" onClick={onMyPage} src={imgFile} />
             <Dropdown overlay={profileMenu} trigger={["click"]}>
             <div>
               {!isMobile && user && (
@@ -290,7 +290,7 @@ const Nav = () => {
                     marginBottom: 16,
                   }}
                 />
-                <UnderlineInput value={nickname} onChange={onChangeNickname} placeholder="기존 닉네임 노출(해당 칸에 입력하여 변경)" />
+                <UnderlineInput name='nickname' value={nickname} onChange={onChangeNickname} placeholder="기존 닉네임 노출(해당 칸에 입력하여 변경)" />
               </Card>
             </Modal>
           </div>
