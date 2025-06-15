@@ -14,6 +14,7 @@ import FollowList from "@/components/user/FollowList";
 const MyFollow = () => {
     const router = useRouter();
     const {myFollow} = router.query;
+    let postUserId = myFollow;
     const {followerList} = useSelector(state => state.user);
     console.log('myPage222',myFollow );
     //const {myPage} = router.query;
@@ -21,12 +22,36 @@ const MyFollow = () => {
       if (!router.isReady) return;
       
     }, [router.isReady]);
+////////////////////////////////////////////////
+    //useEffect(() => {
+    const postUserData = async () => {
+      try {
+        const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
+          { withCredentials: true }
+        )
+        console.log('postUserSelect.data',postUserSelect.data);
+        setPostUser(postUserSelect.data);
+
+      } catch (error) {
+        console.error('유저 정보 불러오기 실패:', error);
+      }
+    };
+//   postUserData();
+ // }, [postUserId]);
 ////////////////////////////
+{/* <Profile
+                postUserId={myPage}
+                postUser={postUser}
+                setPostUser={setPostUser}
+                mainPosts={mainPosts}
+                onShowMyPrize={onShowMyPrize}
+                isMyProfile={user?.id === myPage}
+            /> */}
   return (
     <AppLayout>
       <Profile postUserId={myFollow} />
       {/* followList에 1 = 팔로우, 2 = 팔로잉을 보낸다 */}
-      <FollowTabMenu />
+      <FollowTabMenu  />
     </AppLayout>
   );
 }
