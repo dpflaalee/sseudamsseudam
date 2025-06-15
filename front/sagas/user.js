@@ -30,6 +30,10 @@ import {
   USER_DELETE_SUCCESS,
   USER_DELETE_FAILURE,
 
+  USER_PASSWORD_CHANGE_REQUEST,
+  USER_PASSWORD_CHANGE_SUCCESS,
+  USER_PASSWORD_CHANGE_FAILURE,
+
   FOLLOW_REQUEST,
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE,
@@ -272,6 +276,28 @@ function* changeUserImage(action) {
     });
   }
 }
+
+function changeUserPassAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
+  console.log('pass=', data);
+  return axios.post('/user/changePass', {'changePass':data});   //         /user 경로 , post, 회원가입정보(data)
+}
+function* changeUserPass(action) {
+  console.log('pass=', action);
+  try {
+    const result = yield call(changeUserPassAPI, action.data);  // 사용자가 화면에서 넘겨준값
+    console.log('result=', result.data);
+    yield put({
+      type: USER_PASSWORD_CHANGE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: USER_PASSWORD_CHANGE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 function followAPI(data) {
   return axios.patch(`/user/${data}/follow`);
 }
@@ -432,6 +458,9 @@ function* watchUserProfile() {
 function* watchUserImage() {
   yield takeLatest(USER_IMAGE_UPDATE_REQUEST, changeUserImage);  //요청 10 ->응답1
 }
+function* watchUserPasswoardChange() {
+  yield takeLatest(USER_PASSWORD_CHANGE_REQUEST, changeUserPass);  //요청 10 ->응답1
+}
 function* watchFollow() {
   yield takeLatest(FOLLOW_REQUEST, follow);
 }
@@ -470,6 +499,7 @@ export default function* userSaga() {
     fork(watchUserProfile),
     fork(watchUserImage),
     fork(watchUserDelete),
+    fork(watchUserPasswoardChange),
     fork(watchFollow),
     fork(watchUnfollow),
     fork(watchChangeNickname),

@@ -79,6 +79,14 @@ router.post('/', isNotLoggedIn, async (req, res, next) => {   //res.send('..... 
 //2. 로그인
 // localhost:3065/user/login
 router.post('/login', isNotLoggedIn, async (req, res, next) => {
+  console.log('email=',req.body.email)
+  const user = await User.findOne({where:{email:req.body.email}}) 
+  console.log('user정보=',user.username);
+  const isMatch = await bcrypt.compare(req.body.password,user.password)
+  if(!user||!isMatch){
+    console.log("없는 유저 실행");
+    return res.status(401).json({isLogin:false, message:"아이디와 비밀번호를 확인해주세요!"})
+  }
   passport.authenticate('local', (err, user, info) => {
     //1. err 오류처리
     if (err) { console.error(err); return next(err); }
@@ -90,6 +98,7 @@ router.post('/login', isNotLoggedIn, async (req, res, next) => {
     return req.login(user, async (loginErr) => {
       // 3-1. 로그인시 에러발생
       if (loginErr) { console.error(loginErr); return next(loginErr); }
+
       // 3-2. 사용자정보조회  ( sql - join )
       const fullUser = await User.findOne({  // sql : select 
         where: { id: user.id },    // 아이디를 이용해서 정보조회
@@ -288,8 +297,58 @@ router.post('/nickname', isLoggedIn , upload.array('nickname'), async (req, res,
     next(error);
   }
 });
-router.post('userDelete', isLoggedIn, async (req, res, next) => {
-
+router.post('/changePass', isLoggedIn , async (req, res, next) => {
+  //res.send('닉네임변경');
+  // update users   set  nickname=?  where  id=?
+  //현재비밀번호와 다른 비밀번호를 입력해주세요.
+  const user = await User.findOne({
+    where: {id : req.user.id}
+  })
+  const isMatch = await bcrypt.compare(req.body.changePass, user.password)
+  if(isMatch){
+    console.log('현재비밀번호와 다른 비밀번호를 입력해주세요.');
+    return res.status(401).json({success: false, message: '현재비밀번호와 다른 비밀번호를 입력해주세요.'})
+  }
+  console.log('비밀번호변경=',req.body.changePass);
+  const hashPassword = await bcrypt.hash(req.body.changePass, 12);
+  try { 
+    const result = await User.update({
+      password: hashPassword,
+    }, {
+      where: { id: req.user.id }
+    });
+    res.status(200).json({success:true});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({success:false});
+    next(error);
+  }
+});
+router.post('/userDelete', isLoggedIn, async (req, res, next) => {
+  const user = await User.findOne({where: {id : req.user.id}})
+  console.log('req.body.changePass=',req.body.confirmPass);
+  const isMatch = await bcrypt.compare(req.body.confirmPass,user.password);
+  if(!isMatch){
+    console.log('비밀번호다름!');
+    return res.status(401).json({message:'비밀번호를 확인해주세요!'})
+  }
+  try{
+    await User.destroy({ where: { id: req.user.id } });
+     req.logout(function (err) {
+      if (err) {
+        return next(err);
+      }
+      req.session.destroy((err) => {
+        if (err) {
+          return next(err)
+        }
+        return res.status(200).json({ message: '회원 탈퇴가 완료되었습니다.' });
+      })
+    })
+  }catch(error){
+    console.log(error)
+    next(error)
+  }
 })
 /////////////////////////////////////
 //6. 팔로우
@@ -427,7 +486,7 @@ router.post('/sms/:phoneNum', async (req, res, next) => {
     }
 
 
-    // 2건 이상의 메시지를 발송할 때는 sendMany, 단일 건 메시지 발송은 sendOne을 이용해야 합니다. 
+    //2건 이상의 메시지를 발송할 때는 sendMany, 단일 건 메시지 발송은 sendOne을 이용해야 합니다. 
     // const result = messageService.sendMany([
     //     {
     //       to: req.params.phoneNum, //보내는 대상 전화번호 
