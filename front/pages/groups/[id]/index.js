@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -27,7 +27,16 @@ const GroupMain = () => {
   const currentUserId = useSelector((state) => state.user.user?.id);
 
   // 방장 여부 판별
-  const isLeader = members?.some((member) => member.id === currentUserId && member.isLeader );
+  // const isLeader = members?.some((member) => member.id === currentUserId && member.isLeader );
+  const isLeader = members?.some(
+    (member) => 
+      member.id === currentUserId && 
+      (member.isLeader === true || member.isLeader === 1)
+  );
+
+    //console.log("GroupMain isLeader:", isLeader); // true
+    //console.log("currentUserId:", currentUserId);
+    //console.log("members:", members);
 
   //승인/거절용 가입 멤버 불러오기
   useEffect(()=>{
@@ -40,18 +49,17 @@ const GroupMain = () => {
     }
   },[groupId, dispatch, isLeader])
 
-  const allGroups = useSelector((state)=>state.group.groups);
-  console.log('allGroups............', allGroups)
-  const groupDetail = allGroups.find((group)=>group.id ===parseInt(groupId, 10));
+  // const allGroups = useSelector((state)=>state.group.groups);
+  // const groupDetail = allGroups.find((group)=>group.id ===parseInt(groupId, 10));
 
   return (
-    <AppLayout group={group}>
+    <AppLayout group={group} members={members}>
       <GroupHeader
         groupId={groupId}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isLeader={isLeader}
-        title={groupDetail?.title}
+        title={group?.title}
       />
       {activeTab === "timeline" && (
         <>
@@ -79,7 +87,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
     axios.defaults.headers.Cookie = cookie;
   }
 
-  const groupId = context.params?.id; // ✅ groupId 추출
+  const groupId = context.params?.id; 
 
   context.store.dispatch({ type: LOAD_MY_INFO_REQUEST });
   context.store.dispatch({ type: LOAD_POSTS_REQUEST });

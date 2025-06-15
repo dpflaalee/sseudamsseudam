@@ -8,6 +8,7 @@ import {
   DELETE_GROUP_REQUEST, DELETE_GROUP_SUCCESS, DELETE_GROUP_FAILURE, // 그룹 삭제
   LOAD_SINGLE_GROUP_REQUEST, LOAD_SINGLE_GROUP_SUCCESS, LOAD_SINGLE_GROUP_FAILURE,
   LOAD_MEMBERS_REQUEST, LOAD_MEMBERS_SUCCESS, LOAD_MEMBERS_FAILURE, // 멤버 로드
+  LEAVE_GROUP_REQUEST, LEAVE_GROUP_SUCCESS, LEAVE_GROUP_FAILURE, //탈퇴
   KICK_MEMBER_REQUEST, KICK_MEMBER_SUCCESS, KICK_MEMBER_FAILURE, // 강퇴
   TRANSFER_OWNERSHIP_REQUEST, TRANSFER_OWNERSHIP_SUCCESS, TRANSFER_OWNERSHIP_FAILURE, // 권한양도
   JOIN_GROUP_REQUEST, JOIN_GROUP_SUCCESS, JOIN_GROUP_FAILURE, //즉시가입
@@ -94,6 +95,16 @@ function* loadMembers(action) {
   } catch (err) { yield put({ type: LOAD_MEMBERS_FAILURE, error: err.response.data }); }
 }
 function* watchLoadMembers() { yield takeLatest(LOAD_MEMBERS_REQUEST, loadMembers); }
+
+// 멤버 탈퇴
+function leaveGroupAPI({groupId}){return axios.delete(`/groups/${groupId}/leave`); }
+function*leaveGroup(action){
+  try{
+    yield call(leaveGroupAPI, action.data);
+    yield put({type: LEAVE_GROUP_SUCCESS, data:action.data.userId})
+  }catch(err){yield put({type: LEAVE_GROUP_FAILURE, error: err.response.data});}
+}
+function* watchLeaveGroup(){yield takeLatest(LEAVE_GROUP_REQUEST, leaveGroup)}
 
 //2. 멤버 강퇴
 function kickMemberAPI({ groupId, userId }) { return axios.delete(`/api/groups/${groupId}/members/${userId}`); }
@@ -286,5 +297,6 @@ export default function* groupSaga() {
     fork(watchApproveJoin),
     fork(watchRejectJoin),
     fork(watchLoadUserGroups),
+    fork(watchLeaveGroup)
   ]);
 }

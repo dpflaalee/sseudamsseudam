@@ -24,7 +24,7 @@ const ColWithOrder = styled(Col)`
   }
 `;
 
-const AppLayout = ({ children, group }) => {
+const AppLayout = ({ children, group, members }) => {
 
   return (
 
@@ -42,7 +42,7 @@ const AppLayout = ({ children, group }) => {
           {/* Main Content */}
           <ColWithOrder xs={24} md={15} className="main-col" style={{ padding: "0", borderRight: "3px solid #eee" }}>
             {/* 메인컨텐츠 상단고정영역추가 */}
-            <ContentHeader  group={group} />
+            <ContentHeader  group={group} members={members} />
             {children}
           </ColWithOrder>
 
