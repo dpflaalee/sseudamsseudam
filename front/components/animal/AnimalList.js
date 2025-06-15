@@ -63,7 +63,7 @@ const AnimalList = ({ animals, ownerId }) => {
               alignItems: 'center',
               width: 110,
               height: 54,
-              padding: '8px 10px',
+              padding: '8px 8px',
               border: '1px solid #1890ff',
               borderRadius: 8,
               color: '#1890ff',
