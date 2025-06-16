@@ -75,7 +75,7 @@ const Nav = () => {
   // },[nickname])
 
   const imageInput = useRef();
-  const filename = user.UserProfileImages[0]?.src;
+  const filename = user?.UserProfileImages[0]?.src;
   console.log('filenamefilename',filename);
   const onClickImageUpload = useCallback(() => {
       imageInput.current?.click();

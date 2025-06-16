@@ -102,7 +102,7 @@ const Profile = (props) => {
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
   const { addBlockDone, removeBlockDone } = useSelector((state) => state.user);
 
-    const filename = user.UserProfileImages[0]?.src;
+    const filename = user?.UserProfileImages[0]?.src;
   let postUserId = props.postUserId;
   console.log('postUserIdpostUserId=', postUserId);
   // console.log('mainPosts',mainPosts.filter(post => {

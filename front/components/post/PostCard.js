@@ -99,7 +99,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const { mainComplainCard } = useSelector(state => state.complain);
   const [locationLink, setLocationLink] = useState(null);
   const {user} = useSelector(state => state.user);
-  const filename = user.UserProfileImages[0]?.src;
+  const filename = user?.UserProfileImages[0]?.src;
 
   useEffect(() => {
     setNewContent(post.content);
