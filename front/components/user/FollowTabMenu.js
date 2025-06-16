@@ -4,6 +4,7 @@ import { Tabs } from 'antd';
 import { useDispatch } from 'react-redux';
 import { LOAD_FOLLOWERS_REQUEST, LOAD_FOLLOWERS_SUCCESS } from '@/reducers/user'
 import FollowList from './FollowList';
+import FollowButton from './FollowButton';
 
 const FollowTabMenu = ({ followListComponent }) => {
   const dispatch = useDispatch();
@@ -49,8 +50,13 @@ const FollowTabMenu = ({ followListComponent }) => {
         ]}
       />
       {followerList.map((c) => {
+        //console.log('followerList.map',c)
         return (
-          <FollowList follower={c} key={1}/>
+          <div>
+            <FollowList follower={c} key={1}/>
+            <FollowButton postUser={c} setPostUser={setPostUser} currentUserId={user?.id}/> 
+          </div>
+          //<FollowList key={user.id} userId={user.id}/>
         )
       })}
     </>

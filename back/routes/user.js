@@ -10,6 +10,7 @@ const { Transaction } = require('sequelize');
 const multer = require('multer');  // 파일업로드
 const path = require('path');  // 경로
 const fs = require('fs');  // file system
+const { sequelize } = require('../models');
 //const {smtpTransport} = require('../config/email');
 
 // create :  객체.create({})
@@ -29,7 +30,7 @@ const upload = multer({
   storage: multer.diskStorage({ // 저장소설정 - 업로드된 파일의 저장위치,파일이름 지정하는 역할
     //파일을 디스크 (로컬 파일시스템)에 저장하도록 설정
     destination(req, file, done) {  // 지정경로
-      done(null, 'uploads');  //지정경로 지정 - 콜백  
+      done(null, 'userImages');  //지정경로 지정 - 콜백  
       //  null 에러없음,   uploads  저장될 폴더경로
     },
     filename(req, file, done) {  // 업로드된 파일이름 지정
@@ -79,6 +80,14 @@ router.post('/', isNotLoggedIn, async (req, res, next) => {   //res.send('..... 
 //2. 로그인
 // localhost:3065/user/login
 router.post('/login', isNotLoggedIn, async (req, res, next) => {
+  console.log('email=',req.body.email)
+  const user = await User.findOne({where:{email:req.body.email}}) 
+  console.log('user정보=',user.username);
+  const isMatch = await bcrypt.compare(req.body.password,user.password)
+  if(!user||!isMatch){
+    console.log("없는 유저 실행");
+    return res.status(401).json({isLogin:false, message:"아이디와 비밀번호를 확인해주세요!"})
+  }
   passport.authenticate('local', (err, user, info) => {
     //1. err 오류처리
     if (err) { console.error(err); return next(err); }
@@ -90,6 +99,7 @@ router.post('/login', isNotLoggedIn, async (req, res, next) => {
     return req.login(user, async (loginErr) => {
       // 3-1. 로그인시 에러발생
       if (loginErr) { console.error(loginErr); return next(loginErr); }
+
       // 3-2. 사용자정보조회  ( sql - join )
       const fullUser = await User.findOne({  // sql : select 
         where: { id: user.id },    // 아이디를 이용해서 정보조회
@@ -141,28 +151,38 @@ router.get('/', async (req, res, next) => {
     next(error);
   }
 });
-router.get('/', async (req, res, next) => {
+router.post('/profileUpdate', isLoggedIn , upload.array('profileImage'), async (req, res, next) => {
+  const t = await sequelize.transaction();
+  //res.send('닉네임변경');
+  // update users   set  nickname=?  where  id=? 
+  console.log('닉네임변경=',req.body.nickname);
+   console.log('사진변경=',req.body.profileImage);
+  //console.log('사진변경=',req.files);
+  //console.log('사진변경=',req.files[0].originalname,);
+  
   try {
     await User.update({
       nickname: req.body.nickname,
     }, {
-      where: { id: req.user.id },
-      transaction: t
-    })
+      where: { id: req.user.id },transaction:t
+    });
     await UserProfileImage.update({
-      src: req.body.imagePaths,
+      src: req.body.profileImage,
     }, {
-      where: { src: req.user.id },
-      transaction: t
+      where: { userId: req.user.id },transaction:t
     })
     await t.commit();
     res.status(201).json({ success: true });
   } catch (error) {
-    await t.rollback();
-    console.log(error);
-    next(error)
+    await t.commit();
+    console.error(error);
+    next(error);
   }
-})
+});
+router.post('/images', isLoggedIn, upload.array('profileImage'), (req, res, next) => { 
+  console.log('profileImage',req.files);
+  res.json(  req.files.map(  (v)=> v.filename  ));
+});
 
 router.get('/postUser', async (req, res, next) => {
   // res.send('사용자정보조회');
@@ -188,6 +208,8 @@ router.get('/postUser', async (req, res, next) => {
           { model: Post, attributes: ['id'] }
           , { model: User, as: 'Followings', attributes: ['id'] }
           , { model: User, as: 'Followers', attributes: ['id'] }
+          , { model: User, as: 'Blocking', attributes: ['id'] } // ✅ 이게 차단한 유저
+          , { model: User, as: 'Blocked', attributes: ['id'] }  // 이건 나를 차단한 유저
         ]// Post, Followers , Followings
       });
       res.status(200).json({
@@ -265,9 +287,10 @@ router.delete('/userDelete', isLoggedIn, async (req, res, next) => {
 // 1. 로그인
 // 2. Header 쿠키설정
 // 3. Body  - [Raw] - [Json]  {  "nickname":"4444" }
-router.post('/nickname', isLoggedIn, async (req, res, next) => {
+router.post('/nickname', isLoggedIn , upload.array('nickname'), async (req, res, next) => {
   //res.send('닉네임변경');
   // update users   set  nickname=?  where  id=? 
+  console.log('닉네임변경=',req.body.nickname);
   try {
     await User.update({
       nickname: req.body.nickname,
@@ -280,8 +303,58 @@ router.post('/nickname', isLoggedIn, async (req, res, next) => {
     next(error);
   }
 });
-router.post('userDelete', isLoggedIn, async (req, res, next) => {
-
+router.post('/changePass', isLoggedIn , async (req, res, next) => {
+  //res.send('닉네임변경');
+  // update users   set  nickname=?  where  id=?
+  //현재비밀번호와 다른 비밀번호를 입력해주세요.
+  const user = await User.findOne({
+    where: {id : req.user.id}
+  })
+  const isMatch = await bcrypt.compare(req.body.changePass, user.password)
+  if(isMatch){
+    console.log('현재비밀번호와 다른 비밀번호를 입력해주세요.');
+    return res.status(401).json({success: false, message: '현재비밀번호와 다른 비밀번호를 입력해주세요.'})
+  }
+  console.log('비밀번호변경=',req.body.changePass);
+  const hashPassword = await bcrypt.hash(req.body.changePass, 12);
+  try { 
+    const result = await User.update({
+      password: hashPassword,
+    }, {
+      where: { id: req.user.id }
+    });
+    res.status(200).json({success:true});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({success:false});
+    next(error);
+  }
+});
+router.post('/userDelete', isLoggedIn, async (req, res, next) => {
+  const user = await User.findOne({where: {id : req.user.id}})
+  console.log('req.body.changePass=',req.body.confirmPass);
+  const isMatch = await bcrypt.compare(req.body.confirmPass,user.password);
+  if(!isMatch){
+    console.log('비밀번호다름!');
+    return res.status(401).json({message:'비밀번호를 확인해주세요!'})
+  }
+  try{
+    await User.destroy({ where: { id: req.user.id } });
+     req.logout(function (err) {
+      if (err) {
+        return next(err);
+      }
+      req.session.destroy((err) => {
+        if (err) {
+          return next(err)
+        }
+        return res.status(200).json({ message: '회원 탈퇴가 완료되었습니다.' });
+      })
+    })
+  }catch(error){
+    console.log(error)
+    next(error)
+  }
 })
 /////////////////////////////////////
 //6. 팔로우
@@ -419,7 +492,7 @@ router.post('/sms/:phoneNum', async (req, res, next) => {
     }
 
 
-    // 2건 이상의 메시지를 발송할 때는 sendMany, 단일 건 메시지 발송은 sendOne을 이용해야 합니다. 
+    //2건 이상의 메시지를 발송할 때는 sendMany, 단일 건 메시지 발송은 sendOne을 이용해야 합니다. 
     // const result = messageService.sendMany([
     //     {
     //       to: req.params.phoneNum, //보내는 대상 전화번호 
@@ -569,6 +642,5 @@ router.delete('/:userId/block', isLoggedIn, async (req, res, next) => {
     next(error);
   }
 });
-
 /////////////////////////////////////
 module.exports = router;
