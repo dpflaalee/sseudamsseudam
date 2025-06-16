@@ -91,6 +91,25 @@ const Profile = (props) => {
   const [showMyPrize, setShowMyPrize] = useState(false);
   const { onShowMyPrize } = props
 
+
+  // 차단 한 유저인지 확인
+  const me = useSelector(state => state.user);
+  console.log(me);
+
+  console.log('me.user.Blocking:', me.user?.Blocking);
+  console.log('postUserId:', postUserId);
+
+  const blockingList = me.user?.Blocking || [];
+  console.log('blockingList:', blockingList);
+
+  const [isBlockedByMe, setIsBlockedByMe] = useState(null);
+
+  useEffect(() => {
+    const blocked = blockingList.some((u) => Number(u.Blacklist?.BlockedId) === Number(postUserId));
+    setIsBlockedByMe(blocked);
+    console.log('🧪 차단 여부 판단 결과:', blocked);
+  }, [blockingList, postUserId]);
+
   // 신고 당한 유저 블라인드 처리
   const { mainComplainCard } = useSelector((state) => state.complain);
 
@@ -186,6 +205,9 @@ const Profile = (props) => {
     })
   });
 
+
+
+
   const isMyProfile = user && (user.id == postUserId);
 
 
@@ -193,7 +215,7 @@ const Profile = (props) => {
     <Menu>
       {isMyProfile ? (
         <>
-          <Menu.Item key="edit">프로필 수정</Menu.Item>
+          {/* <Menu.Item key="edit">프로필 수정</Menu.Item> */}
           <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
           <Menu.Item key="logout" onClick={onLogout}>
             {logOutLoding ? '로그아웃 중...' : '로그아웃'}
@@ -270,17 +292,17 @@ const Profile = (props) => {
         </TopRow>
         {isMyProfile ? (
           <ButtonRow>
-            <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button>
-            <Button>내 장소</Button>
-            <Button>챌린지 현황</Button>
-            <Button>프로필 수정</Button>
+            {/* <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button> */}
+            {/* <Button>내 장소</Button> */}
+            {/* <Button>챌린지 현황</Button> */}
+            {/* <Button>프로필 수정</Button> */}
           </ButtonRow>
         ) : (
           <ButtonRow>
             {/* <FollowButton post={props.postUserId} /> */}
-            <FollowButton postUser={postUser}
+            {!isBlockedByMe && !isMyProfile && <FollowButton postUser={postUser}
               setPostUser={setPostUser}
-              currentUserId={user?.id} />
+              currentUserId={user?.id} />}
             <Button>장소</Button>
           </ButtonRow>
         )}

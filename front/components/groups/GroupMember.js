@@ -16,8 +16,8 @@ const GroupMember = ({ isLeader }) => {
           <Button type="text">차단하기</Button>
           {!member.isLeader && (
             <>
-              <Button type="text">방장 권한 주기</Button>
-              <Button type="text" danger>강퇴시키기</Button>
+              {/* <Button type="text">방장 권한 주기</Button> */}
+              {/* <Button type="text" danger>강퇴시키기</Button> */}
             </>
           )}
           <Button type="text">신고하기</Button>

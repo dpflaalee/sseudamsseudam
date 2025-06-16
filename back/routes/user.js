@@ -29,7 +29,7 @@ const upload = multer({
   storage: multer.diskStorage({ // 저장소설정 - 업로드된 파일의 저장위치,파일이름 지정하는 역할
     //파일을 디스크 (로컬 파일시스템)에 저장하도록 설정
     destination(req, file, done) {  // 지정경로
-      done(null, 'uploads');  //지정경로 지정 - 콜백  
+      done(null, 'userImages');  //지정경로 지정 - 콜백  
       //  null 에러없음,   uploads  저장될 폴더경로
     },
     filename(req, file, done) {  // 업로드된 파일이름 지정
@@ -141,28 +141,33 @@ router.get('/', async (req, res, next) => {
     next(error);
   }
 });
-router.get('/', async (req, res, next) => {
+router.post('/profileUpdate', isLoggedIn , upload.array('nickname'), async (req, res, next) => {
+  //res.send('닉네임변경');
+  // update users   set  nickname=?  where  id=? 
+  console.log('닉네임변경=',req.body.nickname);
   try {
     await User.update({
       nickname: req.body.nickname,
     }, {
-      where: { id: req.user.id },
-      transaction: t
-    })
+      where: { id: req.user.id },transaction:t
+    });
     await UserProfileImage.update({
-      src: req.body.imagePaths,
+      src: req.files[0].originalname,
     }, {
-      where: { src: req.user.id },
-      transaction: t
+      where: { userId: req.user.id },transaction:t
     })
     await t.commit();
     res.status(201).json({ success: true });
   } catch (error) {
-    await t.rollback();
-    console.log(error);
-    next(error)
+    await t.commit();
+    console.error(error);
+    next(error);
   }
-})
+});
+router.post('/images', isLoggedIn, upload.array('image'), (req, res, next) => { 
+  console.log(req.files);
+  res.json(  req.files.map(  (v)=> v.filename  ));
+});
 
 router.get('/postUser', async (req, res, next) => {
   // res.send('사용자정보조회');
@@ -188,6 +193,8 @@ router.get('/postUser', async (req, res, next) => {
           { model: Post, attributes: ['id'] }
           , { model: User, as: 'Followings', attributes: ['id'] }
           , { model: User, as: 'Followers', attributes: ['id'] }
+          , { model: User, as: 'Blocking', attributes: ['id'] } // ✅ 이게 차단한 유저
+          , { model: User, as: 'Blocked', attributes: ['id'] }  // 이건 나를 차단한 유저
         ]// Post, Followers , Followings
       });
       res.status(200).json({
@@ -265,9 +272,10 @@ router.delete('/userDelete', isLoggedIn, async (req, res, next) => {
 // 1. 로그인
 // 2. Header 쿠키설정
 // 3. Body  - [Raw] - [Json]  {  "nickname":"4444" }
-router.post('/nickname', isLoggedIn, async (req, res, next) => {
+router.post('/nickname', isLoggedIn , upload.array('nickname'), async (req, res, next) => {
   //res.send('닉네임변경');
   // update users   set  nickname=?  where  id=? 
+  console.log('닉네임변경=',req.body.nickname);
   try {
     await User.update({
       nickname: req.body.nickname,
@@ -569,6 +577,5 @@ router.delete('/:userId/block', isLoggedIn, async (req, res, next) => {
     next(error);
   }
 });
-
 /////////////////////////////////////
 module.exports = router;
