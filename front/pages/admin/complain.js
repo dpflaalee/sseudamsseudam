@@ -24,7 +24,13 @@ const ComplainPage = () => {
     }, [dispatch]);
 
     // 신고 목록을 type + targetId 기준으로 묶기
-    const grouped = _.groupBy(mainComplainCard, (r) => `${r.type}_${r.targetId}`);
+    const grouped = _.groupBy(mainComplainCard, (r) => {
+        const type = (r.targetType || '').toUpperCase();  // ← 핵심 수정
+        const targetId = Number(r.targetId);
+        return `${type}_${targetId}`;
+    });
+
+
     const groupedCards = Object.entries(grouped);
 
     return (
