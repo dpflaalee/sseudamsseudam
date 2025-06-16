@@ -198,7 +198,7 @@ const AniFollow = ({ownerId}) => {
       </Tabs>
       {isOwner && (
       <div style={{ marginTop: 24 }}>
-        <h3>친구 추천</h3>
+        <h3>{myAnimalName ? `${myAnimalName}님을 위한 친구 추천` : '친구 추천'}</h3>
         {renderList(recommendedAnimals, loadRecommendedAnimalsLoading, "추천할 친구가 없습니다.", false)}
       </div>
       )}

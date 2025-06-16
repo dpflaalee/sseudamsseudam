@@ -72,7 +72,9 @@ const SearchUserList = ({ user }) => {
   return (
     <>
       <Card
-        onClick={handleUserClick}>
+        onClick={handleUserClick}
+        style={{ cursor: 'pointer' }}
+      >
         <Row justify="space-between" align="middle">
           {/* 왼쪽: 아바타 + 닉네임 */}
           <Col>

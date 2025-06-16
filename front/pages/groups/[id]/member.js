@@ -3,14 +3,17 @@ import AppLayout from '@/components/AppLayout';
 import GroupMember from '@/components/groups/GroupMember';
 import { LOAD_MY_INFO_REQUEST } from '@/reducers/user';
 import { APPLY_GROUP_REQUEST, JOIN_GROUP_REQUEST, LOAD_MEMBERS_REQUEST } from '@/reducers/group';
+import { useRouter } from 'next/router';
 
 const GroupMembersPage = () => {
-  const isLeader = true; // 방장 테스트용
+  //const isLeader = true; // 방장 테스트용
+  const router = useRouter();
+  const groupId = parseInt(router.query.id, 10)
 
   return (
     <AppLayout>
       <h1 style={{ margin: '16px 0' }}>멤버 리스트</h1>
-      <GroupMember isLeader={isLeader} />
+      <GroupMember isLeader={isLeader} groupId={groupId} />
     </AppLayout>
   );
 };

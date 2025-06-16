@@ -1,4 +1,4 @@
-import React,{ useState, useCallback,useEffect } from "react";
+import React,{ useState, useCallback,useEffect,useRef } from "react";
 import {Button, Checkbox, Form, Input } from "antd";
 import Head from 'next/head';
 import AppLayout from "@/components/AppLayout";
@@ -82,7 +82,7 @@ const signup = () => {
   const onChangePassword = useCallback((e) => {
       const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
       const pass = e.target.value;
-          console.log('changePassword',e.target.value);      
+        console.log('changePassword',e.target.value);      
       // if(!passRegex.test(password)){
       //   setChangePassword(true);
       // }
@@ -110,23 +110,18 @@ const signup = () => {
   const [timerFlag, setTimerFlag] = useState(false);
   const [errTimeout, setErrTimeout] = useState(false);
   const [authenticationNum, setAuthenticationNum] = useState();
-  const btnSendAuthenticationNumber = useCallback( async () => {
-      if(phoneNum === null || String(phoneNum).length === 0){
-        console.log('오류');
-        return;
-      }
-      const response = await axios.post(`http://localhost:3065/user/sms/${phoneNum}`,{},{
-       withCredentials: true,
-      });
-      //const {num} = response.data;
-      console.log('response=', response.data);
-      setAuthenticationNum(response.data);
+  const [isDisabled, setIsDisabled] = useState(true);
+  //const [isStopTimer, setIsStopTimer] = useState(false);
+  const isStopTimer = useRef(false);
+  const [isdupTimer, setIsdupTimer] = useState(false);
+  const [btnDisabled, setBtnDisabled] = useState(false);
+  let stopTimer = false;
+  const timer = async () => {
     let initMinute = 1;
-    let seconds = 59;
-    
-    (async () => {
-      for(let minute = initMinute-1; minute >= 0; minute--){
+    let seconds = 10;
+    for(let minute = initMinute-1; minute >= 0; minute--){
         for(seconds; seconds >= 0; seconds--){
+          if(isStopTimer.current) return;
           await sleep(1);
           setMinute(minute)
           setSeconds((String(seconds).length<2 ? '0'+seconds:seconds))
@@ -136,10 +131,33 @@ const signup = () => {
         seconds = 59;
         if(minute == 0){
           setErrTimeout(true);
+          setIsdupTimer(false);
+          //setIsStopTimer(false);
+          isStopTimer.current = false;
+          setIsDisabled(true);
+          setBtnDisabled()
           console.log('에러');
         }
       }
-    })();
+    };
+    const btnSendAuthenticationNumber = useCallback( async () => {
+      if(phoneNum === null || String(phoneNum).length != 11 ){
+        console.log('오류');
+        alert('휴대폰번호를 확인해주세요');
+        return;
+      }
+      setIsDisabled(false);
+      const response = await axios.post(`http://localhost:3065/user/sms/${phoneNum}`,{},{
+       withCredentials: true,
+      });
+      //const {num} = response.data;
+      console.log('response=', response.data);
+      setAuthenticationNum(response.data);
+      //setStopTimer(prev => !prev);
+      if(isdupTimer){return;}
+       //setStopTimer(true); 
+       setIsdupTimer(true);
+      timer();
     
     //setTime(setTimeout( ),10000);
     },[phoneNum,minute,seconds,authenticationNum])
@@ -155,12 +173,21 @@ const signup = () => {
     
   const [errAuthenNum, setErrAuthenNum] = useState(false);
   const btnAuthenticationChk = useCallback(() => {
-    console.log('클릭인증번호',authenticationNum);
-    console.log('클릭',authenNum);
-    if(authenticationNum !== authenNum){
+    console.log('클릭인증번호',typeof authenticationNum);
+    console.log('클릭',typeof Number(authenNum));
+    setErrTimeout(false);
+    if(Number(authenticationNum) !== Number(authenNum)){
       setErrAuthenNum(true);
       return;
+    }else{
+      alert('인증되었습니다.');
+      setIsDisabled(true);
+      setErrTimeout(false);
+      //setIsStopTimer(true);
+      //setIsStopTimer(true);
+      isStopTimer.current = true;
     }
+
   })
 
   const onSubmitForm = useCallback(() => {
@@ -168,7 +195,7 @@ const signup = () => {
      setPhoneNumRegError(false);
      setPasswordError(false);
      setPasswordReError(false);
-    const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
+    const passRegex = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
     //const pass = e.target.value;
     const invalidRegex = /[0-9]+/g;
     const invalidStrRegex = /[^0-9]+/g;
@@ -203,7 +230,7 @@ const signup = () => {
         <meta charSet="utf-8"/>
         <title> Signup | TheJoa </title>
       </Head>
-      <div  style={{ width: '100%', maxWidth: "80%", margin: '0 auto' }}>
+      <div  style={{ width: '100%', maxWidth: "70%", margin: '0 auto' }}>
          <Form  layout='vertical' style={{  width: '100%', padding: '20px', boxSizing: 'border-box',}}  onFinish={onSubmitForm}  > 
         
         {/* <Form  layout='vertical'  style={{ margin:'2%' }}  > */}
@@ -236,8 +263,10 @@ const signup = () => {
             <div style={{position: 'relative'}}>
               <div style={{display:'flex', alignItems: 'center'}}>
                 <label htmlFor='authenNum'></label>
+                {/* <UnderlineInput placeholder='인증번호' id='authenNum'
+                    alue={authenNum} onChange={onChangeAuthenNum}  name='authenNum' required/> */}
                 <UnderlineInput placeholder='인증번호' id='authenNum'
-                    value={authenNum} onChange={onChangeAuthenNum}  name='authenNum' required />
+                    value={authenNum} onChange={onChangeAuthenNum}  name='authenNum' required disabled={isDisabled}/>
                 <Button onClick={btnAuthenticationChk}>확인</Button>
                   {timerFlag &&  (<span style={{
                     position: 'absolute',
@@ -251,20 +280,20 @@ const signup = () => {
                   </span>)}
              </div>
              <div style={{display:"block"}}>
-               {errTimeout && (<ErrorMessage  style={{ marginTop: '4px' }}>시간 내에 입력해주세요!</ErrorMessage>)}
+               {errTimeout && (<ErrorMessage  style={{ marginTop: '4px' }}> 10초 안에 입력해주세요.</ErrorMessage>)}
                {errAuthenNum && (<ErrorMessage  style={{ marginTop: '4px' }}>인증번호를 다시 입력하세요!</ErrorMessage>)}
              </div>
             </div>
           </Form.Item>
           <Form.Item>
              <label htmlFor='password'></label>
-            <UnderlineInput placeholder='비밀번호입력(최소 8~12자리 특수문자포함하여 작성)' id='password'
+            <UnderlineInput type="password" placeholder='비밀번호입력(최소 8~12자리 특수문자포함하여 작성)' id='password'
               value={password} onChange={onChangePassword} name='password' required />
             {passwordError   && <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함) </ErrorMessage>}
           </Form.Item>
           <Form.Item>
             <label htmlFor='password-re'></label>
-            <UnderlineInput placeholder='비밀번호입력 체크' id='password-re'
+            <UnderlineInput type="password" placeholder='비밀번호입력 체크' id='password-re'
               value={passwordRe} onChange={onChangePasswordRe} name='passwordRe' required />
             {passwordReError   && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>}
           </Form.Item>

@@ -32,6 +32,10 @@ export const initialState = {
   userImageDone: false,
   userImageError: null,
 
+  userPasswordChangeLoading:false,
+  userPasswordChangeDone:false,
+  userPasswordChangeError:null,
+
   followLoading: false, // 팔로우 시도중
   followDone: false,
   followError: null,
@@ -179,6 +183,10 @@ export const REMOVE_BLOCK_REQUEST = 'REMOVE_BLOCK_REQUEST';
 export const REMOVE_BLOCK_SUCCESS = 'REMOVE_BLOCK_SUCCESS';
 export const REMOVE_BLOCK_FAILURE = 'REMOVE_BLOCK_FAILURE';
 
+export const USER_PASSWORD_CHANGE_REQUEST = 'USER_PASSWORD_CHANGE_REQUEST';
+export const USER_PASSWORD_CHANGE_SUCCESS = 'USER_PASSWORD_CHANGE_SUCCESS';
+export const USER_PASSWORD_CHANGE_FAILURE = 'USER_PASSWORD_CHANGE_FAILURE';
+
 ////////////////////////////////////////////////////// next
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
@@ -240,12 +248,18 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
     case USER_PROFILE_UPDATE_REQUEST:
       console.log('USER_PROFILE_UPDATE_REQUEST', action.data);
+      for (let pair of action.data.entries()) {
+        console.log('📦 saga에서 FormData 확인:', pair[0], pair[1]);
+      }
       draft.userProfileLoading= true; //회원 프로필 수정 시도중
       draft.userProfileDone= false;
       draft.userProfileError= null;
+      //draft.userImagePaths= action.data;
       break;
     case USER_PROFILE_UPDATE_SUCCESS:
-      draft.userImagePaths = [];
+      console.log('USER_PROFILE_UPDATE_SUCCESS=',action.data);
+      draft.userImagePaths = draft.userImagePaths.concat(action.data);
+      //draft.userImagePaths = action.data;
       draft.userProfileLoading= false;
       draft.userProfileDone= false;
       break;
@@ -255,13 +269,15 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
 
     case USER_IMAGE_UPDATE_REQUEST:
-      console.log('reducers = USER_IMAGE_UPDATE_REQUEST', action.data);
+      console.log('USER_IMAGE_UPDATE_REQUEST',action.data);
       draft.userImageLoading= true; //회원 이미지 수정 시도중
       draft.userImageDone= false;
       draft.userImageError= null;
       break;
     case USER_IMAGE_UPDATE_SUCCESS:
+      console.log('USER_IMAGE_UPDATE_SUCCESS',action.data);
       draft.userImagePaths = draft.userImagePaths.concat(action.data);
+      //draft.userImagePaths = action.data;
       draft.userImageLoading= false;
       draft.userImageDone= false;
       break;
@@ -284,7 +300,19 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.changeNicknameLoading = false;
       draft.changeNicknameError = action.error;
       break;
-
+    case USER_PASSWORD_CHANGE_REQUEST:
+      draft.userPasswordChangeLoading=false;
+      draft.userPasswordChangeDone=false;
+      draft.userPasswordChangeError=null;
+      break;
+    case USER_PASSWORD_CHANGE_SUCCESS:
+      draft.userPasswordChangeLoading=false;
+      draft.userPasswordChangeDone=true;
+      break;
+    case USER_PASSWORD_CHANGE_FAILURE:
+      draft.userPasswordChangeLoading=false;
+      draft.userPasswordChangeError=action.error;
+      break;
     //////////////////////////////
     case FOLLOW_REQUEST:
       draft.followLoading = true;

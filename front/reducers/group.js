@@ -33,6 +33,11 @@ export const LOAD_MEMBERS_REQUEST = 'LOAD_MEMBERS_REQUEST';
 export const LOAD_MEMBERS_SUCCESS = 'LOAD_MEMBERS_SUCCESS';
 export const LOAD_MEMBERS_FAILURE = 'LOAD_MEMBERS_FAILURE';
 
+//탈퇴
+export const LEAVE_GROUP_REQUEST = 'LEAVE_GROUP_REQUEST';
+export const LEAVE_GROUP_SUCCESS = 'LEAVE_GROUP_SUCCESS';
+export const LEAVE_GROUP_FAILURE = 'LEAVE_GROUP_FAILURE';
+
 //강퇴
 export const KICK_MEMBER_REQUEST = 'KICK_MEMBER_REQUEST';
 export const KICK_MEMBER_SUCCESS = 'KICK_MEMBER_SUCCESS';
@@ -111,6 +116,11 @@ export const initialState = {
   loadMembersLoading: false,
   loadMembersDone: false,
   loadMembersError: null,
+
+  //탈퇴
+  leaveGroupLoading : false,
+  leaveGroupDone : false,
+  leaveGroupError : null,
 
   // 멤버 강퇴
   kickMemberLoading: false,
@@ -195,6 +205,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         break;       
       //단일그룹 로딩
       case LOAD_SINGLE_GROUP_REQUEST :
+        draft.singleGroup = null;
         draft.loadSingleGroupLoading = true;
         draft.loadSingleGroupDone = false;
         draft.loadSingleGroupError = null;
@@ -258,6 +269,21 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       case LOAD_MEMBERS_FAILURE:
         draft.loadMembersLoading = false;
         draft.loadMembersError = action.error;
+        break;
+      //탈퇴
+      case LEAVE_GROUP_REQUEST:
+        draft.leaveGroupLoading = true;
+        draft.leaveGroupDone = false;
+        draft.leaveGroupError = null;
+        break;
+      case LEAVE_GROUP_SUCCESS:
+        draft.leaveGroupLoading = false;
+        draft.members = draft.members.filter((m) => m.id !== action.data);
+        draft.leaveGroupDone = true;
+        break;
+      case LEAVE_GROUP_FAILURE:
+        draft.leaveGroupLoading = false;
+        draft.leaveGroupError = action.error;
         break;
       //강퇴
       case KICK_MEMBER_REQUEST:
