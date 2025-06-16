@@ -223,7 +223,7 @@ app.use('/animal', animal);
 app.use('/uploads/animalProfile', express.static(path.join(__dirname, 'animalProfile')));
 app.use('/calendar', calendar);
 app.use('/adminNoti', adminNoti);
-
+app.use('/userImages', express.static(path.join(__dirname, 'userImages')));
 require('./jobs/giveRandomBoxJob');
 
 app.listen(3065, () => { console.log('server...'); });

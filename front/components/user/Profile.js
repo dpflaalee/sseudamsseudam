@@ -1,18 +1,36 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Avatar, Button, Dropdown, Menu } from 'antd';
+import { Avatar, Button, Dropdown, Menu, Modal, Input } from 'antd';
 import styled from 'styled-components';
 import { MoreOutlined } from '@ant-design/icons';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import FollowButton from './FollowButton';
+import { useRouter } from 'next/router';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { LOAD_BLOCK_REQUEST, ADD_BLOCK_REQUEST, REMOVE_BLOCK_REQUEST, LOG_OUT_REQUEST, USER_DELETE_REQUEST } from '@/reducers/user';
+import { LOAD_BLOCK_REQUEST, USER_PASSWORD_CHANGE_REQUEST
+  , ADD_BLOCK_REQUEST, REMOVE_BLOCK_REQUEST
+  , LOG_OUT_REQUEST
+  , USER_DELETE_REQUEST
+  ,USER_PASSWORD_CHANGE_FAILURE } from '@/reducers/user';
 import { LOAD_POSTS_REQUEST } from '@/reducers/post'
 import Router from 'next/router';
 import axios from 'axios';
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 
+const ErrorMessage = styled.div`color:red;`;
+const UnderlineInput = styled(Input)`
+  border: none;
+  border-bottom: 1px solid #d9d9d9;
+  border-radius: 0;
+  box-shadow: none;
+
+  &:focus,
+  &.ant-input-focused {
+    border-bottom: 2px solid #1677ff;
+    box-shadow: none;
+  }
+`;
 const Wrapper = styled.div`
   width: 100%;
   background-color: #f0f2f5;
@@ -27,10 +45,10 @@ const Banner = styled.div`
 const Container = styled.div`
   background-color: #fff;
   padding: 24px 16px 16px;
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0;
   margin: -60px auto 0;
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  max-width: 600px;
+  // max-width: 600px;
   position: relative;
 `;
 
@@ -80,13 +98,21 @@ const ButtonRow = styled.div`
 
 const Profile = (props) => {
   const dispatch = useDispatch();
-  const { userOutDone, logOutDone, user } = useSelector(state => state.user);
+  const { userOutDone, logOutDone, user,userPasswordChangeError, userPasswordChangeDone } = useSelector(state => state.user);
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
   const { addBlockDone, removeBlockDone } = useSelector((state) => state.user);
+  const router = useRouter();
+    const {myPage} = router.query;
+  let filename = '';
+  
+  const matchedPost = props.mainPosts.find(
+    prop => Number(prop.User?.id) === Number(myPage)
+  ) 
 
-
+    if(matchedPost &&  matchedPost.User?.UserProfileImages?.[0]){
+       filename = matchedPost.User.UserProfileImages[0].src;
+    }
   let postUserId = props.postUserId;
-  console.log('postUserIdpostUserId=', postUserId);
   const [postUser, setPostUser] = useState('');
   const [showMyPrize, setShowMyPrize] = useState(false);
   const { onShowMyPrize } = props
@@ -103,7 +129,7 @@ const Profile = (props) => {
   console.log('blockingList:', blockingList);
 
   const [isBlockedByMe, setIsBlockedByMe] = useState(null);
-
+  const [password, setChangePassword] = useState(false);   // userInput  줄이기
   useEffect(() => {
     const blocked = blockingList.some((u) => Number(u.Blacklist?.BlockedId) === Number(postUserId));
     setIsBlockedByMe(blocked);
@@ -138,6 +164,7 @@ const Profile = (props) => {
         const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
           { withCredentials: true }
         )
+        console.log('postUserSelect.data',postUserSelect.data);
         setPostUser(postUserSelect.data);
 
       } catch (error) {
@@ -198,31 +225,179 @@ const Profile = (props) => {
   const onLogout = useCallback(() => {
     dispatch({ type: LOG_OUT_REQUEST })
   });
-  const [] = useState(false);
+
+
+  //탈퇴
+  const [userDeleteConfirm,setUserDeleteConfirm] = useState(false);
+  const onUserDeleteConfirm = () => {
+    console.log('userDeleteConfirm=',userDeleteConfirm);
+    setUserDeleteConfirm(prev => !prev);
+    showModal('userDeleteConfirm');
+  }
+
   const onUserDelete = useCallback(() => {
     dispatch({
       type: USER_DELETE_REQUEST,
     })
   });
 
+  const [changePass, setChangePass] = useState('');
+  const onChangePass = useCallback((e) => {
+    // if(!changePass){
+    //   setPasswordError(false);
+    // }
+    const newPass = e.target.value;
+    console.log('setChangePass=',newPass);
+    setChangePass(e.target.value);
+  },[])
+   const [isChangePassModalOpen, setIsChangePassModalOpen] = useState(false);
+   const onPassChangeConfirm = useCallback(() => {
+    setIsChangePassModalOpen(prev => !prev);
+    showModal('passChangeConfirm');
+   })
+   const [isUserDeleteModalOpen, setIsUserDeleteModalOpen] = useState(false);
+  const showModal = (menu) => {
+    console.log('클릭=',menu);
+     menu === 'passChangeConfirm'? setIsChangePassModalOpen(true):setIsUserDeleteModalOpen(true);
+  };
+  const [passwordError, setPasswordError] = useState(false);
+  const [samePass, setSamePass] = useState(false);
+  ///////////////////////////////////////////////////////
+//   useEffect(() => {
+//   if (userPasswordChangeError) {
+//     console.log('userPasswordChangeError 발생:', userPasswordChangeError);
+//     setSamePass(true);
+//   }
+// }, [userPasswordChangeError]);
 
+useEffect(() => {
+  if (userPasswordChangeDone) {
+    console.log('비밀번호 변경 성공');
+    setChangePass('');
+    setSamePass(false);
+    setPasswordError(false);
+    setIsChangePassModalOpen(false);
+  }
+}, [userPasswordChangeDone]);
 
+useEffect(() => {
+  if (userPasswordChangeError) {
+    console.log('비밀번호 변경 실패');
+    setSamePass(true);
+  }
+}, [userPasswordChangeError]);
+
+useEffect(() => {
+
+})
+const [deleteModal, setDeleteModal] = useState(false)
+const [deleteMessage,setDeleteMessage] = useState('');
+useEffect(()=>{
+  setDeleteMessage(str=>str);
+},[deleteMessage])
+// useEffect(()=>{
+//   if(!deleteMessage){
+//     setDeleteModal(false);
+//   }else{
+//     setDeleteModal(true);
+//   }
+// },[deleteModal])
+  const handleOk = useCallback( async (str) => {
+    const passRegex = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
+    const formData = new FormData();
+    setPasswordError(false);
+      if(str === 'changePass'){
+        console.log('changePass=',changePass);
+        formData.append('changePass',changePass);
+        console.log('changePass 실행',);
+        if(!passRegex.test(changePass)){
+          console.log('비밀번호 에러');
+          setPasswordError(true);
+          dispatch({ type: USER_PASSWORD_CHANGE_FAILURE }) //초기화
+          return; 
+        }
+
+        dispatch({
+          type: USER_PASSWORD_CHANGE_REQUEST,
+          data: changePass,
+        })
+
+        setChangePass('');
+        setPasswordError(false);
+        // if(!samePass){
+        //   setIsChangePassModalOpen(false);
+        //   //setSamePass(true);
+        // }
+        // else{
+        //   setIsChangePassModalOpen(true);
+        //   return;
+        // }
+        //alert('비밀번호 변경이 완료되었습니다.');
+        return;
+      }
+      if(str === 'deleteUser'){
+        console.log('deleteUser입장');
+        console.log('deleteUser',changePass);
+        //formData.append('deleteUser',changePass);
+        await axios.post('http://localhost:3065/user/userDelete'
+                  ,{confirmPass:changePass} 
+                  ,{ withCredentials: true })
+                      .then(function (response){
+                          console.log('탈퇴확인',response.data.message)
+                          //setDeleteMessage(response.data.message)
+                          alert(response.data.message);
+                          Router.replace('/');
+                        })
+                        .catch(function(error){
+                          setDeleteModal(true);
+                          setDeleteMessage(error.response.data.message)
+                          console.log('탈퇴에러',error.response.data.message);
+                      })
+
+        return;
+      }
+    //setIsUserDeleteModalOpen(false);
+    setChangePass('');
+    setSamePass(false);
+    //setUserDeleteConfirm(prev => !prev)
+  },[changePass]);
+
+  const handleCancel = useCallback(() => {
+    console.log('캔슬');
+    setIsChangePassModalOpen(false);
+    setIsUserDeleteModalOpen(false);
+    setPasswordError(false);
+    setChangePass('');
+    setSamePass(false);
+    setDeleteMessage('');
+    setDeleteModal(false);
+    dispatch({ type: USER_PASSWORD_CHANGE_FAILURE })
+    //setUserDeleteConfirm(prev => !prev)
+  },[changePass]);
 
   const isMyProfile = user && (user.id == postUserId);
-
 
   const menu = (
     <Menu>
       {isMyProfile ? (
         <>
           {/* <Menu.Item key="edit">프로필 수정</Menu.Item> */}
-          <Menu.Item key="change-password">비밀번호 변경</Menu.Item>
+          <Menu.Item key="change-password" onClick={onPassChangeConfirm}>비밀번호 변경</Menu.Item>
+          {isChangePassModalOpen && (<Modal title="비밀번호 변경" open={isChangePassModalOpen} onOk={()=>handleOk('changePass')} onCancel={handleCancel}>
+            <UnderlineInput type='password' name='changePass' value={changePass} onChange={onChangePass} placeholder="새 비밀번호입력(최소 8~12자리 특수문자포함하여 작성)" />
+            {passwordError&& <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함)</ErrorMessage>}
+            {samePass&&<ErrorMessage>{userPasswordChangeError?.message}</ErrorMessage>}
+          </Modal>)}
           <Menu.Item key="logout" onClick={onLogout}>
             {logOutLoding ? '로그아웃 중...' : '로그아웃'}
           </Menu.Item>
-          <Menu.Item key="withdraw" onClick={onUserDelete} danger>
+          <Menu.Item key="withdraw" onClick={onUserDeleteConfirm} danger>
             탈퇴하기
           </Menu.Item>
+           {isUserDeleteModalOpen && (<Modal title="탈퇴하기" open={isUserDeleteModalOpen} onOk={()=>handleOk('deleteUser')} onCancel={handleCancel}>
+            <UnderlineInput type='password' name='changePass' value={changePass} onChange={onChangePass} placeholder="현재 비밀번호를 입력해주세요." />
+            {deleteModal&& <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함)</ErrorMessage>}
+          </Modal>)}
         </>
       ) : (
         <>
@@ -268,7 +443,7 @@ const Profile = (props) => {
       <Banner />
       <Container>
         <AvatarBox>
-          <Avatar size={80}>
+          <Avatar size={80} src={`http://localhost:3065/userImages/${filename}`}>
             {isBlinded ? 'X' : (postUser?.nickname || '닉네임 없음')}
           </Avatar>
 
@@ -278,7 +453,7 @@ const Profile = (props) => {
           <Dropdown overlay={menu} trigger={['click']}>
             <Button icon={<MoreOutlined />} />
           </Dropdown>
-        </DropdownBox>
+        </DropdownBox> 
 
         <TopRow>
           <InfoBox>
@@ -286,7 +461,10 @@ const Profile = (props) => {
             <Stats>
               {postUser ? postUser?.Followings.length : 0} 팔로잉  &nbsp;&nbsp;
               {postUser ? postUser?.Followers.length : 0} 팔로워 &nbsp;&nbsp;
-              {mainPosts?.length} 게시물
+              {/* {mainPosts?.length} 게시물 */}
+              {mainPosts ? mainPosts?.filter(prop => { 
+                 return Number(prop.UserId) === Number(myPage)
+                }).length:0} 게시물
             </Stats>
           </InfoBox>
         </TopRow>

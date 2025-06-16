@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true,
     },
+    issuedReason: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   });
 
   IssuedRandomBox.associate = (models) => {
