@@ -3,7 +3,7 @@ import { Tabs } from 'antd';
 
 const { TabPane } = Tabs;
 
-const GroupHeader = ({ activeTab, setActiveTab, isLeader, title }) => {
+const GroupHeader = ({ groupId, activeTab, setActiveTab, isLeader, title }) => {
 
   return (
     <Tabs activeKey={activeTab} onChange={setActiveTab} style={{alignItems:'center'}}>

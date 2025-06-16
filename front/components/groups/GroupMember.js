@@ -1,26 +1,45 @@
-import React from 'react';
-import { Avatar, Button, List, Popover, Space, Typography } from 'antd';
+import React, { useEffect } from 'react';
+import { Avatar, Button, List, message, Popover, Space, Typography } from 'antd';
 import { EllipsisOutlined, UserOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { TRANSFER_OWNERSHIP_REQUEST, KICK_MEMBER_REQUEST } from '@/reducers/group';
 
 const { Text } = Typography;
 
-const GroupMember = ({ isLeader }) => {
+const GroupMember = ({ isLeader, groupId }) => {
+  const dispatch = useDispatch();
   const members = useSelector((state) => state.group.members);
   const currentUserId = useSelector((state) => state.user.me?.id); // 로그인한 유저 ID
+  const {transferOwnershipDone, kickMemberDone } = useSelector((state)=>state.group);
+
+  const onTransferOwnership = (userId) =>{
+    dispatch({ type: TRANSFER_OWNERSHIP_REQUEST, data:{ groupId:groupId, userId } });
+  }
+
+  const onKickMember = (userId) => {
+    dispatch({type: KICK_MEMBER_REQUEST, data: {groupId, userId}});
+  }
+
+  useEffect(()=>{
+    if(transferOwnershipDone){message.success('방장 권한을 위임했습니다.')}
+  },[transferOwnershipDone])
+
+  useEffect(()=>{
+    if(kickMemberDone){message.success('강제 탈퇴가 성공적으로 완료되었습니다.');}
+  }, [kickMemberDone])
 
   const renderActions = (member) => {
     if (isLeader) {
       return (
         <Space direction="vertical">
-          <Button type="text">차단하기</Button>
+          <Button type="text" danger>차단하기</Button>
           {!member.isLeader && (
             <>
-              {/* <Button type="text">방장 권한 주기</Button> */}
-              {/* <Button type="text" danger>강퇴시키기</Button> */}
+              <Button type="text" onClick={()=>onTransferOwnership(member.id)}>방장 권한 주기</Button>
+              <Button type="text" danger onClick={()=>onKickMember(member.id)}>강퇴시키기</Button>
             </>
           )}
-          <Button type="text">신고하기</Button>
+          <Button type="text" danger>신고하기</Button>
         </Space>
       );
     }

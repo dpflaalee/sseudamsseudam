@@ -14,7 +14,6 @@ const GroupListPage = ()=>{
   ////////////////////////////////////////////code
   const dispatch = useDispatch();
   const { groups, loadGroupsLoading } = useSelector((state)=>state.group);
-  //console.log("4. 그룹리스트 페이지", groups)
   useEffect(()=>{dispatch({type: LOAD_GROUPS_REQUEST}); }, [] );
   ////////////////////////////////////////////view
   return(<AppLayout>
