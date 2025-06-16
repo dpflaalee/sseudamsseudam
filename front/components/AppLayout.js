@@ -4,14 +4,8 @@ import Nav from './Nav';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
-import PostCard from './post/PostCard';
-import DetailCard from './detail/DetailCard';
 import Calendar from './Calendar/Calendar-ssen';
 import Todolists from './Calendar/Todolist/Todolists';
-import EventScheduleForm from './Calendar/EventSchedule/EventScheduleForm';
-import EventScheduleList from './Calendar/EventSchedule/EventScheduleList';
-import EventScheduleManage from './Calendar/EventSchedule/EventScheduleManage';
-import EventScheduleChange from './Calendar/EventSchedule/EventScheduleChange';
 
 const AppLayoutWrapper = styled.div`
   min-height: 100vh;
@@ -30,7 +24,7 @@ const ColWithOrder = styled(Col)`
   }
 `;
 
-const AppLayout = ({ children, group }) => {
+const AppLayout = ({ children, group, members }) => {
 
   return (
 
@@ -48,14 +42,14 @@ const AppLayout = ({ children, group }) => {
           {/* Main Content */}
           <ColWithOrder xs={24} md={15} className="main-col" style={{ padding: "0", borderRight: "3px solid #eee" }}>
             {/* 메인컨텐츠 상단고정영역추가 */}
-            <ContentHeader  group={group} />
+            <ContentHeader  group={group} members={members} />
             {children}
           </ColWithOrder>
 
           {/* Right Sidebar */}
           <ColWithOrder xs={0} md={5} className="right-col" style={{ padding: "0" }}>
             <Todolists />
-            <Calendar />
+            {/* <Calendar /> */}
           </ColWithOrder>
 
         </Row>

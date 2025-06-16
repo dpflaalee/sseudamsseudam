@@ -36,17 +36,17 @@ router.post('/', async (req, res, next) => {
   console.log(req.body);
   try {
     const { title, content, startDate, endDate } = req.body;
-    console.log('........💡 요청 바디:', req.body);
+    console.log('........요청 바디:', req.body);
     const newCalendar = await Calendar.create({
       title,
       content,
       startDate,
       endDate,
     });
-    console.log('✅ 생성 성공:', newCalendar.toJSON());
+    console.log('생성 성공:', newCalendar.toJSON());
     res.status(201).json(newCalendar);
   } catch (error) {
-    console.error('❌ 일정 생성 실패:', error);
+    console.error('일정 생성 실패:', error);
     res.status(500).json({ message: '일정 생성 실패', error });
   }
 });
@@ -95,26 +95,26 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 //user challenge regi/update
-router.post(':id', async (req, res) => {
-  try {
-    const calendar = await Calendar.findByPk(req.params.id);
-    if (!calendar) return res.status(404).send('Calendar not found');
+// router.post(':id', async (req, res) => {
+//   try {
+//     const calendar = await Calendar.findByPk(req.params.id);
+//     if (!calendar) return res.status(404).send('Calendar not found');
 
-    const today = new Date().toISOString().split('T')[0];
-    const lastUpdate = new Date(calendar.updatedAt).toISOString().split('T')[0];
+//     const today = new Date().toISOString().split('T')[0];
+//     const lastUpdate = new Date(calendar.updatedAt).toISOString().split('T')[0];
 
-    if (today === lastUpdate) {
-      return res.status(400).json({ message: '챌린지는 하루에 한 번만 달성 체크할 수 있습니다.' });
-    }
+//     if (today === lastUpdate) {
+//       return res.status(400).json({ message: '챌린지는 하루에 한 번만 달성 체크할 수 있습니다.' });
+//     }
 
-    calendar.currentdays += 1;
-    await calendar.save();
-    return res.status(200).json({ message: '금일 챌린지 참여 완료', currentdays: calendar.currentdays });
+//     calendar.currentdays += 1;
+//     await calendar.save();
+//     return res.status(200).json({ message: '금일 챌린지 참여 완료', currentdays: calendar.currentdays });
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
-});
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send('Server Error');
+//   }
+// });
 
 module.exports = router;

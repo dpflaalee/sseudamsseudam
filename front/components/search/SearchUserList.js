@@ -8,14 +8,22 @@ import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import FollowButton from '../user/FollowButton';
 const { Text } = Typography;
 import Router from 'next/router';
-import { LOAD_BLOCK_REQUEST, FOLLOW_REQUEST, UNFOLLOW_REQUEST } from '@/reducers/user';
+import { LOAD_MY_INFO_REQUEST, LOAD_BLOCK_REQUEST, FOLLOW_REQUEST, UNFOLLOW_REQUEST } from '@/reducers/user';
 
 const SearchUserList = ({ user }) => {
   const dispatch = useDispatch();
   const [complainVisible, setComplainVisible] = useState(false);
 
   const me = useSelector(state => state.user);
+
   console.log(me);
+
+  // 내정보 불러오기
+  useEffect(() => {
+    dispatch({ type: LOAD_MY_INFO_REQUEST });
+  }, [dispatch]);
+
+  /// 이동하기 방지
   const handleUserClick = (e) => {
     const tag = e.target.tagName;
     if (tag === 'BUTTON' || tag === 'svg' || tag === 'path') return;
@@ -23,10 +31,7 @@ const SearchUserList = ({ user }) => {
     Router.push(`/user/myPage/${user.id}`);
   };
 
-  // 상태변화 즉시 반영
-  const [isBlockedByMe, setIsBlockedByMe] = useState(
-    user?.Blocked?.some((u) => u.id === me?.id)
-  );
+  // 팔로우 된 유저인지 확인
   const [isFollowed, setIsFollowed] = useState(
     me.user?.Followings?.some((u) => u.id === user.id) || false
   );
@@ -35,9 +40,16 @@ const SearchUserList = ({ user }) => {
   }, [me.user?.Followings, user.id]);
 
   // 차단한 유저인지 확인
+  const [isBlockedByMe, setIsBlockedByMe] = useState(
+    me?.blocklist?.some((u) => u.id === user.id) || false
+  );
   useEffect(() => {
-    dispatch({ type: LOAD_BLOCK_REQUEST });
-  }, [dispatch]);
+    if (user && me.user) {
+      const blocked = me?.user.Blocking?.some(u => u.id === user.id);
+      setIsBlockedByMe(blocked);
+    }
+  }, [me.user?.Blockings, user.id]);
+
 
   const renderActions = (user) => (
     <Space>
@@ -60,7 +72,9 @@ const SearchUserList = ({ user }) => {
   return (
     <>
       <Card
-        onClick={handleUserClick}>
+        onClick={handleUserClick}
+        style={{ cursor: 'pointer' }}
+      >
         <Row justify="space-between" align="middle">
           {/* 왼쪽: 아바타 + 닉네임 */}
           <Col>

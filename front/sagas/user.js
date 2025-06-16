@@ -231,7 +231,7 @@ function* signUp(action) {
 //-- 
 function changeUserProfileAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
   console.log('data=', data);
-  return axios.post('/user/profile', data);   //         /user 경로 , post, 회원가입정보(data)
+  return axios.post('/user/nickname', data);   //         /user 경로 , post, 회원가입정보(data)
 }
 function* changeUserProfile(action) {
   console.log('login=', action.data);
@@ -239,20 +239,21 @@ function* changeUserProfile(action) {
     const result = yield call(changeUserProfileAPI, action.data);  // 사용자가 화면에서 넘겨준값
     console.log('result=', result.data);
     yield put({
-      type: SIGN_UP_SUCCESS,
+      type: USER_PROFILE_UPDATE_SUCCESS,
+      data: result.data,
     });
   } catch (err) {
     console.error(err);
     yield put({
-      type: SIGN_UP_FAILURE,
+      type: USER_PROFILE_UPDATE_FAILURE,
       error: err.response.data,
     });
   }
 }
-//-- 
+//이미지 불러옴
 function changeUserImageAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
   console.log('image=', data);
-  return axios.post('/user/image', data);   //         /user 경로 , post, 회원가입정보(data)
+  return axios.post('/user/images', data);   //         /user 경로 , post, 회원가입정보(data)
 }
 function* changeUserImage(action) {
   console.log('image=', action);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Row, Col, Button, Typography } from 'antd';
 import AppLayout from "@/components/AppLayout";
-import PrizeManage from '@/components/prize/PrizeManage';
+import PrizeManage from '@/components/Prize/PrizeManage';
 import 'antd/dist/antd.css';
 import axios from 'axios';
 import wrapper from '../../store/configureStore';

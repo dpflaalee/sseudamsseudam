@@ -13,13 +13,13 @@ import { LOAD_BLOCK_REQUEST, LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import TARGET_TYPE from '../../../../shared/constants/TARGET_TYPE';
 import { LOAD_POSTS_REQUEST } from '../../../reducers/post';
-import MyPrize from '@/components/prize/MyPrize';
+import MyPrize from '@/components/Prize/MyPrize';
 import AnimalList from '@/components/animal/AnimalList';
 import { LOAD_USER_ANIMAL_LIST_REQUEST } from '@/reducers/animal';
 
 const MyPage = () => {
     const dispatch = useDispatch();
-    const user = useSelector(state => state.user)
+    const {user} = useSelector(state => state.user)
     const { mainPosts } = useSelector(state => state.post)
     const router = useRouter();
     const { myPage } = router.query;
@@ -33,7 +33,6 @@ const MyPage = () => {
     const isBlinded = mainComplainCard.some((report) => {
         return Number(report.targetId) === Number(myPage) && report.isBlind && report.targetType === TARGET_TYPE.USER;
     });
-
     ////////////////////////////
     useEffect(() => {
         dispatch({
@@ -103,7 +102,14 @@ const MyPage = () => {
                 <MyPrize />
             ) : (
                 // 기본적으로 게시물이 보이게
-                !isBlinded && mainPosts.map((post) => {
+                // !isBlinded && mainPosts.map((post) => {
+                //     return <PostCard post={post} key={post.id} />;
+                // })
+                
+                !isBlinded && mainPosts.filter((post) => {
+                    return post.UserId === Number(myPage)
+                })
+                .map((post) => {
                     return <PostCard post={post} key={post.id} />;
                 })
             )}

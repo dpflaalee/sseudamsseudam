@@ -94,7 +94,7 @@ const Notification = ({ noti, onDelete }) => {
         router.push(`/animal/${targetId}`);
         break;
       case NOTIFICATION_TYPE.RANDOMBOX:
-        router.push(`/randombox`);
+        router.push(`/user/myPage/${ReceiverId}`);
         break;
       default:
         alert('링크가 없는 알림입니다.');
@@ -162,7 +162,7 @@ const Notification = ({ noti, onDelete }) => {
           `: ${target?.content}`
         ];
       case NOTIFICATION_TYPE.RANDOMBOX:
-        return `${receiver.nickname}님! 랜덤박스가 도착했어요 확인해보세요!`;
+        return `${receiver.nickname}님! 랜덤박스가 도착했어요 내 쿠폰함을 확인해보세요!`;
       case NOTIFICATION_TYPE.GROUPAPPLY:
         return [
           `${sender.nickname}님이 [ ${target?.title} ] 에 함께 하려 합니다!`

@@ -86,7 +86,7 @@ const Nav = () => {
         console.log('filetext=',f)
          return imageFormData.append('profileImage',f);
      });
-
+     console.log(`imageFormData111=`,imageFormData);
     //   Array.from(e.target.files).forEach((f) => {
     //     console.log('array');
     //     console.log(f);
@@ -154,7 +154,7 @@ const Nav = () => {
 
   const profileMenu = (
     <Menu>
-      <Menu.Item key="profileUpdate" onClick={showModal}>프로필 수정</Menu.Item>
+      {/* <Menu.Item key="profileUpdate" onClick={showModal}>프로필 수정</Menu.Item> */}
       <Menu.Item key="logout" onClick={onLogout} loading={logOutLoading}>로그아웃</Menu.Item>
       <Menu.Item key="deactivate" onClick={onUserDelete} style={{ color: 'red' }}>탈퇴하기</Menu.Item>
     </Menu>
@@ -178,7 +178,7 @@ const Nav = () => {
       <div style={{ display: "flex", flexDirection: isMobile ? "row" : "column", justifyContent: "flex-start", gap: "10px", }} >
         
           <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginTop: "20px", padding: "15px", }} >
-            <Avatar size="large" onClick={onMyPage} icon={<UserOutlined />} />
+            <Avatar size="large" onClick={onMyPage} src={imgFile} />
             <Dropdown overlay={profileMenu} trigger={["click"]}>
             <div>
               {!isMobile && user && (
@@ -222,7 +222,7 @@ const Nav = () => {
             {!isMobile && "알림"}
           </Menu.Item>
           <Menu.Item key="search" icon={<SearchOutlined />}>{!isMobile && "검색"}</Menu.Item>
-          <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item>
+          {/* <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item> */}
           {(me.user && me.user.isAdmin) ? <Menu.Item key="admin" onClick={() => router.push('/admin')} icon={<AuditOutlined />}>{!isMobile && "관리자 페이지"}</Menu.Item> : ''}
         </Menu>
       </div>
@@ -290,7 +290,7 @@ const Nav = () => {
                     marginBottom: 16,
                   }}
                 />
-                <UnderlineInput value={nickname} onChange={onChangeNickname} placeholder="기존 닉네임 노출(해당 칸에 입력하여 변경)" />
+                <UnderlineInput name='nickname' value={nickname} onChange={onChangeNickname} placeholder="기존 닉네임 노출(해당 칸에 입력하여 변경)" />
               </Card>
             </Modal>
           </div>
