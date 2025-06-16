@@ -46,6 +46,8 @@ router.post('/issued/use/:issuedId', isLoggedIn, async (req, res) => {
       include: [{ model: Category, as: 'category' }]
     });
 
+    console.log(issuedBox.issuedReason); // 👉 여기서 "좋아요 1위", "좋아요 2위" 등 접근 가능
+
     if (!issuedBox) {
       console.log(`❌ 존재하지 않는 박스: ${issuedId}`);
       return res.status(404).json({ success: false, message: '랜덤박스가 존재하지 않습니다.' });
@@ -98,7 +100,7 @@ router.post('/issued/use/:issuedId', isLoggedIn, async (req, res) => {
       const myPrize = await MyPrize.create({
         UserId: userId,
         PrizeId: selectedPrize.id,
-        issuedReason: '좋아요 1위',
+        issuedReason: issuedBox.issuedReason,  
         dueAt: selectedPrize.dueAt,
         isRead: false,
         barcode: `CPN-${Date.now()}-${Math.floor(Math.random() * 10000)}`  // 예시 바코드 생성

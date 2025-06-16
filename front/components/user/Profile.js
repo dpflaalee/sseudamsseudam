@@ -5,7 +5,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import FollowButton from './FollowButton';
-
+import { useRouter } from 'next/router';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { LOAD_BLOCK_REQUEST, USER_PASSWORD_CHANGE_REQUEST
@@ -45,10 +45,10 @@ const Banner = styled.div`
 const Container = styled.div`
   background-color: #fff;
   padding: 24px 16px 16px;
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0;
   margin: -60px auto 0;
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  max-width: 600px;
+  // max-width: 600px;
   position: relative;
 `;
 
@@ -101,13 +101,18 @@ const Profile = (props) => {
   const { userOutDone, logOutDone, user,userPasswordChangeError, userPasswordChangeDone } = useSelector(state => state.user);
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
   const { addBlockDone, removeBlockDone } = useSelector((state) => state.user);
+  const router = useRouter();
+    const {myPage} = router.query;
+  let filename = '';
+  
+  const matchedPost = props.mainPosts.find(
+    prop => Number(prop.User?.id) === Number(myPage)
+  ) 
 
-    const filename = user?.UserProfileImages[0]?.src;
+    if(matchedPost &&  matchedPost.User?.UserProfileImages?.[0]){
+       filename = matchedPost.User.UserProfileImages[0].src;
+    }
   let postUserId = props.postUserId;
-  console.log('postUserIdpostUserId=', postUserId);
-  // console.log('mainPosts',mainPosts.filter(post => {
-  //     post.
-  // }));
   const [postUser, setPostUser] = useState('');
   const [showMyPrize, setShowMyPrize] = useState(false);
   const { onShowMyPrize } = props
@@ -378,8 +383,8 @@ useEffect(()=>{
         <>
           {/* <Menu.Item key="edit">프로필 수정</Menu.Item> */}
           <Menu.Item key="change-password" onClick={onPassChangeConfirm}>비밀번호 변경</Menu.Item>
-          {isChangePassModalOpen && (<Modal title="Basic Modal" open={isChangePassModalOpen} onOk={()=>handleOk('changePass')} onCancel={handleCancel}>
-            <UnderlineInput name='changePass' value={changePass} onChange={onChangePass} placeholder="새 비밀번호입력(최소 8~12자리 특수문자포함하여 작성)" />
+          {isChangePassModalOpen && (<Modal title="비밀번호 변경" open={isChangePassModalOpen} onOk={()=>handleOk('changePass')} onCancel={handleCancel}>
+            <UnderlineInput type='password' name='changePass' value={changePass} onChange={onChangePass} placeholder="새 비밀번호입력(최소 8~12자리 특수문자포함하여 작성)" />
             {passwordError&& <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함)</ErrorMessage>}
             {samePass&&<ErrorMessage>{userPasswordChangeError?.message}</ErrorMessage>}
           </Modal>)}
@@ -389,8 +394,8 @@ useEffect(()=>{
           <Menu.Item key="withdraw" onClick={onUserDeleteConfirm} danger>
             탈퇴하기
           </Menu.Item>
-           {isUserDeleteModalOpen && (<Modal title="Basic Modal" open={isUserDeleteModalOpen} onOk={()=>handleOk('deleteUser')} onCancel={handleCancel}>
-            <UnderlineInput name='changePass' value={changePass} onChange={onChangePass} placeholder="현재 비밀번호를 입력해주세요." />
+           {isUserDeleteModalOpen && (<Modal title="탈퇴하기" open={isUserDeleteModalOpen} onOk={()=>handleOk('deleteUser')} onCancel={handleCancel}>
+            <UnderlineInput type='password' name='changePass' value={changePass} onChange={onChangePass} placeholder="현재 비밀번호를 입력해주세요." />
             {deleteModal&& <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함)</ErrorMessage>}
           </Modal>)}
         </>
@@ -456,7 +461,10 @@ useEffect(()=>{
             <Stats>
               {postUser ? postUser?.Followings.length : 0} 팔로잉  &nbsp;&nbsp;
               {postUser ? postUser?.Followers.length : 0} 팔로워 &nbsp;&nbsp;
-              {mainPosts?.length} 게시물
+              {/* {mainPosts?.length} 게시물 */}
+              {mainPosts ? mainPosts?.filter(prop => { 
+                 return Number(prop.UserId) === Number(myPage)
+                }).length:0} 게시물
             </Stats>
           </InfoBox>
         </TopRow>
