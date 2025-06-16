@@ -230,7 +230,7 @@ const signup = () => {
         <meta charSet="utf-8"/>
         <title> Signup | TheJoa </title>
       </Head>
-      <div  style={{ width: '100%', maxWidth: "80%", margin: '0 auto' }}>
+      <div  style={{ width: '100%', maxWidth: "70%", margin: '0 auto' }}>
          <Form  layout='vertical' style={{  width: '100%', padding: '20px', boxSizing: 'border-box',}}  onFinish={onSubmitForm}  > 
         
         {/* <Form  layout='vertical'  style={{ margin:'2%' }}  > */}
@@ -287,13 +287,13 @@ const signup = () => {
           </Form.Item>
           <Form.Item>
              <label htmlFor='password'></label>
-            <UnderlineInput placeholder='비밀번호입력(최소 8~12자리 특수문자포함하여 작성)' id='password'
+            <UnderlineInput type="password" placeholder='비밀번호입력(최소 8~12자리 특수문자포함하여 작성)' id='password'
               value={password} onChange={onChangePassword} name='password' required />
             {passwordError   && <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함) </ErrorMessage>}
           </Form.Item>
           <Form.Item>
             <label htmlFor='password-re'></label>
-            <UnderlineInput placeholder='비밀번호입력 체크' id='password-re'
+            <UnderlineInput type="password" placeholder='비밀번호입력 체크' id='password-re'
               value={passwordRe} onChange={onChangePasswordRe} name='passwordRe' required />
             {passwordReError   && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>}
           </Form.Item>

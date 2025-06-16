@@ -27,7 +27,7 @@ const Nav = () => {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [openKeys, setOpenKeys] = useState([]);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); 
   const{userGroups} = useSelector((state)=>state.group);
   
   useEffect(()=>{
@@ -41,6 +41,9 @@ const Nav = () => {
      dispatch({ type: LOG_OUT_REQUEST }) 
      router.replace('/');
     }, [])
+  useEffect(()=>{
+    dispatch({type: LOAD_USER_GROUPS_REQUEST});
+  }, [dispatch]);
     //닉네임 초기값
   useEffect(() => {
     if (user?.nickname) {

@@ -30,8 +30,8 @@ const AnimalList = ({ animals, ownerId }) => {
           overflowX: 'auto',
           whiteSpace: 'nowrap',
           padding: '16px 110px 16px 16px', // 버튼 공간 확보
-          backgroundColor: 'rgba(254, 254, 220, 0.5)',
-          borderRadius: 8,
+          backgroundColor: '#ffeccc',
+          // borderRadius: 8,
           minHeight: 100,
         }}
       >
@@ -55,30 +55,28 @@ const AnimalList = ({ animals, ownerId }) => {
       {/* 고정된 등록 버튼 */}
       {isOwner && (
         <div style={{ position: 'absolute', top: '50%', right: 16, transform: 'translateY(-50%)', zIndex: 10 }}>
-          <Button
-            type="default"
+          <div
             onClick={handleRegisterAnimal}
             style={{
-              borderColor: '#1890ff',
-              color: '#1890ff',
-              fontWeight: 500,
-              textAlign: 'right',
-              height: 64,
-              lineHeight: 1.2,
-              whiteSpace: 'normal',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'flex-start',
-              padding: '8px 12px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: 110,
+              height: 54,
+              padding: '8px 8px',
+              border: '1px solid #895200',
+              borderRadius: 8,
+              color: '#895200',
+              fontWeight: 600,
+              //lineHeight: '18px',
+              background: 'white',
+              cursor: 'pointer',
+              whiteSpace: 'pre-line',
             }}
           >
+            <span>반려동물<br />프로필 등록</span>
             <PlusOutlined />
-            <div style={{ fontSize: 13, lineHeight: '18px' }}>
-              반려동물<br />프로필 등록
-            </div>
-          </Button>
+          </div>
         </div>
       )}
     </div>

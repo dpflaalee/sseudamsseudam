@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false  // Prize의 dueAt을 복사해서 초기화
     },
+    barcode: {
+      type: DataTypes.STRING,
+      allowNull: true,  
+      unique: true,
+    },
   }, {
     charset: 'utf8',
     collate: 'utf8_general_ci',
