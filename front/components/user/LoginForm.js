@@ -97,7 +97,7 @@ const LoginForm = () => {
   }, [email, password]);
 
   return (
-    <div style={{ width: '100%', maxWidth: "80%", margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: "70%", margin: '0 auto' }}>
       <Form
         layout="vertical"
         style={{
@@ -164,7 +164,7 @@ const LoginForm = () => {
 
         <div style={{ textAlign: 'center', marginTop: '10px' }}>
           <CusLink href={"/user/signup"} style={{ paddingRight: '50px' }}>회원가입</CusLink>
-          <CusLink href={"/user/find"}>비밀번호 찾기</CusLink>
+          {/* <CusLink href={"/user/find"}>비밀번호 찾기</CusLink> */}
         </div>
       </Form>
     </div>

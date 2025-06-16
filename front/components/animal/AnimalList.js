@@ -30,8 +30,8 @@ const AnimalList = ({ animals, ownerId }) => {
           overflowX: 'auto',
           whiteSpace: 'nowrap',
           padding: '16px 110px 16px 16px', // 버튼 공간 확보
-          backgroundColor: 'rgba(254, 254, 220, 0.5)',
-          borderRadius: 8,
+          backgroundColor: '#ffeccc',
+          // borderRadius: 8,
           minHeight: 100,
         }}
       >
@@ -64,9 +64,9 @@ const AnimalList = ({ animals, ownerId }) => {
               width: 110,
               height: 54,
               padding: '8px 8px',
-              border: '1px solid #1890ff',
+              border: '1px solid #895200',
               borderRadius: 8,
-              color: '#1890ff',
+              color: '#895200',
               fontWeight: 600,
               //lineHeight: '18px',
               background: 'white',
