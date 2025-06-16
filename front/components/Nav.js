@@ -30,6 +30,12 @@ const Nav = () => {
   const dispatch = useDispatch();
   const { logOutLoading, user, userImagePaths } = useSelector(state => state.user);  
   const{userGroups} = useSelector((state)=>state.group);
+  
+  useEffect(()=>{
+    dispatch({type: LOAD_USER_GROUPS_REQUEST});
+  }, [dispatch]);
+
+  const { logOutLoading, user, userImagePaths } = useSelector(state => state.user);
   const [nickname, onChangeNickname, setNickname] = userInput(user?.nickname); 
   
   const onLogout = useCallback(() => {
@@ -238,7 +244,7 @@ const Nav = () => {
             Open Modal
             </Button> */}
 
-          <Modal title="Basic Modal" 
+          <Modal title="프로필 수정" 
           open={isModalOpen} 
           onOk={handleOk} 
           onCancel={handleCancel}
