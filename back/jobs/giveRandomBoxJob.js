@@ -9,8 +9,10 @@ const { Op } = require('sequelize');
 console.log('cron:', cron);
 console.log('typeof cron.schedule:', typeof cron.schedule);
 
-cron.schedule('* * * * *', async () => {
-  console.log('🎁 랜덤박스 자동 지급 시작:', new Date());
+//cron.schedule('* * * * *', async () => {
+//  console.log('🎁 랜덤박스 자동 지급 시작:', new Date());
+cron.schedule('0 9 * * 1', async () => {
+  console.log('🎁 월요일 9시에만 실행되는 랜덤박스 지급 시작:', new Date());  
   try {
     // 좋아요 TOP3 게시글 보상 지급
     const top3Posts = await sequelize.models.Post.findAll({
