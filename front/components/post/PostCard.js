@@ -100,13 +100,14 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const [locationLink, setLocationLink] = useState(null);
   const {user} = useSelector(state => state.user);
   let filename = '';
-  console.log(post);
-  console.log('post.UserId',post.UserId, 'post.User.UserProfileImages.UserId',post.User.UserProfileImages.UserId);
-  console.log('비교데이터', Number(post?.UserId) === Number(post.User?.UserProfileImages[0].id))
+  // console.log(post);
+  // console.log('post.UserId',post.UserId, 'post.User.UserProfileImages.UserId',post.User.UserProfileImages.UserId);
+  // console.log('비교데이터', Number(post?.UserId) === Number(post.User?.UserProfileImages[0].id))
+
   if(Number(post?.UserId) === Number(post.User?.UserProfileImages.UserId)){
     filename = user?.UserProfileImages[0]?.src;
   }else{
-    filename = post.User?.UserProfileImages[0].src;
+    filename = post.User?.UserProfileImages[0]?.src;
   }
 
   useEffect(() => {

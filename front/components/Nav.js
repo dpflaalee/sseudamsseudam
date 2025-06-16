@@ -27,8 +27,7 @@ const Nav = () => {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [openKeys, setOpenKeys] = useState([]);
-  const dispatch = useDispatch();
-  const { logOutLoading, user, userImagePaths } = useSelector(state => state.user);  
+  const dispatch = useDispatch(); 
   const{userGroups} = useSelector((state)=>state.group);
   
   useEffect(()=>{
