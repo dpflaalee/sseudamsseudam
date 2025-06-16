@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { Dropdown, Menu, Button, message, Modal } from 'antd';
 import { HomeOutlined, NotificationOutlined, TeamOutlined, SearchOutlined, MailOutlined, PlusOutlined, BellOutlined,MoreOutlined} from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { DELETE_GROUP_REQUEST, LEAVE_GROUP_REQUEST } from '@/reducers/group';
 
 const HeaderWrapper = styled.div`
   position: sticky;
@@ -44,19 +46,56 @@ const menuItems = [
   { key: 'chat', label: '채팅', icon: <MailOutlined />, path: '/chat' },
 ];
 
-//테스트용
-const currentUserId = 1;
-const groupLeaderId = 1;
-const isGroupMember = true;
-//테스트용
+const ContentHeader = ({group, members}) => {
+  const router = useRouter(); const dispatch = useDispatch();
 
-const ContentHeader = ({group}) => {
-  const router = useRouter();
+  const currentUser = useSelector((state)=>state.user.user);
+
+  //console.log('currentUser.id........', currentUser.id); // 5
 
   const [showDeleteModal, setShowDeleteModal]= useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+
   const isGroup = router.pathname.startsWith('/groups/[id]');
-  const isLeader = currentUserId === groupLeaderId;
+
+  const isLeader = Array.isArray(members)
+    ? members.some(member => String(member.id) === String(currentUser?.id) && (member.isLeader === true || member.isLeader === 1))
+    : false;
+
+const isGroupMember = Array.isArray(group?.groupmembers)
+  ? group.groupmembers.some(member => String(member.id) === String(currentUser?.id))
+  : false;
+  
+  const {deleteGroupDone, leaveGroupDone, leaveGroupError} = useSelector((state)=>state.group);
+
+  useEffect(() => {
+    console.log('Header group:', group); 
+    //console.log('컨텐츠 헤더 members:', members);
+    //console.log('컨텐츠 헤더 currentUser:', currentUser);
+    console.log('컨텐츠 헤더 isLeader:', isLeader);
+    console.log('isGroupMember:', isGroupMember); 
+    //console.log('그룹멤버...............', group.groupmembers)
+    
+  }, [group, currentUser]);
+
+  
+  useEffect(()=>{
+    if(leaveGroupDone){
+      message.success('그룹에서 탈퇴했습니다.');
+      router.push('/groups');
+    }
+    if(leaveGroupError){
+      message.error(leaveGroupError);
+    }
+  }, [leaveGroupDone, leaveGroupError]);
+
+
+  useEffect(()=>{
+    if(deleteGroupDone){
+      message.success('그룹이 삭제되었습니다.');
+      router.push('/groups');
+    }
+  }, [deleteGroupDone]);
 
   const currentMenu = menuItems.find((item) => router.pathname.startsWith(item.path)) || menuItems[1];
 
@@ -65,7 +104,7 @@ const ContentHeader = ({group}) => {
     if (selected) { router.push(selected.path);  }
   };
 //----------------------------------------------------------code그룹관련메뉴
-const handelGroupMenyClick = ({key})=>{
+const handleGroupMenuClick  = ({key})=>{
   if (!group) {
     message.error('그룹 정보를 불러올 수 없습니다.');
     return;
@@ -77,26 +116,31 @@ const handelGroupMenyClick = ({key})=>{
 }
 
 const groupMenu = (
-  <Menu onClick={handelGroupMenyClick}>
+  <Menu onClick={handleGroupMenuClick }>
       {isLeader && (
         <>
-          {/* <Menu.Item key="edit">수정하기</Menu.Item> */}
-          {/* <Menu.Item key="delete" danger>삭제하기</Menu.Item> */}
+          <Menu.Item key="edit">수정하기</Menu.Item>
+          <Menu.Item key="delete" danger>삭제하기</Menu.Item>
+          <Menu.Item key="leave" danger>탈퇴하기</Menu.Item>
         </>
       )}
-      {/* {isGroupMember && <Menu.Item key="leave" danger>탈퇴하기</Menu.Item>} */}
-    </Menu>
-  )
+      {!isLeader && isGroupMember && <Menu.Item key="leave" danger>탈퇴하기</Menu.Item>}
+  </Menu>
+)
   
   const handleDeleteGroup = () => {
+    dispatch({type: DELETE_GROUP_REQUEST, data: group.id});
     setShowDeleteModal(false);
-    message.success('그룹이 삭제되었습니다.');
-    router.push('/groups');
   };
   
   const handleLeaveGroup = ()=>{
     setShowLeaveModal(false);
-    if(isLeader){message.warning('방장 권한을 다른 멤버에게 양도한 뒤 탈퇴할 수 있습니다.');}else{message.success('그룹에서 탈퇴했습니다.'); router.push('/groups')}
+
+    if(isLeader){
+      message.warning('방장 권한을 다른 멤버에게 양도한 뒤 탈퇴할 수 있습니다.');
+      return;    }
+    
+    dispatch({ type: LEAVE_GROUP_REQUEST, data: { groupId: group.id } });
   }
   //----------------------------------------------------------code그룹관련메뉴
   
