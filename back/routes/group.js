@@ -1,6 +1,7 @@
 const express = require('express');
 const { isLoggedIn } = require('./middlewares');
 const { Group, Category, User, OpenScope, GroupMember, GroupRequest } = require('../models');
+const { where } = require('sequelize');
 
 const router = express.Router();
 
@@ -46,6 +47,22 @@ router.post('/', isLoggedIn, async (req, res, next) => {
     res.status(201).json(fullGroup);
   } catch (error) { console.error('🔥 전체 에러:', error); res.status(500).json(error); console.error(error); next(error); }
 });
+
+//3-0. 단일 그룹 불러오기
+router.get('/:groupId', async(req,res,next)=>{
+  try{
+    const{groupId} = req.params;
+    const group = await Group.findByPk(groupId, {
+  include: [
+    { model: Category, through: { attributes: [] } },
+    { model: OpenScope, attributes: ['id', 'content'] },
+    { model: User, as: 'groupmembers', through: { attributes: ['isLeader'] } }
+  ],
+});
+    if(!group){ return res.status(404).send('그룹이 존재하지 않습니다.')};
+    res.status(200).json(group);
+  }catch(error){console.error(error); next(error);}
+})
 
 //3. 그룹 수정
 router.patch('/:groupId', isLoggedIn, async (req, res, next) => {
@@ -103,6 +120,21 @@ router.get('/:groupId/members', async (req, res, next) => {
     res.status(200).json(formatted);
   } catch (error) { console.error(error); next(error); }
 });
+
+//탈퇴
+router.delete(`/:groupId/leave`, isLoggedIn, async(req, res, next)=>{
+  try{
+    const groupMember = await GroupMember.findOne({
+      where: { GroupId: req.params.groupId, UserId: req.user.id }
+    });
+    
+    if(!groupMember){ return res.status(403).json('그룹 멤버가 아닙니다.'); }
+    if(groupMember.isLeader){return res.status(403).json('방장은 탈퇴가 불가능합니다.');}
+
+    await groupMember.destroy();
+    res.status(200).json({ userId: req.user.id });
+  }catch(err){console.error(err); next(err);}
+})
 
 //2. 강퇴
 router.delete('/:groupId/members/:userId', async (req, res, next) => {

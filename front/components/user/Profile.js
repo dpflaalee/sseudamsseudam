@@ -45,10 +45,10 @@ const Banner = styled.div`
 const Container = styled.div`
   background-color: #fff;
   padding: 24px 16px 16px;
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0;
   margin: -60px auto 0;
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  max-width: 600px;
+  // max-width: 600px;
   position: relative;
 `;
 
@@ -378,8 +378,8 @@ useEffect(()=>{
         <>
           {/* <Menu.Item key="edit">프로필 수정</Menu.Item> */}
           <Menu.Item key="change-password" onClick={onPassChangeConfirm}>비밀번호 변경</Menu.Item>
-          {isChangePassModalOpen && (<Modal title="Basic Modal" open={isChangePassModalOpen} onOk={()=>handleOk('changePass')} onCancel={handleCancel}>
-            <UnderlineInput name='changePass' value={changePass} onChange={onChangePass} placeholder="새 비밀번호입력(최소 8~12자리 특수문자포함하여 작성)" />
+          {isChangePassModalOpen && (<Modal title="비밀번호 변경" open={isChangePassModalOpen} onOk={()=>handleOk('changePass')} onCancel={handleCancel}>
+            <UnderlineInput type='password' name='changePass' value={changePass} onChange={onChangePass} placeholder="새 비밀번호입력(최소 8~12자리 특수문자포함하여 작성)" />
             {passwordError&& <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함)</ErrorMessage>}
             {samePass&&<ErrorMessage>{userPasswordChangeError?.message}</ErrorMessage>}
           </Modal>)}
@@ -389,8 +389,8 @@ useEffect(()=>{
           <Menu.Item key="withdraw" onClick={onUserDeleteConfirm} danger>
             탈퇴하기
           </Menu.Item>
-           {isUserDeleteModalOpen && (<Modal title="Basic Modal" open={isUserDeleteModalOpen} onOk={()=>handleOk('deleteUser')} onCancel={handleCancel}>
-            <UnderlineInput name='changePass' value={changePass} onChange={onChangePass} placeholder="현재 비밀번호를 입력해주세요." />
+           {isUserDeleteModalOpen && (<Modal title="탈퇴하기" open={isUserDeleteModalOpen} onOk={()=>handleOk('deleteUser')} onCancel={handleCancel}>
+            <UnderlineInput type='password' name='changePass' value={changePass} onChange={onChangePass} placeholder="현재 비밀번호를 입력해주세요." />
             {deleteModal&& <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함)</ErrorMessage>}
           </Modal>)}
         </>
@@ -465,7 +465,7 @@ useEffect(()=>{
         </TopRow>
         {isMyProfile ? (
           <ButtonRow>
-            {/* <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button> */}
+            <Button type="primary" onClick={onShowMyPrize} >내 쿠폰함</Button> 
             {/* <Button>내 장소</Button> */}
             {/* <Button>챌린지 현황</Button> */}
             {/* <Button>프로필 수정</Button> */}
