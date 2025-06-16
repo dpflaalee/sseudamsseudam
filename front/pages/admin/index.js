@@ -13,16 +13,21 @@ import { LOAD_MY_INFO_REQUEST } from "@/reducers/user";
 import { LOAD_POSTS_REQUEST } from "@/reducers/post";
 
 const adminPage = () => {
+  const myId = useSelector(state => state.user.user?.id);
+  console.log('myId', myId);
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
+
   return (
     <AppLayout>
       <>
         <AdminProfile isComplain={false} />
-        {mainPosts.map((c) => {
-          return (
-            <PostCard post={c} key={c.id} />
-          );
-        })}
+        {mainPosts
+          .filter((post) => { return post.UserId === Number(myId) })
+          .map((c) => {
+            return (
+              <PostCard post={c} key={c.id} />
+            );
+          })}
       </>
     </AppLayout>);
 }

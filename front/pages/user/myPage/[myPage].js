@@ -13,7 +13,7 @@ import { LOAD_BLOCK_REQUEST, LOAD_MY_INFO_REQUEST, LOAD_USER_REQUEST } from '../
 import { LOAD_COMPLAIN_REQUEST } from '@/reducers/complain';
 import TARGET_TYPE from '../../../../shared/constants/TARGET_TYPE';
 import { LOAD_POSTS_REQUEST } from '../../../reducers/post';
-import MyPrize from '@/components/prize/MyPrize';
+import MyPrize from '@/components/Prize/MyPrize';
 import AnimalList from '@/components/animal/AnimalList';
 import { LOAD_USER_ANIMAL_LIST_REQUEST } from '@/reducers/animal';
 

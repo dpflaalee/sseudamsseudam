@@ -20,6 +20,7 @@ router.get('/', isLoggedIn, async (req, res) => {
       isRead: prize.isRead,
       usedAt: prize.usedAt,
       issuedReason: prize.issuedReason, 
+      barcode: prize.barcode,
     }));
 
     res.status(200).json({
@@ -71,6 +72,8 @@ router.post('/use/:id', isLoggedIn, async (req, res) => {
         usedAt: myPrize.usedAt,
         isRead: true,
         issuedReason: myPrize.issuedReason,
+        content: myPrize.prize?.content || '알 수 없음',
+        barcode: myPrize.barcode,
       },
     });
   } catch (error) {
