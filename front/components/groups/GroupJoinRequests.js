@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
-import { List, Avatar, Button, Space, Tag } from "antd";
+import { List, Avatar, Button, Space, Tag, message } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { APPROVE_JOIN_REQUEST, REJECT_JOIN_REQUEST, LOAD_JOIN_REQUESTS_REQUEST, } from "@/reducers/group";
 
 const GroupJoinRequests = ({ groupId }) => {
   const dispatch = useDispatch();
 
-  const { joinRequests, joinRequestsLoading, joinRequestsError } = useSelector((state) => state.group);
+  const { joinRequests, joinRequestsLoading, joinRequestsError, approveJoinRequestDone, rejectJoinRequestDone } = useSelector((state) => state.group);
   const me = useSelector(state => state.user);
   console.log('🐶 me ', me);
   useEffect(() => {
@@ -15,6 +15,9 @@ const GroupJoinRequests = ({ groupId }) => {
       dispatch({ type: LOAD_JOIN_REQUESTS_REQUEST, data: groupId, });
     }
   }, [groupId, dispatch]);
+
+  useEffect(()=>{if(rejectJoinRequestDone){message.success('거절이 완료되었습니다.')}}, [rejectJoinRequestDone])
+  useEffect(()=>{if(approveJoinRequestDone){message.success('승인이 완료되었습니다.')}},[approveJoinRequestDone])
 
   const handleApprove = (requestId, userId) => {
     //쿼리 스트링으로 넘기기
@@ -62,7 +65,7 @@ const GroupJoinRequests = ({ groupId }) => {
           }
         >
           <List.Item.Meta
-            avatar={<Avatar src={user.avatar} />}
+            // avatar={<Avatar src={user.avatar} />}
             title={user.nickname}
           />
         </List.Item>

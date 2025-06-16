@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useSelector, useDispatch } from "react-redux";
-import { Row, Col, Typography, Button, Card, Space, Spin, notification } from "antd";
+import { Row, Col, Typography, Button, Card, Space, Spin, notification, message } from "antd";
 import GroupDropDown from "./GroupDropdown";
 import { LOAD_MEMBERS_REQUEST, APPLY_GROUP_REQUEST, JOIN_GROUP_REQUEST,} from "@/reducers/group";
 import { ADD_NOTIFICATION_REQUEST } from '../../reducers/notification';
@@ -40,7 +40,9 @@ export default function GroupList({ g }) {
     }
   }, [members, user, group?.groupmembers]);
 
-  if (joinGroupDone || applyGroupDone) { router.push(`/groups/${g.id}`);  }
+  if (joinGroupDone) { router.push(`/groups/${g.id}`);  }
+
+  //useEffect(()=>{if(applyGroupDone){message.send('가입 신청을 전송하였습니다.')}})
   
   const handleGroupClick = () => { setOpen((prev) => !prev); };
 

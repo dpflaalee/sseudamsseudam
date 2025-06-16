@@ -78,7 +78,7 @@ const GroupMember = ({ isLeader, groupId }) => {
             }
           >
             <List.Item.Meta
-              avatar={<Avatar icon={<UserOutlined />} />}
+              // avatar={<Avatar icon={<UserOutlined />} />}
               title={
                 <Space>
                   <Text strong>{member.nickname}</Text>
