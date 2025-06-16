@@ -122,14 +122,16 @@ const AnimalProfileCard = ({ ownerId }) => {
           )}
         </div>
         <div style={{ flexGrow: 1 }}>
-          <div style={{ fontWeight: 'bold', fontSize: 16 }}>{aniName}</div>
+          <div style={{ fontWeight: 600, fontSize: 18 }}>{aniName}</div>
           {Category?.content && (
-            <div style={{ fontSize: 13, marginTop: 4, color: '#666' }}>{Category.content}</div>
+            <div style={{ fontSize: 13, color: '#888', marginTop: 4 }}>
+              {Category.content}
+            </div>
           )}
-          <div style={{ fontSize: 14, marginTop: 4 }}>
-            {aniAge}살&nbsp;&nbsp;&nbsp;
-            {Followings?.length ?? 0}팔로잉&nbsp;&nbsp;&nbsp;
-            {Followers?.length ?? 0}팔로워
+          <div style={{ fontSize: 14, marginTop: 6, color: '#555' }}>
+            {aniAge}살 &nbsp;&nbsp;&nbsp;
+            {Followings?.length ?? 0} 팔로잉 &nbsp;&nbsp;&nbsp;
+            {Followers?.length ?? 0} 팔로워
           </div>
         </div>
       </div>

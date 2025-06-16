@@ -4,13 +4,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Link from 'next/Link';
 import Router from 'next/router';
-import { LOG_IN_REQUEST, LOAD_MY_INFO_REQUEST } from '@/reducers/user';
+import { LOG_IN_REQUEST, LOAD_MY_INFO_REQUEST, LOG_IN_FAILURE } from '@/reducers/user';
 import { LOAD_POSTS_REQUEST } from '@/reducers/post';
 import axios from 'axios';
 import { END } from 'redux-saga';
 import wrapper from '../../store/configureStore';
 import { useCookies } from "react-cookie";
+import { ConsoleSqlOutlined } from "@ant-design/icons";
 
+const ErrorMessage = styled.div`color:red;`
 const CusLink = styled(Link)`color: #aaa`;
 
 const LoginForm = () => {
@@ -30,12 +32,12 @@ const LoginForm = () => {
     }
   }, [logInDone]);
 
-  useEffect(() => {
-    if (logInError) {
-      setErrLoginFlag(true);
-      setErrLoginMsg(logInError);
-    }
-  }, [logInError]);
+  // useEffect(() => {
+  //   if (logInError) {
+  //     setErrLoginFlag(true);
+  //     setErrLoginMsg(logInError);
+  //   }
+  // }, [logInError]);
 
   useEffect(() => {
     if (cookies.userEmail) {
@@ -43,7 +45,13 @@ const LoginForm = () => {
       setCheckEmail(true);
     }
   }, [cookies.userEmail]);
-
+  const [isUser, setIsUser] = useState(false);
+  useEffect(() => {
+    if (logInError) {
+      console.log('logInError 발생:', logInError.message);
+      setIsUser(true);
+    }
+  }, [isUser,logInError]);
   const onChangePassword = useCallback((e) => {
     setChangePassword(e.target.value);
   }, []);
@@ -77,10 +85,15 @@ const LoginForm = () => {
   const onSubmitForm = useCallback(() => {
     setErrLoginFlag(false);
     setErrLoginMsg('');
+    // if(isUser){
+    //   dispatch({data:LOG_IN_FAILURE});
+    // }
+    console.log('email=',email,'pass=',password)
     dispatch({
       type: LOG_IN_REQUEST,
       data: { email, password },
     });
+    console.log('logInError 발생:', logInError);
   }, [email, password]);
 
   return (
@@ -130,7 +143,7 @@ const LoginForm = () => {
             required
           />
         </Form.Item>
-
+          {isUser && <ErrorMessage>{logInError?.message}</ErrorMessage>}
         <Form.Item
           name="remember"
           valuePropName="checked"

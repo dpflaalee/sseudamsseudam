@@ -32,6 +32,10 @@ export const initialState = {
   userImageDone: false,
   userImageError: null,
 
+  userPasswordChangeLoading:false,
+  userPasswordChangeDone:false,
+  userPasswordChangeError:null,
+
   followLoading: false, // 팔로우 시도중
   followDone: false,
   followError: null,
@@ -179,6 +183,10 @@ export const REMOVE_BLOCK_REQUEST = 'REMOVE_BLOCK_REQUEST';
 export const REMOVE_BLOCK_SUCCESS = 'REMOVE_BLOCK_SUCCESS';
 export const REMOVE_BLOCK_FAILURE = 'REMOVE_BLOCK_FAILURE';
 
+export const USER_PASSWORD_CHANGE_REQUEST = 'USER_PASSWORD_CHANGE_REQUEST';
+export const USER_PASSWORD_CHANGE_SUCCESS = 'USER_PASSWORD_CHANGE_SUCCESS';
+export const USER_PASSWORD_CHANGE_FAILURE = 'USER_PASSWORD_CHANGE_FAILURE';
+
 ////////////////////////////////////////////////////// next
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
@@ -292,7 +300,19 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.changeNicknameLoading = false;
       draft.changeNicknameError = action.error;
       break;
-
+    case USER_PASSWORD_CHANGE_REQUEST:
+      draft.userPasswordChangeLoading=false;
+      draft.userPasswordChangeDone=false;
+      draft.userPasswordChangeError=null;
+      break;
+    case USER_PASSWORD_CHANGE_SUCCESS:
+      draft.userPasswordChangeLoading=false;
+      draft.userPasswordChangeDone=true;
+      break;
+    case USER_PASSWORD_CHANGE_FAILURE:
+      draft.userPasswordChangeLoading=false;
+      draft.userPasswordChangeError=action.error;
+      break;
     //////////////////////////////
     case FOLLOW_REQUEST:
       draft.followLoading = true;

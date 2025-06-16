@@ -11,8 +11,9 @@ const FollowButton = ({ postUser, setPostUser, currentUserId }) => {
   const { user, followLoading, unFollowLoading } = useSelector(state => state.user);
   //팔로잉하는 사람들 목록중에 아이디가 있니? - 팔로잉여부
   const isFollowing = user?.Followings.some((v) => v.id == postUser.id);
-
+//const isFollowing = !!postUser?.Followers?.find(f => f.id === currentUserId);
   console.log("postUser 객체 구조:", postUser);
+  console.log("currentUserIdcurrentUserId", currentUserId);
 
   const onClickFollow = useCallback(() => {
 
@@ -22,6 +23,7 @@ const FollowButton = ({ postUser, setPostUser, currentUserId }) => {
         data: postUser.id
       })
       // 상태 업데이트
+      console.log(setPostUser);
       setPostUser((prev) => ({
         ...prev,
         Followers: prev.Followers.filter((f) => f.id !== currentUserId),
@@ -41,7 +43,7 @@ const FollowButton = ({ postUser, setPostUser, currentUserId }) => {
         Followers: [...prev.Followers, { id: currentUserId }],
       }));
     }
-  }, [isFollowing, postUser]);
+  }, [isFollowing, postUser.id]);
   /////////////////////////////////////view
   return (
     <Button loading={followLoading || unFollowLoading} onClick={onClickFollow}>
@@ -49,9 +51,10 @@ const FollowButton = ({ postUser, setPostUser, currentUserId }) => {
     </Button>
   );
 }
-FollowButton.propTypes = {
-  //post : PropTypes.string
-  postUser: PropTypes.object.isRequired,
 
-}
+FollowButton.propTypes = {
+  postUser: PropTypes.object.isRequired,
+  setPostUser: PropTypes.func.isRequired,
+  currentUserId: PropTypes.number.isRequired,
+};
 export default FollowButton;
