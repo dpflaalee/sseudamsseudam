@@ -98,6 +98,8 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const { removePostLoading, removePostDone } = useSelector(state => state.post);
   const { mainComplainCard } = useSelector(state => state.complain);
   const [locationLink, setLocationLink] = useState(null);
+  const {user} = useSelector(state => state.user);
+  const filename = user.UserProfileImages[0]?.src;
 
   useEffect(() => {
     setNewContent(post.content);
@@ -212,7 +214,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
           title={
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
               <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
-                <Avatar style={{ marginRight: 8 }}>{post.User.nickname[0]}</Avatar>
+                <Avatar style={{ marginRight: 8 }} src={`http://localhost:3065/userImages/${filename}`}>{post.User.nickname[0]}</Avatar>
               </Link>
               <span>{post.User.nickname}님이 리트윗했습니다.</span>
             </div>
@@ -274,7 +276,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                      <Avatar style={{ marginRight: 8 }}>{post.Retweet.User.nickname[0]}</Avatar>
+                      <Avatar style={{ marginRight: 8 }} src={`http://localhost:3065/userImages/${filename}`}>{post.Retweet.User.nickname[0]} </Avatar>
                     </Link>
                     <span>{post.Retweet.User.nickname}</span>
                   </div>
@@ -348,7 +350,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                  <Avatar style={{ marginRight: 8 }}>{post.User?.nickname[0]}</Avatar>
+                  <Avatar style={{ marginRight: 8 }} src={`http://localhost:3065/userImages/${filename}`}>{post.User?.nickname[0]}</Avatar>
                 </Link>
                 <span>{post.User?.nickname}</span>
               </div>

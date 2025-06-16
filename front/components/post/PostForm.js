@@ -26,9 +26,11 @@ const PostForm = ({ groupId, isGroup = false }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [text, onChangeText, setText] = userInput('');
-  const user = useSelector(state => state.user);
+  //const user = useSelector(state => state.user);
   const [link, setLink] = useState(null);
-
+  const {user} = useSelector(state => state.user);
+    const filename = user.UserProfileImages[0]?.src;
+    
 
   useEffect(() => {
     if (addPostDone) {
@@ -52,8 +54,8 @@ const PostForm = ({ groupId, isGroup = false }) => {
 
   const onSubmitForm = useCallback(() => {
     if (!text || !text.trim()) return alert('게시글을 작성하세요.');
-
-    const isAdmin = user.user.isAdmin;
+    
+    const isAdmin = user.isAdmin;
 
     const formData = new FormData();
     imagePaths.forEach((i) => formData.append('image', i));
@@ -108,7 +110,7 @@ const PostForm = ({ groupId, isGroup = false }) => {
         <Form.Item>
           <Row align="middle" justify="space-between" gutter={16} wrap={false}>
             <Col>
-              <Avatar size="large" icon={<UserOutlined />} />
+              <Avatar size="large" icon={<UserOutlined /> } src={`http://localhost:3065/userImages/${filename}`} />
             </Col>
             <Col flex="auto">
               <Space>
