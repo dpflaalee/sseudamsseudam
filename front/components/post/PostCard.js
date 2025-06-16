@@ -91,7 +91,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
       data: { PostId: post.id, content: editText }
     });
   }, [post.id, dispatch]);
-
+  console.log('post데이터',post.User.UserProfileImages[0]);
   const [newContent, setNewContent] = useState(post.content);
   const [newScope, setNewScope] = useState(post.scope || 'public');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -99,7 +99,15 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const { mainComplainCard } = useSelector(state => state.complain);
   const [locationLink, setLocationLink] = useState(null);
   const {user} = useSelector(state => state.user);
-  const filename = user?.UserProfileImages[0]?.src;
+  let filename = '';
+  console.log(post);
+  console.log('post.UserId',post.UserId, 'post.User.UserProfileImages.UserId',post.User.UserProfileImages.UserId);
+  console.log('비교데이터', Number(post?.UserId) === Number(post.User?.UserProfileImages[0].id))
+  if(Number(post?.UserId) === Number(post.User?.UserProfileImages.UserId)){
+    filename = user?.UserProfileImages[0]?.src;
+  }else{
+    filename = post.User?.UserProfileImages[0].src;
+  }
 
   useEffect(() => {
     setNewContent(post.content);
@@ -350,7 +358,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                  <Avatar style={{ marginRight: 8 }} src={`http://localhost:3065/userImages/${filename}`}>{post.User?.nickname[0]}</Avatar>
+                  <Avatar style={{ marginRight: 8 }} src={(post.User?.id === post.User.UserProfileImages.UserId) ?`http://localhost:3065/userImages/${filename}`:`http://localhost:3065/userImages/${filename}`}>{post.User?.nickname[0]}</Avatar>
                 </Link>
                 <span>{post.User?.nickname}</span>
               </div>

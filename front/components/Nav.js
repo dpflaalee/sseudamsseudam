@@ -29,7 +29,7 @@ const Nav = () => {
   const [openKeys, setOpenKeys] = useState([]);
   const dispatch = useDispatch();
   const{userGroups} = useSelector((state)=>state.group);
-
+  
   useEffect(()=>{
     dispatch({type: LOAD_USER_GROUPS_REQUEST});
   }, [dispatch]);
@@ -240,7 +240,7 @@ const Nav = () => {
             Open Modal
             </Button> */}
 
-          <Modal title="Basic Modal" 
+          <Modal title="프로필 수정" 
           open={isModalOpen} 
           onOk={handleOk} 
           onCancel={handleCancel}
