@@ -90,8 +90,8 @@ const AnimalProfileCard = ({ ownerId }) => {
       />
       <div
         style={{
-          backgroundColor: '#f8dada',
-          padding: '16px 20px 16px 48px',
+          // backgroundColor: '#f8dada',
+          padding: '32px 20px 16px 48px',
           display: 'flex',
           alignItems: 'center',
           position: 'relative',
