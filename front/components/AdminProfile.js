@@ -21,11 +21,12 @@ const Banner = styled.div`
 
 const Container = styled.div`
   background-color: #fff;
-  padding: 24px 16px 16px;
-  border-radius: 12px;
+  padding: 24px 16px 24px;
+  border-radius: 12px 12px 0 0 ;
   margin: -60px auto 0;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  max-width: 600px;
+  border-bottom : 2px solid #eee;
+  // box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  // max-width: 600px;
   position: relative;
 `;
 
@@ -115,13 +116,13 @@ const AdminProfile = ({ showManageButtons = false, onSectionChange, isComplain }
           </Dropdown>
         </DropdownBox>
 
-        <TopRow>
-          <InfoBox>
+        <TopRow >
+          <InfoBox >
             <Nickname>{me.nickname}</Nickname>
             <Stats>
-              {me?.FollowingList?.length || 0} 팔로잉 &nbsp;&nbsp;
-              {me?.FollowerList?.length || 0} 팔로워 &nbsp;&nbsp;
-              {mainPosts?.length || 0} 게시물
+              {/* {me?.FollowingList?.length || 0} 팔로잉 &nbsp;&nbsp;
+              {me?.FollowerList?.length || 0} 팔로워 &nbsp;&nbsp; */}
+              {/* {mainPosts?.length || 0} 게시물 */}
             </Stats>
           </InfoBox>
         </TopRow>

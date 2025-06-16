@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Post, User, Image, Comment, OpenScope, Category, Blacklist } = require('../models');
+const { Post, User, Image, Comment, OpenScope, Category, Blacklist, UserProfileImage } = require('../models');
 const { Op } = require('sequelize');
 
 router.get('/', async (req, res, next) => {
@@ -72,7 +72,9 @@ if (req.user && blockedUserIds.length > 0) {
         [Comment, 'createdAt', 'DESC']
       ],
       include: [
-        { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
+        { model: User, attributes: ['id', 'nickname', 'isAdmin'] 
+          , include: [{model:UserProfileImage}]
+        },
         { model: Image },
         {
           model: Comment,
@@ -120,7 +122,7 @@ if (req.user) {
     }
   });
 }
-    
+    //console.dir('실행=',fullPost.User, { depth: 10 });
     res.status(200).json(posts);
   } catch (error) {
     console.error(error);

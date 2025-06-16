@@ -6,7 +6,7 @@ const multer = require('multer');  // 파일업로드
 const path = require('path');  // 경로
 const fs = require('fs');  // file system
 
-const { Post, User, Image, Comment, Hashtag, OpenScope, Category, Blacklist } = require('../models');
+const { Post, User, Image, Comment, Hashtag, OpenScope, Category, Blacklist, UserProfileImage } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 
 //이미지 폴더 생성
@@ -100,14 +100,16 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
         { model: OpenScope },
         { model: Image },
         { model: User, as: 'Likers', attributes: ['id'] },
-        { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
+        { model: User, attributes: ['id', 'nickname', 'isAdmin']
+          , include: [{model:UserProfileImage}]
+         },
         { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
         {
           model: Category,
           as: 'Categorys',
           through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
           attributes: ['id', 'content', 'isAnimal']
-        }
+        },
       ]
     });
 
