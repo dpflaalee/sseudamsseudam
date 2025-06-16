@@ -4,34 +4,53 @@ const cron = require('node-cron');
 // 알림
 const { Notification } = require('../models');
 const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
+const { Op } = require('sequelize'); 
 
-// 매시간 정각마다 실행
-cron.schedule('0 * * * *', async () => {
+console.log('cron:', cron);
+console.log('typeof cron.schedule:', typeof cron.schedule);
+
+cron.schedule('* * * * *', async () => {
   console.log('🎁 랜덤박스 자동 지급 시작:', new Date());
-
   try {
-    // 모든 유저 조회
-    const users = await User.findAll();
+    // 좋아요 TOP3 게시글 보상 지급
+    const top3Posts = await sequelize.models.Post.findAll({
+      include: [
+        { model: User, as: 'Likers', attributes: ['id'] },
+        { model: User, attributes: ['id', 'username'] }, // 작성자
+      ],
+    });
 
-    for (const user of users) {
-      // 해당 유저의 동물들 가져오기
+    const sortedTopPosts = top3Posts
+      .sort((a, b) => b.Likers.length - a.Likers.length)
+      .slice(0, 3);
+
+    const issuedUserIds = new Set();
+
+    for (let i = 0; i < sortedTopPosts.length; i++) {
+      const post = sortedTopPosts[i];
+      const user = post.User;
+      if (!user || issuedUserIds.has(user.id)) continue;
+
+      issuedUserIds.add(user.id);
+      const rank = i + 1;
+      const issuedReason = `좋아요 ${rank}위`;
+
       const animals = await Animal.findAll({
         where: { UserId: user.id },
         attributes: ['id', 'CategoryId'],
       });
 
-      if (!animals.length) {
-        console.log(`🚫 유저 ${user.id} (${user.username})는 동물이 없음`);
-        continue;
-      }
+      if (!animals.length) continue;
 
-      // 랜덤 동물 선택
       const selectedAnimal = animals[Math.floor(Math.random() * animals.length)];
       const categoryId = selectedAnimal.CategoryId;
 
-      // 해당 카테고리에 맞는 랜덤박스(상품) 선택
       const prize = await Prize.findOne({
-        where: { CategoryId: categoryId },
+        where: {
+          CategoryId: categoryId,
+          quantity: { [Op.gt]: 0 },
+          dueAt: { [Op.gt]: new Date() }
+        },
         order: sequelize.random(),
         include: {
           model: Category,
@@ -40,41 +59,24 @@ cron.schedule('0 * * * *', async () => {
         }
       });
 
-      if (!prize) {
-        console.log(`🚫 유저 ${user.id} (${user.username})에게 지급할 랜덤박스 없음`);
-        continue;
-      }
+      if (!prize) continue;
 
-      // 지급 기록 저장
       const issuedBox = await IssuedRandomBox.create({
         UserId: user.id,
         CategoryId: categoryId,
         issuedAt: new Date(),
-        usedAt: null // 아직 사용하지 않음
+        usedAt: null,
+        issuedReason,
       });
 
-      if (prize && issuedBox) {
-        const notification = await Notification.create({
-          type: NOTIFICATION_TYPE.RANDOMBOX,
-          targetId: issuedBox.id,
-          SenderId: 1,
-          ReceiverId: user.id,
-        });
+      await Notification.create({
+        type: NOTIFICATION_TYPE.RANDOMBOX,
+        targetId: issuedBox.id,
+        SenderId: 1,
+        ReceiverId: user.id,
+      });
 
-        const fullNotification = await Notification.findOne({
-          where: { id: notification.id },
-          include: [
-            { model: User, as: 'Sender', attributes: ['id', 'nickname'] },
-            { model: User, as: 'Receiver', attributes: ['id', 'nickname'] },
-          ],
-        });
-
-        console.log('📩 fullNotification:', fullNotification?.toJSON());
-
-      }
-
-      const categoryContent = prize.category?.content || '알 수 없는 카테고리';
-      console.log(`✅ 유저 ${user.id} (${user.username})에게 [${categoryContent}] 랜덤박스 지급`);
+      console.log(`🏆 좋아요 ${rank}위 - 유저 ${user.username}에게 보상 지급 완료`);
     }
 
     console.log('🎉 랜덤박스 자동 지급 완료');
