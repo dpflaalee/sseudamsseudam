@@ -91,12 +91,12 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
       data: { PostId: post.id, content: editText }
     });
   }, [post.id, dispatch]);
-  console.log('post데이터',post.User.UserProfileImages[0]);
+  
   const [newContent, setNewContent] = useState(post.content);
   const [newScope, setNewScope] = useState(post.scope || 'public');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const { removePostLoading, removePostDone } = useSelector(state => state.post);
-  const { mainComplainCard } = useSelector(state => state.complain);
+  const { removePostLoading, removePostDone, retweetPost } = useSelector(state => state.post);
+  const { mainComplainCard,mainPosts } = useSelector(state => state.complain);
   const [locationLink, setLocationLink] = useState(null);
   const {user} = useSelector(state => state.user);
   let filename = '';
@@ -104,12 +104,13 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   // console.log('post.UserId',post.UserId, 'post.User.UserProfileImages.UserId',post.User.UserProfileImages.UserId);
   // console.log('비교데이터', Number(post?.UserId) === Number(post.User?.UserProfileImages[0].id))
 
-  if(Number(post?.UserId) === Number(post.User?.UserProfileImages.UserId)){
+  if(Number(post?.UserId) === Number(post.User?.UserProfileImages?.UserId)){
     filename = user?.UserProfileImages[0]?.src;
   }else{
-    filename = post.User?.UserProfileImages[0]?.src;
+    filename = post?.User?.UserProfileImages[0]?.src;
   }
-
+  console.log('mainPostsmainPosts',mainPosts);
+  
   useEffect(() => {
     setNewContent(post.content);
     setNewScope(post.scope || 'public');
@@ -182,6 +183,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   // 리트윗
   const onRetweet = useCallback(() => {
     if (!id) { return alert('로그인 후 리트윗이 가능합니다.'); }
+    console.log('리트윗버튼클릭',post.id);
     return dispatch({
       type: RETWEET_REQUEST,
       data: post.id,
@@ -223,7 +225,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
           title={
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
               <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
-                <Avatar style={{ marginRight: 8 }} src={`http://localhost:3065/userImages/${filename}`}>{post.User.nickname[0]}</Avatar>
+                <Avatar style={{ marginRight: 8 }} src={(post.User?.id === post.User.UserProfileImages.UserId) ?`http://localhost:3065/userImages/${filename}`:`http://localhost:3065/userImages/${filename}`}>{post.User.nickname[0]}</Avatar>
               </Link>
               <span>{post.User.nickname}님이 리트윗했습니다.</span>
             </div>
@@ -285,7 +287,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                      <Avatar style={{ marginRight: 8 }} src={`http://localhost:3065/userImages/${filename}`}>{post.Retweet.User.nickname[0]} </Avatar>
+                      <Avatar style={{ marginRight: 8 }} src={(post.User?.id === post.User.UserProfileImages.UserId) ?`http://localhost:3065/userImages/${filename}`:`http://localhost:3065/userImages/${filename}`}>{post.Retweet.User.nickname[0]} </Avatar>
                     </Link>
                     <span>{post.Retweet.User.nickname}</span>
                   </div>

@@ -125,6 +125,7 @@ const LoginForm = () => {
             placeholder="user@gmail.com 형식으로 입력"
             value={email}
             onChange={onChangeEmailWithCookie}
+            //type="email"
             required
           />
         </Form.Item>

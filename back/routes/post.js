@@ -409,11 +409,12 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
           as: 'Retweet',
           include: [
             { model: OpenScope },
-            { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
+            { model: User, 
+              include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
           ]
         },
         { model: OpenScope },
-        { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
+        { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] },
       ]
     });
 
@@ -496,7 +497,9 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
           as: 'Categorys',
           through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
           attributes: ['id', 'content', 'isAnimal']
-        }]
+        },
+        {model: UserProfileImage}
+      ]
     });
 
     if (retweetDetail?.OpenScope?.content) {
@@ -507,7 +510,7 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
     }
 
     //7. res 응답
-    res.status(201).json(retweetDetail);
+  return res.status(201).json(retweetDetail);
 
   } catch (error) {
     console.error(error)

@@ -493,19 +493,19 @@ router.post('/sms/:phoneNum', async (req, res, next) => {
 
 
     //2건 이상의 메시지를 발송할 때는 sendMany, 단일 건 메시지 발송은 sendOne을 이용해야 합니다. 
-    // const result = messageService.sendMany([
-    //     {
-    //       to: req.params.phoneNum, //보내는 대상 전화번호 
-    //       from: '01085434277', // 보내는 사람 전화번호 
-    //       text: '인증번호 ' + '[' + num + ']'
-    //     }, // 여러명에게 보내고 싶다면 아래와 같이 {}을 더 추가해주면 됩니다.
+    const result = messageService.sendMany([
+        {
+          to: req.params.phoneNum, //보내는 대상 전화번호 
+          from: '01085434277', // 보내는 사람 전화번호 
+          text: '인증번호 ' + '[' + num + ']'
+        }, // 여러명에게 보내고 싶다면 아래와 같이 {}을 더 추가해주면 됩니다.
 
-    //     // {
-    //     //   to: '01011111111', //보내는 대상 전화번호 
-    //     //   from: '01012345678', // 보내는 사람 전화번호 
-    //     //   text: num
-    //     // },
-    //   ])
+        // {
+        //   to: '01011111111', //보내는 대상 전화번호 
+        //   from: '01012345678', // 보내는 사람 전화번호 
+        //   text: num
+        // },
+      ])
     res.status(201).json(num);
   } catch (error) {
     console.log(error);
