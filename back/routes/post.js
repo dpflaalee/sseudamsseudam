@@ -483,7 +483,10 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
       include: [
         {
           model: Post, as: 'Retweet', include: [
-            { model: User, attributes: ['id', 'nickname'], include: [{ model: User, as: 'Followers', attributes: ['id'] }] },
+            { model: User, attributes: ['id', 'nickname'], 
+              include: [{ model: User, as: 'Followers', attributes: ['id'] }
+                      ,{model:UserProfileImage}
+            ] },
             { model: Image },
             { model: OpenScope }
           ]
@@ -497,8 +500,7 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
           as: 'Categorys',
           through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
           attributes: ['id', 'content', 'isAnimal']
-        },
-        {model: UserProfileImage}
+        }
       ]
     });
 

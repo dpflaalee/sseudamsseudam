@@ -199,7 +199,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const content = isBlinded ? '신고된 게시글입니다.' : post.content;
 
   // 리트윗된 글이 신고될 경우 블라인드 처리
-  console.log('post', post);
+  console.log('postpost', post);
   console.log('mainComplainCard', mainComplainCard);
   const isBlindedRetweet = mainComplainCard.some((report) => Number(report.targetId) === Number(post.Retweet?.id) && report.isBlind && report.targetType === TARGET_TYPE.POST);
 
