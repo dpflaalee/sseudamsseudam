@@ -27,7 +27,7 @@ export default function SearchResultGroup({ g }) {
             const isMyGroup = g.groupmembers.some((m) => m.id === user.id);
             setIsMember(isMyGroup);
 
-            const leader = g.groupmembers.find((m) => m.isLeader);
+            const leader = g.groupmembers.find((m) => m.isLeader === true);
             setGroupLeader(leader || null);
         }
     }, [user, g]);

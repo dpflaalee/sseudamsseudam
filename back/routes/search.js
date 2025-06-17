@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Post, User, Group, Image, Comment, OpenScope, Category, Blacklist, Complain } = require('../models');
+const { Post, User, Group, Image, Comment, OpenScope, Category, Blacklist, Complain, UserProfileImage } = require('../models');
 const { Op } = require('sequelize');
 const TARGET_TYPE = require('../../shared/constants/TARGET_TYPE');
 
@@ -52,11 +52,22 @@ router.get('/:searchInput', async (req, res, next) => {
                 id: { [Op.notIn]: complainPostIds },
             },
             include: [
-                { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
+                { model: User, attributes: ['id', 'nickname', 'isAdmin'], include: [{ model: UserProfileImage, attributes: ['id'] }] },
                 { model: Image },
                 { model: Comment, include: [{ model: User, attributes: ['id', 'nickname', 'isAdmin'] }] },
                 { model: User, as: 'Likers', attributes: ['id'] },
-                { model: Post, as: 'Retweet', include: [{ model: User, attributes: ['id', 'nickname'] }, { model: Image }] },
+                {
+                    model: Post,
+                    as: 'Retweet',
+                    include: [
+                        {
+                            model: User,
+                            attributes: ['id', 'nickname'],
+                            include: [{ model: UserProfileImage, attributes: ['id'] }] // ✅ 옳은 위치
+                        },
+                        { model: Image },
+                    ]
+                },
                 { model: OpenScope }
             ]
         });
