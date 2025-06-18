@@ -410,11 +410,13 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
           include: [
             { model: OpenScope },
             { model: User, 
-              include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
+              include: [{ model: User, as: 'Followers', attributes: ['id'] }
+                      , { model: UserProfileImage}] }
           ]
         },
         { model: OpenScope },
-        { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] },
+        { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] },
+      { model: UserProfileImage},] },
       ]
     });
 
@@ -485,13 +487,15 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
           model: Post, as: 'Retweet', include: [
             { model: User, attributes: ['id', 'nickname'], 
               include: [{ model: User, as: 'Followers', attributes: ['id'] }
-                      ,{model:UserProfileImage}
+                      ,{ model: UserProfileImage}
             ] },
             { model: Image },
             { model: OpenScope }
           ]
         },
-        { model: User, attributes: ['id', 'nickname'] },
+        { model: User, attributes: ['id', 'nickname'],
+          include : [{model: UserProfileImage}]
+         },
         { model: Image },
         { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] },] },
         { model: OpenScope },

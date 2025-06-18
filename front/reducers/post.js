@@ -341,7 +341,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       console.log('RETWEET_SUCCESS',action.data);
       draft.retweetLoading = false;
       draft.retweetDone = true;
-      draft.retweetPost = draft.mainPosts.unshift(action.data);
+      //draft.retweetPost = draft.mainPosts.unshift(action.data);
+      draft.mainPosts.unshift(action.data);
       break;
     }
     case RETWEET_FAILURE:

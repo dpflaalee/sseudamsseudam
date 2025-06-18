@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Avatar, Button, List, Popover, Modal, Input, Space, Select } from 'antd';
-import { EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
+import { ConsoleSqlOutlined, EllipsisOutlined, HeartOutlined, HeartTwoTone, MessageOutlined, RetweetOutlined } from '@ant-design/icons';
 import PostImages from './PostImages';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/Link';
@@ -105,9 +105,9 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   // console.log('비교데이터', Number(post?.UserId) === Number(post.User?.UserProfileImages[0].id))
 
   if(Number(post?.UserId) === Number(post.User?.UserProfileImages?.UserId)){
-    filename = user?.UserProfileImages[0]?.src;
+    filename = user?.UserProfileImages?.[0]?.src;
   }else{
-    filename = post?.User?.UserProfileImages[0]?.src;
+    filename = post?.User?.UserProfileImages?.[0]?.src;
   }
   console.log('mainPostsmainPosts',mainPosts);
   
@@ -199,8 +199,14 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const content = isBlinded ? '신고된 게시글입니다.' : post.content;
 
   // 리트윗된 글이 신고될 경우 블라인드 처리
+  let retweetImage = post.User.UserProfileImages?.[0]?.src;
   console.log('postpost', post);
+  console.log('postpost', post.User.UserProfileImages?.[0]?.src);
+  console.log('post.Retweet', post.Retweet);
+  console.log('post.Retweet.User', post.Retweet?.User);
+  console.log('retweetImage',retweetImage)
   console.log('mainComplainCard', mainComplainCard);
+  console.log('retweetPost', retweetPost);
   const isBlindedRetweet = mainComplainCard.some((report) => Number(report.targetId) === Number(post.Retweet?.id) && report.isBlind && report.targetType === TARGET_TYPE.POST);
 
   const isBlockedOriginalPost = post.Retweet && (
@@ -225,7 +231,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
           title={
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
               <Link href={`/user/myPage/${post.User.id}`} prefetch={false}>
-                <Avatar style={{ marginRight: 8 }} src={(post.User?.id === post.User.UserProfileImages.UserId) ?`http://localhost:3065/userImages/${filename}`:`http://localhost:3065/userImages/${filename}`}>{post.User.nickname[0]}</Avatar>
+                <Avatar style={{ marginRight: 8 }} src={(post.User?.id === post.User.UserProfileImages?.[0]?.UserId) ?`http://localhost:3065/userImages/${retweetImage}`:`http://localhost:3065/userImages/${retweetImage}`}>{post.User.nickname[0]}</Avatar>
               </Link>
               <span>{post.User.nickname}님이 리트윗했습니다.</span>
             </div>
@@ -287,7 +293,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                      <Avatar style={{ marginRight: 8 }} src={(post.User?.id === post.User.UserProfileImages.UserId) ?`http://localhost:3065/userImages/${filename}`:`http://localhost:3065/userImages/${filename}`}>{post.Retweet.User.nickname[0]} </Avatar>
+                      <Avatar style={{ marginRight: 8 }} src={(post.User?.id === post.User.UserProfileImages?.[0]?.UserId) ?`http://localhost:3065/userImages/${filename}`:`http://localhost:3065/userImages/${filename}`}>{post.Retweet.User.nickname[0]} </Avatar>
                     </Link>
                     <span>{post.Retweet.User.nickname}</span>
                   </div>
