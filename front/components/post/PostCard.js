@@ -109,6 +109,12 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   }else{
     filename = post?.User?.UserProfileImages?.[0]?.src;
   }
+  let retweetSender = '';
+  let retweetReceiver = '';
+  if(post.Retweet){
+    retweetSender = post.Retweet.User.UserProfileImages?.[0]?.src;
+    retweetReceiver = post.Retweet.User.UserProfileImages?.[0]?.src;
+  }
   console.log('mainPostsmainPosts',mainPosts);
   
   useEffect(() => {
@@ -293,7 +299,7 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Link href={`/user/myPage/${post.User?.id}`} prefetch={false}>
-                      <Avatar style={{ marginRight: 8 }} src={(post.User?.id === post.User.UserProfileImages?.[0]?.UserId) ?`http://localhost:3065/userImages/${filename}`:`http://localhost:3065/userImages/${filename}`}>{post.Retweet.User.nickname[0]} </Avatar>
+                      <Avatar style={{ marginRight: 8 }} src={(post.User?.id === post.User.UserProfileImages?.[0]?.UserId) ?`http://localhost:3065/userImages/${retweetReceiver}`:`http://localhost:3065/userImages/${retweetReceiver}`}>{post.Retweet.User.nickname[0]} </Avatar>
                     </Link>
                     <span>{post.Retweet.User.nickname}</span>
                   </div>
