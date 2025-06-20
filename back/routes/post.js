@@ -493,7 +493,7 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
             { model: OpenScope }
           ]
         },
-        { model: User, attributes: ['id', 'nickname'],
+        { model: User,
           include : [{model: UserProfileImage}]
          },
         { model: Image },
