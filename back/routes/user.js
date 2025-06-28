@@ -480,7 +480,7 @@ router.post('/sms/:phoneNum', async (req, res, next) => {
     console.log('phoneNum체크=', req.params.phoneNum);
     const coolsms = require('coolsms-node-sdk').default;
     //   // apiKey, apiSecret 설정
-    const messageService = new coolsms('NCSDG7FZJFQFBRGJ', 'RHGMPTXD6CGBAYPE4FF6OE4LQPOZOPO9');
+    const messageService = new coolsms('', '');
     const random = Math.random() * 1000000;
     let num = Math.round(random);
     const addNum = Math.random() * 10;
