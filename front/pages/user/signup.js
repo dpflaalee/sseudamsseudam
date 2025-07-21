@@ -274,7 +274,7 @@ const timer = () => {
           </Form.Item>          
           <Form.Item>
             <label htmlFor='email'></label>
-            <UnderlineInput placeholder='이메일' id='email'
+            <UnderlineInput placeholder='이메일' id='email' type="email"
                 value={email} onChange={onChangeEmail}    name='email' required />
           </Form.Item>
           <Form.Item>
