@@ -3,8 +3,7 @@ Fullstack SNS with Node.js and React
 MSA기반 플러터 활용 자바 프론트엔드 백엔드 풀스택 웹(앱)개발</br>
 Node.js와 react를 사용한 소셜 네트워크 서비스 개발 프로젝트입니다.
 
-</br>
-* * *
+---
 
 프로젝트 정보
 ---
