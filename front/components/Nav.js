@@ -27,9 +27,14 @@ const Nav = () => {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [openKeys, setOpenKeys] = useState([]);
-  const dispatch = useDispatch();
-  const { logOutLoading, user, userImagePaths } = useSelector(state => state.user);  
+  const dispatch = useDispatch(); 
   const{userGroups} = useSelector((state)=>state.group);
+  
+  useEffect(()=>{
+    dispatch({type: LOAD_USER_GROUPS_REQUEST});
+  }, [dispatch]);
+
+  const { logOutLoading, user, userImagePaths } = useSelector(state => state.user);
   const [nickname, onChangeNickname, setNickname] = userInput(user?.nickname); 
   
   const onLogout = useCallback(() => {
@@ -145,6 +150,7 @@ const Nav = () => {
       data: formData   //##
     });
     setModalFlag(false);
+    window.location.href = '/main';
   }, [nickname,userImagePaths]);
 
 
@@ -238,7 +244,7 @@ const Nav = () => {
             Open Modal
             </Button> */}
 
-          <Modal title="Basic Modal" 
+          <Modal title="프로필 수정" 
           open={isModalOpen} 
           onOk={handleOk} 
           onCancel={handleCancel}

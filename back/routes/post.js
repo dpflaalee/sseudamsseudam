@@ -6,7 +6,7 @@ const multer = require('multer');  // 파일업로드
 const path = require('path');  // 경로
 const fs = require('fs');  // file system
 
-const { Post, User, Image, Comment, Hashtag, OpenScope, Category, Blacklist } = require('../models');
+const { Post, User, Image, Comment, Hashtag, OpenScope, Category, Blacklist, UserProfileImage } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 
 //이미지 폴더 생성
@@ -100,14 +100,16 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
         { model: OpenScope },
         { model: Image },
         { model: User, as: 'Likers', attributes: ['id'] },
-        { model: User, attributes: ['id', 'nickname', 'isAdmin'] },
+        { model: User, attributes: ['id', 'nickname', 'isAdmin']
+          , include: [{model:UserProfileImage}]
+         },
         { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] }] },
         {
           model: Category,
           as: 'Categorys',
           through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
           attributes: ['id', 'content', 'isAnimal']
-        }
+        },
       ]
     });
 
@@ -407,11 +409,14 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
           as: 'Retweet',
           include: [
             { model: OpenScope },
-            { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
+            { model: User, 
+              include: [{ model: User, as: 'Followers', attributes: ['id'] }
+                      , { model: UserProfileImage}] }
           ]
         },
         { model: OpenScope },
-        { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
+        { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] },
+      { model: UserProfileImage},] },
       ]
     });
 
@@ -480,12 +485,17 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
       include: [
         {
           model: Post, as: 'Retweet', include: [
-            { model: User, attributes: ['id', 'nickname'], include: [{ model: User, as: 'Followers', attributes: ['id'] }] },
+            { model: User, attributes: ['id', 'nickname'], 
+              include: [{ model: User, as: 'Followers', attributes: ['id'] }
+                      ,{ model: UserProfileImage}
+            ] },
             { model: Image },
             { model: OpenScope }
           ]
         },
-        { model: User, attributes: ['id', 'nickname'] },
+        { model: User,
+          include : [{model: UserProfileImage}]
+         },
         { model: Image },
         { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] },] },
         { model: OpenScope },
@@ -494,7 +504,8 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
           as: 'Categorys',
           through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
           attributes: ['id', 'content', 'isAnimal']
-        }]
+        }
+      ]
     });
 
     if (retweetDetail?.OpenScope?.content) {
@@ -505,7 +516,7 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
     }
 
     //7. res 응답
-    res.status(201).json(retweetDetail);
+  return res.status(201).json(retweetDetail);
 
   } catch (error) {
     console.error(error)

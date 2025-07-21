@@ -5,7 +5,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import ComplainForm from '../complains/ComplainForm';
 import TARGET_TYPE from '../../../shared/constants/TARGET_TYPE';
 import FollowButton from './FollowButton';
-
+import { useRouter } from 'next/router';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { LOAD_BLOCK_REQUEST, USER_PASSWORD_CHANGE_REQUEST
@@ -101,13 +101,18 @@ const Profile = (props) => {
   const { userOutDone, logOutDone, user,userPasswordChangeError, userPasswordChangeDone } = useSelector(state => state.user);
   const { logOutLoding, mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
   const { addBlockDone, removeBlockDone } = useSelector((state) => state.user);
+  const router = useRouter();
+    const {myPage} = router.query;
+  let filename = '';
+  
+  const matchedPost = props.mainPosts.find(
+    prop => Number(prop.User?.id) === Number(myPage)
+  ) 
 
-    const filename = user?.UserProfileImages[0]?.src;
+    if(matchedPost &&  matchedPost.User?.UserProfileImages?.[0]){
+       filename = matchedPost.User.UserProfileImages[0].src;
+    }
   let postUserId = props.postUserId;
-  console.log('postUserIdpostUserId=', postUserId);
-  // console.log('mainPosts',mainPosts.filter(post => {
-  //     post.
-  // }));
   const [postUser, setPostUser] = useState('');
   const [showMyPrize, setShowMyPrize] = useState(false);
   const { onShowMyPrize } = props
@@ -456,7 +461,10 @@ useEffect(()=>{
             <Stats>
               {postUser ? postUser?.Followings.length : 0} 팔로잉  &nbsp;&nbsp;
               {postUser ? postUser?.Followers.length : 0} 팔로워 &nbsp;&nbsp;
-              {mainPosts?.length} 게시물
+              {/* {mainPosts?.length} 게시물 */}
+              {mainPosts ? mainPosts?.filter(prop => { 
+                 return Number(prop.UserId) === Number(myPage)
+                }).length:0} 게시물
             </Stats>
           </InfoBox>
         </TopRow>
