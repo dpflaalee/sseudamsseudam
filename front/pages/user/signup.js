@@ -116,30 +116,56 @@ const signup = () => {
   const [isdupTimer, setIsdupTimer] = useState(false);
   const [btnDisabled, setBtnDisabled] = useState(false);
   let stopTimer = false;
-  const timer = async () => {
-    let initMinute = 1;
-    let seconds = 10;
-    for(let minute = initMinute-1; minute >= 0; minute--){
-        for(seconds; seconds >= 0; seconds--){
-          if(isStopTimer.current) return;
-          await sleep(1);
-          setMinute(minute)
-          setSeconds((String(seconds).length<2 ? '0'+seconds:seconds))
-          setTimerFlag(true);
-          //console.log('time=',minute+':'+(String(seconds).length<2 ? '0'+seconds:seconds));
-        }
-        seconds = 59;
-        if(minute == 0){
-          setErrTimeout(true);
-          setIsdupTimer(false);
-          //setIsStopTimer(false);
-          isStopTimer.current = false;
-          setIsDisabled(true);
-          setBtnDisabled()
-          console.log('에러');
-        }
+  // const timer = async () => {
+  //   let initMinute = 1;
+  //   let seconds = 10;
+  //   for(let minute = initMinute-1; minute >= 0; minute--){
+  //       for(seconds; seconds >= 0; seconds--){
+  //         if(isStopTimer.current) return;
+  //         await sleep(1);
+  //         setMinute(minute)
+  //         setSeconds((String(seconds).length<2 ? '0'+seconds:seconds))
+  //         setTimerFlag(true);
+  //         //console.log('time=',minute+':'+(String(seconds).length<2 ? '0'+seconds:seconds));
+  //       }
+  //       seconds = 59;
+  //       if(minute == 0){
+  //         setErrTimeout(true);
+  //         setIsdupTimer(false);
+  //         //setIsStopTimer(false);
+  //         isStopTimer.current = false;
+  //         setIsDisabled(true);
+  //         setBtnDisabled()
+  //         console.log('에러');
+  //       }
+  //     }
+  //   };
+  const timerInterval = useRef(null);  // 새 ref 추가
+
+const timer = () => {
+  let totalSeconds = 60; // 예시: 1분
+  setTimerFlag(true);
+  setErrTimeout(false);
+
+  timerInterval.current = setInterval(() => {
+    if (totalSeconds <= 0 || isStopTimer.current) {
+      clearInterval(timerInterval.current);
+      if (totalSeconds <= 0) {
+        setErrTimeout(true);
+        setIsDisabled(true);
+        setIsdupTimer(false);
       }
-    };
+      return;
+    }
+
+    const minute = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    setMinute(minute);
+    setSeconds(seconds < 10 ? `0${seconds}` : `${seconds}`);
+    totalSeconds--;
+  }, 1000);
+};
     const btnSendAuthenticationNumber = useCallback( async () => {
       if(phoneNum === null || String(phoneNum).length != 11 ){
         console.log('오류');
@@ -176,16 +202,18 @@ const signup = () => {
     console.log('클릭인증번호',typeof authenticationNum);
     console.log('클릭',typeof Number(authenNum));
     setErrTimeout(false);
+    //인증번호가 같지 않으면
     if(Number(authenticationNum) !== Number(authenNum)){
       setErrAuthenNum(true);
       return;
-    }else{
+    }else{//같다면
       alert('인증되었습니다.');
       setIsDisabled(true);
       setErrTimeout(false);
-      //setIsStopTimer(true);
+      setErrAuthenNum(false);
       //setIsStopTimer(true);
       isStopTimer.current = true;
+      clearInterval(timerInterval.current);
     }
 
   })
@@ -246,7 +274,7 @@ const signup = () => {
           </Form.Item>          
           <Form.Item>
             <label htmlFor='email'></label>
-            <UnderlineInput placeholder='이메일' id='email'
+            <UnderlineInput placeholder='이메일' id='email' type="email"
                 value={email} onChange={onChangeEmail}    name='email' required />
           </Form.Item>
           <Form.Item>

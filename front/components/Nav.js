@@ -150,6 +150,7 @@ const Nav = () => {
       data: formData   //##
     });
     setModalFlag(false);
+    window.location.href = '/main';
   }, [nickname,userImagePaths]);
 
 
