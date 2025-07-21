@@ -104,7 +104,7 @@ export default function GroupList({ g }) {
 
           <Col>
             {isMember ? (
-              <Button type="primary" onClick={handleEnterGroup}> 이동하기 </Button>
+              <Button onClick={handleEnterGroup} style={{backgroundColor:'#6FE6FC', color:'#000', border:'none', fontWeight:'bold'}}> 이동하기 </Button>
             ) : (
               <Button type="primary" onClick={handleJoin}> 가입하기 </Button>
             )}
