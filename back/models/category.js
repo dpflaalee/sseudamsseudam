@@ -21,11 +21,3 @@ module.exports = (sequelize, DataTypes) => {
   }
   return Category;
 }
-
-/*
-카테고리:상품 다대다
-카테고리:그룹 다대다
-카테고리:동물 다대다
-카테고리:게시글 다대다
- */
-
