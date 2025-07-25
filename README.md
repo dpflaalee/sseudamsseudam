@@ -37,3 +37,6 @@ Node.js와 react를 사용한 소셜 네트워크 서비스 개발 프로젝트
 #### 5.반려동물 프로필 등록 및 친구맺기
 #### 6.검색과 알림
 #### 7.랜덤박스와 쿠폰
+[ 이정우]
+[![시연 영상](https://github.com/user-attachments/assets/849e4806-7c1e-4a26-b407-a34dcc83ce01)](https://www.youtube.com/watch?v=wXk6alDPh-4)
+<hr />
