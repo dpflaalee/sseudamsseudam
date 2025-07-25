@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Groups',  // 그룹 테이블을 참조
+        model: 'Groups',  
         key: 'id'
       },
     },
@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Users',  // 유저 테이블을 참조
+        model: 'Users', 
         key: 'id'
       },
     },
@@ -26,8 +26,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   GroupRequest.associate = (db) => {
-    db.GroupRequest.belongsTo(db.Group);  // 그룹 테이블과 관계
-    db.GroupRequest.belongsTo(db.User);   // 유저 테이블과 관계
+    db.GroupRequest.belongsTo(db.Group);
+    db.GroupRequest.belongsTo(db.User); 
   };
 
   return GroupRequest;
