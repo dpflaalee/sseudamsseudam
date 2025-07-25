@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const MyPrize = sequelize.define('MyPrize', {
-    id: {                        // PK로 사용할 고유 ID 추가 (auto increment)
+    id: { 
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -16,11 +16,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     usedAt: {
       type: DataTypes.DATE,
-      allowNull: true, // 사용 전엔 null
+      allowNull: true,
     },
     dueAt: {
       type: DataTypes.DATE,
-      allowNull: false  // Prize의 dueAt을 복사해서 초기화
+      allowNull: false 
     },
     barcode: {
       type: DataTypes.STRING,
