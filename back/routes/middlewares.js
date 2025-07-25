@@ -1,4 +1,3 @@
-// # middlewares.js
 exports.isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     next();
@@ -15,7 +14,6 @@ exports.isNotLoggedIn = (req, res, next) => {
   }
 };  
 
-// 관리자 권한체크 미들웨어
 exports.isAdmin = (req, res, next) => {
   if (req.isAuthenticated() && req.user.isAdmin) {
     return next();
