@@ -110,7 +110,6 @@ if (req.user) {
 }
     res.status(200).json(posts);
   } catch (error) {
-    console.error(error);
     next(error);
   }
 });
