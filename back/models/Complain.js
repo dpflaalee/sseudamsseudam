@@ -1,16 +1,15 @@
-// models/complain.js
 module.exports = (sequelize, DataTypes) => {
   const Complain = sequelize.define('Complain', {
     targetType: {
-      type: DataTypes.STRING(255), // TARGET_TYPE.js
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
     targetId: {
-      type: DataTypes.INTEGER, // 실제 Comment.id, User.id, Post.id
+      type: DataTypes.INTEGER, 
       allowNull: false,
     },
     reason: {
-      type: DataTypes.STRING(255), // 선택사항: 신고 사유
+      type: DataTypes.STRING(255), 
       allowNull: true,
     },
     isBlind: {
