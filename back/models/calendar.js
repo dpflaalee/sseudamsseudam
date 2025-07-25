@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       beforeCreate: (calendar, options) => {
         const start = new Date(calendar.startDate);
         const end = new Date(calendar.endDate);
-        const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1; // 시작일, 종료일 포함
+        const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1; 
         calendar.totaldays = diff;
       },
       beforeUpdate: (calendar, options) => {
@@ -47,7 +47,5 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
   });
-  // 관계 설정이 없으면 이 부분 생략
-  // Calendar.associate = (db) => {};
   return Calendar;
 };
