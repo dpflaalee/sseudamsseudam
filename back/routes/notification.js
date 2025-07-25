@@ -6,14 +6,11 @@ const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
 const { Op } = require('sequelize');
 const { isLoggedIn } = require('./middlewares');
 
-// 알림 저장
 router.post('/', isLoggedIn, async (req, res, next) => {
     try {
-        console.log('📦 req.body:', req.body);
-
         if (req.body.notiType === NOTIFICATION_TYPE.ADMIN_NOTI) {
             const users = await User.findAll({
-                attributes: ['id'], // 불필요한 데이터 제거
+                attributes: ['id'],
             });
 
             const notifications = await Promise.all(
@@ -50,7 +47,6 @@ router.post('/', isLoggedIn, async (req, res, next) => {
 
         res.status(201).json(fullNotification);
     } catch (err) {
-        console.error('🚨 알림 생성 중 에러:', err);
         res.status(500).send('알림 실패');
     }
 });
@@ -156,9 +152,6 @@ router.get('/', isLoggedIn, async (req, res, next) => {
                         break;
                 }
 
-                if (!target) {
-                    console.warn(`⚠️ target을 찾을 수 없습니다. notiId=${noti.id}, targetId=${noti.targetId}`);
-                }
 
                 return {
                     ...noti.toJSON(),
@@ -169,7 +162,6 @@ router.get('/', isLoggedIn, async (req, res, next) => {
 
         res.status(200).json(enriched);
     } catch (err) {
-        console.error('🚨 알림 조회 중 에러:', err);
         res.status(500).send('알림 조회 실패');
     }
 });
@@ -191,11 +183,10 @@ router.patch('/readAll', isLoggedIn, async (req, res, next) => {
 
         res.status(200).json({ message: '모든 알림 읽음 처리 완료' });
     } catch (err) {
-        console.error('🚨 전체 읽음 처리 에러:', err);
         res.status(500).send('전체 읽음 처리 실패');
     }
 });
-// 알림 삭제
+
 // 알림 삭제
 router.delete('/:id', async (req, res, next) => {
     try {
@@ -204,7 +195,6 @@ router.delete('/:id', async (req, res, next) => {
         });
         res.status(200).json({ message: '알림 삭제 완료', id: req.params.id });
     } catch (err) {
-        console.error('🚨 알림 삭제 중 에러:', err);
         res.status(500).send('알림 삭제 실패');
     }
 });
@@ -219,13 +209,11 @@ router.get('/notificationSetting/:userId', isLoggedIn, async (req, res, next) =>
             attributes: ['type', 'enabled'],
         });
 
-        // DB에서 가져온 설정을 객체로 정리
         const settingMap = {};
         settings.forEach((s) => {
             settingMap[s.type] = s.enabled;
         });
 
-        // 모든 타입에 대해 기본값 포함된 리스트 생성
         const fullSettings = Object.entries(NOTIFICATION_TYPE).map(([key, typeValue]) => ({
             type: typeValue,
             enabled: settingMap.hasOwnProperty(typeValue) ? settingMap[typeValue] : true,
@@ -233,7 +221,6 @@ router.get('/notificationSetting/:userId', isLoggedIn, async (req, res, next) =>
 
         res.status(200).json(fullSettings);
     } catch (err) {
-        console.error('🚨 알림 설정 불러오기 실패:', err);
         res.status(500).send('알림 설정 불러오기 실패');
     }
 });
@@ -244,13 +231,11 @@ router.patch('/notificationSetting/:userId', isLoggedIn, async (req, res, next) 
         const userId = req.user.id;
         const { type, enabled } = req.body;
 
-        // 기존 설정 있는지 확인
         const existing = await NotificationSetting.findOne({
             where: { UserId: userId, type: type },
         });
 
         if (existing) {
-            // 있으면 update
             await NotificationSetting.update(
                 { enabled },
                 { where: { UserId: userId, type: type } }
@@ -266,7 +251,6 @@ router.patch('/notificationSetting/:userId', isLoggedIn, async (req, res, next) 
 
         res.status(200).json({ message: '알림 설정이 저장되었습니다', type, enabled });
     } catch (err) {
-        console.error('🚨 알림 설정 저장 실패:', err);
         res.status(500).send('알림 설정 저장 실패');
     }
 });
