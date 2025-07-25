@@ -1,5 +1,3 @@
-// models/NotificationSetting.js
-
 module.exports = (sequelize, DataTypes) => {
     const NotificationSetting = sequelize.define('NotificationSetting', {
         type: {
