@@ -6,19 +6,13 @@ const { Notification } = require('../models');
 const NOTIFICATION_TYPE = require('../../shared/constants/NOTIFICATION_TYPE');
 const { Op } = require('sequelize'); 
 
-console.log('cron:', cron);
-console.log('typeof cron.schedule:', typeof cron.schedule);
-
-//cron.schedule('* * * * *', async () => {
-//  console.log('🎁 랜덤박스 자동 지급 시작:', new Date());
-cron.schedule('0 9 * * 1', async () => {
-  console.log('🎁 월요일 9시에만 실행되는 랜덤박스 지급 시작:', new Date());  
+cron.schedule('0 9 * * 1', async () => {  
   try {
     // 좋아요 TOP3 게시글 보상 지급
     const top3Posts = await sequelize.models.Post.findAll({
       include: [
         { model: User, as: 'Likers', attributes: ['id'] },
-        { model: User, attributes: ['id', 'username'] }, // 작성자
+        { model: User, attributes: ['id', 'username'] },
       ],
     });
 
@@ -77,11 +71,7 @@ cron.schedule('0 9 * * 1', async () => {
         SenderId: 1,
         ReceiverId: user.id,
       });
-
-      console.log(`🏆 좋아요 ${rank}위 - 유저 ${user.username}에게 보상 지급 완료`);
     }
-
-    console.log('🎉 랜덤박스 자동 지급 완료');
   } catch (error) {
     console.error('❌ 지급 중 오류 발생:', error);
   }
