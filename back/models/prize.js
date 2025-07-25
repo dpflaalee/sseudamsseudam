@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     dueAt: {
-      type: DataTypes.DATE, // DATETIME → DATE
+      type: DataTypes.DATE, 
       allowNull: false
     },
   }, {
@@ -24,13 +24,11 @@ module.exports = (sequelize, DataTypes) => {
 
   // 관계 설정
   Prize.associate = (db) => {
-    // 1. Prize belongs to one Category (일대다 관계: many Prizes belong to one Category)
     db.Prize.belongsTo(db.Category, {
       foreignKey: 'CategoryId',
       as: 'category'
     });
 
-    // 2. Prize belongs to many Users (유저가 당첨받은 상품들)
     db.Prize.belongsToMany(db.User, {
       through: db.MyPrize,
       foreignKey: 'PrizeId',
