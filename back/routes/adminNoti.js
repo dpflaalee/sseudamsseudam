@@ -42,7 +42,7 @@ router.get('/', async (req, res, next) => {
                         attributes: ['id', 'nickname']
                     }, {
                         model: Image
-                    }]      // 원본 글 작성자와 이미지 포함
+                    }]   
                 }
             ]
         });
@@ -51,7 +51,6 @@ router.get('/', async (req, res, next) => {
         }
         res.status(200).json(adminNoti);
     } catch (err) {
-        console.error(err);
         next(err);
     }
 });
