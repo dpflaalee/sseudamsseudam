@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        min: 0 // 음수방지
+        min: 0 
       }
     },
     aniProfile: {
@@ -25,13 +25,13 @@ module.exports = (sequelize, DataTypes) => {
 
     db.Animal.belongsToMany(db.Animal, {
       through: 'Friends',
-      as: 'Followings', // 내가 팔로우한 동물들
+      as: 'Followings',
       foreignKey: 'FollowerId',
       otherKey: 'FollowingId',
     });
     db.Animal.belongsToMany(db.Animal, {
       through: 'Friends',
-      as: 'Followers', // 나를 팔로우한 동물들
+      as: 'Followers',
       foreignKey: 'FollowingId',
       otherKey: 'FollowerId',
     });
