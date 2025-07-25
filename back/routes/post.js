@@ -409,11 +409,14 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
           as: 'Retweet',
           include: [
             { model: OpenScope },
-            { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
+            { model: User, 
+              include: [{ model: User, as: 'Followers', attributes: ['id'] }
+                      , { model: UserProfileImage}] }
           ]
         },
         { model: OpenScope },
-        { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] }] }
+        { model: User, include: [{ model: User, as: 'Followers', attributes: ['id'] },
+      { model: UserProfileImage},] },
       ]
     });
 
@@ -482,12 +485,17 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
       include: [
         {
           model: Post, as: 'Retweet', include: [
-            { model: User, attributes: ['id', 'nickname'], include: [{ model: User, as: 'Followers', attributes: ['id'] }] },
+            { model: User, attributes: ['id', 'nickname'], 
+              include: [{ model: User, as: 'Followers', attributes: ['id'] }
+                      ,{ model: UserProfileImage}
+            ] },
             { model: Image },
             { model: OpenScope }
           ]
         },
-        { model: User, attributes: ['id', 'nickname'] },
+        { model: User,
+          include : [{model: UserProfileImage}]
+         },
         { model: Image },
         { model: Comment, include: [{ model: User, attributes: ['id', 'nickname'] },] },
         { model: OpenScope },
@@ -496,7 +504,8 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
           as: 'Categorys',
           through: { attributes: [] }, // 중간 테이블(PostCategory) 생략
           attributes: ['id', 'content', 'isAnimal']
-        }]
+        }
+      ]
     });
 
     if (retweetDetail?.OpenScope?.content) {
@@ -507,7 +516,7 @@ router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
     }
 
     //7. res 응답
-    res.status(201).json(retweetDetail);
+  return res.status(201).json(retweetDetail);
 
   } catch (error) {
     console.error(error)

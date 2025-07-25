@@ -463,7 +463,7 @@ useEffect(()=>{
               {postUser ? postUser?.Followers.length : 0} 팔로워 &nbsp;&nbsp;
               {/* {mainPosts?.length} 게시물 */}
               {mainPosts ? mainPosts?.filter(prop => { 
-                 return Number(prop.UserId) === Number(user?.id)
+                 return Number(prop.UserId) === Number(myPage)
                 }).length:0} 게시물
             </Stats>
           </InfoBox>

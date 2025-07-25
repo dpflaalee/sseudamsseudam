@@ -8,7 +8,8 @@ export const initialState = {
   singlePost: null,
   imagePaths: [],
   hasMorePosts: true,
-
+  retweetPost: null,
+  
   loadPostLoading: false,
   loadPostDone: false,
   loadPostError: null,
@@ -337,8 +338,10 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.retweetError = null;
       break;
     case RETWEET_SUCCESS: {
+      console.log('RETWEET_SUCCESS',action.data);
       draft.retweetLoading = false;
       draft.retweetDone = true;
+      //draft.retweetPost = draft.mainPosts.unshift(action.data);
       draft.mainPosts.unshift(action.data);
       break;
     }
