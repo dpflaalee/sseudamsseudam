@@ -6,24 +6,20 @@ const { Op } = require('sequelize');
 const TARGET_TYPE = require('../../shared/constants/TARGET_TYPE');
 
 
-// 검색
 router.get('/:searchInput', async (req, res, next) => {
     const keyword = req.params.searchInput;
-    console.log('🔍 검색 키워드: ', keyword);
     const myId = req.user?.id;
     if (!myId) {
         return res.status(401).send('로그인 필요');
     }
 
     try {
-        // 나를 차단한 유저
         const blockedMeUsers = await Blacklist.findAll({
             where: { BlockedId: myId },
             attributes: ['BlockingId'],
         });
         const blockingIds = blockedMeUsers.map(entry => entry.BlockingId);
 
-        // 신고된 유저
         const blindedUser = await Complain.findAll({
             where: {
                 isBlind: true,
@@ -33,7 +29,6 @@ router.get('/:searchInput', async (req, res, next) => {
         });
         const blindedUserIds = blindedUser.map(entry => entry.targetId);
 
-        // 신고된 게시글
         const complainPost = await Complain.findAll({
             where: {
                 isBlind: true,
@@ -93,7 +88,6 @@ router.get('/:searchInput', async (req, res, next) => {
             member: memberResults,
         });
     } catch (err) {
-        console.error('🚨 searchRouter : ', err);
         res.status(500).send('검색 실패');
     }
 
