@@ -4,8 +4,6 @@ const TARGET_TYPE = require('./../../shared/constants/TARGET_TYPE');
 const { Post, User, Image, Comment, Hashtag, Complain, MyPrize, Prize } = require('../models');
 const { Op } = require('sequelize');
 
-// 0. PostCard.js : 관리자가 쓴 글(공지사항) 보기
-// admin/
 router.get('/', async (req, res, next) => {
     try {
         const admin = await User.findOne({ where: { isAdmin: true } });
@@ -40,7 +38,7 @@ router.get('/', async (req, res, next) => {
                         attributes: ['id', 'nickname']
                     }, {
                         model: Image
-                    }]      // 원본 글 작성자와 이미지 포함
+                    }]   
                 }
             ]
         });
@@ -54,9 +52,7 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-// 1. ComplainCard.js : 신고 내용 보기
-// /admin/complain
-// routes/complain.js
+// 신고 내용 보기
 router.get('/complain', async (req, res, next) => {
     try {
         const complainList = await Complain.findAll({
@@ -103,10 +99,6 @@ router.get('/complain', async (req, res, next) => {
                         });
                         break;
                 }
-
-                if (!target) {
-                    console.warn(`⚠️ target을 찾을 수 없습니다. complainId=${complain.id}, targetId=${complain.targetId}`);
-                }
                 return {
                     ...complain.toJSON(),
                     targetObject: target ?? null
@@ -116,7 +108,6 @@ router.get('/complain', async (req, res, next) => {
 
         res.status(200).json(enriched);
     } catch (err) {
-        console.error('🚨 알림 조회 중 에러:', err);
         res.status(500).send('알림 조회 실패');
     }
 });
