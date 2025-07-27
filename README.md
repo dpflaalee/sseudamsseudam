@@ -24,7 +24,7 @@ Node.js와 react를 사용한 소셜 네트워크 서비스 개발 프로젝트
 |**팀장**|[이예림](https://github.com/dpflaalee)|와이어프레임, UIUX 화면디자인, 기본 배포 틀, 그룹 관련 기능|
 |팀원|[ 윤소현](https://ysh-blue.notion.site/ysh?source=copy_link)|카테고리, 검색, 신고, 알림, 유저 차단, 관리자 페이지 전반UI|
 |팀원|[ 이수정](https://github.com/sj71791)|반려동물 프로필 관리, 친구(팔로우) 기능|
-|팀원|[ 이재명](https://github.com/Lee-jaemyeong)|글 관련, 공개범위, KakaoMap Api|
+|팀원|[ 이재명](https://github.com/Lee-jaemyeong/Portfolio)|글 관련, 공개범위, KakaoMap Api|
 |팀원|[ 이정우](https://github.com/jeongwoo76)|상품, 랜덤박스, 쿠폰 관련 기능|
 |팀원|[ 최영진](https://github.com/JinProjects)|유저 관리 기능, 프로필 및 마이페이지, 팔로우/팔로잉|
 |팀원|[ 최예진]()|일정 등록 및 관리 기능|
