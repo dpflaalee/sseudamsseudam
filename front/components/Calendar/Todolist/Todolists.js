@@ -42,7 +42,7 @@ const CardTitle = styled.span`
   width: 100%;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start; /* 왼쪽 정렬 */
+  justify-content: flex-start;
 `;
 
 const EventLabel = styled.span`
@@ -65,12 +65,11 @@ const Todolists = () => {
         // 현재 월에 해당하는 일정만 표시
         const filtered = res.data
           .filter(event => dayjs(event.startDate).month() + 1 === currentMonth)
-          .sort((a, b) => new Date(a.endDate) - new Date(b.endDate)) // 종료일 빠른 순서 정렬
-          .slice(0, 5); // 최대 5개
+          .sort((a, b) => new Date(a.endDate) - new Date(b.endDate)) 
+          .slice(0, 5); 
 
         setEvents(filtered);
       } catch (err) {
-        console.error('일정 불러오기 실패:', err);
       }
     };
 
