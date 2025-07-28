@@ -21,7 +21,6 @@ const SearchForm = () => {
             const res = await axios.get(`http://localhost:3065/search/${searchInput}`);
             setSearchResult(res.data);
         } catch (err) {
-            console.error('검색 실패:', err);
         }
     }, [searchInput]);
 
