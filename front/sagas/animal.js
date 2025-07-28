@@ -56,7 +56,6 @@ function * addAniProfile(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error('Saga Error:', err.response?.data || err);
     yield put({
       type: ADD_ANIPROFILE_FAILURE,
       error: err.response.data || err.message,
@@ -75,17 +74,6 @@ function* loadAnimalProfile(action) {
     yield put({ type: LOAD_ANIMAL_PROFILE_FAILURE, error: err.response?.data || err.message });
   }
 }
-// function loadAnimalListAPI() {
-//   return axios.get('/animal/list');
-// }
-// function* loadAnimalList() {
-//   try {
-//     const result = yield call(loadAnimalListAPI);
-//     yield put({ type: LOAD_ANIMAL_LIST_SUCCESS, data: result.data });
-//   } catch (err) {
-//     yield put({ type: LOAD_ANIMAL_LIST_FAILURE, error: err.response?.data || err.message });
-//   }
-// }
 
 function loadMyAnimalsAPI() {
   return axios.get('/animal/my', { withCredentials: true });
@@ -179,7 +167,6 @@ function aniFollowAPI({ targetAnimalId, myAnimalId }) {
 function* aniFollow(action) {
   try {
     const response = yield call(aniFollowAPI, action.data);
-    console.log("✅ saga response:", response);
     yield put({
       type: ANIFOLLOW_SUCCESS,
       data: {
@@ -197,8 +184,6 @@ function* aniFollow(action) {
     const senderUserId = senderRes.data.animal?.User?.id;
     const receiverUserId = receiverRes.data.animal?.User?.id;
     if (senderUserId && receiverUserId) {
-      console.log('🦮 senderUserId : ', senderUserId);
-      console.log('🦮 receiverUserId : ', receiverUserId);
       yield put({
         type: ADD_NOTIFICATION_REQUEST,
         data: {
@@ -209,11 +194,9 @@ function* aniFollow(action) {
         },
       });
     } else {
-      console.error("❌ 유저 ID 조회 실패", senderRes.data, receiverRes.data);
     }
 
   } catch (err) {
-    console.error("❌ saga error:", err);
     yield put({
       type: ANIFOLLOW_FAILURE,
       error: err.response?.data || err.message,
@@ -245,21 +228,15 @@ function* aniUnFollow(action) {
 }
 
 function removeAniFollowAPI(data) {
-  // 바디로 targetAnimalId 전달
   return axios.delete(`/animal/${data.animalId}/follower`, {
     data: { targetAnimalId: data.targetAnimalId },
-    // validateStatus: (status) => status >= 200 && status < 300, // 2xx 모두 허용
-    // withCredentials: true,
   });
 }
 function* removeAniFollow(action) {
   try {
     const result = yield call(removeAniFollowAPI, action.data);
-    console.log("✅ DELETE 응답 status:", result.status);
-    console.log("✅ DELETE 응답 data:", result.data);
     yield put({ type: REMOVE_ANIFOLLOW_SUCCESS, data: result.data });
   } catch (err) {
-    console.error("❌ removeAniFollow error", err.response?.status, err.response?.data);
     yield put({ 
       type: REMOVE_ANIFOLLOW_FAILURE, error: err.response?.data || err.message 
     });
@@ -310,7 +287,6 @@ function* searchProfiles(action){
       data: result.data,
     });
   } catch (err) {
-    console.error('❌ SEARCH_PROFILES_FAILURE', err.response || err.message);
     yield put({
       type: SEARCH_PROFILES_FAILURE,
       error: err.response?.data || err.message,
