@@ -16,8 +16,6 @@ const SearchUserList = ({ user }) => {
 
   const me = useSelector(state => state.user);
 
-  console.log(me);
-
   // 내정보 불러오기
   useEffect(() => {
     dispatch({ type: LOAD_MY_INFO_REQUEST });
