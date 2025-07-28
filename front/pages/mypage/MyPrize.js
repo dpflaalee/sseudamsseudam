@@ -33,7 +33,6 @@ const MyPrize = () => {
         router.push("/mypage/RandomBoxResult?status=fail");
       }
     } catch (error) {
-      console.error("에러 발생:", error);
       router.push("/mypage/RandomBoxResult?status=fail");
     }
   };
