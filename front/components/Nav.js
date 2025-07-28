@@ -75,31 +75,17 @@ const Nav = () => {
     setLoading(!checked);
   };
 
-  // const onChangeNickname = useCallback((e) => {
-  //   setNickname(e.target.value);
-  // },[nickname])
-
   const imageInput = useRef();
   const filename = user?.UserProfileImages[0]?.src;
-  console.log('filenamefilename',filename);
   const onClickImageUpload = useCallback(() => {
       imageInput.current?.click();
   }, [imageInput.current]);
   const onChangeImage = useCallback((e) => {
-    console.log('이미지변경');
-    console.log(`.....`,e.target.files);
     const imageFormData = new FormData();
 
       [].forEach.call(e.target.files, (f)=>{
-        console.log('filetext=',f)
          return imageFormData.append('profileImage',f);
      });
-     console.log(`imageFormData111=`,imageFormData);
-    //   Array.from(e.target.files).forEach((f) => {
-    //     console.log('array');
-    //     console.log(f);
-    //     imageFormData.append('image', f);
-    // });
     dispatch({
       type:USER_IMAGE_UPDATE_REQUEST,
       data:imageFormData,
@@ -114,10 +100,7 @@ const Nav = () => {
 
   const [imgFile, setImgFile] = useState("");
   const imgRef = useRef();
-  //이미지 미리보기
   const saveImgFile = useCallback(() => {
-    console.log('.........saveImage');
-    console.log('.........saveImage',imageInput.current.files[0]);
     const file = imageInput.current.files[0];
     const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -132,22 +115,15 @@ const Nav = () => {
 
   
   const onSubmitForm = useCallback((e) => {
-    //1. 글 있는지 확인 
     if(!nickname || !nickname.trim()){
       return alert('닉네임을 작성하세요.')
     }
-    console.log('nickname',nickname);
-    console.log('profileImage',userImagePaths);
-    //2. content - text 으로 넘기기
-    //3. image - 이미지도 있다면
     const formData = new FormData();
     userImagePaths.forEach((i) => {formData.append('profileImage', i)});
     formData.append('nickname', nickname);
-    //e.preventDefault();
-    console.log('user.UserProfileImage.src',user.UserProfileImages[0]?.src);
     dispatch({
       type: USER_PROFILE_UPDATE_REQUEST,
-      data: formData   //##
+      data: formData  
     });
     setModalFlag(false);
     window.location.href = '/main';
@@ -181,7 +157,6 @@ const Nav = () => {
     type: LOAD_NOTIFICATION_REQUEST
   }, [dispatch]);
 
-  // 내가 관리자인지?
   const me = useSelector(state => state.user);
 
   return (
@@ -233,16 +208,12 @@ const Nav = () => {
             {!isMobile && "알림"}
           </Menu.Item>
           <Menu.Item key="search" icon={<SearchOutlined />}>{!isMobile && "검색"}</Menu.Item>
-          {/* <Menu.Item key="chat" icon={<MailOutlined />}>{!isMobile && "채팅"}</Menu.Item> */}
           {(me.user && me.user.isAdmin) ? <Menu.Item key="admin" onClick={() => router.push('/admin')} icon={<AuditOutlined />}>{!isMobile && "관리자 페이지"}</Menu.Item> : ''}
         </Menu>
       </div>
       {modalFlag &&
         <Form onFinish={onSubmitForm}>
           <div>
-            {/* <Button type="primary" onClick={showModal}>
-            Open Modal
-            </Button> */}
 
           <Modal title="프로필 수정" 
           open={isModalOpen} 
@@ -263,15 +234,6 @@ const Nav = () => {
                   onChangeImage(e);
                 }}
               />
-              {/* <input
-                type="file"
-                name="profileImage"
-                multiple
-                hidden
-                ref={imageInput}
-                style={{ display: 'none' }}
-                onChange={onChangeImage}
-              /> */}
               <Button onClick={onClickImageUpload}>프로필편집</Button>
             </Form.Item>
             <Button onClick={onSubmitForm} key="submit" type="primary" loading={loading}>
@@ -292,10 +254,7 @@ const Nav = () => {
               ]}
             >
                 <Card.Meta
-                  // avatar={<Avatar  src="https://joeschmoe.io/api/v1/random" />}
                   avatar={<Avatar src={imgFile ? imgFile: `http://localhost:3065/userImages/${filename}`} />}
-                  // avatar={<Avatar src={imgFile ? `http://localhost:3065/userImages/${filename}` : "/images/user.png"} />}
-                  //avatar={<Avatar  icon={<UserOutlined />} />}
                   title={<div style={{ fontSize: '15px', color: 'black' }}>{nickname}</div>}
                   description=""
                   style={{
