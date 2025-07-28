@@ -5,8 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../../reducers/post';
 import userInput from '../../hooks/userInput';
-//import { v } from '@faker-js/faker/dist/airline-BUL6NtOJ';
-// 카테고리
 import { LOAD_CATEGORIES_REQUEST } from '@/reducers/category';
 import { Tabs } from 'antd';
 const { TabPane } = Tabs;
@@ -26,7 +24,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [text, onChangeText, setText] = userInput('');
-  //const user = useSelector(state => state.user);
   const [link, setLink] = useState(null);
   const {user} = useSelector(state => state.user);
     const filename = user.UserProfileImages[0]?.src;
@@ -91,7 +88,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
     router.push('/map/kakao');
   };
   const openLink = () => {
-    // 카카오 지도 링크로 새 탭에서 열기
     if (link) {
       window.open(link, '_blank');
     }
@@ -185,7 +181,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
         )}
       </Form>
 
-      {/* 카테고리 */}
       <Modal
         title="카테고리 선택"
         open={isModalOpen}
@@ -228,7 +223,6 @@ const PostForm = ({ groupId, isGroup = false }) => {
           </TabPane>
         </Tabs>
       </Modal>
-      {/* E 카테고리 */}
 
     </Card>
   );
