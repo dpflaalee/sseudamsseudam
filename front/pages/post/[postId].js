@@ -21,7 +21,6 @@ const PostDetailPage = () => {
       const response = await axios.get(`http://localhost:3065/post/${postId}`);
       setPost(response.data);
     } catch (error) {
-      console.error('게시물 로딩 오류:', error);
     }
   }, [postId]);
 
@@ -52,7 +51,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   context.store.dispatch(END);
   await context.store.sagaTask.toPromise();
 
-  return { props: {} }; // 필요 시 추가적인 props 가능
+  return { props: {} };
 });
 ///////////////////////////////////
 export default PostDetailPage;
