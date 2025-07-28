@@ -16,7 +16,6 @@ function getItem(label, icon) {
 const CalendarUI = styled.div`
   background-color: #fff;
 
-  /* react-calendar 스타일 커스터마이징 */
   .react-calendar__month-view__weekdays {
     display: none !important;
   }
