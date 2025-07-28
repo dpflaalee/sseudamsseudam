@@ -15,9 +15,7 @@ const AniProfile = () => {
   const { id } = router.query;
   const user = useSelector(state => state.user );
 
-  // const {animals, selectedAnimal} = useSelector((state) => state.animal);
   const { userAnimals, selectedAnimal } = useSelector((state) => state.animal);
-  console.log('전체 user:', useSelector(state => state.user));
 
   useEffect(() => {
     if (id) {
