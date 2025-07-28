@@ -34,7 +34,6 @@ const EventScheduleForm = () => {
           }
         }
       } catch (error) {
-        console.error('유저 정보 불러오기 실패:', error);
         router.replace('/admin/manage');
         message.error('정보 불러오기에 실패했습니다.');
       } finally {
@@ -66,7 +65,6 @@ const EventScheduleForm = () => {
         message.error('일정 등록 실패 (서버 응답 오류)');
       }
     } catch (error) {
-      console.error('등록 중 오류:', error);
       message.error('일정 등록 실패');
     }
   };
