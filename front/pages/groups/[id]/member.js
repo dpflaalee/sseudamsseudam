@@ -6,7 +6,6 @@ import { APPLY_GROUP_REQUEST, JOIN_GROUP_REQUEST, LOAD_MEMBERS_REQUEST } from '@
 import { useRouter } from 'next/router';
 
 const GroupMembersPage = () => {
-  //const isLeader = true; // 방장 테스트용
   const router = useRouter();
   const groupId = parseInt(router.query.id, 10)
 
