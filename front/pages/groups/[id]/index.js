@@ -34,10 +34,6 @@ const GroupMain = () => {
       (member.isLeader === true || member.isLeader === 1)
   );
 
-    //console.log("GroupMain isLeader:", isLeader); // true
-    //console.log("currentUserId:", currentUserId);
-    //console.log("members:", members);
-
   //승인/거절용 가입 멤버 불러오기
   useEffect(()=>{
     if(groupId){
@@ -48,9 +44,6 @@ const GroupMain = () => {
       dispatch({type:LOAD_JOIN_REQUESTS_REQUEST, data: groupId});
     }
   },[groupId, dispatch, isLeader])
-
-  // const allGroups = useSelector((state)=>state.group.groups);
-  // const groupDetail = allGroups.find((group)=>group.id ===parseInt(groupId, 10));
 
   return (
     <AppLayout group={group} members={members}>
