@@ -80,7 +80,6 @@ function* removeFollower(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: REMOVE_FOLLOWER_FAILURE,
       error: err.response.data,
@@ -89,8 +88,6 @@ function* removeFollower(action) {
 }
 
 function loadFollowersAPI(data) {
-  console.log('loadFollowersAPI');
-  console.log(data);
   return axios.get('/user/followers', data);
 }
 
@@ -102,7 +99,6 @@ function* loadFollowers(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: LOAD_FOLLOWERS_FAILURE,
       error: err.response.data,
@@ -122,7 +118,6 @@ function* loadFollowings(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: LOAD_FOLLOWINGS_FAILURE,
       error: err.response.data,
@@ -142,8 +137,6 @@ function* loadMyInfo() {
       data: result.data,
     });
   } catch (err) {
-    console.error('🚨 LOAD_MY_INFO_FAILURE:', err);
-    console.error(err);
     yield put({
       type: LOAD_MY_INFO_FAILURE,
       error: err.response?.data,
@@ -151,19 +144,17 @@ function* loadMyInfo() {
   }
 }
 
-
 ///// step3) 
-function loginApi(data) {   //★   function* (X)
-  return axios.post('/user/login', data); //##
-}
+function loginApi(data) {
+  return axios.post('/user/login', data);
 function* login(action) {
 
   try {
-    const result = yield call(loginApi, action.data); // 처리함수, 처리파라미터
+    const result = yield call(loginApi, action.data);
     //yield delay(1000);
     yield put({
       type: LOG_IN_SUCCESS,
-      data: result.data,// action.data  //## 
+      data: result.data,
     })
   } catch (error) {
     yield put({
@@ -174,13 +165,12 @@ function* login(action) {
 }
 
 //--
-function logoutApi() {   //★   function* (X)
+function logoutApi() {   
   return axios.post('/user/logout');
 }
 function* logout() {
   try {
-    const result = yield call(logoutApi); //처리함수, 처리파라미터
-    //yield delay(1000);
+    const result = yield call(logoutApi); 
     yield put({
       type: LOG_OUT_SUCCESS,
     })
@@ -191,7 +181,7 @@ function* logout() {
     })
   }
 }
-function userDeleteApi() {   //★   function* (X)
+function userDeleteApi() { 
   return axios.delete('/user/userDelete');
 }
 function* userDelete() {
@@ -211,21 +201,17 @@ function* userDelete() {
 }
 
 //-- 
-function signUpAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
-  console.log('data=', data);
-  return axios.post('/user', data);   //         /user 경로 , post, 회원가입정보(data)
+function signUpAPI(data) { 
+  return axios.post('/user', data);  
 }
 
 function* signUp(action) {
-  console.log('login=', action.data);
   try {
-    const result = yield call(signUpAPI, action.data);  // 사용자가 화면에서 넘겨준값
-    console.log('result=', result.data);
+    const result = yield call(signUpAPI, action.data); 
     yield put({
       type: SIGN_UP_SUCCESS,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: SIGN_UP_FAILURE,
       error: err.response.data,
@@ -233,9 +219,7 @@ function* signUp(action) {
   }
 }
 //-- 
-function changeUserProfileAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
-  console.log('data=', data);
-  // return axios.post('/user/nickname', data);   //         /user 경로 , post, 회원가입정보(data)
+function changeUserProfileAPI(data) {
   return axios.post('/user/profileUpdate', data,{
        headers: {
       'Content-Type': 'multipart/form-data',
@@ -244,16 +228,13 @@ function changeUserProfileAPI(data) { //★   function* (X)   - 서버에 넘겨
   });   //         /user 경로 , post, 회원가입정보(data)
 }
 function* changeUserProfile(action) {
-  console.log('login=', action.data);
   try {
-    const result = yield call(changeUserProfileAPI, action.data);  // 사용자가 화면에서 넘겨준값
-    console.log('result=', result.data);
+    const result = yield call(changeUserProfileAPI, action.data);
     yield put({
       type: USER_PROFILE_UPDATE_SUCCESS,
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: USER_PROFILE_UPDATE_FAILURE,
       error: err.response.data,
@@ -261,21 +242,17 @@ function* changeUserProfile(action) {
   }
 }
 //이미지 불러옴
-function changeUserImageAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
-  console.log('image=', data);
-  return axios.post('/user/images', data);   //         /user 경로 , post, 회원가입정보(data)
+function changeUserImageAPI(data) {
+  return axios.post('/user/images', data); 
 }
 function* changeUserImage(action) {
-  console.log('image=', action);
   try {
-    const result = yield call(changeUserImageAPI, action.data);  // 사용자가 화면에서 넘겨준값
-    console.log('result=', result.data);
+    const result = yield call(changeUserImageAPI, action.data);  
     yield put({
       type: USER_IMAGE_UPDATE_SUCCESS,
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: USER_IMAGE_UPDATE_FAILURE,
       error: err.response.data,
@@ -283,21 +260,17 @@ function* changeUserImage(action) {
   }
 }
 
-function changeUserPassAPI(data) { //★   function* (X)   - 서버에 넘겨주는 값
-  console.log('pass=', data);
-  return axios.post('/user/changePass', {'changePass':data});   //         /user 경로 , post, 회원가입정보(data)
+function changeUserPassAPI(data) {
+  return axios.post('/user/changePass', {'changePass':data}); 
 }
 function* changeUserPass(action) {
-  console.log('pass=', action);
   try {
-    const result = yield call(changeUserPassAPI, action.data);  // 사용자가 화면에서 넘겨준값
-    console.log('result=', result.data);
+    const result = yield call(changeUserPassAPI, action.data);  
     yield put({
       type: USER_PASSWORD_CHANGE_SUCCESS,
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: USER_PASSWORD_CHANGE_FAILURE,
       error: err.response.data,
@@ -309,11 +282,9 @@ function followAPI(data) {
 }
 
 function* follow(action) {
-  console.log('followData1111', typeof action.data);
 
   try {
     const result = yield call(followAPI, action.data);
-    console.log('followData2222', result.data);
     yield put({
       type: FOLLOW_SUCCESS,
       data: result.data,
@@ -330,7 +301,6 @@ function* follow(action) {
     });
     // E 알림
   } catch (err) {
-    console.error(err);
     yield put({
       type: FOLLOW_FAILURE,
       error: err.response.data,
@@ -350,7 +320,6 @@ function* unfollow(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: UNFOLLOW_FAILURE,
       error: err.response.data,
@@ -360,7 +329,7 @@ function* unfollow(action) {
 
 // changeNickname 
 //--
-function changeNicknameApi(data) {   //★   function* (X)
+function changeNicknameApi(data) {   
   return axios.post('/user/nickname', { nickname: data });
 }
 function* changeNickname(action) {
