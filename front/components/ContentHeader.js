@@ -51,8 +51,6 @@ const ContentHeader = ({group, members}) => {
 
   const currentUser = useSelector((state)=>state.user.user);
 
-  //console.log('currentUser.id........', currentUser.id); // 5
-
   const [showDeleteModal, setShowDeleteModal]= useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
 
@@ -67,17 +65,6 @@ const isGroupMember = Array.isArray(group?.groupmembers)
   : false;
   
   const {deleteGroupDone, leaveGroupDone, leaveGroupError} = useSelector((state)=>state.group);
-
-  useEffect(() => {
-    console.log('Header group:', group); 
-    //console.log('컨텐츠 헤더 members:', members);
-    //console.log('컨텐츠 헤더 currentUser:', currentUser);
-    console.log('컨텐츠 헤더 isLeader:', isLeader);
-    console.log('isGroupMember:', isGroupMember); 
-    //console.log('그룹멤버...............', group.groupmembers)
-    
-  }, [group, currentUser]);
-
   
   useEffect(()=>{
     if(leaveGroupDone){
