@@ -63,7 +63,6 @@ function* loadPost(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: LOAD_POST_FAILURE,
       error: err.response.data,
@@ -85,7 +84,6 @@ function* loadPosts(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: LOAD_POSTS_FAILURE,
       error: err.response.data,
@@ -117,7 +115,6 @@ function* addPost(action) {
       });
     }
   } catch (err) {
-    console.error(err);
     yield put({
       type: ADD_POST_FAILURE,
       error: err.response.data,
@@ -137,7 +134,6 @@ function* updatePost(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: UPDATE_POST_FAILURE,
       error: err.response.data,
@@ -157,7 +153,6 @@ function* removePost(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: REMOVE_POST_FAILURE,
       error: err.response.data,
@@ -201,7 +196,6 @@ function* addComment(action) {
       });
     }
   } catch (err) {
-    console.error(err);
     yield put({
       type: ADD_COMMENT_FAILURE,
       error: err.response.data,
@@ -224,7 +218,6 @@ function* removeComment(action) {
       yield call(action.callback);
     }
   } catch (err) {
-    console.error(err);
     yield put({
       type: REMOVE_COMMENT_FAILURE,
       error: err.response.data,
@@ -249,7 +242,6 @@ function* updateComment(action) {
       yield call(action.callback);
     }
   } catch (err) {
-    console.error(err);
     yield put({
       type: UPDATE_COMMENT_FAILURE,
       error: err.response.data,
@@ -269,7 +261,6 @@ function* uploadImages(action) {
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: UPLOAD_IMAGES_FAILURE,
       error: err.response.data,
@@ -283,14 +274,12 @@ function loadHashtagPostsAPI(data, lastId) {
 
 function* loadHashtagPosts(action) {
   try {
-    console.log('loadHashtag console');
     const result = yield call(loadHashtagPostsAPI, action.data, action.lastId);
     yield put({
       type: LOAD_HASHTAG_POSTS_SUCCESS,
       data: result.data,
     });
   } catch (err) {
-    console.error(err);
     yield put({
       type: LOAD_HASHTAG_POSTS_FAILURE,
       error: err.response.data,
@@ -313,7 +302,6 @@ function* likePost(action) {
       yield call(action.callback);
     }
   } catch (err) {
-    console.error(err);
     yield put({
       type: LIKE_POST_FAILURE,
       error: err.response.data,
@@ -336,7 +324,6 @@ function* unlikePost(action) {
       yield call(action.callback);
     }
   } catch (err) {
-    console.error(err);
     yield put({
       type: UNLIKE_POST_FAILURE,
       error: err.response.data,
@@ -368,7 +355,6 @@ function* retweet(action) {
     });
     // E 알림
   } catch (err) {
-    console.error(err);
     yield put({
       type: RETWEET_FAILURE,
       error: err.response.data,
