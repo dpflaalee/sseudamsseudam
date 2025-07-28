@@ -20,7 +20,6 @@ function* loadComplain(action) {
       data: result.data,
     });
   } catch (err) {
-    console.log('🚨 complainSaga : loadComplain : ', err);
     yield put({
       type: LOAD_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -42,7 +41,6 @@ function* addComplain(action) {
       data: result.data,
     });
   } catch (err) {
-    console.log('🚨 complainSaga : addComplain : ', err);
     yield put({
       type: ADD_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -62,7 +60,6 @@ function* removeComplain(action) {
       data: result.data,
     });
   } catch (err) {
-    console.log('🚨 complainSaga : removeComplain : ', err);
     yield put({
       type: REMOVE_COMPLAIN_FAILURE,
       error: err.response.data,
@@ -83,7 +80,6 @@ function* isBlindComplain(action) {
       data: result.data,
     });
   } catch (err) {
-    console.log('🚨 complainSaga : isBlindComplain : ', err);
     yield put({
       type: IS_BLIND_FAILURE,
       error: err.response.data,
