@@ -46,7 +46,6 @@ const AnimalEdit = () => {
         });
       })
         .catch((err) => {
-          console.error('수정용 동물 정보 요청 실패:', err);
         });
     }
   }, [id]);
