@@ -25,7 +25,6 @@ const EventScheduleList = () => {
         const res = await axios.get('http://localhost:3065/user');
         setIsAdmin(Number(res.data.isAdmin) === 1);
       } catch (error) {
-        console.error('유저 정보 불러오기 실패:', error);
         setIsAdmin(false);
       }
     };
@@ -51,7 +50,6 @@ const EventScheduleList = () => {
       filtered.sort((a, b) => a.id - b.id);
       setSchedules(filtered);
     } catch (error) {
-      console.error('일정 불러오기 실패:', error);
       message.error('일정 데이터를 불러오지 못했습니다.');
     }
   };
@@ -65,7 +63,6 @@ const EventScheduleList = () => {
 
         setSchedules(prevSchedules => prevSchedules.filter(schedule => schedule.id !== id));
       } catch (error) {
-        console.error('이벤트 삭제 실패:', error);
         message.error('이벤트 삭제에 실패했습니다.');
       }
     }
