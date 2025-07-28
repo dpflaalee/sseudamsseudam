@@ -22,17 +22,14 @@ const GroupForm = ({ initialValues = {}, onFinish, mode = 'create', groupId }) =
         isPrivate: false,
         ...initialValues,
       });
-      console.log('GroupForm 초기값 세팅............', initialValues);
     }
   }, [initialValues]);
 
   const handleFinish = (values) => {
-    //console.log ('GroupForm................values', values);
     const categoryIds = values.categories;
     const openScopeId = values.isPrivate ? 2 : 1;
 
     const payload = { title: values.title, content: values.content, categoryIds, openScopeId };
-    //console.log('GroupFomr..........payload', payload);
     onFinish(mode === 'edit' ? { ...payload, groupId } : payload);
   };
 
