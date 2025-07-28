@@ -60,7 +60,6 @@ const AniProfileForm = () => {
   };
 
   const handleCategoryChange = (value) => {
-    console.log('form.categoryId: ', form.categoryId);
     setForm((prev) => ({
       ...prev,
       categoryId: Number(value),
@@ -76,11 +75,10 @@ const AniProfileForm = () => {
     formData.append('aniProfile', form.aniProfile); // 파일 전송
 
     try {
-      const res = await axios.post('/animal/animalform', formData); // 서버에 프로필 등록 요청
+      const res = await axios.post('/animal/animalform', formData); 
       const newAnimalId = res.data.id;
-      router.push(`/animal/${newAnimalId}`); // 상세 페이지로 이동
+      router.push(`/animal/${newAnimalId}`);
     } catch (error) {
-      console.error('프로필 등록 중 오류:', error);
       alert('등록 중 오류가 발생했습니다.');
     }
   };
