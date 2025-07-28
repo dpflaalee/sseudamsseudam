@@ -30,7 +30,6 @@ const Home = () => {
 
     useEffect(() => {
         function onScroll() {
-            console.log(window.screenY, document.documentElement.clientHeight, document.documentElement.scrollHeight)
             if (window.screenY + document.documentElement.clientHeight > document.documentElement.scrollHeight - 200) {
                 if (hasMorePosts && !loadPostsLoading) {
                     dispatch({
