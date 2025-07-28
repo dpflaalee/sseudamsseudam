@@ -45,7 +45,7 @@ const AvatarBox = styled.div`
 const TopRow = styled.div`
   display: flex;
   align-items: center;
-  margin-left: 96px; /* Avatar 오른쪽 공간 확보 */
+  margin-left: 96px; 
 `;
 
 const InfoBox = styled.div`
@@ -83,7 +83,6 @@ const Profile = (props) => {
   let postUserId = props.postUserId;
   const [postUser, setPostUser] = useState('');
   useEffect(() => {
-    console.log('postUser실행');
     const postUserData = async () => {
       try {
         const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
@@ -92,7 +91,6 @@ const Profile = (props) => {
         setPostUser(postUserSelect.data);
 
       } catch (error) {
-        console.error('유저 정보 불러오기 실패:', error);
       }
     };
     postUserData();
@@ -100,28 +98,16 @@ const Profile = (props) => {
 
   useEffect(() => {
     const lastId = mainPosts[mainPosts.length - 1]?.id;
-    console.log('입장1');
-    console.log('mainPosts', mainPosts[mainPosts.length - 1]?.id);
     const number = [1, 2, 3];
-    // number = 1,
-    // number = 2 
-    //다른 유저를 클릭했을 때는 되고
-    //본인을 클릭했을 때 안됨
-    //로그인 유저
     if (hasMorePosts && !loadPostsLoading) {
       if (postUserId) {
-        //postuser
         if (user.id == props.postUserId) {
-          console.log('입장2');
           dispatch({
             type: LOAD_POSTS_REQUEST,
             lastId,
             number: number[0],
-            //userId: props.postUserId,
           })
         } else {
-          //본인페이지 클릭
-          console.log('postUserId = -1');
           dispatch({
             type: LOAD_POSTS_REQUEST,
             lastId,
@@ -129,8 +115,7 @@ const Profile = (props) => {
             number: number[1],
           })
         }
-      } else {//비로그인
-        console.log('비로그인 입장');
+      } else {
         dispatch({
           type: LOAD_POSTS_REQUEST,
           lastId,
