@@ -14,7 +14,7 @@ export default function GroupList({ g }) {
   const { members, loadMembersLoading, loadMembersError } = useSelector((state) => state.group)
   const [isMember, setIsMember] = useState(false);
   const [groupLeader, setGroupLeader] = useState(false);
-  const { user } = useSelector(state => state.user); //console.log("로그인한유저정보", user.id);  // 1
+  const { user } = useSelector(state => state.user); 
   const [group, setGroup] = useState(g);
   const [open, setOpen] = useState(false);
   const { joinGroupDone, applyGroupDone, } = useSelector(state => state.group);
@@ -22,18 +22,15 @@ export default function GroupList({ g }) {
   const formattedCategory = group?.Categories?.map((c) => c.content).join(", ") || "없음"; // 카테고리 공백 추가  
   const memberCount = group?.groupmembers ? new Set(group.groupmembers.map(m => m.id)).size : 0;//멤버 수 계산
 
-  //그룹 멤버 로드 요청 및 가입상태 확인
   useEffect(() => {
     if (group && group?.id) { dispatch({ type: LOAD_MEMBERS_REQUEST, data: group?.id }); }
   }, [group?.id, dispatch]);
 
-  //멤버상태변경
   useEffect(() => {
     if (members && members.length > 0) {
       const memberFound = group?.groupmembers?.some((groupMember) => groupMember.id === user.id);
       setIsMember(memberFound);
     }
-    /// 알림 그룹 리더 찾기
     if (group?.groupmembers && group?.groupmembers.length > 0) {
       const groupLeader = members.find((members) => members.isLeader === true); // GroupMember의 isLeader 확인
       setGroupLeader(groupLeader);
@@ -110,8 +107,7 @@ export default function GroupList({ g }) {
             )}
           </Col>
         </Row>
-      )}  {/*삼황연산자 끝 */}
-      {/* 드롭다운 정보 */}
+      )}  
       {open && (<div style={{ marginTop: 12 }}> <GroupDropDown group={group} /> </div>)}
     </Card>
   );
