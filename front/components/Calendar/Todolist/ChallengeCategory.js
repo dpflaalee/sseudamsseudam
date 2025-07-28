@@ -3,13 +3,6 @@ import { Form, Input, Button, Avatar, Select, Row, Col, Space, Modal, Checkbox, 
 import { UserOutlined, UploadOutlined, EnvironmentOutlined, DownOutlined, FireOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
-//코드 병합 방지용, Postform 복사해서 테스트 중. 주석들 절대 지우지 말것(기존 기능들 보존용)
-
-// import { useDispatch, useSelector } from 'react-redux';
-// import { useRouter } from 'next/router';
-// import { ADD_POST_REQUEST, REMOVE_IMAGE, UPLOAD_IMAGES_REQUEST } from '../../reducers/post';
-// import userInput from '../../hooks/userInput';
-
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -39,19 +32,13 @@ const ChallengeCategory = ({ groupId, isGroup = false }) => {
   };
 
   const [imagePaths, setImagePaths] = useState([]);
-  // const dispatch = useDispatch();
-  // const router = useRouter();
-  // const [text, onChangeText, setText] = userInput('');
-  // const user = useSelector(state => state.user);
 
   useEffect(() => {
     const fetchTitles = async () => {
       try {
         const response = await axios.get('/api/schedule/calendars');
         setCalendarTitles(response.data);
-      } catch (error) {
-        console.error('Error fetching calendar titles:', error);
-      } finally {
+      } catch (error) {      } finally {
         setLoading(false);
       }
     };
@@ -68,20 +55,12 @@ const ChallengeCategory = ({ groupId, isGroup = false }) => {
   const onSubmitForm = useCallback(() => {
     if (!text || !text.trim()) return alert('게시글을 작성하세요.');
 
-    // const isAdmin = user.user.isAdmin;
-
     const formData = new FormData();
     imagePaths.forEach((i) => formData.append('image', i));
     formData.append('content', text);
     formData.append('openScope', openScope);
     if (isGroup && groupId) formData.append('groupId', groupId);
 
-    // dispatch({
-    //   type: ADD_POST_REQUEST,
-    //   data: formData,
-    //   isAdmin: isAdmin,
-    // });
-    console.log("폼 제출됨:", formData.get('content'));
   }, [text, imagePaths, groupId]);
 
   const imageInput = useRef();
@@ -90,27 +69,11 @@ const ChallengeCategory = ({ groupId, isGroup = false }) => {
   alert('사진 기능 테스트');
 }, []);
 
-// const onChangeImage = useCallback((e) => {
-//   const files = Array.from(e.target.files).map((f) => URL.createObjectURL(f));
-//   setImagePaths((prev) => [...prev, ...files]);
-
-//   // const imageFormData = new FormData();
-//   // [].forEach.call(e.target.files, (f) => {
-//   //   imageFormData.append('image', f);
-//   // });
-//   // dispatch({ type: UPLOAD_IMAGES_REQUEST, data: imageFormData });
-// }, []);
-
-
   const onRemoveImage = useCallback((index) => () => {
     setImagePaths((prev) => prev.filter((_, i) => i !== index));
-    // dispatch({ type: REMOVE_IMAGE, data: index });
   }, []);
 
-  const goToMap = () => {
-    alert("지도 페이지로 이동 (테스트용)");
-    // router.push('/map/kakao');
-  };
+  const goToMap = () => { alert("지도 페이지로 이동 (테스트용)");  };
 
   // 드롭다운 메뉴 items
   const calendarDropdownItems = calendarTitles.map((item) => ({
@@ -125,7 +88,6 @@ const ChallengeCategory = ({ groupId, isGroup = false }) => {
     const selected = calendarTitles.find(item => String(item.id) === key);
     if (selected) {
       setTempCategory(selected.title);
-      console.log('Dropdown items:', calendarDropdownItems);
     }
   };
 
@@ -141,13 +103,8 @@ const ChallengeCategory = ({ groupId, isGroup = false }) => {
     const fetchTitles = async () => {
       try {
         const response = await axios.get('/calendar');
-        console.log('받은 캘린더 데이터:', response.data); 
         setCalendarTitles(response.data);
-      } catch (error) {
-        console.error('Error fetching calendar titles:', error);
-      } finally {
-        setLoading(false);
-      }
+      } catch (error) { } finally { setLoading(false); }
     };
     fetchTitles();
   }, []);
