@@ -22,7 +22,6 @@ function* loadNotification(action) {
             data: result.data,
         });
     } catch (err) {
-        console.log('🚨 notificaionSaga : loadNotification : ', err);
         yield put({
             type: LOAD_NOTIFICATION_FAILURE,
             error: err.response.data,
@@ -62,7 +61,6 @@ function* addNotification(action) {
             data: result.data,
         });
     } catch (err) {
-        console.log('🚨 notificationSaga :  ', err);
         yield put({
             type: ADD_NOTIFICATION_FAILURE,
             error: err.response.data,
@@ -82,7 +80,6 @@ function* removeNotification(action) {
             data: action.data,
         });
     } catch (err) {
-        console.log('🚨 notificationSaga :  ', err);
         yield put({
             type: REMOVE_NOTIFICATION_FAILURE,
             error: err.response.data,
