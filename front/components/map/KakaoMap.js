@@ -43,7 +43,6 @@ const KakaoMap = ({ userName = '홍길동' }) => {
       mapRef.current = map;
 
       window.kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
-        console.log('지도에서 클릭한 위치의 좌표는 ' + mouseEvent.latLng.toString() + ' 입니다.');
       });
 
       const marker = new window.kakao.maps.Marker({
