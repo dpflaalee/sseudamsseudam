@@ -47,7 +47,6 @@ router.get('/', async (req, res, next) => {
         }
         res.status(200).json(adminNoti);
     } catch (err) {
-        console.error(err);
         next(err);
     }
 });
