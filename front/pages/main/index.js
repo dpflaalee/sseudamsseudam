@@ -55,8 +55,8 @@ useEffect(() => {
     dispatch({
       type: LOAD_POSTS_REQUEST,
       lastId: 0,
-      userId: 'undefined',  // ✅ 홈 피드의 기본값
-      number: '1',          // ✅ 본인 피드 기준
+      userId: 'undefined',  
+      number: '1',         
     });
   }
 }, []);
@@ -74,7 +74,7 @@ useEffect(() => {
         dispatch({
           type: LOAD_POSTS_REQUEST,
           lastId,
-          userId: 'undefined', // ✅ 계속 유지
+          userId: 'undefined', 
           number: '1',
         });
       }
