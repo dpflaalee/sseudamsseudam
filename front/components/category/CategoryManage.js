@@ -58,7 +58,6 @@ const CategoryManage = () => {
     };
 
     useEffect(() => {
-        console.log('📌 현재 카테고리 목록:', categories);
     }, [categories]);
 
 
