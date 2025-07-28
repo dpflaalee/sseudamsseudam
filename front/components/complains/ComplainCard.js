@@ -14,7 +14,7 @@ const ComplainCard = ({ reports }) => {
     const dispatch = useDispatch();
     if (!reports || reports.length === 0) return null;
 
-    const report = reports[0]; // 대표 신고
+    const report = reports[0];
     const { targetId, targetType, targetObject, isBlind, createdAt } = report;
 
     const handleBlind = () => {
@@ -23,7 +23,6 @@ const ComplainCard = ({ reports }) => {
             data: { targetId },
         });
     };
-    console.log('targetObject', targetObject)
 
     const renderByType = () => {
         if (!targetObject) return <div>불러오는 중입니다...</div>;
