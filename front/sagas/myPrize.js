@@ -14,14 +14,12 @@ function loadMyPrizesAPI() {
 function* loadMyPrizes() {
   try {
     const result = yield call(loadMyPrizesAPI);
-    console.log("🎯 쿠폰리스트 응답 데이터:", result.data);
 
     yield put({
       type: LOAD_MY_PRIZES_SUCCESS,
-      data: result.data.data || [],  // 방어적 처리
+      data: result.data.data || [], 
     });
   } catch (err) {
-    console.error('쿠폰 리스트 로딩 실패:', err);  // 에러 확인
     yield put({
       type: LOAD_MY_PRIZES_FAILURE,
       error: err.response?.data?.message || '서버 오류가 발생했습니다.',
@@ -36,17 +34,16 @@ function useMyPrizeAPI(id) {
 function* useMyPrize(action) {
   try {
     const result = yield call(useMyPrizeAPI, action.data);
-    console.log("🎯 Use My Prize API 응답:", result.data);  // 응답 데이터 출력
     const coupon = result.data.coupon || {};
     yield put({
       type: USE_MY_PRIZE_SUCCESS,
       data: {
-        id: action.data, // 사용한 쿠폰 ID
+        id: action.data, 
         usedAt: coupon.usedAt,
         isRead: true,
       },
     });
-    yield put({ type: LOAD_MY_PRIZES_REQUEST }); // 사용 후 다시 로딩
+    yield put({ type: LOAD_MY_PRIZES_REQUEST }); 
   } catch (err) {
     yield put({
       type: USE_MY_PRIZE_FAILURE,
