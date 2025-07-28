@@ -8,21 +8,17 @@ const GroupJoinRequests = ({ groupId }) => {
 
   const { joinRequests, joinRequestsLoading, joinRequestsError } = useSelector((state) => state.group);
   const me = useSelector(state => state.user);
-  console.log('🐶 me ', me);
   useEffect(() => {
     if (groupId) {
-      // 그룹 아이디에 맞는 가입 요청 목록 불러오기
       dispatch({ type: LOAD_JOIN_REQUESTS_REQUEST, data: groupId, });
     }
   }, [groupId, dispatch]);
 
   const handleApprove = (requestId, userId) => {
-    //쿼리 스트링으로 넘기기
     dispatch({ type: APPROVE_JOIN_REQUEST, data: { groupId, requestId, userId }, notiData: { SenderId: me.user?.id, ReceiverId: userId, targetId: groupId } });
   };
 
   const handleReject = (requestId, userId) => {
-    //쿼리 스트링으로 넘기기
     dispatch({ type: REJECT_JOIN_REQUEST, data: { groupId, requestId, userId }, notiData: { SenderId: me.user?.id, ReceiverId: userId, targetId: groupId } });
   };
 
