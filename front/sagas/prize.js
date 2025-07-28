@@ -48,7 +48,6 @@ function* modifyPrize(action) {
     const result = yield call(modifyPrizeAPI, action.data);
     yield put({ type: MODIFY_PRIZE_SUCCESS, data: result.data });
   } catch (err) {
-    console.error('modifyPrize error:', err);
     yield put({ type: MODIFY_PRIZE_FAILURE, error: err.response?.data || err.message });
   }
 }
@@ -75,7 +74,6 @@ function loadRandomBoxListAPI() {
 function* loadRandomBoxList() {
   try {
     const result = yield call(loadRandomBoxListAPI);
-    console.log("🎯 랜덤박스 리스트 응답 데이터:", result.data);
 
     yield put({
       type: LOAD_RANDOM_BOX_LIST_SUCCESS,
@@ -95,18 +93,15 @@ function openRandomBoxAPI(issuedId) {
 
 function* openRandomBox(action) {
   try {
-    const result = yield call(openRandomBoxAPI, action.data); // action.data가 prizeId여야 함
-    console.log("🎯 Open Random Box API 응답:", result.data);
+    const result = yield call(openRandomBoxAPI, action.data); 
     yield put({ type: OPEN_RANDOM_BOX_SUCCESS, data: result.data });
   } catch (err) {
     yield put({ type: OPEN_RANDOM_BOX_FAILURE, error: err.response?.data || err.message });
   }
 }
 
-
-// 발급된 랜덤박스 중 사용 가능한 것만 조회하는 API
 function loadIssuedRandomBoxesAPI() {
-  return axios.get('/random-boxes/issued/list');  // 사용 가능한 랜덤박스만 조회
+  return axios.get('/random-boxes/issued/list');  
 }
 
 function* loadIssuedRandomBoxes() {
