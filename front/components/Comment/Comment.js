@@ -251,7 +251,6 @@ const Comment = ({ comments = [], postId, post = {}, onRefreshPost }) => {
     .filter(comment => !comment.RecommentId)
     .map(comment => {
       const isBlind = mainComplainCard?.some(report => report.targetType === TARGET_TYPE.COMMENT && Number(report.targetId) === Number(comment.id) && report.isBlind);
-      console.log('isBlind', isBlind)
       return {
         ...comment,
         content: isBlind ? '신고된 댓글입니다.' : comment.content,
