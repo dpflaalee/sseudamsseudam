@@ -120,7 +120,6 @@ router.get('/:animalId', async (req, res, next) => {
 
     res.status(200).json({ animal, userAnimals });
   } catch (error) {
-    console.error(error);
     next(error);
   }
 });
@@ -179,7 +178,6 @@ router.patch('/:animalId', isLoggedIn, upload.single('aniProfile'), async (req, 
       },
     });
   }catch(error){
-    console.log(error);
     next(error);
   }
 })
@@ -196,7 +194,6 @@ router.patch('/:animalId/follow', isLoggedIn, async (req, res, next) => {
     await targetAnimal.addFollower(followerAnimal); 
     res.status(200).json({ followedId: targetAnimal.id, followerId: followerAnimal.id });
   } catch (error) {
-    console.error(error);
     next(error);
   }
 });
@@ -213,7 +210,6 @@ router.delete('/:animalId/follow', isLoggedIn, async (req, res, next) => {
     await targetAnimal.removeFollower(followerAnimal);
     res.status(200).json({ unfollowedId: targetAnimal.id, followerId: followerAnimal.id });
   } catch (error) {
-    console.error(error);
     next(error);
   }
 });
