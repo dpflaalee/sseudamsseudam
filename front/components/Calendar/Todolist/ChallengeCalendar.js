@@ -150,9 +150,7 @@ const ChallengeCalendar = () => {
           getDateRange(item.startDate, item.endDate)
         );
         setHighlightDates(allDates);
-      } catch (err) {
-        console.error('Failed to fetch challenge dates:', err);
-      }
+      } catch (err) {      }
     };
 
     fetchChallengeDates();
