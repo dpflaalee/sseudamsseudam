@@ -44,7 +44,6 @@ const MemberInfo = styled.div`
 const SearchResult = ({ results }) => {
   const [activeTab, setActiveTab] = useState('post');
   const currentList = results[activeTab] || [];
-  console.log('🧞‍♀️ currentList ', currentList);
 
   return (
     <Container>
