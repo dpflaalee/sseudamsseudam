@@ -99,12 +99,10 @@ const MyPrize = () => {
 
 
   useEffect(() => {
-    console.log("latestCoupon 변화:", latestCoupon);
   }, [latestCoupon]);
 
   useEffect(() => {
   if (selectedCoupon) {
-    console.log("selectedCoupon:", selectedCoupon);
   }
 }, [selectedCoupon]);
 
