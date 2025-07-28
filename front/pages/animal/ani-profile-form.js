@@ -1,9 +1,9 @@
 import React from 'react';
 import AniProfileForm from '@/components/animal/AniProfileForm';
 import AppLayout from '@/components/AppLayout';
-import wrapper from '@/store/configureStore'; // ✅ store wrapper
-import axios from 'axios'; // ✅ axios
-import { END } from 'redux-saga'; // ✅ END (redux-saga에서 가져옴)
+import wrapper from '@/store/configureStore'; 
+import axios from 'axios';
+import { END } from 'redux-saga'; 
 import { LOAD_MY_INFO_REQUEST } from '../../reducers/user';
 import { LOAD_CATEGORIES_REQUEST } from '@/reducers/category';
 
@@ -28,7 +28,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
   context.store.dispatch(END);
   await context.store.sagaTask.toPromise();
 
-  return { props: {} }; // 필요 시 추가적인 props 가능
+  return { props: {} }; 
 });
 ///////////////////////////////////
 
