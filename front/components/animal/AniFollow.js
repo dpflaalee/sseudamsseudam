@@ -107,7 +107,6 @@ const AniFollow = ({ownerId}) => {
         setMyAnimalName(res.data.animal?.aniName || '');
       })
       .catch((err) => {
-        console.error('🐶 내 동물 정보 가져오기 실패:', err);
       });
   }, [id]);
 
@@ -149,7 +148,6 @@ const AniFollow = ({ownerId}) => {
                       <div>
                         <Button type="text" onClick={() => handleRemoveFollower(item.id)}>친구끊기</Button>
                         <br />
-                        {/* <Button type="text" danger onClick={() => console.log("차단하기", item.id)}>차단하기</Button> */}
                       </div>
                     }
                     trigger="click"
