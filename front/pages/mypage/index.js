@@ -40,7 +40,6 @@ const Index = () => {
         router.push("/mypage/RandomBoxResult?status=fail");
       }
     } catch (error) {
-      console.error("에러 발생:", error);
       router.push("/mypage/RandomBoxResult?status=fail");
     }
   };
@@ -79,9 +78,7 @@ const Index = () => {
         </Col>
       </Card>
 
-      {/* 조건부 렌더링 */}
       {activeSection === "prize" && <MyPrize openRandomModal={openRandomModal} />}
-      {/* 다른 섹션은 필요 시 여기에 추가 */}
     </AppLayout>
   );
 };
