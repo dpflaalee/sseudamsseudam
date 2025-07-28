@@ -32,13 +32,6 @@ const LoginForm = () => {
     }
   }, [logInDone]);
 
-  // useEffect(() => {
-  //   if (logInError) {
-  //     setErrLoginFlag(true);
-  //     setErrLoginMsg(logInError);
-  //   }
-  // }, [logInError]);
-
   useEffect(() => {
     if (cookies.userEmail) {
       onChangeEmail(cookies.userEmail);
@@ -48,7 +41,6 @@ const LoginForm = () => {
   const [isUser, setIsUser] = useState(false);
   useEffect(() => {
     if (logInError) {
-      console.log('logInError 발생:', logInError.message);
       setIsUser(true);
     }
   }, [isUser,logInError]);
@@ -85,15 +77,10 @@ const LoginForm = () => {
   const onSubmitForm = useCallback(() => {
     setErrLoginFlag(false);
     setErrLoginMsg('');
-    // if(isUser){
-    //   dispatch({data:LOG_IN_FAILURE});
-    // }
-    console.log('email=',email,'pass=',password)
     dispatch({
       type: LOG_IN_REQUEST,
       data: { email, password },
     });
-    console.log('logInError 발생:', logInError);
   }, [email, password]);
 
   return (
