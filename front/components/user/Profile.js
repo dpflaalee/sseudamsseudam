@@ -120,20 +120,14 @@ const Profile = (props) => {
 
   // 차단 한 유저인지 확인
   const me = useSelector(state => state.user);
-  console.log(me);
-
-  console.log('me.user.Blocking:', me.user?.Blocking);
-  console.log('postUserId:', postUserId);
 
   const blockingList = me.user?.Blocking || [];
-  console.log('blockingList:', blockingList);
 
   const [isBlockedByMe, setIsBlockedByMe] = useState(null);
   const [password, setChangePassword] = useState(false);   // userInput  줄이기
   useEffect(() => {
     const blocked = blockingList.some((u) => Number(u.Blacklist?.BlockedId) === Number(postUserId));
     setIsBlockedByMe(blocked);
-    console.log('🧪 차단 여부 판단 결과:', blocked);
   }, [blockingList, postUserId]);
 
   // 신고 당한 유저 블라인드 처리
@@ -164,11 +158,9 @@ const Profile = (props) => {
         const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
           { withCredentials: true }
         )
-        console.log('postUserSelect.data',postUserSelect.data);
         setPostUser(postUserSelect.data);
 
       } catch (error) {
-        console.error('유저 정보 불러오기 실패:', error);
       }
     };
     postUserData();
@@ -230,7 +222,6 @@ const Profile = (props) => {
   //탈퇴
   const [userDeleteConfirm,setUserDeleteConfirm] = useState(false);
   const onUserDeleteConfirm = () => {
-    console.log('userDeleteConfirm=',userDeleteConfirm);
     setUserDeleteConfirm(prev => !prev);
     showModal('userDeleteConfirm');
   }
@@ -243,11 +234,7 @@ const Profile = (props) => {
 
   const [changePass, setChangePass] = useState('');
   const onChangePass = useCallback((e) => {
-    // if(!changePass){
-    //   setPasswordError(false);
-    // }
     const newPass = e.target.value;
-    console.log('setChangePass=',newPass);
     setChangePass(e.target.value);
   },[])
    const [isChangePassModalOpen, setIsChangePassModalOpen] = useState(false);
@@ -257,22 +244,14 @@ const Profile = (props) => {
    })
    const [isUserDeleteModalOpen, setIsUserDeleteModalOpen] = useState(false);
   const showModal = (menu) => {
-    console.log('클릭=',menu);
      menu === 'passChangeConfirm'? setIsChangePassModalOpen(true):setIsUserDeleteModalOpen(true);
   };
   const [passwordError, setPasswordError] = useState(false);
   const [samePass, setSamePass] = useState(false);
   ///////////////////////////////////////////////////////
-//   useEffect(() => {
-//   if (userPasswordChangeError) {
-//     console.log('userPasswordChangeError 발생:', userPasswordChangeError);
-//     setSamePass(true);
-//   }
-// }, [userPasswordChangeError]);
 
 useEffect(() => {
   if (userPasswordChangeDone) {
-    console.log('비밀번호 변경 성공');
     setChangePass('');
     setSamePass(false);
     setPasswordError(false);
@@ -282,7 +261,6 @@ useEffect(() => {
 
 useEffect(() => {
   if (userPasswordChangeError) {
-    console.log('비밀번호 변경 실패');
     setSamePass(true);
   }
 }, [userPasswordChangeError]);
@@ -307,11 +285,8 @@ useEffect(()=>{
     const formData = new FormData();
     setPasswordError(false);
       if(str === 'changePass'){
-        console.log('changePass=',changePass);
         formData.append('changePass',changePass);
-        console.log('changePass 실행',);
         if(!passRegex.test(changePass)){
-          console.log('비밀번호 에러');
           setPasswordError(true);
           dispatch({ type: USER_PASSWORD_CHANGE_FAILURE }) //초기화
           return; 
@@ -336,22 +311,17 @@ useEffect(()=>{
         return;
       }
       if(str === 'deleteUser'){
-        console.log('deleteUser입장');
-        console.log('deleteUser',changePass);
         //formData.append('deleteUser',changePass);
         await axios.post('http://localhost:3065/user/userDelete'
                   ,{confirmPass:changePass} 
                   ,{ withCredentials: true })
                       .then(function (response){
-                          console.log('탈퇴확인',response.data.message)
-                          //setDeleteMessage(response.data.message)
                           alert(response.data.message);
                           Router.replace('/');
                         })
                         .catch(function(error){
                           setDeleteModal(true);
                           setDeleteMessage(error.response.data.message)
-                          console.log('탈퇴에러',error.response.data.message);
                       })
 
         return;
@@ -363,7 +333,6 @@ useEffect(()=>{
   },[changePass]);
 
   const handleCancel = useCallback(() => {
-    console.log('캔슬');
     setIsChangePassModalOpen(false);
     setIsUserDeleteModalOpen(false);
     setPasswordError(false);
