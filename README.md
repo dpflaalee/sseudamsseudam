@@ -36,6 +36,7 @@ Node.js와 react를 사용한 소셜 네트워크 서비스 개발 프로젝트
 [ 이재명]
 [![시연 영상](https://github.com/user-attachments/assets/d8ef2a23-b0bb-4822-b440-d616d0f8ceaa)](https://www.youtube.com/watch?v=qy8u18SyypM)
 #### 4.그룹 기능
+[![시연 영상](https://github.com/user-attachments/assets/94c42130-05b1-4435-8460-90569feee354)](https://youtu.be/ZJSY2MhzzXI)
 #### 5.반려동물 프로필 등록 및 친구맺기
 #### 6.검색과 알림
 #### 7.랜덤박스와 쿠폰
