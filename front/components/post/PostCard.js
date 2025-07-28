@@ -100,9 +100,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
   const [locationLink, setLocationLink] = useState(null);
   const {user} = useSelector(state => state.user);
   let filename = '';
-  // console.log(post);
-  // console.log('post.UserId',post.UserId, 'post.User.UserProfileImages.UserId',post.User.UserProfileImages.UserId);
-  // console.log('비교데이터', Number(post?.UserId) === Number(post.User?.UserProfileImages[0].id))
 
   if(Number(post?.UserId) === Number(post.User?.UserProfileImages?.UserId)){
     filename = user?.UserProfileImages?.[0]?.src;
@@ -115,7 +112,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
     retweetSender = post.Retweet.User.UserProfileImages?.[0]?.src;
     retweetReceiver = post.Retweet.User.UserProfileImages?.[0]?.src;
   }
-  console.log('mainPostsmainPosts',mainPosts);
   
   useEffect(() => {
     setNewContent(post.content);
@@ -266,7 +262,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             </Popover>
           ]}
         >
-          {/* 리트윗 대상이 차단되었거나 유저 정보가 없는 경우 */}
           {isBlockedOriginalPost || isBlindedRetweet ? (
             <Card
               size="small"
@@ -284,7 +279,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
               </div>
             </Card>
           ) : (
-            // 정상 리트윗 카드
             <Card
               size="small"
               style={{
@@ -454,7 +448,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
             </div>
           )}
 
-          {/* 신고 모달 */}
           {open && (
             <ComplainForm
               open={open}
@@ -464,7 +457,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
               onClose={() => setOpen(false)}
             />
           )}
-          {/* E 신고 모달 */}
         </Card>
       )}
 
