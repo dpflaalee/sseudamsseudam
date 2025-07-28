@@ -63,7 +63,7 @@ const Stats = styled.div`
 const ButtonRow = styled.div`
   margin-top: 16px;
   display: flex;
-  justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
+  justify-content: flex-end; 
   gap: 8px;
 `;
 
@@ -80,13 +80,12 @@ const ManageButtonRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  justify-content: center/* 왼쪽 정렬 */
+  justify-content: center
 `;
 
 const AdminProfile = ({ showManageButtons = false, onSectionChange, isComplain }) => {
 
   const me = useSelector(state => state.user.user);
-  console.log(me);
   const mainPosts = useSelector(state => state.post);
 
   const [open, setOpen] = useState(false);
