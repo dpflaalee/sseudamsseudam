@@ -11,15 +11,9 @@ const FollowTabMenu = ({ followListComponent }) => {
   const {user,followerList} = useSelector(state => state.user);
   const [toggleKey, setToggleKey] = useState('');
   const onChange = (key) => {
-    console.log(key);
     setToggleKey(key);
   };
 
-  console.log('followerList확인',followerList);
-  //dispatch({
-    //type:LOAD_FOLLOWERS_REQUEST,
-  //  data:user?.id,
-  //});
   useEffect(() => {
     if(user?.id){
       dispatch({
@@ -50,13 +44,11 @@ const FollowTabMenu = ({ followListComponent }) => {
         ]}
       />
       {followerList.map((c) => {
-        //console.log('followerList.map',c)
         return (
           <div>
             <FollowList follower={c} key={1}/>
             <FollowButton postUser={c} setPostUser={setPostUser} currentUserId={user?.id}/> 
           </div>
-          //<FollowList key={user.id} userId={user.id}/>
         )
       })}
     </>
