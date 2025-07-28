@@ -16,20 +16,19 @@ const AnimalList = ({ animals, ownerId }) => {
   };
 
   const handleRegisterAnimal = () => {
-    router.push('/animal/ani-profile-form'); // 등록 페이지 경로에 맞게 수정
+    router.push('/animal/ani-profile-form'); 
   };
 
   const isOwner = user && user.id != null && Number(user.id) === Number(ownerId);
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* 가로 스크롤 리스트 */}
       <div
         style={{
           display: 'flex',
           overflowX: 'auto',
           whiteSpace: 'nowrap',
-          padding: '16px 110px 16px 16px', // 버튼 공간 확보
+          padding: '16px 110px 16px 16px', 
           backgroundColor: '#ffeccc',
           // borderRadius: 8,
           minHeight: 100,
@@ -52,7 +51,6 @@ const AnimalList = ({ animals, ownerId }) => {
         ))}
       </div>
 
-      {/* 고정된 등록 버튼 */}
       {isOwner && (
         <div style={{ position: 'absolute', top: '50%', right: 16, transform: 'translateY(-50%)', zIndex: 10 }}>
           <div
