@@ -44,7 +44,6 @@ const EventScheduleChange = ({ schedule, onSubmit = () => {} }) => {
           }
         }
       } catch (error) {
-        console.error('유저 정보 불러오기 실패:', error);
         router.replace('/admin/manage');
         message.error('정보 불러오기에 실패했습니다.');
       } finally {
