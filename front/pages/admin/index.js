@@ -14,7 +14,6 @@ import { LOAD_POSTS_REQUEST } from "@/reducers/post";
 
 const adminPage = () => {
   const myId = useSelector(state => state.user.user?.id);
-  console.log('myId', myId);
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
 
   return (
