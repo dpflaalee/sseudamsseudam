@@ -12,14 +12,11 @@ const FollowList = ({follower}) => {
   const {myFollow} = router.query;
     const [postUser, setPostUser] = useState('');
   let postUserId = myFollow;
-  console.log('FollowList',myFollow);
-  console.log('router쿼리',router.query);
   const fakeDataUrl =
   'https://randomuser.me/api/?results=20&inc=name,gender,email,nat,picture&noinfo';
 const ContainerHeight = 400;
   const [data, setData] = useState([]);
   useEffect(() => {
-    console.log('✅ postUser가 변경됨:', postUser);
   }, [postUser]);
   const appendData = () => {
     fetch(fakeDataUrl)
@@ -36,17 +33,13 @@ const ContainerHeight = 400;
         const postUserSelect = await axios.get(`http://localhost:3065/user/postUser?userId=${postUserId}`,
           { withCredentials: true }
         )
-        console.log('postUserSelect.data',postUserSelect.data);
         setPostUser(postUserSelect.data);
 
       } catch (error) {
-        console.error('유저 정보 불러오기 실패:', error);
       }
     };
     postUserData();
   }, [postUserId]);
-  console.log('postUserpostUserpostUser', postUser);
-  console.log('followerfollower', follower);
 
    useEffect(() => {
      appendData();
