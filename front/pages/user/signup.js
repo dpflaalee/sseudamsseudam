@@ -10,10 +10,6 @@ import axios from "axios";
 
 import { SIGN_UP_REQUEST } from '@/reducers/user';
 
-//1. SIGNUP_UP_REQUEST  
-//import { SIGN_UP_REQUEST } from '../reducers/user';  
-//2. dispatch, useSelector 
-
 const ErrorMessage = styled.div`color:red;`;   //style.div( color:red; )
 const UnderlineInput = styled(Input)`
   border: none;
@@ -29,9 +25,7 @@ const UnderlineInput = styled(Input)`
 `;
 
 const signup = () => {
-  console.log('SIGN_UP_REQUEST', SIGN_UP_REQUEST);
     const {signUpLoading , signUpDone , signUpError , user} = useSelector( state =>state.user );
-  // 4. dispatch 선언  ##
   const dispatch = useDispatch();
 
   useEffect(() => { 
@@ -65,8 +59,6 @@ const signup = () => {
     const onChangePhoneNum = useCallback((e) => {
       setPhoneNumRegError(false);
       setPhoneNumLenError(false);
-      console.log(e.target.value);
-      //숫자만 받기
       setChangePhoneNum(e.target.value);
         },[]);
     
@@ -81,8 +73,7 @@ const signup = () => {
   //const [passwordRegError, setPasswordRegError] = useState(false);
   const onChangePassword = useCallback((e) => {
       const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
-      const pass = e.target.value;
-        console.log('changePassword',e.target.value);      
+      const pass = e.target.value; 
       // if(!passRegex.test(password)){
       //   setChangePassword(true);
       // }
@@ -91,16 +82,9 @@ const signup = () => {
   const [passwordRe, setChangePasswordRe] = useState('');
   const [passwordReError, setPasswordReError] = useState(false);
   const onChangePasswordRe = useCallback((e) => { 
-    console.log('changePasswordRe',e.target.value);
     setChangePasswordRe(e.target.value);
   } , []);
 
-  // const [check, setCheck] = useState('');
-  // const [checkError, setCheckError] = useState(false);
-  // const onChangeCheck = useCallback((e) => {   //console.log(e.target.checked);
-  //   setCheck(e.target.checked);     // true
-  //   setCheckError(false);
-  // } , []);
   function sleep(sec) {
     return new Promise(resolve => setTimeout(resolve, sec * 1000));
   } 
@@ -116,30 +100,6 @@ const signup = () => {
   const [isdupTimer, setIsdupTimer] = useState(false);
   const [btnDisabled, setBtnDisabled] = useState(false);
   let stopTimer = false;
-  // const timer = async () => {
-  //   let initMinute = 1;
-  //   let seconds = 10;
-  //   for(let minute = initMinute-1; minute >= 0; minute--){
-  //       for(seconds; seconds >= 0; seconds--){
-  //         if(isStopTimer.current) return;
-  //         await sleep(1);
-  //         setMinute(minute)
-  //         setSeconds((String(seconds).length<2 ? '0'+seconds:seconds))
-  //         setTimerFlag(true);
-  //         //console.log('time=',minute+':'+(String(seconds).length<2 ? '0'+seconds:seconds));
-  //       }
-  //       seconds = 59;
-  //       if(minute == 0){
-  //         setErrTimeout(true);
-  //         setIsdupTimer(false);
-  //         //setIsStopTimer(false);
-  //         isStopTimer.current = false;
-  //         setIsDisabled(true);
-  //         setBtnDisabled()
-  //         console.log('에러');
-  //       }
-  //     }
-  //   };
   const timerInterval = useRef(null);  // 새 ref 추가
 
 const timer = () => {
@@ -168,7 +128,6 @@ const timer = () => {
 };
     const btnSendAuthenticationNumber = useCallback( async () => {
       if(phoneNum === null || String(phoneNum).length != 11 ){
-        console.log('오류');
         alert('휴대폰번호를 확인해주세요');
         return;
       }
@@ -176,10 +135,7 @@ const timer = () => {
       const response = await axios.post(`http://localhost:3065/user/sms/${phoneNum}`,{},{
        withCredentials: true,
       });
-      //const {num} = response.data;
-      console.log('response=', response.data);
       setAuthenticationNum(response.data);
-      //setStopTimer(prev => !prev);
       if(isdupTimer){return;}
        //setStopTimer(true); 
        setIsdupTimer(true);
@@ -191,22 +147,17 @@ const timer = () => {
   const [authenNum, setChangeAuthenNum] = useState('');
     const [authenNumError, setAuthenNumError] = useState(false);
     const onChangeAuthenNum = useCallback((e) => {
-      console.log('인증번호=',authenticationNum);
-      console.log('authenNum=',authenNum);
       
       setChangeAuthenNum(e.target.value);
     },[authenNum]);
     
   const [errAuthenNum, setErrAuthenNum] = useState(false);
   const btnAuthenticationChk = useCallback(() => {
-    console.log('클릭인증번호',typeof authenticationNum);
-    console.log('클릭',typeof Number(authenNum));
     setErrTimeout(false);
-    //인증번호가 같지 않으면
     if(Number(authenticationNum) !== Number(authenNum)){
       setErrAuthenNum(true);
       return;
-    }else{//같다면
+    }else{
       alert('인증되었습니다.');
       setIsDisabled(true);
       setErrTimeout(false);
@@ -224,18 +175,13 @@ const timer = () => {
      setPasswordError(false);
      setPasswordReError(false);
     const passRegex = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
-    //const pass = e.target.value;
     const invalidRegex = /[0-9]+/g;
     const invalidStrRegex = /[^0-9]+/g;
-     console.log('password',password);
-     console.log('passwordRe',passwordRe);
     if(!(phoneNum.length >=0 && phoneNum.length <= 11)){
       setPhoneNumLenError(true);
       return;
     }
 
-    ///const cleanNumber = number.replace(invalidRegex,'');
-    //일단 전화번호를 11자리 받으면 검사하기
     if(invalidStrRegex.test(phoneNum)){
       setPhoneNumRegError(true);
       return;
@@ -250,7 +196,7 @@ const timer = () => {
       type: SIGN_UP_REQUEST, 
       data:{ username, phoneNum, email, password, nickname  }
     }); 
-    // 5. dispatch ###
+    
   } , [username, phoneNum, email, password, passwordRe, nickname]);
     return (
          <div style={{display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", width: "100%",}}>
@@ -261,7 +207,6 @@ const timer = () => {
       <div  style={{ width: '100%', maxWidth: "70%", margin: '0 auto' }}>
          <Form  layout='vertical' style={{  width: '100%', padding: '20px', boxSizing: 'border-box',}}  onFinish={onSubmitForm}  > 
         
-        {/* <Form  layout='vertical'  style={{ margin:'2%' }}  > */}
           <Form.Item>
             <label htmlFor='username'></label>
             <UnderlineInput placeholder='이름' id='username'
@@ -327,14 +272,9 @@ const timer = () => {
           </Form.Item>
           <Form.Item>
            
-            {/* <Checkbox name='check' id='check' checked={check}
-                      onChange={onChangeCheck}
-            ></Checkbox>  */}
-            {/* {checkError   && <ErrorMessage>약관에 동의하셔야 합니다. </ErrorMessage>} */}
           </Form.Item> 
           <Form.Item>
             <Button type='primary'   htmlType='submit' loading={signUpLoading} style={{width:'100%'}} >회원가입</Button>
-            {/* <Button type='primary'   htmlType='submit'  style={{width:'100%'}} >회원가입</Button> */}
           </Form.Item>
         </Form>
       </div>
