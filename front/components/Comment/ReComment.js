@@ -170,7 +170,7 @@ const ReComment = ({ comments = [], postId, post = {} }) => {
                             </Content>
                           </Left>
                         </CommentItem>
-                      ), console.log('🕵️ comment:', comment))}
+                      ) )}
                     </div>
                   )}
                 </>
