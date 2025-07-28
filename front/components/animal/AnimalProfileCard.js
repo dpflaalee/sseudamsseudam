@@ -66,14 +66,6 @@ const AnimalProfileCard = ({ ownerId }) => {
     setSelectedMyAnimalId(null);
   };
 
-  // const popoverContent = (
-  //   <div style={{ display: 'flex', flexDirection: 'column', padding: 6 }}>
-  //     <Button type="text" style={{ textAlign: 'left', padding: '4px 8px' }} onClick={() => setIsModalOpen(true)}>
-  //       친구찾기
-  //     </Button>
-  //   </div>
-  // );
-
   return (
     <div style={{ width: '100%', borderRadius: 8, overflow: 'hidden', backgroundColor: '#fff', position: 'relative' }}>
       <LeftOutlined
@@ -136,7 +128,6 @@ const AnimalProfileCard = ({ ownerId }) => {
         </div>
       </div>
 
-      {/* 주인일 때: 수정, 삭제, 친구찾기 */}
       {isOwner && (
         <div style={{ padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Button size="small" onClick={onClickModify}>정보 수정</Button>
@@ -148,7 +139,6 @@ const AnimalProfileCard = ({ ownerId }) => {
         </div>
       )}
 
-      {/* 주인이 아닐 때: 친구 맺기/끊기 */}
       {!isOwner && (
         <div style={{ padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Button type="primary" onClick={() => showSelectModal('follow')}>친구 맺기</Button>
@@ -156,7 +146,6 @@ const AnimalProfileCard = ({ ownerId }) => {
         </div>
       )}
 
-      {/* 친구 맺기/끊기용 모달 */}
       <Modal
         title={actionType === 'follow' ? '친구 맺을 내 동물 선택' : '친구 끊을 내 동물 선택'}
         open={isModalOpen}
