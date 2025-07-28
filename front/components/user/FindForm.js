@@ -8,7 +8,6 @@ const FindForm = () => {
         setUserEmail(e.target.value);
     })
     const onSearchPassword = useCallback(async ()=>{
-        console.log(userEmail);
        const response = await axios.post(`http://localhost:3065/user/email/${userEmail}`,{},{
             withCredentials: true,
         })
@@ -17,9 +16,9 @@ const FindForm = () => {
     //////////////////////////////
     return (
         <div style={{
-          width: '100%',         // form이 div 꽉 채우도록
-          maxWidth: '700px',     // 실제 form 너비 제한
-          margin: '0 auto',      // 가운데 정렬
+          width: '100%',         
+          maxWidth: '700px',    
+          margin: '0 auto',     
           //border: '1px solid #ccc',
           padding: '20px',
           paddingRight: '120px',
