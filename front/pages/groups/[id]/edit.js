@@ -52,8 +52,6 @@ const EditGroupPage = () => {
     });
   };
 
-  console.log('group:', group, 'members:', members, 'isLeader:', isLeader);
-
   return (
     <AppLayout group={group}>
       {group ? (
