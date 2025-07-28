@@ -32,10 +32,7 @@ const ChallengeList = () => {
       try {
         const res = await axios.get('http://localhost:3065/user', { withCredentials: true });
         setIsAdmin(Number(res.data.isAdmin) === 1);
-      } catch (error) {
-        console.error('유저 정보 불러오기 실패:', error);
-        setIsAdmin(false);
-      }
+      } catch (error) {  setIsAdmin(false);    }
     };
     fetchUser();
   }, []);
@@ -51,7 +48,6 @@ const ChallengeList = () => {
         );
         setSchedules(sortedSchedules);
       } catch (error) {
-        console.error('챌린지 불러오기 실패:', error);
         message.error('챌린지 데이터를 불러오지 못했습니다.');
       }
     };
@@ -77,7 +73,6 @@ const ChallengeList = () => {
         message.success('챌린지가 삭제되었습니다.');
         setSchedules((prev) => prev.filter((schedule) => schedule.id !== id));
       } catch (error) {
-        console.error('챌린지 삭제 실패:', error);
         message.error('챌린지 삭제에 실패했습니다.');
       }
     }
