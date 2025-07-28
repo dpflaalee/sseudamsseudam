@@ -7,10 +7,7 @@ import wrapper from '../store/configureStore';
 import { CookiesProvider } from "react-cookie";
 
 const Ssdam = ({ Component }) => {
-  //const { store, props } = wrapper.useWrappedStore(rest);
-  //const { pageProps } = props;
   return (
-    //<Provider store={store}>
     <CookiesProvider>
       <Head>
         <meta charSet="utf-8" />
@@ -18,12 +15,10 @@ const Ssdam = ({ Component }) => {
       </Head>
       <Component />
     </CookiesProvider>
-    //</Provider>
   );
 };
 Ssdam.propType = {
   Component: PropTypes.elementType.isRequired,
- // pageProps : PropTypes.any.isRequired
 }
 
 export default wrapper.withRedux(Ssdam);
