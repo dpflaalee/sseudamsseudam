@@ -17,7 +17,6 @@ function* search(action) {
             data: result.data,
         });
     } catch (err) {
-        console.log('🚨 searchSaga : ', err);
         next(err);
         yield put({
             type: SEARCH_FAILURE,
