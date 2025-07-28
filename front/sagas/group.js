@@ -88,9 +88,7 @@ function* watchDeleteGroup() { yield takeLatest(DELETE_GROUP_REQUEST, deleteGrou
 function loadMembersAPI(groupId) { return axios.get(`/api/groups/${groupId}/members`); }
 function* loadMembers(action) {
   try {
-    console.log('멤버 로드 요청:', action);
     const result = yield call(loadMembersAPI, action.data);
-    //console.log('API 응답 데이터:', result.data);
     yield put({ type: LOAD_MEMBERS_SUCCESS, data: result.data });
   } catch (err) { yield put({ type: LOAD_MEMBERS_FAILURE, error: err.response.data }); }
 }
@@ -153,7 +151,7 @@ function* joinGroup(action) {
 function* watchJoinGroup() { yield takeLatest(JOIN_GROUP_REQUEST, joinGroup) }
 
 //2. 비공개그룹 가입처리
-function applyGroupAPI(data) { console.log('joinGroupAPI 데이터----------------:', data); return axios.post(`/api/groups/${data.groupId}/apply`); }
+function applyGroupAPI(data) {return axios.post(`/api/groups/${data.groupId}/apply`); }
 function* applyGroup(action) {
   try {
     yield call(applyGroupAPI, action.data);
@@ -193,19 +191,14 @@ function approveJoinAPI(groupId, requestId, userId) { return axios.post(`/api/gr
 function* approveJoin(action) {
   try {
     const { groupId, requestId, userId } = action.data;
-    console.log("SAGA1. 승인 action 데이터", action.data);
 
     const response = yield call(axios.get, `/api/groups/${groupId}/requests`);
-    console.log("SAGA2-0. 응답 상태", response.status);
-    const request = response.data.find((req) => req.id === requestId); // 요청 찾기
-    console.log("SAGA2. 조회된 요청............", request);
+    const request = response.data.find((req) => req.id === requestId);
 
     if (!request) { throw new Error('해당 요청을 찾을 수 없습니다.'); }
 
-    // userId가 일치하는 요청을 찾은 뒤 승인 API 호출
-    yield call(approveJoinAPI, groupId, request.id, userId);  // groupId, requestId, userId 전달
+    yield call(approveJoinAPI, groupId, request.id, userId);
     yield put({ type: APPROVE_JOIN_SUCCESS, data: requestId });
-    // 알림
     yield put({
       type: ADD_NOTIFICATION_REQUEST,
       data: {
@@ -225,26 +218,18 @@ function* watchApproveJoin() { yield takeLatest(APPROVE_JOIN_REQUEST, approveJoi
 
 // 5. 거절
 function rejectJoinAPI(groupId, requestId, userId) {
-  console.log("SAGA4. 거절한 요청 ID.................", groupId, requestId, userId);
   return axios.post(`/api/groups/${groupId}/requests/${requestId}/reject?userId=${userId}`);
-} // 쿼리스트링 방식으로 전달
+} 
 
 function* rejectJoin(action) {
-  console.log("거절 action 데이터...............", action.data);
   try {
     const { groupId, requestId, userId } = action.data;
-    console.log("SAGA1. 거절 action 데이터", action.data);
-
-    // 요청을 불러오는 API 호출
     const response = yield call(axios.get, `/api/groups/${groupId}/requests`);
-    console.log("SAGA2. 거절 조회된 요청...............", response.data);
 
-    // 요청을 찾기
     const request = response.data.find((req) => req.id === requestId);
 
     if (!request) { throw new Error('해당 요청을 찾을 수 없습니다.'); }
 
-    // 거절 API 호출
     yield call(rejectJoinAPI, groupId, request.id, userId);
     yield put({ type: REJECT_JOIN_SUCCESS, data: requestId });
     // 알림
@@ -270,10 +255,8 @@ function loadUserGroupsAPI(){return axios.get('/api/groups/mygroups',{withCreden
 function* loadUserGroups(){
   try{
     const response = yield call(loadUserGroupsAPI);
-    console.log("SAGA............유저 그룹정보", response.data)
     
     yield put({ type: LOAD_USER_GROUPS_SUCCESS , data: response.data });
-    console.log("SAGA1. 로그인유저그룹테스트..........", response.data)
   }catch(err){
     yield put({type: LOAD_USER_GROUPS_FAILURE, error: err});  }
 }
