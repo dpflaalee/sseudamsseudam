@@ -91,7 +91,6 @@ const PostCard = ({ post, isGroup = false }) => { // 그룹용 추가코드
       data: { PostId: post.id, content: editText }
     });
   }, [post.id, dispatch]);
-  console.log('post데이터',post.User.UserProfileImages[0]);
   const [newContent, setNewContent] = useState(post.content);
   const [newScope, setNewScope] = useState(post.scope || 'public');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
